@@ -649,6 +649,180 @@ const CITIES = [
   ['singapore','Singapur','Singapur',1.3521,103.8198,'Asia/Singapore','SG','Tropikal Ritimler'],
   ['prague','Prag','Çekya',50.0755,14.4378,'Europe/Prague','CZ','Gece Yarısı Cazı'],
   ['athens','Atina','Yunanistan',37.9838,23.7275,'Europe/Athens','GR','Sabah Kahvesi'],
+  // ── Genişletilmiş konum ağı: haritada nereye dokunulursa en yakın konumun yerel radyosu ──
+  ['ankara','Ankara','Türkiye',39.9334,32.8597,'Europe/Istanbul','TR','Sabah Kahvesi'],
+  ['izmir','İzmir','Türkiye',38.4237,27.1428,'Europe/Istanbul','TR','Okyanus Esintisi'],
+  ['antalya','Antalya','Türkiye',36.8969,30.7133,'Europe/Istanbul','TR','Okyanus Esintisi'],
+  ['bursa','Bursa','Türkiye',40.1885,29.061,'Europe/Istanbul','TR','Sabah Kahvesi'],
+  ['trabzon','Trabzon','Türkiye',41.0027,39.7168,'Europe/Istanbul','TR','Yağmurlu Sokaklar'],
+  ['samsun','Samsun','Türkiye',41.2867,36.33,'Europe/Istanbul','TR','Yağmurlu Sokaklar'],
+  ['konya','Konya','Türkiye',37.8746,32.4932,'Europe/Istanbul','TR','Çöl Gün Batımı'],
+  ['adana','Adana','Türkiye',37.0,35.3213,'Europe/Istanbul','TR','Çöl Gün Batımı'],
+  ['diyarbakir','Diyarbakır','Türkiye',37.9144,40.2306,'Europe/Istanbul','TR','Çöl Gün Batımı'],
+  ['erzurum','Erzurum','Türkiye',39.9043,41.2679,'Europe/Istanbul','TR','Yağmurlu Sokaklar'],
+  ['van','Van','Türkiye',38.5012,43.373,'Europe/Istanbul','TR','Sabah Kahvesi'],
+  ['berlin','Berlin','Almanya',52.52,13.405,'Europe/Berlin','DE','Gece Yarısı Cazı'],
+  ['munich','Münih','Almanya',48.1351,11.582,'Europe/Berlin','DE','Sabah Kahvesi'],
+  ['hamburg','Hamburg','Almanya',53.5511,9.9937,'Europe/Berlin','DE','Yağmurlu Sokaklar'],
+  ['madrid','Madrid','İspanya',40.4168,-3.7038,'Europe/Madrid','ES','Sabah Kahvesi'],
+  ['barcelona','Barselona','İspanya',41.3874,2.1686,'Europe/Madrid','ES','Okyanus Esintisi'],
+  ['seville','Sevilla','İspanya',37.3891,-5.9845,'Europe/Madrid','ES','Çöl Gün Batımı'],
+  ['milan','Milano','İtalya',45.4642,9.19,'Europe/Rome','IT','Gece Yarısı Cazı'],
+  ['naples','Napoli','İtalya',40.8518,14.2681,'Europe/Rome','IT','Okyanus Esintisi'],
+  ['marseille','Marsilya','Fransa',43.2965,5.3698,'Europe/Paris','FR','Okyanus Esintisi'],
+  ['lyon','Lyon','Fransa',45.764,4.8357,'Europe/Paris','FR','Sabah Kahvesi'],
+  ['brussels','Brüksel','Belçika',50.8503,4.3517,'Europe/Brussels','BE','Yağmurlu Sokaklar'],
+  ['luxembourg','Lüksemburg','Lüksemburg',49.6116,6.1319,'Europe/Luxembourg','LU','Yağmurlu Sokaklar'],
+  ['zurich','Zürih','İsviçre',47.3769,8.5417,'Europe/Zurich','CH','Sabah Kahvesi'],
+  ['copenhagen','Kopenhag','Danimarka',55.6761,12.5683,'Europe/Copenhagen','DK','Yağmurlu Sokaklar'],
+  ['oslo','Oslo','Norveç',59.9139,10.7522,'Europe/Oslo','NO','Yağmurlu Sokaklar'],
+  ['helsinki','Helsinki','Finlandiya',60.1699,24.9384,'Europe/Helsinki','FI','Yağmurlu Sokaklar'],
+  ['dublin','Dublin','İrlanda',53.3498,-6.2603,'Europe/Dublin','IE','Yağmurlu Sokaklar'],
+  ['edinburgh','Edinburgh','Birleşik Krallık',55.9533,-3.1883,'Europe/London','GB','Yağmurlu Sokaklar'],
+  ['manchester','Manchester','Birleşik Krallık',53.4808,-2.2426,'Europe/London','GB','Yağmurlu Sokaklar'],
+  ['porto','Porto','Portekiz',41.1579,-8.6291,'Europe/Lisbon','PT','Okyanus Esintisi'],
+  ['warsaw','Varşova','Polonya',52.2297,21.0122,'Europe/Warsaw','PL','Gece Yarısı Cazı'],
+  ['krakow','Krakov','Polonya',50.0647,19.945,'Europe/Warsaw','PL','Sabah Kahvesi'],
+  ['bratislava','Bratislava','Slovakya',48.1486,17.1077,'Europe/Bratislava','SK','Sabah Kahvesi'],
+  ['budapest','Budapeşte','Macaristan',47.4979,19.0402,'Europe/Budapest','HU','Gece Yarısı Cazı'],
+  ['bucharest','Bükreş','Romanya',44.4268,26.1025,'Europe/Bucharest','RO','Sabah Kahvesi'],
+  ['sofia','Sofya','Bulgaristan',42.6977,23.3219,'Europe/Sofia','BG','Sabah Kahvesi'],
+  ['belgrade','Belgrad','Sırbistan',44.7866,20.4489,'Europe/Belgrade','RS','Gece Yarısı Cazı'],
+  ['zagreb','Zagreb','Hırvatistan',45.815,15.9819,'Europe/Zagreb','HR','Sabah Kahvesi'],
+  ['ljubljana','Ljubljana','Slovenya',46.0569,14.5058,'Europe/Ljubljana','SI','Sabah Kahvesi'],
+  ['sarajevo','Saraybosna','Bosna-Hersek',43.8563,18.4131,'Europe/Sarajevo','BA','Sabah Kahvesi'],
+  ['tirana','Tiran','Arnavutluk',41.3275,19.8187,'Europe/Tirane','AL','Sabah Kahvesi'],
+  ['skopje','Üsküp','Kuzey Makedonya',41.9981,21.4254,'Europe/Skopje','MK','Sabah Kahvesi'],
+  ['valletta','Valletta','Malta',35.8989,14.5146,'Europe/Malta','MT','Okyanus Esintisi'],
+  ['nicosia','Lefkoşa','Kıbrıs',35.1856,33.3823,'Asia/Nicosia','CY','Okyanus Esintisi'],
+  ['chisinau','Kişinev','Moldova',47.0105,28.8638,'Europe/Chisinau','MD','Sabah Kahvesi'],
+  ['kyiv','Kiev','Ukrayna',50.4501,30.5234,'Europe/Kiev','UA','Gece Yarısı Cazı'],
+  ['odesa','Odessa','Ukrayna',46.4825,30.7233,'Europe/Kiev','UA','Okyanus Esintisi'],
+  ['minsk','Minsk','Belarus',53.9006,27.559,'Europe/Minsk','BY','Yağmurlu Sokaklar'],
+  ['vilnius','Vilnius','Litvanya',54.6872,25.2797,'Europe/Vilnius','LT','Yağmurlu Sokaklar'],
+  ['riga','Riga','Letonya',56.9496,24.1052,'Europe/Riga','LV','Yağmurlu Sokaklar'],
+  ['tallinn','Tallinn','Estonya',59.437,24.7536,'Europe/Tallinn','EE','Yağmurlu Sokaklar'],
+  ['moscow','Moskova','Rusya',55.7558,37.6173,'Europe/Moscow','RU','Gece Yarısı Cazı'],
+  ['st-petersburg','St. Petersburg','Rusya',59.9311,30.3609,'Europe/Moscow','RU','Yağmurlu Sokaklar'],
+  ['kazan','Kazan','Rusya',55.7961,49.1064,'Europe/Moscow','RU','Sabah Kahvesi'],
+  ['novosibirsk','Novosibirsk','Rusya',55.0084,82.9357,'Asia/Novosibirsk','RU','Yağmurlu Sokaklar'],
+  ['vladivostok','Vladivostok','Rusya',43.1155,131.8855,'Asia/Vladivostok','RU','Okyanus Esintisi'],
+  ['tbilisi','Tiflis','Gürcistan',41.7151,44.8271,'Asia/Tbilisi','GE','Sabah Kahvesi'],
+  ['yerevan','Erivan','Ermenistan',40.1792,44.4991,'Asia/Yerevan','AM','Sabah Kahvesi'],
+  ['baku','Bakü','Azerbaycan',40.4093,49.8671,'Asia/Baku','AZ','Çöl Gün Batımı'],
+  ['tehran','Tahran','İran',35.6892,51.389,'Asia/Tehran','IR','Çöl Gün Batımı'],
+  ['baghdad','Bağdat','Irak',33.3152,44.3661,'Asia/Baghdad','IQ','Çöl Gün Batımı'],
+  ['damascus','Şam','Suriye',33.5138,36.2765,'Asia/Damascus','SY','Çöl Gün Batımı'],
+  ['beirut','Beyrut','Lübnan',33.8938,35.5018,'Asia/Beirut','LB','Okyanus Esintisi'],
+  ['amman','Amman','Ürdün',31.9454,35.9284,'Asia/Amman','JO','Çöl Gün Batımı'],
+  ['tel-aviv','Tel Aviv','İsrail',32.0853,34.7818,'Asia/Jerusalem','IL','Okyanus Esintisi'],
+  ['riyadh','Riyad','Suudi Arabistan',24.7136,46.6753,'Asia/Riyadh','SA','Çöl Gün Batımı'],
+  ['jeddah','Cidde','Suudi Arabistan',21.4858,39.1925,'Asia/Riyadh','SA','Çöl Gün Batımı'],
+  ['kuwait','Kuveyt','Kuveyt',29.3759,47.9774,'Asia/Kuwait','KW','Çöl Gün Batımı'],
+  ['doha','Doha','Katar',25.2854,51.531,'Asia/Qatar','QA','Çöl Gün Batımı'],
+  ['muscat','Maskat','Umman',23.588,58.3829,'Asia/Muscat','OM','Çöl Gün Batımı'],
+  ['kabul','Kabil','Afganistan',34.5553,69.2075,'Asia/Kabul','AF','Çöl Gün Batımı'],
+  ['karachi','Karaçi','Pakistan',24.8607,67.0011,'Asia/Karachi','PK','Çöl Gün Batımı'],
+  ['lahore','Lahor','Pakistan',31.5204,74.3587,'Asia/Karachi','PK','Çöl Gün Batımı'],
+  ['delhi','Delhi','Hindistan',28.6139,77.209,'Asia/Kolkata','IN','Çöl Gün Batımı'],
+  ['mumbai','Mumbai','Hindistan',19.076,72.8777,'Asia/Kolkata','IN','Tropikal Ritimler'],
+  ['bangalore','Bangalor','Hindistan',12.9716,77.5946,'Asia/Kolkata','IN','Tropikal Ritimler'],
+  ['kolkata','Kalküta','Hindistan',22.5726,88.3639,'Asia/Kolkata','IN','Tropikal Ritimler'],
+  ['chennai','Chennai','Hindistan',13.0827,80.2707,'Asia/Kolkata','IN','Okyanus Esintisi'],
+  ['dhaka','Dakka','Bangladeş',23.8103,90.4125,'Asia/Dhaka','BD','Tropikal Ritimler'],
+  ['kathmandu','Katmandu','Nepal',27.7172,85.324,'Asia/Kathmandu','NP','Sabah Kahvesi'],
+  ['colombo','Kolombo','Sri Lanka',6.9271,79.8612,'Asia/Colombo','LK','Okyanus Esintisi'],
+  ['tashkent','Taşkent','Özbekistan',41.2995,69.2401,'Asia/Tashkent','UZ','Çöl Gün Batımı'],
+  ['almaty','Almatı','Kazakistan',43.222,76.8512,'Asia/Almaty','KZ','Sabah Kahvesi'],
+  ['astana','Astana','Kazakistan',51.1694,71.4491,'Asia/Almaty','KZ','Yağmurlu Sokaklar'],
+  ['bishkek','Bişkek','Kırgızistan',42.8746,74.5698,'Asia/Bishkek','KG','Sabah Kahvesi'],
+  ['ulaanbaatar','Ulan Batur','Moğolistan',47.8864,106.9057,'Asia/Ulaanbaatar','MN','Çöl Gün Batımı'],
+  ['beijing','Pekin','Çin',39.9042,116.4074,'Asia/Shanghai','CN','Gece Yarısı Cazı'],
+  ['shanghai','Şanghay','Çin',31.2304,121.4737,'Asia/Shanghai','CN','Gece Yarısı Cazı'],
+  ['guangzhou','Guangzhou','Çin',23.1291,113.2644,'Asia/Shanghai','CN','Tropikal Ritimler'],
+  ['chengdu','Chengdu','Çin',30.5728,104.0668,'Asia/Shanghai','CN','Yağmurlu Sokaklar'],
+  ['hong-kong','Hong Kong','Hong Kong',22.3193,114.1694,'Asia/Hong_Kong','HK','Gece Yarısı Cazı'],
+  ['taipei','Taipei','Tayvan',25.033,121.5654,'Asia/Taipei','TW','Yağmurlu Sokaklar'],
+  ['osaka','Osaka','Japonya',34.6937,135.5023,'Asia/Tokyo','JP','Gece Yarısı Cazı'],
+  ['sapporo','Sapporo','Japonya',43.0618,141.3545,'Asia/Tokyo','JP','Yağmurlu Sokaklar'],
+  ['busan','Busan','Güney Kore',35.1796,129.0756,'Asia/Seoul','KR','Okyanus Esintisi'],
+  ['manila','Manila','Filipinler',14.5995,120.9842,'Asia/Manila','PH','Tropikal Ritimler'],
+  ['hanoi','Hanoi','Vietnam',21.0278,105.8342,'Asia/Ho_Chi_Minh','VN','Yağmurlu Sokaklar'],
+  ['ho-chi-minh','Ho Chi Minh','Vietnam',10.8231,106.6297,'Asia/Ho_Chi_Minh','VN','Tropikal Ritimler'],
+  ['phnom-penh','Phnom Penh','Kamboçya',11.5564,104.9282,'Asia/Phnom_Penh','KH','Tropikal Ritimler'],
+  ['yangon','Yangon','Myanmar',16.8409,96.1735,'Asia/Yangon','MM','Tropikal Ritimler'],
+  ['kuala-lumpur','Kuala Lumpur','Malezya',3.139,101.6869,'Asia/Kuala_Lumpur','MY','Tropikal Ritimler'],
+  ['jakarta','Cakarta','Endonezya',-6.2088,106.8456,'Asia/Jakarta','ID','Tropikal Ritimler'],
+  ['bali','Bali','Endonezya',-8.6705,115.2126,'Asia/Makassar','ID','Okyanus Esintisi'],
+  ['casablanca','Kazablanka','Fas',33.5731,-7.5898,'Africa/Casablanca','MA','Okyanus Esintisi'],
+  ['marrakesh','Marakeş','Fas',31.6295,-7.9811,'Africa/Casablanca','MA','Çöl Gün Batımı'],
+  ['algiers','Cezayir','Cezayir',36.7538,3.0588,'Africa/Algiers','DZ','Çöl Gün Batımı'],
+  ['tunis','Tunus','Tunus',36.8065,10.1815,'Africa/Tunis','TN','Okyanus Esintisi'],
+  ['tripoli','Trablus','Libya',32.8872,13.1913,'Africa/Tripoli','LY','Çöl Gün Batımı'],
+  ['khartoum','Hartum','Sudan',15.5007,32.5599,'Africa/Khartoum','SD','Çöl Gün Batımı'],
+  ['addis-ababa','Addis Ababa','Etiyopya',8.9806,38.7578,'Africa/Addis_Ababa','ET','Sabah Kahvesi'],
+  ['dakar','Dakar','Senegal',14.7167,-17.4677,'Africa/Dakar','SN','Okyanus Esintisi'],
+  ['bamako','Bamako','Mali',12.6392,-8.0029,'Africa/Bamako','ML','Çöl Gün Batımı'],
+  ['abidjan','Abidjan','Fildişi Sahili',5.36,-4.0083,'Africa/Abidjan','CI','Tropikal Ritimler'],
+  ['accra','Akra','Gana',5.6037,-0.187,'Africa/Accra','GH','Tropikal Ritimler'],
+  ['lagos','Lagos','Nijerya',6.5244,3.3792,'Africa/Lagos','NG','Tropikal Ritimler'],
+  ['abuja','Abuja','Nijerya',9.0765,7.3986,'Africa/Lagos','NG','Tropikal Ritimler'],
+  ['kinshasa','Kinşasa','Kongo DC',-4.4419,15.2663,'Africa/Kinshasa','CD','Tropikal Ritimler'],
+  ['luanda','Luanda','Angola',-8.839,13.2894,'Africa/Luanda','AO','Okyanus Esintisi'],
+  ['kampala','Kampala','Uganda',0.3476,32.5825,'Africa/Kampala','UG','Tropikal Ritimler'],
+  ['dar-es-salaam','Darüsselam','Tanzanya',-6.7924,39.2083,'Africa/Dar_es_Salaam','TZ','Okyanus Esintisi'],
+  ['harare','Harare','Zimbabve',-17.8252,31.0335,'Africa/Harare','ZW','Sabah Kahvesi'],
+  ['maputo','Maputo','Mozambik',-25.9692,32.5732,'Africa/Maputo','MZ','Okyanus Esintisi'],
+  ['johannesburg','Johannesburg','Güney Afrika',-26.2041,28.0473,'Africa/Johannesburg','ZA','Gece Yarısı Cazı'],
+  ['durban','Durban','Güney Afrika',-29.8587,31.0218,'Africa/Johannesburg','ZA','Okyanus Esintisi'],
+  ['antananarivo','Antananarivo','Madagaskar',-18.8792,47.5079,'Indian/Antananarivo','MG','Tropikal Ritimler'],
+  ['los-angeles','Los Angeles','Amerika Birleşik Devletleri',34.0522,-118.2437,'America/Los_Angeles','US','Okyanus Esintisi'],
+  ['san-francisco','San Francisco','Amerika Birleşik Devletleri',37.7749,-122.4194,'America/Los_Angeles','US','Yağmurlu Sokaklar'],
+  ['seattle','Seattle','Amerika Birleşik Devletleri',47.6062,-122.3321,'America/Los_Angeles','US','Yağmurlu Sokaklar'],
+  ['denver','Denver','Amerika Birleşik Devletleri',39.7392,-104.9903,'America/Denver','US','Sabah Kahvesi'],
+  ['austin','Austin','Amerika Birleşik Devletleri',30.2672,-97.7431,'America/Chicago','US','Çöl Gün Batımı'],
+  ['chicago','Chicago','Amerika Birleşik Devletleri',41.8781,-87.6298,'America/Chicago','US','Gece Yarısı Cazı'],
+  ['nashville','Nashville','Amerika Birleşik Devletleri',36.1627,-86.7816,'America/Chicago','US','Gece Yarısı Cazı'],
+  ['new-orleans','New Orleans','Amerika Birleşik Devletleri',29.9511,-90.0715,'America/Chicago','US','Gece Yarısı Cazı'],
+  ['miami','Miami','Amerika Birleşik Devletleri',25.7617,-80.1918,'America/New_York','US','Tropikal Ritimler'],
+  ['boston','Boston','Amerika Birleşik Devletleri',42.3601,-71.0589,'America/New_York','US','Yağmurlu Sokaklar'],
+  ['anchorage','Anchorage','Amerika Birleşik Devletleri',61.2181,-149.9003,'America/Anchorage','US','Yağmurlu Sokaklar'],
+  ['honolulu','Honolulu','Amerika Birleşik Devletleri',21.3069,-157.8583,'Pacific/Honolulu','US','Okyanus Esintisi'],
+  ['vancouver','Vancouver','Kanada',49.2827,-123.1207,'America/Vancouver','CA','Yağmurlu Sokaklar'],
+  ['calgary','Calgary','Kanada',51.0447,-114.0719,'America/Edmonton','CA','Sabah Kahvesi'],
+  ['montreal','Montreal','Kanada',45.5017,-73.5673,'America/Toronto','CA','Gece Yarısı Cazı'],
+  ['nuuk','Nuuk','Grönland',64.1814,-51.6941,'America/Godthab','GL','Yağmurlu Sokaklar'],
+  ['guadalajara','Guadalajara','Meksika',20.6597,-103.3496,'America/Mexico_City','MX','Tropikal Ritimler'],
+  ['guatemala','Guatemala','Guatemala',14.6349,-90.5069,'America/Guatemala','GT','Tropikal Ritimler'],
+  ['san-jose-cr','San José','Kosta Rika',9.9281,-84.0907,'America/Costa_Rica','CR','Tropikal Ritimler'],
+  ['panama','Panama','Panama',8.9824,-79.5199,'America/Panama','PA','Tropikal Ritimler'],
+  ['havana','Havana','Küba',23.1136,-82.3666,'America/Havana','CU','Tropikal Ritimler'],
+  ['kingston','Kingston','Jamaika',17.9714,-76.7936,'America/Jamaica','JM','Tropikal Ritimler'],
+  ['santo-domingo','Santo Domingo','Dominik Cumhuriyeti',18.4861,-69.9312,'America/Santo_Domingo','DO','Tropikal Ritimler'],
+  ['san-juan','San Juan','Porto Riko',18.4655,-66.1057,'America/Puerto_Rico','PR','Tropikal Ritimler'],
+  ['bogota','Bogota','Kolombiya',4.711,-74.0721,'America/Bogota','CO','Sabah Kahvesi'],
+  ['medellin','Medellín','Kolombiya',6.2442,-75.5812,'America/Bogota','CO','Tropikal Ritimler'],
+  ['caracas','Karakas','Venezuela',10.4806,-66.9036,'America/Caracas','VE','Tropikal Ritimler'],
+  ['quito','Quito','Ekvador',-0.1807,-78.4678,'America/Guayaquil','EC','Sabah Kahvesi'],
+  ['lima','Lima','Peru',-12.0464,-77.0428,'America/Lima','PE','Okyanus Esintisi'],
+  ['la-paz','La Paz','Bolivya',-16.4897,-68.1193,'America/La_Paz','BO','Sabah Kahvesi'],
+  ['santiago','Santiago','Şili',-33.4489,-70.6693,'America/Santiago','CL','Sabah Kahvesi'],
+  ['asuncion','Asunción','Paraguay',-25.2637,-57.5759,'America/Asuncion','PY','Tropikal Ritimler'],
+  ['montevideo','Montevideo','Uruguay',-34.9011,-56.1645,'America/Montevideo','UY','Okyanus Esintisi'],
+  ['cordoba-ar','Córdoba','Arjantin',-31.4201,-64.1888,'America/Argentina/Cordoba','AR','Sabah Kahvesi'],
+  ['sao-paulo','São Paulo','Brezilya',-23.5505,-46.6333,'America/Sao_Paulo','BR','Gece Yarısı Cazı'],
+  ['brasilia','Brasília','Brezilya',-15.7975,-47.8919,'America/Sao_Paulo','BR','Sabah Kahvesi'],
+  ['salvador','Salvador','Brezilya',-12.9777,-38.5016,'America/Bahia','BR','Tropikal Ritimler'],
+  ['manaus','Manaus','Brezilya',-3.119,-60.0217,'America/Manaus','BR','Tropikal Ritimler'],
+  ['melbourne','Melbourne','Avustralya',-37.8136,144.9631,'Australia/Melbourne','AU','Gece Yarısı Cazı'],
+  ['brisbane','Brisbane','Avustralya',-27.4698,153.0251,'Australia/Brisbane','AU','Okyanus Esintisi'],
+  ['perth','Perth','Avustralya',-31.9505,115.8605,'Australia/Perth','AU','Okyanus Esintisi'],
+  ['adelaide','Adelaide','Avustralya',-34.9285,138.6007,'Australia/Adelaide','AU','Sabah Kahvesi'],
+  ['darwin','Darwin','Avustralya',-12.4634,130.8456,'Australia/Darwin','AU','Tropikal Ritimler'],
+  ['auckland','Auckland','Yeni Zelanda',-36.8485,174.7633,'Pacific/Auckland','NZ','Okyanus Esintisi'],
+  ['wellington','Wellington','Yeni Zelanda',-41.2865,174.7762,'Pacific/Auckland','NZ','Yağmurlu Sokaklar'],
+  ['suva','Suva','Fiji',-18.1248,178.4501,'Pacific/Fiji','FJ','Okyanus Esintisi'],
+  ['port-moresby','Port Moresby','Papua Yeni Gine',-9.4438,147.1803,'Pacific/Port_Moresby','PG','Tropikal Ritimler'],
 ].map(([id,name,country,lat,lng,timezone,countryCode,vibeTag]) => ({id,name,country,lat,lng,timezone,countryCode,vibeTag}));
 const CITY = Object.fromEntries(CITIES.map(c => [c.id, c]));
 
@@ -1490,6 +1664,8 @@ const Globe = (() => {
     }, { passive: false });
   }
   return { mount, update, unmount, setActive, drive, impulse, faceSun, transition, whenReady, setBackground, setThemeInstant, setRotation, snapshots, snapshotView, resetZoom, get layout() { return lay; }, get zoom() { return zoom.z; },
+    /** Ekrandaki kürenin merkez enlem/boylamı ve piksel yerleşimi (MapLibre devir teslimi için). */
+    get view() { let lng = (-rot.y - Math.PI / 2) / D2R; lng = ((lng + 180) % 360 + 360) % 360 - 180; return { lat: rot.x / D2R, lng, cx: lay.cx, cy: lay.cy, r: lay.r * zoom.z }; },
     _debug: { setSun(lat, lng) { sunObj.copy(latLngToVec3(lat, lng)); lastSun = performance.now() + 1e9; }, rot } };
 })();
 
@@ -1586,24 +1762,50 @@ function toStation(raw) {
   const key = (raw.codec || '').trim().toUpperCase(), codec = CODECS[key] || CODECS[key.split(/[,;/ ]+/)[0]];
   if (!url || !codec) return null;
   const name = (raw.name || '').replace(/\s+/g, ' ').trim() || 'İsimsiz İstasyon';
-  return { uuid: raw.stationuuid, name, url, codec, bitrate: Number.isFinite(raw.bitrate) ? raw.bitrate : 0, fallback: false };
+  const glat = Number(raw.geo_lat), glng = Number(raw.geo_long);
+  return { uuid: raw.stationuuid, name, url, codec, bitrate: Number.isFinite(raw.bitrate) ? raw.bitrate : 0, fallback: false, cc: (raw.countrycode || '').toUpperCase(),
+    geo: Number.isFinite(glat) && Number.isFinite(glng) && (glat !== 0 || glng !== 0) ? [glat, glng] : null };
+}
+function kmBetween(a, b) {
+  const dLa = (b[0] - a[0]) * D2R, dLo = (b[1] - a[1]) * D2R;
+  const h = Math.sin(dLa / 2) ** 2 + Math.cos(a[0] * D2R) * Math.cos(b[0] * D2R) * Math.sin(dLo / 2) ** 2;
+  return 12742 * Math.atan2(Math.sqrt(h), Math.sqrt(1 - h));
+}
+function dedupe(list) {
+  const seenUrl = new Set(), seenName = new Set(), out = [];
+  list.forEach(st => {
+    const u = st.url.toLowerCase().replace(/\/+$/, ''), n = st.name.toLocaleLowerCase('tr-TR');
+    if (seenUrl.has(u) || seenName.has(n)) return; seenUrl.add(u); seenName.add(n); out.push(st);
+  });
+  return out;
+}
+const LOCAL_RADIUS_KM = 150;
+/** Konumun 150 km çevresindeki istasyonlar (en yakından popülere). Sonuçlar mesafeyle yeniden süzülür. */
+async function fetchNearbyStations(city) {
+  const key = 'geo:' + city.id, hit = stationCache.get(key);
+  if (hit && hit.expires > Date.now()) return hit.stations;
+  try {
+    const raw = await rbFetch(`/json/stations/search?geo_lat=${city.lat}&geo_long=${city.lng}&geo_distance=${LOCAL_RADIUS_KM * 1000}&has_geo_info=true&order=clickcount&reverse=true&hidebroken=true&limit=40`);
+    const out = dedupe((Array.isArray(raw) ? raw : []).map(toStation).filter(st => st && st.geo && kmBetween(st.geo, [city.lat, city.lng]) <= LOCAL_RADIUS_KM)).slice(0, 12);
+    out.forEach(st => { st.local = true; });
+    stationCache.set(key, { stations: out, expires: Date.now() + RB_CACHE_MS });
+    return out;
+  } catch (e) { return hit ? hit.stations : []; }
 }
 async function fetchCountryStations(cc) {
   const hit = stationCache.get(cc);
   if (hit && hit.expires > Date.now()) return hit.stations;
   try {
     const raw = await rbFetch(`/json/stations/bycountrycodeexact/${encodeURIComponent(cc)}?limit=${RB_LIMIT}&order=clickcount&reverse=true&hidebroken=true`);
-    const seenUrl = new Set(), seenName = new Set(), out = [];
-    (Array.isArray(raw) ? raw : []).map(toStation).filter(Boolean).forEach(st => {
-      const u = st.url.toLowerCase().replace(/\/+$/, ''), n = st.name.toLocaleLowerCase('tr-TR');
-      if (seenUrl.has(u) || seenName.has(n)) return; seenUrl.add(u); seenName.add(n); out.push(st);
-    });
+    const out = dedupe((Array.isArray(raw) ? raw : []).map(toStation).filter(Boolean));
     stationCache.set(cc, { stations: out, expires: Date.now() + RB_CACHE_MS });
     return out;
   } catch (e) { return hit ? hit.stations : []; }   // bayat önbellek > sessizlik
 }
 async function loadQueue(city) {
-  const local = await fetchCountryStations(city.countryCode);
+  // Sıra: konumun yakını → ülkenin geri kalanı → global yedekler → (ağ kapalıysa) önizleme sesi
+  const [near, country] = await Promise.all([fetchNearbyStations(city), fetchCountryStations(city.countryCode)]);
+  const local = dedupe(near.concat(country));
   return { local: local.length, stations: local.concat(GLOBAL_STREAMS, [DEMO_STATION]) };
 }
 const emptyQueue = () => ({ stations: null, local: 0 });
@@ -1836,10 +2038,12 @@ function setTab(tab) {
 }
 function mountGlobe() {
   if (introRunning) return;
-  if (state.view === 'welcome') Globe.mount($('#globeStage'), { interactive: false, autoRotate: true, markers: true, theme: state.theme, layout: chooserLayout, stars: false, bg: '#000000' });
+  if (state.view === 'welcome') Globe.mount($('#globeStage'), { interactive: false, autoRotate: true, markers: false, theme: state.theme, layout: chooserLayout, stars: false, bg: '#000000' });
   else if (state.view === 'app' && state.tab === 'globe') {
-    if (MapGlobe.show({ theme: state.theme, onSelect: handleSelect })) { Globe.unmount(); MapGlobe.setActive(state.activeCityId); updateInk(); return; }
-    Globe.mount($('#globeStage'), { interactive: true, autoRotate: !state.sheetOpen, markers: true, theme: state.theme, layout: appLayout, onSelect: handleSelect, onCity: placeCityTag, zoomable: true });
+    if (MapGlobe.revealed && MapGlobe.show({ theme: state.theme, onSelect: handleSelect })) { Globe.unmount(); MapGlobe.setActive(state.activeCityId); updateInk(); return; }
+    Globe.mount($('#globeStage'), { interactive: true, autoRotate: !state.sheetOpen, markers: !MapGlobe.available(), theme: state.theme, layout: appLayout, onSelect: handleSelect, onCity: placeCityTag, zoomable: true });
+    MapGlobe.setActive(state.activeCityId);
+    MapGlobe.reveal({ theme: state.theme, onSelect: handleSelect }, () => { if (state.view === 'app' && state.tab === 'globe') Globe.unmount(); });
   }
   else if (state.view === 'app' && state.tab === 'themes') Globe.mount($('#globeStage'), { interactive: false, autoRotate: true, markers: false, theme: state.previewTheme, layout: themesLayout, lerp: 0.7 });
   else Globe.unmount();
@@ -1868,7 +2072,10 @@ const MapGlobe = (() => {
   const host = document.getElementById('mapStage');
   const badge = document.getElementById('lodBadge');
   let map = null, ready = false, failed = false, visible = false, onSelect = null, themeId = 'classic';
-  let activeId = null, flight = null, bottomPad = 0, lastTouch = 0, userMoving = false, rafId = 0, lastFrame = 0, detentLon = null;
+  let activeId = null, flight = null, bottomPad = 0, topPad = 0, basePad = { top: 0, bottom: 0 }, lastTouch = 0, userMoving = false, rafId = 0, lastFrame = 0, detentLon = null;
+  // Açılış devir teslimi: harita intro sırasında görünmez yüklenir; ilk görüntü tamamlanınca
+  // three.js küresinin açısını/boyutunu birebir alıp üstüne 400 ms'de belirir.
+  let firstReady = false, revealed = false, pendingReveal = null, tap = null;
   let dataStatus = 'yükleniyor';
   // Uydu modu: 'probing' → ilk karolar bekleniyor, 'satellite' → karo akıyor, 'vector' → engelli
   let imagery = 'probing', satTiles = 0, satErrors = 0, satLastError = '';
@@ -1891,7 +2098,46 @@ const MapGlobe = (() => {
 
   const available = () => !failed && typeof window.maplibregl !== 'undefined' && typeof window.topojson !== 'undefined';
   const cityFeatures = () => ({ type: 'FeatureCollection', features: CITIES.map(c => ({ type: 'Feature', properties: { id: c.id }, geometry: { type: 'Point', coordinates: [c.lng, c.lat] } })) });
-  const padding = () => ({ top: 0, left: 0, right: 0, bottom: bottomPad });
+  const padding = () => ({ top: topPad, left: 0, right: 0, bottom: bottomPad });
+  /** Haritada dokunulan noktaya en yakın konum (büyük daire mesafesi). */
+  function nearestCity(lat, lng) {
+    let best = null, bd = Infinity; const la = lat * D2R, lo = lng * D2R;
+    CITIES.forEach(c => {
+      const dLa = c.lat * D2R - la, dLo = c.lng * D2R - lo;
+      const h = Math.sin(dLa / 2) ** 2 + Math.cos(la) * Math.cos(c.lat * D2R) * Math.sin(dLo / 2) ** 2;
+      if (h < bd) { bd = h; best = c; }
+    });
+    return best;
+  }
+  /** Ekrandaki küre siluetinin yarıçapı (px): merkezden 60–90° uzaktaki noktaların en uzak izdüşümü. */
+  function silhouetteRadius() {
+    const c = map.getCenter(), p0 = map.project(c); let r = 0;
+    for (let a = 50; a <= 90; a += 0.5) {
+      const lat = c.lat + a <= 90 ? c.lat + a : c.lat - a;
+      const p = map.project([c.lng, lat]); const d = Math.hypot(p.x - p0.x, p.y - p0.y);
+      if (Number.isFinite(d) && d > r) r = d;
+    }
+    return r;
+  }
+  /** three.js küresinin görünümünü (merkez enlem/boylam, ekran konumu, yarıçap) haritaya uygular. */
+  function matchView(v) {
+    const H = host.clientHeight;
+    const shift = H - 2 * v.cy;                       // merkez yukarıdaysa alttan, aşağıdaysa üstten boşluk
+    basePad = { top: Math.max(0, -shift), bottom: Math.max(0, shift) };
+    topPad = basePad.top; bottomPad = basePad.bottom;
+    map.jumpTo({ center: [v.lng, v.lat], zoom: Math.log2(2 * Math.PI * v.r / 512), padding: padding() });
+    for (let k = 0; k < 3; k++) {
+      const R = silhouetteRadius(); if (!R) break;
+      map.jumpTo({ zoom: map.getZoom() + Math.log2(v.r / R) });
+    }
+  }
+  function checkReady() {
+    if (firstReady || !ready || imagery === 'probing') return;
+    if (imagery === 'vector' && dataStatus !== 'veri hazır') return;
+    if (!map.areTilesLoaded()) return;
+    firstReady = true;
+    if (pendingReveal) { const f = pendingReveal; pendingReveal = null; f(); }
+  }
 
   function fail(reason) {
     failed = true; dataStatus = 'hata: ' + reason;
@@ -1920,9 +2166,9 @@ const MapGlobe = (() => {
   function applyActive() {
     if (!ready) return;
     const id = activeId || '';
+    // Küre üzerinde nokta yok: yalnızca seçili konum nabız atar.
     map.setFilter('city-pulse', ['==', ['get', 'id'], id]);
-    map.setPaintProperty('city-core', 'circle-color', ['case', ['==', ['get', 'id'], id], '#F5D08A', '#C89D54']);
-    map.setPaintProperty('city-core', 'circle-radius', ['case', ['==', ['get', 'id'], id], 7, 5]);
+    map.setFilter('city-core', ['==', ['get', 'id'], id]);
   }
 
   /* Karo akışı kanıtlanınca uyduya geç; ilk karolar hata verirse vektöre dön. */
@@ -1940,7 +2186,7 @@ const MapGlobe = (() => {
       map.setLayoutProperty('coast', 'visibility', 'visible');
       map.setMaxZoom(14);
     }
-    updateBadge();
+    updateBadge(); checkReady();
   }
 
   function create() {
@@ -1959,6 +2205,7 @@ const MapGlobe = (() => {
             coastline: { type: 'geojson', data: { type: 'FeatureCollection', features: [] }, tolerance: 0.2, maxzoom: 14 },
             borders: { type: 'geojson', data: { type: 'FeatureCollection', features: [] }, tolerance: 0.3 },
             cities: { type: 'geojson', data: cityFeatures() },
+            tap: { type: 'geojson', data: { type: 'FeatureCollection', features: [] } },
             satellite: { type: 'raster', tiles: [ESRI_URL], tileSize: SAT_TILE_SIZE, maxzoom: SAT_MAX_ZOOM, attribution: 'Imagery © Esri, Maxar, Earthstar Geographics' },
           },
           layers: [
@@ -1968,15 +2215,17 @@ const MapGlobe = (() => {
             { id: 'borders', type: 'line', source: 'borders', paint: { 'line-color': c.border, 'line-width': ['interpolate', ['linear'], ['zoom'], 1, 0.4, 6, 1, 10, 1.4] } },
             { id: 'coast', type: 'line', source: 'coastline', layout: { 'line-join': 'round', 'line-cap': 'round' }, paint: { 'line-color': c.coast, 'line-opacity': 0.85, 'line-width': ['interpolate', ['exponential', 1.6], ['zoom'], 1, 0.5, 6, 1.1, 12, 2.2] } },
             { id: 'city-pulse', type: 'circle', source: 'cities', filter: ['==', ['get', 'id'], ''], paint: { 'circle-radius': 10, 'circle-color': 'rgba(0,0,0,0)', 'circle-stroke-width': 2, 'circle-stroke-color': '#F5D08A', 'circle-stroke-opacity': 0.5, 'circle-pitch-alignment': 'map' } },
-            { id: 'city-core', type: 'circle', source: 'cities', paint: { 'circle-radius': 5, 'circle-color': '#C89D54', 'circle-stroke-width': 1.5, 'circle-stroke-color': '#ffffff', 'circle-stroke-opacity': 0.9, 'circle-pitch-alignment': 'map' } },
-            { id: 'city-hit', type: 'circle', source: 'cities', paint: { 'circle-radius': 22, 'circle-color': '#000', 'circle-opacity': 0, 'circle-pitch-alignment': 'map' } },
+            { id: 'city-core', type: 'circle', source: 'cities', filter: ['==', ['get', 'id'], ''], paint: { 'circle-radius': 6, 'circle-color': '#F5D08A', 'circle-stroke-width': 1.5, 'circle-stroke-color': '#ffffff', 'circle-stroke-opacity': 0.9, 'circle-pitch-alignment': 'map' } },
+            { id: 'tap-ring', type: 'circle', source: 'tap', paint: { 'circle-radius': 4, 'circle-color': 'rgba(0,0,0,0)', 'circle-stroke-width': 1.6, 'circle-stroke-color': '#ffffff', 'circle-stroke-opacity': 0, 'circle-pitch-alignment': 'map' } },
           ],
         },
       });
     } catch (e) { fail(String(e && e.message || e)); return; }
 
-    const bootTimer = setTimeout(() => { if (!ready) fail('zaman aşımı'); }, 8000);
-    map.on('load', () => {
+    const bootTimer = setTimeout(() => { if (!ready) fail('zaman aşımı'); }, 15000);
+    // 'style.load': stil hazır (katmanlar düzenlenebilir). 'load' tüm karoları bekler; yoğun
+    // karo ızgarasında ve intro animasyonu sürerken çok gecikebilir, o yüzden onu beklemiyoruz.
+    map.once('style.load', () => {
       clearTimeout(bootTimer); ready = true;
       paint(themeId); applyActive(); map.setPadding(padding());
       Promise.all([fetch('world/land-10m.json').then(r => r.json()), fetch('world/countries-50m.json').then(r => r.json())])
@@ -1985,7 +2234,7 @@ const MapGlobe = (() => {
           map.getSource('coastline').setData(coastlines(landGeo));
           map.getSource('land').setData(fixPolygons(landGeo));
           map.getSource('borders').setData(topojson.mesh(countries, countries.objects.countries, (a, b) => a !== b));
-          dataStatus = 'veri hazır'; updateBadge();
+          dataStatus = 'veri hazır'; updateBadge(); checkReady();
         })
         .catch(e => { dataStatus = 'veri hatası'; updateBadge(); });
       rafId = requestAnimationFrame(animate);
@@ -2014,14 +2263,16 @@ const MapGlobe = (() => {
       const lon = map.getCenter().lng; if (detentLon === null) detentLon = lon;
       if (Math.abs(((lon - detentLon + 540) % 360) - 180) >= 15) { detentLon = lon; vibrate(6); }
     });
+    // Haritada herhangi bir yere dokun → en yakın konumun yerel radyosu.
     map.on('click', ev => {
       lastTouch = Date.now();
-      const p = ev.point;
-      const hits = map.queryRenderedFeatures([[p.x - 18, p.y - 18], [p.x + 18, p.y + 18]], { layers: ['city-hit'] });
-      let best = null, bd = Infinity;
-      hits.forEach(f => { const sp = map.project(f.geometry.coordinates); const d = Math.hypot(sp.x - p.x, sp.y - p.y); if (d < bd) { bd = d; best = f; } });
-      if (best && CITY[best.properties.id] && onSelect) onSelect(CITY[best.properties.id]);
+      const { lng, lat } = ev.lngLat;
+      map.getSource('tap').setData({ type: 'Feature', properties: {}, geometry: { type: 'Point', coordinates: [lng, lat] } });
+      tap = performance.now();
+      const city = nearestCity(lat, lng);
+      if (city && onSelect) onSelect(city);
     });
+    map.on('idle', checkReady);
   }
 
   /* Longitudes made continuous (|Δλ| < 180°) so a 0.1° step across ±180° is not drawn as a 360° arc. */
@@ -2104,6 +2355,12 @@ const MapGlobe = (() => {
     rafId = requestAnimationFrame(animate);
     if (!visible || now - lastFrame < 33) return;
     const dt = lastFrame ? Math.min((now - lastFrame) / 1000, 0.1) : 0; lastFrame = now;
+    if (tap !== null) {   // dokunma dalgası: 450 ms, ease-out, 4→34 px
+      const t = Math.min(1, (now - tap) / 450), e = 1 - Math.pow(1 - t, 3);
+      map.setPaintProperty('tap-ring', 'circle-radius', 4 + 30 * e);
+      map.setPaintProperty('tap-ring', 'circle-stroke-opacity', 0.85 * (1 - t));
+      if (t >= 1) tap = null;
+    }
     if (activeId) {
       const ph = (now % DUR.pulse) / DUR.pulse, e = 1 - Math.pow(1 - ph, 3);
       map.setPaintProperty('city-pulse', 'circle-radius', 10 + 16 * e);
@@ -2123,6 +2380,33 @@ const MapGlobe = (() => {
 
   return {
     available,
+    get revealed() { return revealed && !failed; },
+    /** Intro başlarken çağrılır: harita görünmezken yüklenir (karolar önceden iner). */
+    preload(theme, view) {
+      if (!available() || map) return;
+      themeId = theme || themeId; create(); if (failed) return;
+      map.once('style.load', () => { if (!revealed && view) matchView(view()); });
+    },
+    /** İlk gösterim: harita hazır olunca three.js küresinin yerini aynı açı/boyutta alır. */
+    reveal(opts, done) {
+      if (!available()) return false;
+      themeId = opts.theme || themeId; onSelect = opts.onSelect || null;
+      if (!map) create(); if (failed) return false;
+      const go = () => {
+        if (failed) return;
+        matchView(Globe.view);
+        Globe.update({ autoRotate: false }); Globe.setRotation({ x: Globe._debug.rot.x, y: Globe._debug.rot.y });
+        paint(themeId); applyActive(); lastTouch = Date.now();
+        const show = () => { visible = true; revealed = true; host.classList.add('on'); updateBadge(); setTimeout(done, 420); };
+        // Görünmeden önce bu açıdaki karoların tamamı inmeli: 'idle' = çizim bitti ve bekleyen karo yok.
+        // (jumpTo sonrası areTilesLoaded() yeni karolar istenmeden önce yanlışlıkla true dönebilir.)
+        let shown = false; const once = () => { if (!shown) { shown = true; show(); } };
+        map.once('idle', once); setTimeout(once, 3000); map.triggerRepaint();
+      };
+      if (firstReady) go();
+      else { pendingReveal = go; setTimeout(() => { if (pendingReveal === go) { pendingReveal = null; go(); } }, 5000); }
+      return true;
+    },
     show(opts) {
       if (!available()) return false;
       themeId = opts.theme || themeId; onSelect = opts.onSelect || null;
@@ -2137,7 +2421,8 @@ const MapGlobe = (() => {
     /** Sheet açık: şehre in (kartın üstünde kalan alanın ortası). Kapalı: yörüngeye çık. */
     focus(city, open, sheetHeight) {
       if (!ready || !visible) return;
-      bottomPad = open ? Math.round(sheetHeight + 84) : 0;
+      bottomPad = open ? Math.round(sheetHeight + 84) : basePad.bottom;
+      topPad = open ? 0 : basePad.top;
       if (open && city) flyTo(city.lng, city.lat, imagery === 'satellite' ? 10.5 : 5.6);
       else if (city) flyTo(city.lng, city.lat, Math.min(map.getZoom(), 2.2), 1.4);
       else map.easeTo({ padding: padding(), duration: 320 });
@@ -2209,7 +2494,7 @@ function statusLine() {
   const s = state.status, st = currentStation();
   if (s === 'loading') return 'Yayın aranıyor…';
   if (s === 'failover') return 'Yayın yanıt vermedi, sıradakine geçiliyor…';
-  if (s === 'playing') return st && st.demo ? 'Önizleme sesi · ağ kapalı' : st && st.fallback ? 'Global yayın · canlı' : `Canlı · ${st.codec} ${st.bitrate ? st.bitrate + ' kbps' : ''}`.trim();
+  if (s === 'playing') return st && st.demo ? 'Önizleme sesi · ağ kapalı' : st && st.fallback ? 'Global yayın · canlı' : `${st.local ? 'Yerel · ' : 'Canlı · '}${st.codec}${st.bitrate ? ' ' + st.bitrate + ' kbps' : ''}`;
   if (s === 'error') return 'Şu an yayın alınamıyor. Bağlantını kontrol edip tekrar dene.';
   if (s === 'paused') return 'Duraklatıldı';
   return 'Dinlemek için oynat’a dokun';
@@ -2733,6 +3018,11 @@ function afterIntro() {
   else { state.view = 'welcome'; $('#welcome').classList.add('choose'); mountGlobe(); }
 }
 go('welcome', { replace: true });
+// MapLibre küresini intro sırasında, intro'nun varacağı açıda görünmez olarak yükle.
+MapGlobe.preload(state.theme, () => {
+  const st = $('#globeStage'), W = st.clientWidth || 390, H = st.clientHeight || 844, L = appLayout(W, H), sun = subsolar(new Date());
+  return { lat: sun.lat * 0.4, lng: sun.lng - 22, cx: L.cx, cy: L.cy, r: L.r };
+});
 if (reduceMotion.matches) { afterIntro(); }
 else { runIntro(afterIntro); }
 })();
