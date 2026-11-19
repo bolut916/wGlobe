@@ -1,0 +1,311 @@
+import type { City, VibeTag } from '@/types';
+
+/**
+ * wGlobe şehir atlası — 6 kıtadan 25 ikonik şehir.
+ * Koordinatlar şehir merkezini (WGS84, ondalık derece) gösterir.
+ * timezone: IANA, countryCode: ISO 3166-1 alpha-2.
+ */
+export const CITIES: readonly City[] = [
+  {
+    id: 'istanbul',
+    name: 'İstanbul',
+    country: 'Türkiye',
+    lat: 41.0082,
+    lng: 28.9784,
+    timezone: 'Europe/Istanbul',
+    countryCode: 'TR',
+    vibeTag: 'Sabah Kahvesi',
+    continent: 'Avrupa',
+  },
+  {
+    id: 'tokyo',
+    name: 'Tokyo',
+    country: 'Japonya',
+    lat: 35.6762,
+    lng: 139.6503,
+    timezone: 'Asia/Tokyo',
+    countryCode: 'JP',
+    vibeTag: 'Gece Yarısı Cazı',
+    continent: 'Asya',
+  },
+  {
+    id: 'new-york',
+    name: 'New York',
+    country: 'Amerika Birleşik Devletleri',
+    lat: 40.7128,
+    lng: -74.006,
+    timezone: 'America/New_York',
+    countryCode: 'US',
+    vibeTag: 'Gece Yarısı Cazı',
+    continent: 'Kuzey Amerika',
+  },
+  {
+    id: 'london',
+    name: 'Londra',
+    country: 'Birleşik Krallık',
+    lat: 51.5074,
+    lng: -0.1278,
+    timezone: 'Europe/London',
+    countryCode: 'GB',
+    vibeTag: 'Yağmurlu Sokaklar',
+    continent: 'Avrupa',
+  },
+  {
+    id: 'paris',
+    name: 'Paris',
+    country: 'Fransa',
+    lat: 48.8566,
+    lng: 2.3522,
+    timezone: 'Europe/Paris',
+    countryCode: 'FR',
+    vibeTag: 'Gece Yarısı Cazı',
+    continent: 'Avrupa',
+  },
+  {
+    id: 'reykjavik',
+    name: 'Reykjavik',
+    country: 'İzlanda',
+    lat: 64.1466,
+    lng: -21.9426,
+    timezone: 'Atlantic/Reykjavik',
+    countryCode: 'IS',
+    vibeTag: 'Yağmurlu Sokaklar',
+    continent: 'Avrupa',
+  },
+  {
+    id: 'buenos-aires',
+    name: 'Buenos Aires',
+    country: 'Arjantin',
+    lat: -34.6037,
+    lng: -58.3816,
+    timezone: 'America/Argentina/Buenos_Aires',
+    countryCode: 'AR',
+    vibeTag: 'Gece Yarısı Cazı',
+    continent: 'Güney Amerika',
+  },
+  {
+    id: 'cairo',
+    name: 'Kahire',
+    country: 'Mısır',
+    lat: 30.0444,
+    lng: 31.2357,
+    timezone: 'Africa/Cairo',
+    countryCode: 'EG',
+    vibeTag: 'Çöl Gün Batımı',
+    continent: 'Afrika',
+  },
+  {
+    id: 'seoul',
+    name: 'Seul',
+    country: 'Güney Kore',
+    lat: 37.5665,
+    lng: 126.978,
+    timezone: 'Asia/Seoul',
+    countryCode: 'KR',
+    vibeTag: 'Yağmurlu Sokaklar',
+    continent: 'Asya',
+  },
+  {
+    id: 'sydney',
+    name: 'Sidney',
+    country: 'Avustralya',
+    lat: -33.8688,
+    lng: 151.2093,
+    timezone: 'Australia/Sydney',
+    countryCode: 'AU',
+    vibeTag: 'Okyanus Esintisi',
+    continent: 'Okyanusya',
+  },
+  {
+    id: 'lisbon',
+    name: 'Lizbon',
+    country: 'Portekiz',
+    lat: 38.7223,
+    lng: -9.1393,
+    timezone: 'Europe/Lisbon',
+    countryCode: 'PT',
+    vibeTag: 'Sabah Kahvesi',
+    continent: 'Avrupa',
+  },
+  {
+    id: 'vienna',
+    name: 'Viyana',
+    country: 'Avusturya',
+    lat: 48.2082,
+    lng: 16.3738,
+    timezone: 'Europe/Vienna',
+    countryCode: 'AT',
+    vibeTag: 'Sabah Kahvesi',
+    continent: 'Avrupa',
+  },
+  {
+    id: 'rio-de-janeiro',
+    name: 'Rio de Janeiro',
+    country: 'Brezilya',
+    lat: -22.9068,
+    lng: -43.1729,
+    timezone: 'America/Sao_Paulo',
+    countryCode: 'BR',
+    vibeTag: 'Tropikal Ritimler',
+    continent: 'Güney Amerika',
+  },
+  {
+    id: 'nairobi',
+    name: 'Nairobi',
+    country: 'Kenya',
+    lat: -1.2921,
+    lng: 36.8219,
+    timezone: 'Africa/Nairobi',
+    countryCode: 'KE',
+    vibeTag: 'Tropikal Ritimler',
+    continent: 'Afrika',
+  },
+  {
+    id: 'toronto',
+    name: 'Toronto',
+    country: 'Kanada',
+    lat: 43.6532,
+    lng: -79.3832,
+    timezone: 'America/Toronto',
+    countryCode: 'CA',
+    vibeTag: 'Gece Yarısı Cazı',
+    continent: 'Kuzey Amerika',
+  },
+  {
+    id: 'amsterdam',
+    name: 'Amsterdam',
+    country: 'Hollanda',
+    lat: 52.3676,
+    lng: 4.9041,
+    timezone: 'Europe/Amsterdam',
+    countryCode: 'NL',
+    vibeTag: 'Yağmurlu Sokaklar',
+    continent: 'Avrupa',
+  },
+  {
+    id: 'rome',
+    name: 'Roma',
+    country: 'İtalya',
+    lat: 41.9028,
+    lng: 12.4964,
+    timezone: 'Europe/Rome',
+    countryCode: 'IT',
+    vibeTag: 'Sabah Kahvesi',
+    continent: 'Avrupa',
+  },
+  {
+    id: 'bangkok',
+    name: 'Bangkok',
+    country: 'Tayland',
+    lat: 13.7563,
+    lng: 100.5018,
+    timezone: 'Asia/Bangkok',
+    countryCode: 'TH',
+    vibeTag: 'Tropikal Ritimler',
+    continent: 'Asya',
+  },
+  {
+    id: 'mexico-city',
+    name: 'Meksiko',
+    country: 'Meksika',
+    lat: 19.4326,
+    lng: -99.1332,
+    timezone: 'America/Mexico_City',
+    countryCode: 'MX',
+    vibeTag: 'Tropikal Ritimler',
+    continent: 'Kuzey Amerika',
+  },
+  {
+    id: 'stockholm',
+    name: 'Stockholm',
+    country: 'İsveç',
+    lat: 59.3293,
+    lng: 18.0686,
+    timezone: 'Europe/Stockholm',
+    countryCode: 'SE',
+    vibeTag: 'Yağmurlu Sokaklar',
+    continent: 'Avrupa',
+  },
+  {
+    id: 'cape-town',
+    name: 'Cape Town',
+    country: 'Güney Afrika',
+    lat: -33.9249,
+    lng: 18.4241,
+    timezone: 'Africa/Johannesburg',
+    countryCode: 'ZA',
+    vibeTag: 'Okyanus Esintisi',
+    continent: 'Afrika',
+  },
+  {
+    id: 'dubai',
+    name: 'Dubai',
+    country: 'Birleşik Arap Emirlikleri',
+    lat: 25.2048,
+    lng: 55.2708,
+    timezone: 'Asia/Dubai',
+    countryCode: 'AE',
+    vibeTag: 'Çöl Gün Batımı',
+    continent: 'Asya',
+  },
+  {
+    id: 'singapore',
+    name: 'Singapur',
+    country: 'Singapur',
+    lat: 1.3521,
+    lng: 103.8198,
+    timezone: 'Asia/Singapore',
+    countryCode: 'SG',
+    vibeTag: 'Tropikal Ritimler',
+    continent: 'Asya',
+  },
+  {
+    id: 'prague',
+    name: 'Prag',
+    country: 'Çekya',
+    lat: 50.0755,
+    lng: 14.4378,
+    timezone: 'Europe/Prague',
+    countryCode: 'CZ',
+    vibeTag: 'Gece Yarısı Cazı',
+    continent: 'Avrupa',
+  },
+  {
+    id: 'athens',
+    name: 'Atina',
+    country: 'Yunanistan',
+    lat: 37.9838,
+    lng: 23.7275,
+    timezone: 'Europe/Athens',
+    countryCode: 'GR',
+    vibeTag: 'Sabah Kahvesi',
+    continent: 'Avrupa',
+  },
+] as const;
+
+/** O(1) erişim için id → City haritası */
+export const CITY_BY_ID: ReadonlyMap<string, City> = new Map(CITIES.map((city) => [city.id, city]));
+
+export function getCityById(id: string): City | undefined {
+  return CITY_BY_ID.get(id);
+}
+
+export function getCitiesByVibe(vibe: VibeTag): City[] {
+  return CITIES.filter((city) => city.vibeTag === vibe);
+}
+
+/**
+ * Rastgele şehir; `excludeId` verilirse aynı şehir art arda gelmez
+ * ("Rastgele Şehir" butonunun aynı yere dönmesi kullanıcıya bozukluk gibi hissettirir).
+ */
+export function getRandomCity(excludeId?: string | null): City {
+  const pool = excludeId ? CITIES.filter((city) => city.id !== excludeId) : CITIES;
+  const index = Math.floor(Math.random() * pool.length);
+  const city = pool[index] ?? CITIES[0];
+  if (!city) {
+    throw new Error('CITIES listesi boş olamaz');
+  }
+  return city;
+}
+
+export const DEFAULT_CITY_ID = 'istanbul';
