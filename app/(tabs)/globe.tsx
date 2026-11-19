@@ -2,7 +2,8 @@
  * Küre ekranı.
  *
  * KOREOGRAFİ
- *  - Şehir seçilince: küre şehri merkeze döndürür VE kamera görünümü yukarı
+ *  - Küre: quadtree döşeme motoru (src/globe). Pinch/sürükle parmak altında kilitli.
+ *  - Şehir seçilince: kamera büyük-daire yayıyla şehre uçar VE görünüm yukarı
  *    kayar (verticalOffset), sheet aşağıdan yükselir → şehir hiçbir an sheet'in
  *    altında kalmaz. İki hareket aynı anda başlar, farklı fiziklerle biter
  *    (küre lerp, sheet yay): tek bir "sahne değişimi" gibi okunur.
@@ -16,7 +17,6 @@ import { StyleSheet, Text, View } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { InteractiveGlobe } from '@/components/InteractiveGlobe';
 import { LiveRadioIndicator } from '@/components/LiveRadioIndicator';
 import { PressableScale } from '@/components/PressableScale';
 import { RadioAtmosphereSheet } from '@/components/RadioAtmosphereSheet';
@@ -25,6 +25,7 @@ import { COLORS, RADII, SPACING, TYPOGRAPHY } from '@/constants/colors';
 import { DURATION } from '@/constants/motion';
 import { useGlobeAudio } from '@/context/GlobeAudioContext';
 import { useUserData } from '@/context/UserDataContext';
+import { WGlobeEngine } from '@/globe/components/WGlobeEngine';
 import { useScreenFocus } from '@/hooks/useScreenFocus';
 import { easeStandard, fadeIn, fadeOut } from '@/lib/animations';
 import type { City } from '@/types';
@@ -56,15 +57,18 @@ export default function GlobeScreen() {
 
   return (
     <View style={styles.root}>
-      <InteractiveGlobe
+      <WGlobeEngine
         themeId={selectedTheme}
         cities={CITIES}
         activeCityId={activeCity?.id ?? null}
         onCitySelect={handleSelect}
+        onInteractionStart={() => setHasInteracted(true)}
         interactive
         autoRotate={!sheetOpen}
         paused={!focused}
         verticalOffset={sheetOpen ? 0.17 : 0}
+        focusAltitude={1_400_000}
+        initialView={{ lat: 30, lon: 25, altitude: 17_000_000 }}
       />
 
       <SafeAreaView style={styles.topBar} edges={['top']} pointerEvents="box-none">
