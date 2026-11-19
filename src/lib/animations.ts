@@ -2,6 +2,7 @@
  * Reanimated ön ayarları — motion.ts token'larının Reanimated karşılıkları.
  * Ekranlar süre/eğri yazmaz; buradaki fabrikaları kullanır.
  */
+import { Platform } from 'react-native';
 import { Easing, FadeIn, FadeInDown, FadeOut } from 'react-native-reanimated';
 
 import { DURATION, EASING, STAGGER } from '@/constants/motion';
@@ -22,10 +23,14 @@ export function staggerDelay(index: number, step: number = STAGGER.list, base = 
  * yerine oturur. Süre kart katmanında (280ms), enter eğrisiyle.
  */
 export function enterUp(index = 0, options: { base?: number; step?: number; duration?: number } = {}) {
-  return FadeInDown.delay(staggerDelay(index, options.step ?? STAGGER.list, options.base ?? 0))
+  const animation = FadeInDown.delay(staggerDelay(index, options.step ?? STAGGER.list, options.base ?? 0))
     .duration(options.duration ?? DURATION.card)
-    .easing(easeEnter)
-    .withInitialValues({ opacity: 0, transform: [{ translateY: 12 }] });
+    .easing(easeEnter);
+  // On web, Reanimated's custom initial values leave the element `position: absolute`
+  // after the entrance, stacking siblings on top of each other. Use the default
+  // FadeInDown keyframes there; native keeps the 12 px rise.
+  if (Platform.OS === 'web') return animation;
+  return animation.withInitialValues({ opacity: 0, transform: [{ translateY: 12 }] });
 }
 
 export function fadeIn(delay = 0, duration: number = DURATION.card) {
