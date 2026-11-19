@@ -122,6 +122,9 @@ uniform float u_ambient;
 uniform float u_saturation;
 uniform float u_sepia;
 uniform float u_aerialStrength;
+uniform float u_sharpen;
+uniform float u_clarity;
+uniform float u_clarityStyleSaturation;
 uniform vec3 u_oceanColor;
 uniform vec3 u_iceColor;
 uniform vec3 u_hazeNear;
@@ -157,20 +160,42 @@ float waterFromColor(vec3 srgb) {
   return clamp(blueOverRed * blueOverGreen * dark, 0.0, 1.0);
 }
 
-/* Sobel gradient of luminance in texture space (d/du, d/dv). */
-vec2 sobel(sampler2D tex, vec2 uv, float texel) {
-  vec2 o = vec2(texel, 0.0);
-  float tl = luma(texture2D(tex, uv + vec2(-texel, -texel)).rgb);
-  float t  = luma(texture2D(tex, uv + vec2(0.0, -texel)).rgb);
-  float tr = luma(texture2D(tex, uv + vec2(texel, -texel)).rgb);
-  float l  = luma(texture2D(tex, uv - o).rgb);
-  float r  = luma(texture2D(tex, uv + o).rgb);
-  float bl = luma(texture2D(tex, uv + vec2(-texel, texel)).rgb);
-  float b  = luma(texture2D(tex, uv + vec2(0.0, texel)).rgb);
-  float br = luma(texture2D(tex, uv + vec2(texel, texel)).rgb);
-  float gx = (tr + 2.0 * r + br) - (tl + 2.0 * l + bl);
-  float gy = (bl + 2.0 * b + br) - (tl + 2.0 * t + tr);
-  return vec2(gx, gy) * 0.125;
+vec3 linearToSrgb(vec3 c) {
+  c = max(c, 0.0);
+  return mix(c * 12.92, 1.055 * pow(c, vec3(1.0 / 2.4)) - 0.055, step(vec3(0.0031308), c));
+}
+
+/*
+ * One 3×3 neighbourhood, two results:
+ *  - an UNSHARP-MASKED colour: c + amount·(c − gauss3x3), the delta clamped
+ *    to ±0.14 so edges gain micro-contrast without ringing halos;
+ *  - the Sobel luminance gradient (d/du, d/dv) for the relief bump.
+ * stepUv is the kernel spacing in UV. It is one texel when magnified and grows
+ * with the pixel footprint when minified, so the kernel always sharpens the
+ * mip level actually being displayed and never aliases.
+ */
+vec3 sampleSharp(sampler2D tex, vec2 uv, vec2 stepUv, float amount, out vec2 grad) {
+  vec3 c  = texture2D(tex, uv).rgb;
+  vec3 t  = texture2D(tex, uv + vec2(0.0, -stepUv.y)).rgb;
+  vec3 b  = texture2D(tex, uv + vec2(0.0, stepUv.y)).rgb;
+  vec3 l  = texture2D(tex, uv + vec2(-stepUv.x, 0.0)).rgb;
+  vec3 r  = texture2D(tex, uv + vec2(stepUv.x, 0.0)).rgb;
+  vec3 tl = texture2D(tex, uv + vec2(-stepUv.x, -stepUv.y)).rgb;
+  vec3 tr = texture2D(tex, uv + vec2(stepUv.x, -stepUv.y)).rgb;
+  vec3 bl = texture2D(tex, uv + vec2(-stepUv.x, stepUv.y)).rgb;
+  vec3 br = texture2D(tex, uv + vec2(stepUv.x, stepUv.y)).rgb;
+  vec3 blur = (4.0 * c + 2.0 * (t + b + l + r) + (tl + tr + bl + br)) / 16.0;
+  vec3 sharp = clamp(c + clamp((c - blur) * amount, -0.14, 0.14), 0.0, 1.0);
+  float gx = (luma(tr) + 2.0 * luma(r) + luma(br)) - (luma(tl) + 2.0 * luma(l) + luma(bl));
+  float gy = (luma(bl) + 2.0 * luma(b) + luma(br)) - (luma(tl) + 2.0 * luma(t) + luma(tr));
+  grad = vec2(gx, gy) * 0.125;
+  return sharp;
+}
+
+/* UV kernel spacing that follows the displayed mip level (≥ 1 texel). */
+vec2 kernelStep(vec2 uv, float texel) {
+  vec2 footprint = max(abs(dFdx(uv)), abs(dFdy(uv))) / texel;
+  return vec2(texel) * max(vec2(1.0), footprint);
 }
 
 void main() {
@@ -181,12 +206,25 @@ void main() {
   vec3 V = -viewRay / max(viewDist, 1e-3);
   float lat = v_lonLat.y;
 
+  /* Derivatives first: they must be evaluated in uniform control flow. */
+  vec2 tileStep = kernelStep(v_tileUv, u_tileTexelSize);
+  vec2 fallbackStep = kernelStep(v_fallbackUv, u_tileTexelSize);
+
   /* ── Albedo: own tile ⇄ ancestor sub-rect fallback ⇄ global base ─────── */
-  vec3 fallbackSrgb;
-  if (u_hasFallback > 0.5) fallbackSrgb = texture2D(u_fallbackTexture, v_fallbackUv).rgb;
-  else fallbackSrgb = pow(baseAlbedo(v_equirectUv, lat), vec3(1.0 / 2.2));
-  vec3 srgb = fallbackSrgb;
-  if (u_hasTile > 0.5) srgb = mix(fallbackSrgb, texture2D(u_tileTexture, v_tileUv).rgb, u_fadeProgress);
+  /* The texture that dominates the pixel gets the full 3×3 unsharp mask. */
+  vec2 grad = vec2(0.0);
+  vec3 srgb;
+  if (u_hasTile > 0.5) {
+    vec3 tileSrgb = sampleSharp(u_tileTexture, v_tileUv, tileStep, u_sharpen, grad);
+    vec3 fallbackSrgb = u_hasFallback > 0.5
+      ? texture2D(u_fallbackTexture, v_fallbackUv).rgb
+      : linearToSrgb(baseAlbedo(v_equirectUv, lat));
+    srgb = mix(fallbackSrgb, tileSrgb, u_fadeProgress);
+  } else if (u_hasFallback > 0.5) {
+    srgb = sampleSharp(u_fallbackTexture, v_fallbackUv, fallbackStep, u_sharpen, grad);
+  } else {
+    srgb = linearToSrgb(baseAlbedo(v_equirectUv, lat));
+  }
   vec3 albedo = srgbToLinear(srgb);
   /* Tiles converge exactly onto the cap colour at ±85.0511° → no seam. */
   float capBlend = u_isCap > 0.5 ? 1.0 : smoothstep(radians(83.0), radians(85.0511), abs(lat));
@@ -221,12 +259,9 @@ void main() {
   vec3 north = cross(n, east);
   vec3 Nb = n;
   if (u_bumpStrength > 0.0 && capBlend < 1.0) {
-    vec2 g = u_hasTile > 0.5 && u_fadeProgress > 0.5
-      ? sobel(u_tileTexture, v_tileUv, u_tileTexelSize)
-      : (u_hasFallback > 0.5 ? sobel(u_fallbackTexture, v_fallbackUv, u_tileTexelSize) : vec2(0.0));
     /* u grows east, v grows south: height slope east = gx, north = −gy. */
     float k = u_bumpStrength * (1.0 - water) * (1.0 - capBlend);
-    Nb = normalize(n - k * (g.x * east - g.y * north));
+    Nb = normalize(n - k * (grad.x * east - grad.y * north));
   }
 
   /* ── Sun, sky and clouds ──────────────────────────────────────────── */
@@ -312,6 +347,21 @@ void main() {
   gl_FragColor = vec4(max(color, 0.0), 1.0);
   #include <tonemapping_fragment>
   #include <colorspace_fragment>
+
+  /*
+   * ── Clarity mode (regional / city zoom) ─────────────────────────────
+   * Bypasses lighting, night darkening, aerial haze AND the ACES curve: the
+   * pixel becomes the (sharpened) imagery itself in true sRGB at 100 %
+   * brightness. Blended in by altitude so the orbital view keeps its sunlit,
+   * physically shaded look.
+   */
+  if (u_clarity > 0.0) {
+    vec3 clear = albedo;
+    float clearLum = luma(clear);
+    clear = mix(vec3(clearLum), clear, u_clarityStyleSaturation);
+    clear = mix(clear, clearLum * vec3(1.28, 1.0, 0.72), u_sepia);
+    gl_FragColor.rgb = mix(gl_FragColor.rgb, linearToSrgb(clear), u_clarity);
+  }
 }
 `;
 
@@ -479,6 +529,12 @@ export interface SharedSurfaceUniforms {
   u_saturation: THREE.IUniform<number>;
   u_sepia: THREE.IUniform<number>;
   u_aerialStrength: THREE.IUniform<number>;
+  /** Unsharp-mask amount (0 = off, 0.6–1.0 = crisp). */
+  u_sharpen: THREE.IUniform<number>;
+  /** 0 = physically lit orbital look, 1 = unlit true-colour imagery. */
+  u_clarity: THREE.IUniform<number>;
+  /** Theme saturation applied in clarity mode (1 = untouched true colour). */
+  u_clarityStyleSaturation: THREE.IUniform<number>;
   u_bumpStrength: THREE.IUniform<number>;
   u_oceanColor: THREE.IUniform<THREE.Color>;
   u_iceColor: THREE.IUniform<THREE.Color>;
@@ -515,6 +571,9 @@ export function createSharedSurfaceUniforms(radius: number, atmosphereHeight: nu
     u_saturation: { value: 1.08 },
     u_sepia: { value: 0 },
     u_aerialStrength: { value: 1 },
+    u_sharpen: { value: 0.8 },
+    u_clarity: { value: 0 },
+    u_clarityStyleSaturation: { value: 1 },
     u_bumpStrength: { value: 0.9 },
     u_oceanColor: { value: linearColor('#0a2440') },
     u_iceColor: { value: linearColor('#e6eef5') },

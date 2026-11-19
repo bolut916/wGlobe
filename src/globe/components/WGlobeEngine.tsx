@@ -218,6 +218,13 @@ const MARKER_ACTIVE_COLOR = '#F5D08A';
 /** expo-gl rejects these pixelStorei parameters (FLIP_Y, PREMULTIPLY_ALPHA, COLORSPACE_CONVERSION). */
 const UNSUPPORTED_PIXEL_STORE = new Set([0x9240, 0x9241, 0x9243]);
 const IDLE_FRAME_INTERVAL_MS = 1000 / 30;
+/** Retina-native rendering, unlocked up to 3× (iPhone Pro / flagship Android). */
+const MAX_PIXEL_RATIO = 3;
+
+function devicePixelRatio(): number {
+  const web = typeof globalThis !== 'undefined' ? (globalThis as { devicePixelRatio?: number }).devicePixelRatio : undefined;
+  return Math.min(web ?? PixelRatio.get(), MAX_PIXEL_RATIO);
+}
 const STATS_INTERVAL_MS = 500;
 
 function nowMs(): number {
@@ -271,12 +278,37 @@ function WGlobeEngineComponent({
     rafRef.current = null;
   }, []);
 
+  /**
+   * Keeps the GL drawing buffer at exactly layout × dpr physical pixels and the
+   * engine in sync with it. expo-gl sizes the buffer to the native screen
+   * scale on iOS/Android; on web the canvas is (re)sized here, capped at 3×.
+   */
+  const syncDrawingBuffer = useCallback((gl: ExpoWebGLRenderingContext, engine: GlobeRenderer) => {
+    const layout = layoutRef.current;
+    if (layout.width <= 0 || layout.height <= 0) return;
+    if (Platform.OS === 'web') {
+      const canvas = (gl as unknown as WebGL2RenderingContext).canvas as HTMLCanvasElement | undefined;
+      const dpr = devicePixelRatio();
+      const w = Math.round(layout.width * dpr);
+      const h = Math.round(layout.height * dpr);
+      if (canvas && (canvas.width !== w || canvas.height !== h)) {
+        canvas.width = w;
+        canvas.height = h;
+      }
+    }
+    const bw = gl.drawingBufferWidth;
+    const bh = gl.drawingBufferHeight;
+    const current = engine.drawingBufferSize;
+    if (bw !== current.width || bh !== current.height) engine.setSize(bw, bh, bw / layout.width);
+  }, []);
+
   const tick = useCallback(() => {
     rafRef.current = null;
     const engine = engineRef.current;
     const gl = glRef.current;
     if (!engine || !gl || disposedRef.current || propsRef.current.paused) return;
     const now = nowMs();
+    syncDrawingBuffer(gl, engine);
     // Full rate while anything moves or streams; 30 fps otherwise (cloud drift, pin pulse).
     if (engine.wantsFrame || now - lastRenderRef.current >= IDLE_FRAME_INTERVAL_MS) {
       const stats = engine.frame(now);
@@ -295,7 +327,7 @@ function WGlobeEngineComponent({
       }
     }
     rafRef.current = requestAnimationFrame(tick);
-  }, [opacity]);
+  }, [opacity, syncDrawingBuffer]);
 
   const startLoop = useCallback(() => {
     if (rafRef.current === null && !disposedRef.current) rafRef.current = requestAnimationFrame(tick);
@@ -338,7 +370,7 @@ function WGlobeEngineComponent({
         setTimeout(() => nativeDecoder.trimDiskCache(), 4000);
       }
 
-      const layoutWidth = layoutRef.current.width || width / PixelRatio.get();
+      const layoutWidth = layoutRef.current.width || width / devicePixelRatio();
       const pixelRatio = width / Math.max(1, layoutWidth);
       const engine = new GlobeRenderer({
         gl: gl as unknown as WebGL2RenderingContext,
@@ -491,7 +523,10 @@ function WGlobeEngineComponent({
     layoutRef.current = { width, height };
     const gl = glRef.current;
     const engine = engineRef.current;
-    if (gl && engine && width > 0) engine.setSize(gl.drawingBufferWidth, gl.drawingBufferHeight, gl.drawingBufferWidth / width);
+    if (gl && engine && width > 0) {
+      engine.setSize(gl.drawingBufferWidth, gl.drawingBufferHeight, gl.drawingBufferWidth / width);
+      engine.requestFrame();
+    }
   }, []);
 
   const activeTouches = useRef(new Set<number>());

@@ -172,6 +172,11 @@ export interface GpuTexture {
 export interface UploadOptions {
   wrapS: 'clamp' | 'repeat';
   mipmaps: boolean;
+  /**
+   * Requested anisotropy (pass `renderer.capabilities.getMaxAnisotropy()`,
+   * 16 on virtually every iOS/Android/desktop GPU). Clamped to the driver max.
+   */
+  anisotropy: number;
 }
 
 /** Anisotropy is queried once per context. */
@@ -205,15 +210,22 @@ export function uploadGpuTexture(gl: WebGL2RenderingContext, image: DecodedTileI
   gl.bindTexture(gl.TEXTURE_2D, glTexture);
   gl.pixelStorei(gl.UNPACK_ALIGNMENT, 4);
   image.upload(gl);
+  // magFilter = Linear, minFilter = LinearMipmapLinear (trilinear), mipmaps generated below.
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, options.mipmaps ? gl.LINEAR_MIPMAP_LINEAR : gl.LINEAR);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, options.wrapS === 'repeat' ? gl.REPEAT : gl.CLAMP_TO_EDGE);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
   if (options.mipmaps) gl.generateMipmap(gl.TEXTURE_2D);
   const aniso = getAnisotropy(gl);
-  if (aniso.ext && aniso.max > 1) gl.texParameterf(gl.TEXTURE_2D, aniso.ext.TEXTURE_MAX_ANISOTROPY_EXT, aniso.max);
+  const anisotropy = Math.min(Math.max(1, options.anisotropy), aniso.max, 16);
+  if (aniso.ext && anisotropy > 1) gl.texParameterf(gl.TEXTURE_2D, aniso.ext.TEXTURE_MAX_ANISOTROPY_EXT, anisotropy);
   gl.bindTexture(gl.TEXTURE_2D, null);
   const texture = new THREE.ExternalTexture(glTexture);
+  // Mirror the GL state on the three.js object (informational for ExternalTexture).
+  texture.anisotropy = anisotropy;
+  texture.generateMipmaps = options.mipmaps;
+  texture.minFilter = options.mipmaps ? THREE.LinearMipmapLinearFilter : THREE.LinearFilter;
+  texture.magFilter = THREE.LinearFilter;
   return { glTexture, texture, byteSize: image.byteSize };
 }
 
@@ -252,6 +264,8 @@ export interface TileCacheOptions {
   uploadsPerFrame: number;
   abortAfterMs: number;
   maxRetries: number;
+  /** renderer.capabilities.getMaxAnisotropy() */
+  anisotropy: number;
 }
 
 export interface ResolvedTexture {
@@ -461,7 +475,7 @@ export class TileCache {
       entry.decoded = null;
       if (!image) continue;
       try {
-        const gpu = uploadGpuTexture(this.gl, image, { wrapS: 'clamp', mipmaps: true });
+        const gpu = uploadGpuTexture(this.gl, image, { wrapS: 'clamp', mipmaps: true, anisotropy: this.options.anisotropy });
         if (gpu) {
           entry.gpu = gpu;
           entry.state = 'ready';

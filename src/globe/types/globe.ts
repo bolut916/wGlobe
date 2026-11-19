@@ -176,8 +176,12 @@ export interface GlobeEngineConfig {
   fovDeg: number;
   minAltitude: number;
   maxAltitude: number;
-  /** Clouds fade from opaque (above) to invisible below this altitude (m). */
-  cloudFadeAltitude: number;
+  /** Clouds (and their shadows) are fully hidden at or below this altitude (m). */
+  cloudCutoffAltitude: number;
+  /** Above this altitude the surface is physically lit (orbital look). */
+  clarityStartAltitude: number;
+  /** Below this altitude the surface is unlit true-colour imagery (100 % clarity). */
+  clarityFullAltitude: number;
   /** Retry count for transient tile failures. */
   maxRetries: number;
 }

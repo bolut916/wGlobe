@@ -49,31 +49,37 @@ import { disposeGpuTexture, TileCache, uploadGpuTexture, type GpuTexture } from 
 
 export const DEFAULT_ENGINE_CONFIG: GlobeEngineConfig = {
   radius: 6_371_008.8,
-  sseThreshold: 1.75,
-  sseHysteresis: 0.82,
+  // A texel may cover at most 0.85 physical pixels before Z+1 is fetched.
+  sseThreshold: 0.85,
+  sseHysteresis: 0.8,
   obliqueAttenuation: 0.5,
   minLevel: 2,
   maxLevel: 19,
-  maxCachedTiles: 320,
-  maxConcurrentRequests: 6,
-  uploadsPerFrame: 4,
+  maxCachedTiles: 384,
+  maxConcurrentRequests: 8,
+  uploadsPerFrame: 6,
   abortAfterMs: 400,
   refineTimeoutMs: 2500,
   fadeDurationMs: 250,
   fovDeg: 40,
   minAltitude: 180,
   maxAltitude: 42_000_000,
-  cloudFadeAltitude: 1_500_000,
+  cloudCutoffAltitude: 3_000_000,
+  clarityStartAltitude: 4_000_000,
+  clarityFullAltitude: 1_500_000,
   maxRetries: 2,
 };
 
-const ATMOSPHERE_SCALE = 1.025;
+/** Rayleigh halo shell: R · 1.02, drawn only outside the planet silhouette. */
+const ATMOSPHERE_SCALE = 1.02;
 const CLOUD_SCALE = 1.006;
 const CLOUD_DRIFT_PER_SECOND = 1 / 2600;
 const SUN_REFRESH_MS = 10_000;
 const PICK_RADIUS_PX = 30;
 
 interface StylePreset {
+  /** Saturation kept in clarity (zoomed-in, true-colour) mode. */
+  claritySaturation: number;
   sunIntensity: number;
   lightsGain: number;
   ambient: number;
@@ -86,10 +92,10 @@ interface StylePreset {
 }
 
 export const STYLE_PRESETS: Readonly<Record<GlobeStyleId, StylePreset>> = {
-  realistic: { sunIntensity: 1, lightsGain: 1.5, ambient: 0.03, saturation: 1.08, sepia: 0, cloudGain: 0.9, aerial: 1, bump: 0.9, exposure: 1.2 },
-  parchment: { sunIntensity: 1, lightsGain: 0.25, ambient: 0.06, saturation: 0.55, sepia: 0.85, cloudGain: 0.3, aerial: 0.5, bump: 1.3, exposure: 1.3 },
-  night: { sunIntensity: 0.07, lightsGain: 2.2, ambient: 0.04, saturation: 1.1, sepia: 0, cloudGain: 0.55, aerial: 1, bump: 0.6, exposure: 1.35 },
-  mono: { sunIntensity: 1, lightsGain: 0.6, ambient: 0.035, saturation: 0, sepia: 0, cloudGain: 0.6, aerial: 0.7, bump: 1.1, exposure: 1.2 },
+  realistic: { claritySaturation: 1, sunIntensity: 1, lightsGain: 1.5, ambient: 0.03, saturation: 1.08, sepia: 0, cloudGain: 0.9, aerial: 1, bump: 0.9, exposure: 1.2 },
+  parchment: { claritySaturation: 0.55, sunIntensity: 1, lightsGain: 0.25, ambient: 0.06, saturation: 0.55, sepia: 0.85, cloudGain: 0.3, aerial: 0.5, bump: 1.3, exposure: 1.3 },
+  night: { claritySaturation: 1, sunIntensity: 0.07, lightsGain: 2.2, ambient: 0.04, saturation: 1.1, sepia: 0, cloudGain: 0.55, aerial: 1, bump: 0.6, exposure: 1.35 },
+  mono: { claritySaturation: 0, sunIntensity: 1, lightsGain: 0.6, ambient: 0.035, saturation: 0, sepia: 0, cloudGain: 0.6, aerial: 0.7, bump: 1.1, exposure: 1.2 },
 };
 
 export interface GlobeRendererOptions {
@@ -170,8 +176,9 @@ export class GlobeRenderer {
       powerPreference: 'high-performance',
       stencil: false,
     });
-    this.renderer.setPixelRatio(1);
-    this.renderer.setSize(options.width, options.height, false);
+    // Retina-native: the drawing buffer is already width·dpr × height·dpr physical
+    // pixels; three.js renders into it 1:1 with the device pixel ratio declared.
+    this.applyRendererSize();
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
     this.renderer.toneMappingExposure = this.style.exposure;
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -192,6 +199,7 @@ export class GlobeRenderer {
         uploadsPerFrame: this.config.uploadsPerFrame,
         abortAfterMs: this.config.abortAfterMs,
         maxRetries: this.config.maxRetries,
+        anisotropy: this.renderer.capabilities.getMaxAnisotropy(),
       },
       () => {
         this.needsFrame = true;
@@ -233,10 +241,25 @@ export class GlobeRenderer {
     this.widthPx = Math.max(1, Math.floor(width));
     this.heightPx = Math.max(1, Math.floor(height));
     this.pixelRatio = pixelRatio;
-    this.renderer.setSize(this.widthPx, this.heightPx, false);
+    this.applyRendererSize();
     this.controller.setViewport(this.widthPx / pixelRatio, this.heightPx / pixelRatio);
     this.updateProjection();
     this.needsFrame = true;
+  }
+
+  /** Drawing-buffer size in physical pixels (what the GPU actually renders). */
+  get drawingBufferSize(): { width: number; height: number } {
+    return { width: this.widthPx, height: this.heightPx };
+  }
+
+  /**
+   * setPixelRatio(dpr) + setSize(layout) so three's viewport equals the
+   * physical drawing buffer exactly (+0.5 px guards against floor() rounding).
+   */
+  private applyRendererSize(): void {
+    const ratio = Math.max(0.5, this.pixelRatio);
+    this.renderer.setPixelRatio(ratio);
+    this.renderer.setSize((this.widthPx + 0.5) / ratio, (this.heightPx + 0.5) / ratio, false);
   }
 
   /**
@@ -278,6 +301,7 @@ export class GlobeRenderer {
     s.u_sepia.value = this.style.sepia;
     s.u_aerialStrength.value = this.style.aerial;
     s.u_bumpStrength.value = this.style.bump;
+    s.u_clarityStyleSaturation.value = this.style.claritySaturation;
     this.renderer.toneMappingExposure = this.style.exposure;
     this.needsFrame = true;
   }
@@ -294,7 +318,7 @@ export class GlobeRenderer {
     const upload = (image: DecodedTileImage | undefined): GpuTexture | null => {
       if (!image) return null;
       try {
-        const gpu = uploadGpuTexture(this.gl, image, { wrapS: 'repeat', mipmaps: true });
+        const gpu = uploadGpuTexture(this.gl, image, { wrapS: 'repeat', mipmaps: true, anisotropy: this.renderer.capabilities.getMaxAnisotropy() });
         if (gpu) this.globalTextures.push(gpu);
         return gpu;
       } finally {
@@ -447,13 +471,17 @@ export class GlobeRenderer {
     const uploads = this.cache.processUploads(now);
     this.cache.evict();
 
-    // Clouds fade 1 → 0 between cloudFadeAltitude and a third of it.
-    const cloudOpacity = smoothstep(this.config.cloudFadeAltitude / 3, this.config.cloudFadeAltitude, altitude) * this.style.cloudGain * this.shared.u_hasClouds.value;
+    // Hard cloud cut-off: zero cloud (and cloud shadow) at or below cloudCutoffAltitude,
+    // fading in only above it so crossing the line never pops.
+    const cutoff = this.config.cloudCutoffAltitude;
+    const cloudOpacity = smoothstep(cutoff, cutoff * 1.5, altitude) * this.style.cloudGain * this.shared.u_hasClouds.value;
     this.clouds.material.uniforms.u_cloudOpacity!.value = cloudOpacity;
     this.clouds.visible = cloudOpacity > 0.001;
     this.clouds.position.set(-this.cameraEcef.x, -this.cameraEcef.y, -this.cameraEcef.z);
     this.atmosphere.position.set(-this.cameraEcef.x, -this.cameraEcef.y, -this.cameraEcef.z);
-    this.shared.u_cloudShadow.value = smoothstep(this.config.cloudFadeAltitude / 6, this.config.cloudFadeAltitude, altitude);
+    this.shared.u_cloudShadow.value = smoothstep(cutoff, cutoff * 1.5, altitude);
+    // Clarity: unlit, haze-free, true-colour imagery when zoomed in.
+    this.shared.u_clarity.value = 1 - smoothstep(this.config.clarityFullAltitude, this.config.clarityStartAltitude, altitude);
 
     this.updatePins(altitude, now);
 
