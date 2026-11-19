@@ -597,7 +597,7 @@ svg.i.filled { fill: currentColor; }
     <h2>ÖNİZLEMEDE SİMÜLE EDİLENLER</h2>
     <ul>
       <li>Radyo sesi: şehrin ruh hâline göre üretilen ambiyans. Uygulamada canlı yayın çalar.</li>
-      <li>İstasyon adları ve hava durumu örnektir.</li>
+      <li>Radyolar canlıdır (Radio Browser); hava durumu Open-Meteo'dan gelir. Ağ kapalıysa örnek veriye düşülür.</li>
       <li>Hesap: e-posta ve şifre doğrulanır, oturum simüle edilir.</li>
     </ul>
     <h2>HAREKET</h2>
@@ -684,7 +684,6 @@ const THEME_ORDER = ['classic','parchment','night_lights','swiss_minimal'];
 const COLOR_KEYS = ['oceanDeep','oceanShallow','shelf','landLow','landHigh','ice','coast','grid','equator','night','lights','atmoDay','atmoDusk','cloud','background'];
 const FLOAT_KEYS = ['gridOpacity','gridSpacingDeg','nightStrength','lightsStrength','lightsDay','atmoStrength','terminatorSoftness','specular','relief','coastStrength','hatch','flat','clouds'];
 
-const FALLBACK = ['SomaFM · Groove Salad','Radio Paradise · Main Mix','SomaFM · Secret Agent'];
 const PHYS = { damping:0.95, drag:0.0048, minV:0.0001, maxV:0.12, focusLerp:0.085, focusEps:0.0015, hapticDeg:15, hapticMinMs:40, idleSpin:0.0008, idleDelay:4000, idleRamp:1200, maxPitch:Math.PI/2.4, tapSlop:8, tapMs:250 };
 const DUR = { press:100, toggle:180, card:280, sheetClose:240, page:450, themeMorph:700, pulse:1600, audioIn:600, audioOut:200, startTimeout:5000, sleepFade:30000 };
 
@@ -1552,36 +1551,166 @@ const Ambient = (() => {
 // ═════════════════════════════════════════════════════════
 //  RADYO MOTORU (GlobeAudioContext akışı)
 // ═════════════════════════════════════════════════════════
+// Gerçek yayın: Radio Browser keşfi + HTML5 <audio> çalma.
+// Motion/ses: açılış 600 ms, kapanış 200 ms (DUR.audioIn / DUR.audioOut), 5 sn başlama süresi → failover.
+const RB_SERVERS = ['https://de1.api.radio-browser.info', 'https://de2.api.radio-browser.info', 'https://fi1.api.radio-browser.info', 'https://all.api.radio-browser.info'];
+const RB_LIMIT = 15, RB_TIMEOUT = 7000, RB_CACHE_MS = 10 * 60 * 1000;
+const CODECS = { MP3: 'MP3', MPEG: 'MP3', 'AUDIO/MPEG': 'MP3', AAC: 'AAC', 'AAC+': 'AAC', AACP: 'AAC', 'HE-AAC': 'AAC', 'AUDIO/AAC': 'AAC', 'AUDIO/AACP': 'AAC' };
+const GLOBAL_STREAMS = [
+  { uuid: 'fallback-somafm-groovesalad', name: 'SomaFM · Groove Salad', url: 'https://ice1.somafm.com/groovesalad-128-mp3', codec: 'MP3', bitrate: 128 },
+  { uuid: 'fallback-radioparadise-main', name: 'Radio Paradise · Main Mix', url: 'https://stream.radioparadise.com/mp3-192', codec: 'MP3', bitrate: 192 },
+  { uuid: 'fallback-somafm-secretagent', name: 'SomaFM · Secret Agent', url: 'https://ice1.somafm.com/secretagent-128-mp3', codec: 'MP3', bitrate: 128 },
+  { uuid: 'fallback-radioparadise-mellow', name: 'Radio Paradise · Mellow Mix', url: 'https://stream.radioparadise.com/mellow-192', codec: 'MP3', bitrate: 192 },
+  { uuid: 'fallback-somafm-dronezone', name: 'SomaFM · Drone Zone', url: 'https://ice2.somafm.com/dronezone-128-mp3', codec: 'MP3', bitrate: 128 },
+].map(s => Object.assign({ fallback: true }, s));
+// Ağ tamamen kapalıysa (ör. artifact önizlemesi) son çare: yerel ambiyans sesi
+const DEMO_STATION = { uuid: 'demo-ambient', name: 'Önizleme · ambiyans', codec: '—', bitrate: 0, fallback: true, demo: true };
+
+const stationCache = new Map();
+let rbServer = 0;
+async function rbFetch(path) {
+  let lastErr = null;
+  for (let k = 0; k < RB_SERVERS.length; k++) {
+    const idx = (rbServer + k) % RB_SERVERS.length, ctrl = new AbortController(), timer = setTimeout(() => ctrl.abort(), RB_TIMEOUT);
+    try {
+      const r = await fetch(RB_SERVERS[idx] + path, { signal: ctrl.signal, headers: { Accept: 'application/json' } });
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      const data = await r.json(); rbServer = idx; return data;
+    } catch (e) { lastErr = e; } finally { clearTimeout(timer); }
+  }
+  throw lastErr || new Error('radio-browser unreachable');
+}
+function toStation(raw) {
+  if (raw.lastcheckok !== 1 || raw.ssl_error === 1 || raw.hls === 1) return null;
+  const url = [raw.url_resolved, raw.url].map(v => (v || '').trim()).find(v => v.toLowerCase().startsWith('https://'));
+  const key = (raw.codec || '').trim().toUpperCase(), codec = CODECS[key] || CODECS[key.split(/[,;/ ]+/)[0]];
+  if (!url || !codec) return null;
+  const name = (raw.name || '').replace(/\s+/g, ' ').trim() || 'İsimsiz İstasyon';
+  return { uuid: raw.stationuuid, name, url, codec, bitrate: Number.isFinite(raw.bitrate) ? raw.bitrate : 0, fallback: false };
+}
+async function fetchCountryStations(cc) {
+  const hit = stationCache.get(cc);
+  if (hit && hit.expires > Date.now()) return hit.stations;
+  try {
+    const raw = await rbFetch(`/json/stations/bycountrycodeexact/${encodeURIComponent(cc)}?limit=${RB_LIMIT}&order=clickcount&reverse=true&hidebroken=true`);
+    const seenUrl = new Set(), seenName = new Set(), out = [];
+    (Array.isArray(raw) ? raw : []).map(toStation).filter(Boolean).forEach(st => {
+      const u = st.url.toLowerCase().replace(/\/+$/, ''), n = st.name.toLocaleLowerCase('tr-TR');
+      if (seenUrl.has(u) || seenName.has(n)) return; seenUrl.add(u); seenName.add(n); out.push(st);
+    });
+    stationCache.set(cc, { stations: out, expires: Date.now() + RB_CACHE_MS });
+    return out;
+  } catch (e) { return hit ? hit.stations : []; }   // bayat önbellek > sessizlik
+}
+async function loadQueue(city) {
+  const local = await fetchCountryStations(city.countryCode);
+  return { local: local.length, stations: local.concat(GLOBAL_STREAMS, [DEMO_STATION]) };
+}
+const emptyQueue = () => ({ stations: null, local: 0 });
+
+const Radio = (() => {
+  const audio = new Audio();
+  audio.preload = 'none';
+  let factor = 1, tune = 1, fadeRaf = 0, live = false, pendingReject = null, unlocked = false;
+  // 0.05 sn sessiz WAV: iOS Safari'de <audio> ilk dokunuşta bununla "açılır",
+  // sonraki asenkron play() çağrıları (istasyon listesi geldikten sonra) engellenmez.
+  const SILENT = (() => { const n = 400, b = new Uint8Array(44 + n), v = new DataView(b.buffer), w = (o, t) => { for (let i = 0; i < t.length; i++) b[o + i] = t.charCodeAt(i); };
+    w(0, 'RIFF'); v.setUint32(4, 36 + n, true); w(8, 'WAVEfmt '); v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true); v.setUint32(24, 8000, true); v.setUint32(28, 8000, true); v.setUint16(32, 1, true); v.setUint16(34, 8, true); w(36, 'data'); v.setUint32(40, n, true); b.fill(128, 44);
+    let bin = ''; b.forEach(x => { bin += String.fromCharCode(x); }); return 'data:audio/wav;base64,' + btoa(bin); })();
+  const level = () => clamp(factor * tune, 0, 1);
+  const setVol = v => { try { audio.volume = clamp(v, 0, 1); } catch (e) {} };
+  function fadeTo(v, ms, done) {
+    cancelAnimationFrame(fadeRaf);
+    const from = audio.volume, t0 = performance.now();
+    const step = now => { const k = Math.min(1, (now - t0) / Math.max(ms, 1)); setVol(from + (v - from) * k); if (k < 1) fadeRaf = requestAnimationFrame(step); else if (done) done(); };
+    fadeRaf = requestAnimationFrame(step);
+  }
+  function halt() { cancelAnimationFrame(fadeRaf); try { audio.pause(); audio.removeAttribute('src'); audio.load(); } catch (e) {} live = false; }
+  return {
+    /** Akışı başlatır; 'playing' gelince çözülür, hata ya da zaman aşımında reddedilir. */
+    start(url, timeoutMs) {
+      if (pendingReject) { pendingReject(new Error('superseded')); pendingReject = null; }
+      halt();
+      return new Promise((resolve, reject) => {
+        let timer = null;
+        const cleanup = () => { clearTimeout(timer); audio.removeEventListener('playing', onPlay); audio.removeEventListener('error', onErr); if (pendingReject === fail) pendingReject = null; };
+        const fail = err => { cleanup(); halt(); reject(err); };
+        const onPlay = () => { cleanup(); live = true; resolve(); };
+        const onErr = () => fail(new Error('media error'));
+        pendingReject = fail;
+        audio.addEventListener('playing', onPlay); audio.addEventListener('error', onErr);
+        timer = setTimeout(() => fail(new Error('timeout')), timeoutMs);
+        setVol(0); audio.src = url;
+        const p = audio.play(); if (p && p.catch) p.catch(err => fail(err));
+      });
+    },
+    /** Kullanıcı dokunuşu sırasında çağrılır (selectCity / play / next / Keşfet). */
+    unlock() {
+      if (unlocked || live || pendingReject) return; unlocked = true;
+      try { audio.src = SILENT; const p = audio.play(); if (p && p.then) p.then(() => { if (!live && !pendingReject) audio.pause(); }).catch(() => { unlocked = false; }); } catch (e) { unlocked = false; }
+    },
+    fadeIn(ms) { fadeTo(level(), ms); },
+    fadeOut(ms = DUR.audioOut) { if (pendingReject) { pendingReject(new Error('stopped')); pendingReject = null; } if (!live) { halt(); return; } fadeTo(0, ms, halt); },
+    setFactor(v) { factor = v; if (live) setVol(level()); },
+    setTune(v) { tune = clamp(v, 0, 1); if (live) setVol(level()); },
+    get live() { return live; },
+  };
+})();
+// Ambient.unlock zaten her kullanıcı jestinde çağrılıyor; aynı jestte <audio> da açılır.
+{ const ambientUnlock = Ambient.unlock; Ambient.unlock = () => { ambientUnlock(); Radio.unlock(); }; }
+// Uyku zamanlayıcısı ve Keşfet ayarı her iki ses kaynağına da uygulanır.
+const Sound = {
+  fadeOut(ms) { Radio.fadeOut(ms); Ambient.fadeOut(ms); },
+  setFactor(v) { Radio.setFactor(v); Ambient.setFactor(v); },
+  setTune(v) { Radio.setTune(v); Ambient.setTune(v); },
+};
+
 let attemptToken = 0, startTimer = null, failedAttempts = 0;
-function buildQueue(city) {
-  const local = [`${city.name} FM`, `${city.name} Kültür`, `${city.name} Gece`].map((n, i) => ({ uuid: `${city.id}-${i}`, name: n, codec: i === 1 ? 'AAC' : 'MP3', bitrate: [128, 96, 192][i], fallback: false }));
-  const fb = FALLBACK.map((n, i) => ({ uuid: `fallback-${i}`, name: n, codec: 'MP3', bitrate: i === 1 ? 192 : 128, fallback: true }));
-  return { local: local.length, stations: local.concat(fb) };
-}
-const willFail = (city, i) => i === 0 && hash(city.id) % 4 === 0;
 function setStatus(s) { state.status = s; renderLive(); renderSheetDynamic(); }
-function startAttempt(i, isFailover) {
-  const city = CITY[state.activeCityId], q = state.queue; if (!city || !q.stations || !q.stations[i]) { setStatus('error'); return; }
+async function startAttempt(i, isFailover) {
+  const city = CITY[state.activeCityId]; if (!city) { setStatus('error'); return; }
   const token = ++attemptToken; clearTimeout(startTimer);
-  state.index = i; setStatus(isFailover ? 'failover' : 'loading');
-  if (willFail(city, i)) { startTimer = setTimeout(() => token === attemptToken && failover(token), DUR.startTimeout); return; }
-  startTimer = setTimeout(() => token === attemptToken && onStarted(token), 700 + (hash(city.id + i) % 600));
+  setStatus(isFailover ? 'failover' : 'loading');
+  if (!state.queue.stations) {
+    const q = await loadQueue(city);
+    if (token !== attemptToken || state.activeCityId !== city.id) return;
+    state.queue = q;
+    if (state.pendingUuid) { const k = q.stations.findIndex(st => st.uuid === state.pendingUuid); i = k >= 0 ? k : 0; state.pendingUuid = null; }
+    renderSheet();
+  }
+  const st = state.queue.stations[i]; if (!st) { setStatus('error'); return; }
+  state.index = i; renderSheetDynamic();
+  if (st.demo) { Radio.fadeOut(0); Ambient.play(city.vibeTag, 0); onStarted(token); return; }
+  Ambient.fadeOut(0);
+  Radio.start(st.url, DUR.startTimeout).then(() => {
+    if (token !== attemptToken) { Radio.fadeOut(0); return; }
+    Radio.fadeIn(DUR.audioIn); onStarted(token);
+  }).catch(err => {
+    if (token !== attemptToken) return;
+    // Tarayıcı otomatik oynatmayı engellediyse istasyonu bozuk sayma: kullanıcı ▶ ile başlatsın.
+    if (err && err.name === 'NotAllowedError') { setStatus('paused'); return; }
+    failover(token);
+  });
 }
-function failover(token) { if (token !== attemptToken) return; failedAttempts++; if (failedAttempts >= state.queue.stations.length) { setStatus('error'); return; } startAttempt((state.index + 1) % state.queue.stations.length, true); }
+function failover(token) {
+  if (token !== attemptToken) return; failedAttempts++;
+  if (failedAttempts >= state.queue.stations.length) { setStatus('error'); return; }
+  startAttempt((state.index + 1) % state.queue.stations.length, true);
+}
 function onStarted(token) {
   if (token !== attemptToken) return; failedAttempts = 0;
-  const city = CITY[state.activeCityId]; setStatus('playing'); Ambient.play(city.vibeTag, state.index);
+  const city = CITY[state.activeCityId]; setStatus('playing');
   const lastV = state.visits[0];
   if (!lastV || lastV.cityId !== city.id || Date.now() - new Date(lastV.visitedAt) > 30 * 60 * 1000) {
     state.visits.unshift({ id: 'v' + Date.now(), cityId: city.id, cityName: city.name, visitedAt: new Date().toISOString() }); state.visits = state.visits.slice(0, 200); save();
   }
 }
-function play() { const city = CITY[state.activeCityId]; if (!city) return; Ambient.unlock(); failedAttempts = 0; if (!state.queue.stations) state.queue = buildQueue(city); startAttempt(Math.max(0, state.index), false); }
-function pause() { attemptToken++; clearTimeout(startTimer); if (state.status === 'playing') Ambient.fadeOut(); if (state.status !== 'idle') setStatus('paused'); }
+function play() { const city = CITY[state.activeCityId]; if (!city) return; Ambient.unlock(); failedAttempts = 0; startAttempt(Math.max(0, state.index), false); }
+function pause() { attemptToken++; clearTimeout(startTimer); Sound.fadeOut(); if (state.status !== 'idle') setStatus('paused'); }
 function toggle() { ['playing', 'loading', 'failover'].includes(state.status) ? pause() : play(); }
 async function next() {
   if (!state.queue.stations) return play(); Ambient.unlock(); failedAttempts = 0; const token = ++attemptToken; clearTimeout(startTimer);
-  const wasPlaying = state.status === 'playing'; setStatus('loading'); if (wasPlaying) { Ambient.fadeOut(); await sleep(DUR.audioOut); }
+  const wasPlaying = state.status === 'playing'; setStatus('loading'); if (wasPlaying) { Sound.fadeOut(); await sleep(DUR.audioOut); }
   if (token === attemptToken) startAttempt((state.index + 1) % state.queue.stations.length, false);
 }
 function selectCity(city) {
@@ -1589,8 +1718,8 @@ function selectCity(city) {
   state.activeCityId = city.id; state.lastCityId = city.id; save();
   Globe.setActive(city.id); MapGlobe.setActive(city.id);
   if (same && ['playing', 'loading', 'failover'].includes(state.status)) { renderSheet(); return; }
-  if (!same || !state.queue.stations) { state.queue = buildQueue(city); state.index = 0; }
-  if (state.status === 'playing') Ambient.fadeOut();
+  if (!same || !state.queue.stations) { state.queue = emptyQueue(); state.index = 0; }
+  if (state.status === 'playing') Sound.fadeOut();
   renderSheet(); Ambient.unlock(); failedAttempts = 0; startAttempt(state.index, false);
 }
 const currentStation = () => state.queue.stations ? state.queue.stations[state.index] : null;
@@ -2080,7 +2209,7 @@ function statusLine() {
   const s = state.status, st = currentStation();
   if (s === 'loading') return 'Yayın aranıyor…';
   if (s === 'failover') return 'Yayın yanıt vermedi, sıradakine geçiliyor…';
-  if (s === 'playing') return st && st.fallback ? 'Global yayın' : `Canlı · ${st.bitrate} kbps`;
+  if (s === 'playing') return st && st.demo ? 'Önizleme sesi · ağ kapalı' : st && st.fallback ? 'Global yayın · canlı' : `Canlı · ${st.codec} ${st.bitrate ? st.bitrate + ' kbps' : ''}`.trim();
   if (s === 'error') return 'Şu an yayın alınamıyor. Bağlantını kontrol edip tekrar dene.';
   if (s === 'paused') return 'Duraklatıldı';
   return 'Dinlemek için oynat’a dokun';
@@ -2090,15 +2219,38 @@ const vizBars = () => Array.from({ length: VIZ_BARS }, (_, k) => {
   const h = (Math.sin(k * 1.7) * 0.5 + 0.5), lo = (0.08 + h * 0.12).toFixed(2), hi = (0.35 + ((k * 37) % 61) / 100).toFixed(2);
   return `<i style="--k:${k};--lo:${lo};--hi:${hi};--t:${380 + (k * 53) % 420}ms;--d:-${(k * 97) % 700}ms"></i>`;
 }).join('');
+// Canlı hava durumu (Open-Meteo, anahtarsız). 10 dk önbellek; hata olursa örnek veri + "ÖRNEK" etiketi.
+const liveWx = new Map();
+function wmoKey(c) { if (c <= 3) return c; if (c === 45 || c === 48) return 45; if (c >= 51 && c <= 67) return 61; if ((c >= 71 && c <= 77) || c === 85 || c === 86) return 71; if (c >= 80 && c <= 82) return 80; if (c >= 95) return 95; return 3; }
+function wxFor(city) { const live = liveWx.get(city.id); return live && live.ok ? { t: live.t, code: live.code, sample: false } : { t: (SAMPLE_WX[city.id] || [18, 2])[0], code: (SAMPLE_WX[city.id] || [18, 2])[1], sample: true }; }
+function wxMeta(city) {
+  const wx = wxFor(city), code = WMO[wx.code] || WMO[3], wxIcon = !isDay(city) && code[2] ? code[2] : code[1];
+  return `<span class="num" id="sheetClock">${cityTime(city.timezone)}</span><span>${utcLabel(city.timezone)}</span><span class="sep"></span>${icon(wxIcon, 16)}<span class="wxt">${Math.round(wx.t)}° ${code[0]}</span>${wx.sample ? '<span class="sample">ÖRNEK</span>' : ''}`;
+}
+function refreshWeather(city) {
+  const cur = liveWx.get(city.id); if (cur && cur.expires > Date.now()) return;
+  liveWx.set(city.id, Object.assign({}, cur, { expires: Date.now() + 10 * 60 * 1000 }));
+  const ctrl = new AbortController(); const timer = setTimeout(() => ctrl.abort(), 7000);
+  fetch(`https://api.open-meteo.com/v1/forecast?latitude=${city.lat}&longitude=${city.lng}&current=temperature_2m,weather_code&timezone=auto`, { signal: ctrl.signal })
+    .then(r => r.ok ? r.json() : Promise.reject(new Error('HTTP ' + r.status)))
+    .then(d => {
+      const c = d && d.current; if (!c || typeof c.temperature_2m !== 'number') throw new Error('no data');
+      liveWx.set(city.id, { ok: true, t: c.temperature_2m, code: wmoKey(c.weather_code | 0), expires: Date.now() + 10 * 60 * 1000 });
+      const meta = document.getElementById('sheetMeta');
+      if (meta && state.activeCityId === city.id) meta.innerHTML = wxMeta(city);
+    })
+    .catch(() => liveWx.set(city.id, { ok: false, expires: Date.now() + 2 * 60 * 1000 }))
+    .finally(() => clearTimeout(timer));
+}
 function renderSheet() {
   const city = CITY[state.activeCityId]; if (!city) return;
-  const wx = SAMPLE_WX[city.id] || [18, 2, 10], code = WMO[wx[1]] || WMO[3], wxIcon = !isDay(city) && code[2] ? code[2] : code[1];
+  refreshWeather(city);
   $('#sheetContent').innerHTML = `
     <div class="s-head enter" style="--i:0" id="sheetHead">
       <div class="t">
         <span class="label accent">${city.countryCode} · ${esc(city.vibeTag)}</span>
         <div class="s-city" role="heading" aria-level="2">${esc(city.name)}</div>
-        <div class="s-meta"><span class="num" id="sheetClock">${cityTime(city.timezone)}</span><span>${utcLabel(city.timezone)}</span><span class="sep"></span>${icon(wxIcon, 16)}<span class="wxt">${wx[0]}° ${code[0]}</span><span class="sample">ÖRNEK</span></div>
+        <div class="s-meta" id="sheetMeta">${wxMeta(city)}</div>
       </div>
       <button class="round press tight" id="sheetClose" aria-label="Kartı kapat">${icon('x', 20)}</button>
     </div>
@@ -2281,14 +2433,14 @@ function tunerFrame(time) {
   const cur = tn.shown >= 0 ? [$('#tnImgA'), $('#tnImgB')][tn.layer] : null;
   if (cur) cur.style.filter = `saturate(${(1.12 - stat * 0.9).toFixed(2)}) brightness(${(1.18 - stat * 0.55).toFixed(2)})`;
   $('#tnSig').querySelectorAll('i').forEach((b, k) => b.classList.toggle('on', signal > k / 5 + 0.05));
-  if (tn.audio) { Ambient.setStatic(stat * 0.9); Ambient.setTune(tn.locked === n ? signal : 0); }
+  if (tn.audio) { Ambient.setStatic(stat * 0.9); Sound.setTune(tn.locked === n ? signal : 0); }
   // Kilitlenme: istasyonda durunca yayın başlar
   if (!tn.dragging && signal > 0.97 && Math.abs(tn.vel) < 0.5) {
     if (!tn.settleAt) tn.settleAt = now;
     if (tn.audio && tn.locked !== n && now - tn.settleAt > 320) {
       tn.locked = n; const c = BAND[n];
       if (state.activeCityId !== c.id || !['playing', 'loading', 'failover'].includes(state.status)) selectCity(c);
-      Ambient.setTune(1); updateTunerFav();
+      Sound.setTune(1); updateTunerFav();
     }
   } else tn.settleAt = 0;
   tn.raf = requestAnimationFrame(tunerFrame);
@@ -2303,7 +2455,7 @@ function renderExplore() {
   $('#tnHint').classList.toggle('gone', tn.audio);
   if (!tn.raf) { tn.last = 0; tn.raf = requestAnimationFrame(tunerFrame); }
 }
-function leaveTuner() { if (tn.audio) { Ambient.setStatic(0); Ambient.setTune(1); } if (tn.raf) { cancelAnimationFrame(tn.raf); tn.raf = null; } }
+function leaveTuner() { if (tn.audio) { Ambient.setStatic(0); Sound.setTune(1); } if (tn.raf) { cancelAnimationFrame(tn.raf); tn.raf = null; } }
 (() => {
   const el = $('#tuner');
   el.addEventListener('pointerdown', e => {
@@ -2488,8 +2640,8 @@ function playFavorite(f) {
   const city = CITY[f.cityId]; if (!city) return; setTab('globe');
   state.interacted = true; $('#hint').classList.add('gone');
   state.activeCityId = city.id; state.lastCityId = city.id; save(); Globe.setActive(city.id);
-  state.queue = buildQueue(city); state.index = Math.min(f.index || 0, state.queue.stations.length - 1);
-  if (state.status === 'playing') Ambient.fadeOut();
+  state.queue = emptyQueue(); state.index = 0; state.pendingUuid = f.stationUuid;
+  if (state.status === 'playing') Sound.fadeOut();
   renderSheet(); openSheet(true); Ambient.unlock(); failedAttempts = 0; startAttempt(state.index, false);
 }
 // Uyku zamanlayıcısı — segment: Kapalı / 15 / 30 / 60
@@ -2513,11 +2665,11 @@ function renderSleep(full) {
 }
 function setSleep(minutes) {
   state.sleep = minutes ? { minutes, endsAt: Date.now() + minutes * 60000, fading: false } : { minutes: null, endsAt: null, fading: false };
-  Ambient.setFactor(1); clearInterval(sleepTicker);
+  Sound.setFactor(1); clearInterval(sleepTicker);
   if (minutes) sleepTicker = setInterval(() => {
     const remain = state.sleep.endsAt - Date.now();
-    if (remain <= 0) { clearInterval(sleepTicker); pause(); state.sleep = { minutes: null, endsAt: null, fading: false }; Ambient.setFactor(1); renderSleep(false); toast('Uyku zamanlayıcısı radyoyu kapattı'); return; }
-    if (remain <= DUR.sleepFade) { const l = remain / DUR.sleepFade; Ambient.setFactor(l * l); state.sleep.fading = true; }
+    if (remain <= 0) { clearInterval(sleepTicker); pause(); state.sleep = { minutes: null, endsAt: null, fading: false }; Sound.setFactor(1); renderSleep(false); toast('Uyku zamanlayıcısı radyoyu kapattı'); return; }
+    if (remain <= DUR.sleepFade) { const l = remain / DUR.sleepFade; Sound.setFactor(l * l); state.sleep.fading = true; }
     if (state.view === 'app' && state.tab === 'profile') renderSleep(false);
   }, 250);
   renderSleep(false);
@@ -2572,7 +2724,7 @@ document.querySelectorAll('[data-back]').forEach(b => b.addEventListener('click'
 $('#btnGuest').addEventListener('click', async () => { const b = $('#btnGuest'); setLoading(b, true); state.auth = 'guest'; save(); await sleep(250); setLoading(b, false); enterApp(); });
 document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => { vibrate(4); setTab(t.dataset.tab); }));
 
-if (state.lastCityId && CITY[state.lastCityId]) { state.activeCityId = state.lastCityId; state.queue = buildQueue(CITY[state.lastCityId]); state.index = 0; Globe.setActive(state.lastCityId, false); }
+if (state.lastCityId && CITY[state.lastCityId]) { state.activeCityId = state.lastCityId; state.queue = emptyQueue(); state.index = 0; Globe.setActive(state.lastCityId, false); }
 renderLive(); $('#hint').classList.add('show'); tickClock();
 if (state.activeCityId) renderSheet();
 
