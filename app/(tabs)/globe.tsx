@@ -69,6 +69,7 @@ export default function GlobeScreen() {
         verticalOffset={sheetOpen ? 0.17 : 0}
         focusZoom={9}
         initialView={{ lat: 30, lon: 25, zoom: 1.7 }}
+        debug
       />
 
       <SafeAreaView style={styles.topBar} edges={['top']} pointerEvents="box-none">

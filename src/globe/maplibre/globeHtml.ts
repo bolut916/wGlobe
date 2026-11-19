@@ -48,6 +48,8 @@ export interface GlobeHtmlConfig {
   markerColor: string;
   markerActiveColor: string;
   background: string;
+  /** Shows a live LOD / tile / error badge (temporary verification aid). */
+  debug: boolean;
 }
 
 export const MAPLIBRE_VERSION = '5.24.0';
@@ -71,11 +73,14 @@ export function buildGlobeHtml(config: GlobeHtmlConfig): string {
   #status { position: absolute; left: 0; right: 0; top: 46%; text-align: center; font: 500 13px -apple-system, system-ui, sans-serif;
             color: rgba(255,255,255,0.55); letter-spacing: 0.2px; opacity: 0; transition: opacity 240ms ease-out; pointer-events: none; }
   #status.on { opacity: 1; }
+  #debug { position: absolute; left: 12px; top: 112px; z-index: 5; font: 600 10px/1.35 ui-monospace, Menlo, monospace; color: rgba(255,255,255,0.8);
+           background: rgba(3,5,8,0.66); border: 1px solid rgba(255,255,255,0.14); padding: 6px 8px; border-radius: 8px; pointer-events: none; display: none; white-space: pre; }
 </style>
 </head>
 <body>
 <div id="map"></div>
 <div id="status"></div>
+<div id="debug"></div>
 <script>
 (function () {
   'use strict';
@@ -248,6 +253,17 @@ export function buildGlobeHtml(config: GlobeHtmlConfig): string {
     }
   }
 
+  // ── Debug badge: proves on-device that real tiles stream (zoom, loaded tiles, last error) ──
+  var debugEl = document.getElementById('debug');
+  var debugStats = { loaded: 0, errors: 0, lastError: '' };
+  function renderDebug() {
+    if (!CONFIG.debug || !map) return;
+    debugEl.style.display = 'block';
+    var lines = ['LOD Z' + map.getZoom().toFixed(1) + ' | Karo: ' + debugStats.loaded + ' | Hata: ' + debugStats.errors];
+    if (debugStats.lastError) lines.push('Son hata: ' + debugStats.lastError.slice(0, 60));
+    debugEl.textContent = lines.join('\\n');
+  }
+
   function markInteraction() {
     state.lastInteraction = Date.now();
     send({ type: 'interaction' });
@@ -331,8 +347,15 @@ export function buildGlobeHtml(config: GlobeHtmlConfig): string {
 
     map.on('error', function (event) {
       var message = event && event.error && event.error.message ? event.error.message : 'map error';
+      debugStats.errors += 1;
+      debugStats.lastError = message;
+      renderDebug();
       send({ type: 'error', message: message });
     });
+    map.on('data', function (event) {
+      if (event.dataType === 'source' && event.sourceId === 'satellite' && event.tile) { debugStats.loaded += 1; renderDebug(); }
+    });
+    map.on('move', renderDebug);
 
     ['dragstart', 'zoomstart', 'rotatestart', 'pitchstart'].forEach(function (name) {
       map.on(name, function (event) {

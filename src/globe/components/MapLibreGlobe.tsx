@@ -50,6 +50,8 @@ export interface MapLibreGlobeProps {
   focusZoom?: number;
   initialView?: { lat: number; lon: number; zoom: number };
   showAttribution?: boolean;
+  /** Temporary on-screen badge: zoom, loaded satellite tiles, last tile error. */
+  debug?: boolean;
   style?: StyleProp<ViewStyle>;
   onReady?: () => void;
   onInteractionStart?: () => void;
@@ -115,6 +117,7 @@ function MapLibreGlobeComponent({
   focusZoom = 9,
   initialView = DEFAULT_VIEW,
   showAttribution = true,
+  debug = false,
   style,
   onReady,
   onInteractionStart,
@@ -152,6 +155,7 @@ function MapLibreGlobeComponent({
       markerColor: MARKER_COLOR,
       markerActiveColor: MARKER_ACTIVE_COLOR,
       background: BACKGROUND,
+      debug,
     };
     return buildGlobeHtml(config);
     // eslint-disable-next-line react-hooks/exhaustive-deps
