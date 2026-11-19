@@ -141,8 +141,10 @@ function MapLibreGlobeComponent({
     const config: GlobeHtmlConfig = {
       maplibreVersion: MAPLIBRE_VERSION,
       tileUrl: ESRI_WORLD_IMAGERY_URL,
-      tileSize: 256,
-      sourceMaxZoom: 18,
+      // 256 px Esri tiles requested at a 128 px logical size: 4× the tiles per
+      // screen and one level deeper imagery, so retina screens stay sharp.
+      tileSize: 128,
+      sourceMaxZoom: 19,
       cameraMaxZoom: 19,
       attribution: ESRI_ATTRIBUTION,
       cities: toHtmlCities(cities),

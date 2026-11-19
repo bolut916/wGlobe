@@ -90,7 +90,7 @@ svg.i.filled { fill: currentColor; }
 .map-stage .maplibregl-canvas-container, .map-stage .maplibregl-canvas { position: absolute; left: 0; top: 0; }
 .map-stage .maplibregl-canvas { outline: none; touch-action: none; }
 .map-stage .maplibregl-ctrl-attrib, .map-stage .maplibregl-ctrl-bottom-right, .map-stage .maplibregl-ctrl-bottom-left { display: none; }
-.lod-badge { position: absolute; left: 20px; top: calc(var(--sat) + 64px); z-index: 3; font: 600 10px/1 ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .3px; color: rgba(255,255,255,.72); background: rgba(3,5,8,.62); border: 1px solid rgba(255,255,255,.12); padding: 6px 8px; border-radius: 8px; pointer-events: none; opacity: 0; transition: opacity 200ms ease-out; }
+.lod-badge { position: absolute; left: 20px; top: calc(var(--sat) + 64px); z-index: 3; font: 600 10px/1.35 ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .3px; white-space: pre-line; color: rgba(255,255,255,.72); background: rgba(3,5,8,.62); border: 1px solid rgba(255,255,255,.12); padding: 6px 8px; border-radius: 8px; pointer-events: none; opacity: 0; transition: opacity 200ms ease-out; }
 .lod-badge.on { opacity: 1; }
 .globe-host canvas, .globe-stage canvas { position: absolute; inset: 0; width: 100% !important; height: 100% !important; display: block; touch-action: none; }
 .view { position: absolute; inset: 0; z-index: 2; opacity: 0; visibility: hidden; transition: opacity var(--d-page) var(--e-standard), visibility 0s linear var(--d-page); }
@@ -1727,10 +1727,12 @@ $('#modalCancel').addEventListener('click', () => closeModal(false));
 $('#modal').addEventListener('click', e => { if (e.target.id === 'modal') closeModal(false); });
 
 // ═════════════════════════════════════════════════════════
-//  MAPLIBRE VEKTÖR KÜRE (Küre sekmesi)
-//  Önizleme ortamı dış karo sunucularını (arcgisonline) CSP ile engeller.
-//  Bu yüzden yüzey, Natural Earth 1:10m vektör kara/kıyı verisinden GPU'da
-//  çizilir: kıyı çizgileri her zoom'da yeniden mozaiklenir, piksel büyütmesi yok.
+//  MAPLIBRE KÜRE (Küre sekmesi)
+//  1) Uydu: Esri World Imagery karoları (z0–19). Karo 128 px mantıksal boyutla
+//     istenir: 256 px'lik görüntü 128 CSS px'e basılır → aynı ekranda 4× karo,
+//     bir seviye daha derin görüntü, retina'da büyütme bulanıklığı yarıya iner.
+//  2) Vektör yedek: karo sunucusu engelliyse (ör. artifact CSP) yüzey Natural
+//     Earth 1:10m kara/kıyı verisinden GPU'da çizilir. Karar otomatik verilir.
 //  MapLibre başlatılamazsa eski three.js küreye sessizce geri dönülür.
 // ═════════════════════════════════════════════════════════
 const MapGlobe = (() => {
@@ -1739,6 +1741,17 @@ const MapGlobe = (() => {
   let map = null, ready = false, failed = false, visible = false, onSelect = null, themeId = 'classic';
   let activeId = null, flight = null, bottomPad = 0, lastTouch = 0, userMoving = false, rafId = 0, lastFrame = 0, detentLon = null;
   let dataStatus = 'yükleniyor';
+  // Uydu modu: 'probing' → ilk karolar bekleniyor, 'satellite' → karo akıyor, 'vector' → engelli
+  let imagery = 'probing', satTiles = 0, satErrors = 0, satLastError = '';
+  const ESRI_URL = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
+  const SAT_TILE_SIZE = 128;   // 256 px görüntü / 128 CSS px → 4× karo yoğunluğu
+  const SAT_MAX_ZOOM = 19;
+  const RASTER = {
+    classic:       { 'raster-saturation': 0.12, 'raster-contrast': 0.08, 'raster-brightness-min': 0, 'raster-brightness-max': 1, 'raster-hue-rotate': 0 },
+    parchment:     { 'raster-saturation': -0.6, 'raster-contrast': 0.1, 'raster-brightness-min': 0.1, 'raster-brightness-max': 1, 'raster-hue-rotate': 18 },
+    night_lights:  { 'raster-saturation': -0.1, 'raster-contrast': 0.18, 'raster-brightness-min': 0, 'raster-brightness-max': 0.82, 'raster-hue-rotate': 0 },
+    swiss_minimal: { 'raster-saturation': -1, 'raster-contrast': 0.22, 'raster-brightness-min': 0.04, 'raster-brightness-max': 1, 'raster-hue-rotate': 0 },
+  };
 
   const STYLE = {
     classic:       { ocean: '#0A2A4C', land: '#3E5A3A', landHi: '#6B6A48', coast: '#B9D3E6', border: 'rgba(255,255,255,0.22)', sky: '#0b1d3a', horizon: '#6FB0FF' },
@@ -1760,7 +1773,8 @@ const MapGlobe = (() => {
   function updateBadge() {
     if (!visible) { badge.classList.remove('on'); return; }
     const z = map ? map.getZoom().toFixed(1) : '–';
-    badge.textContent = 'Z ' + z + ' · vektör 1:10m · ' + dataStatus + ' · karo: CSP engelli';
+    if (imagery === 'vector') badge.textContent = 'Z ' + z + ' · vektör 1:10m · ' + dataStatus + ' · uydu karosu engelli';
+    else badge.textContent = 'Z ' + z + ' · Uydu karo: ' + satTiles + ' · Hata: ' + satErrors + (imagery === 'probing' ? ' · bağlanıyor' : '') + (satLastError ? '\n' + satLastError.slice(0, 48) : '');
     badge.classList.add('on');
   }
 
@@ -1770,6 +1784,7 @@ const MapGlobe = (() => {
     map.setPaintProperty('land', 'fill-color', ['interpolate', ['linear'], ['zoom'], 1, c.land, 7, c.landHi]);
     map.setPaintProperty('coast', 'line-color', c.coast);
     map.setPaintProperty('borders', 'line-color', c.border);
+    if (map.getLayer('satellite')) { const r = RASTER[id] || RASTER.classic; Object.keys(r).forEach(k => map.setPaintProperty('satellite', k, r[k])); }
     map.setSky({ 'sky-color': c.sky, 'horizon-color': c.horizon, 'sky-horizon-blend': 0.6, 'horizon-fog-blend': 0.5, 'fog-color': c.horizon, 'fog-ground-blend': 0, 'atmosphere-blend': ['interpolate', ['linear'], ['zoom'], 0, 1, 5, 1, 7, 0] });
   }
 
@@ -1781,13 +1796,33 @@ const MapGlobe = (() => {
     map.setPaintProperty('city-core', 'circle-radius', ['case', ['==', ['get', 'id'], id], 7, 5]);
   }
 
+  /* Karo akışı kanıtlanınca uyduya geç; ilk karolar hata verirse vektöre dön. */
+  function setImagery(mode) {
+    if (imagery === mode) return;
+    imagery = mode;
+    if (mode === 'satellite') {
+      map.setPaintProperty('satellite', 'raster-opacity', 1);
+      map.setLayoutProperty('coast', 'visibility', 'none');
+      map.setPaintProperty('borders', 'line-opacity', 0.55);
+      map.setMaxZoom(SAT_MAX_ZOOM);
+    } else if (mode === 'vector') {
+      if (map.getLayer('satellite')) map.removeLayer('satellite');
+      if (map.getSource('satellite')) map.removeSource('satellite');
+      map.setLayoutProperty('coast', 'visibility', 'visible');
+      map.setMaxZoom(14);
+    }
+    updateBadge();
+  }
+
   function create() {
     try {
+      if (maplibregl.setMaxParallelImageRequests) maplibregl.setMaxParallelImageRequests(24);
       maplibregl.setWorkerUrl(new URL('lib/maplibre-gl-csp-worker.js', document.baseURI).href);
       const c = STYLE[themeId] || STYLE.classic;
       map = new maplibregl.Map({
         container: host, attributionControl: false, pixelRatio: Math.min(window.devicePixelRatio || 1, 3),
-        center: [30, 28], zoom: 1.55, minZoom: 0.8, maxZoom: 14, maxPitch: 70, fadeDuration: 0,
+        center: [30, 28], zoom: 1.55, minZoom: 0.8, maxZoom: SAT_MAX_ZOOM, maxPitch: 70, fadeDuration: 0,
+        maxTileCacheSize: 1500, cancelPendingTileRequestsWhileZooming: false,
         style: {
           version: 8, projection: { type: 'globe' },
           sources: {
@@ -1795,10 +1830,12 @@ const MapGlobe = (() => {
             coastline: { type: 'geojson', data: { type: 'FeatureCollection', features: [] }, tolerance: 0.2, maxzoom: 14 },
             borders: { type: 'geojson', data: { type: 'FeatureCollection', features: [] }, tolerance: 0.3 },
             cities: { type: 'geojson', data: cityFeatures() },
+            satellite: { type: 'raster', tiles: [ESRI_URL], tileSize: SAT_TILE_SIZE, maxzoom: SAT_MAX_ZOOM, attribution: 'Imagery © Esri, Maxar, Earthstar Geographics' },
           },
           layers: [
             { id: 'ocean', type: 'background', paint: { 'background-color': c.ocean } },
             { id: 'land', type: 'fill', source: 'land', paint: { 'fill-color': c.land, 'fill-antialias': true } },
+            { id: 'satellite', type: 'raster', source: 'satellite', paint: Object.assign({ 'raster-opacity': 0, 'raster-opacity-transition': { duration: 400, delay: 0 }, 'raster-fade-duration': 200, 'raster-resampling': 'linear' }, RASTER[themeId] || RASTER.classic) },
             { id: 'borders', type: 'line', source: 'borders', paint: { 'line-color': c.border, 'line-width': ['interpolate', ['linear'], ['zoom'], 1, 0.4, 6, 1, 10, 1.4] } },
             { id: 'coast', type: 'line', source: 'coastline', layout: { 'line-join': 'round', 'line-cap': 'round' }, paint: { 'line-color': c.coast, 'line-opacity': 0.85, 'line-width': ['interpolate', ['exponential', 1.6], ['zoom'], 1, 0.5, 6, 1.1, 12, 2.2] } },
             { id: 'city-pulse', type: 'circle', source: 'cities', filter: ['==', ['get', 'id'], ''], paint: { 'circle-radius': 10, 'circle-color': 'rgba(0,0,0,0)', 'circle-stroke-width': 2, 'circle-stroke-color': '#F5D08A', 'circle-stroke-opacity': 0.5, 'circle-pitch-alignment': 'map' } },
@@ -1824,7 +1861,22 @@ const MapGlobe = (() => {
         .catch(e => { dataStatus = 'veri hatası'; updateBadge(); });
       rafId = requestAnimationFrame(animate);
     });
-    map.on('error', e => { if (!ready) fail(e && e.error && e.error.message || 'harita hatası'); });
+    map.on('error', e => {
+      if (e && e.sourceId === 'satellite') {
+        satErrors += 1; satLastError = (e.error && e.error.message) || 'karo hatası';
+        if (imagery === 'probing' && satTiles === 0 && satErrors >= 4) setImagery('vector');
+        updateBadge(); return;
+      }
+      if (!ready) fail(e && e.error && e.error.message || 'harita hatası');
+    });
+    map.on('data', e => {
+      if (e.dataType === 'source' && e.sourceId === 'satellite' && e.tile) {
+        satTiles += 1;
+        if (imagery === 'probing') setImagery('satellite'); else if (visible) updateBadge();
+      }
+    });
+    // Ağ sessizce düşürürse (CSP bazen hata olayı üretmez): 6 sn'de karo yoksa vektöre geç.
+    setTimeout(() => { if (imagery === 'probing' && satTiles === 0) setImagery('vector'); }, 6000);
     ['dragstart', 'zoomstart', 'rotatestart', 'pitchstart'].forEach(n => map.on(n, ev => { if (ev.originalEvent) { userMoving = true; flight = null; lastTouch = Date.now(); state.interacted = true; $('#hint').classList.add('gone'); hideCityTag(); } }));
     map.on('moveend', ev => { if (ev && ev.wglobeFlight) flight = null; if (userMoving) lastTouch = Date.now(); userMoving = false; });
     map.on('move', ev => {
@@ -1957,7 +2009,7 @@ const MapGlobe = (() => {
     focus(city, open, sheetHeight) {
       if (!ready || !visible) return;
       bottomPad = open ? Math.round(sheetHeight + 84) : 0;
-      if (open && city) flyTo(city.lng, city.lat, 5.6);
+      if (open && city) flyTo(city.lng, city.lat, imagery === 'satellite' ? 10.5 : 5.6);
       else if (city) flyTo(city.lng, city.lat, Math.min(map.getZoom(), 2.2), 1.4);
       else map.easeTo({ padding: padding(), duration: 320 });
     },

@@ -273,6 +273,8 @@ export function buildGlobeHtml(config: GlobeHtmlConfig): string {
   function start() {
     var maplibregl = window.maplibregl;
     if (!maplibregl) { loadLibrary(bases.length); return; }
+    // Dense tile grid (128 px logical tiles) → allow many image requests in flight.
+    if (maplibregl.setMaxParallelImageRequests) maplibregl.setMaxParallelImageRequests(24);
     var theme = THEMES[CONFIG.theme] || THEMES.classic;
     var paint = { 'raster-fade-duration': 220, 'raster-resampling': 'linear' };
     Object.keys(theme).forEach(function (k) { paint[k] = theme[k]; });
@@ -289,8 +291,8 @@ export function buildGlobeHtml(config: GlobeHtmlConfig): string {
       dragRotate: true,
       touchPitch: true,
       fadeDuration: 200,
-      maxTileCacheSize: 600,
-      cancelPendingTileRequestsWhileZooming: true,
+      maxTileCacheSize: 1500,
+      cancelPendingTileRequestsWhileZooming: false,
       style: {
         version: 8,
         projection: { type: 'globe' },
