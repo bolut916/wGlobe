@@ -2,7 +2,7 @@
  * Küre ekranı.
  *
  * KOREOGRAFİ
- *  - Küre: quadtree döşeme motoru (src/globe). Pinch/sürükle parmak altında kilitli.
+ *  - Küre: MapLibre GL JS globe (WebView) + Esri World Imagery z0–18, retina-native.
  *  - Şehir seçilince: kamera büyük-daire yayıyla şehre uçar VE görünüm yukarı
  *    kayar (verticalOffset), sheet aşağıdan yükselir → şehir hiçbir an sheet'in
  *    altında kalmaz. İki hareket aynı anda başlar, farklı fiziklerle biter
@@ -25,7 +25,7 @@ import { COLORS, RADII, SPACING, TYPOGRAPHY } from '@/constants/colors';
 import { DURATION } from '@/constants/motion';
 import { useGlobeAudio } from '@/context/GlobeAudioContext';
 import { useUserData } from '@/context/UserDataContext';
-import { WGlobeEngine } from '@/globe/components/WGlobeEngine';
+import { MapLibreGlobe } from '@/globe/components/MapLibreGlobe';
 import { useScreenFocus } from '@/hooks/useScreenFocus';
 import { easeStandard, fadeIn, fadeOut } from '@/lib/animations';
 import type { City } from '@/types';
@@ -57,7 +57,7 @@ export default function GlobeScreen() {
 
   return (
     <View style={styles.root}>
-      <WGlobeEngine
+      <MapLibreGlobe
         themeId={selectedTheme}
         cities={CITIES}
         activeCityId={activeCity?.id ?? null}
@@ -67,8 +67,8 @@ export default function GlobeScreen() {
         autoRotate={!sheetOpen}
         paused={!focused}
         verticalOffset={sheetOpen ? 0.17 : 0}
-        focusAltitude={1_400_000}
-        initialView={{ lat: 30, lon: 25, altitude: 17_000_000 }}
+        focusZoom={9}
+        initialView={{ lat: 30, lon: 25, zoom: 1.7 }}
       />
 
       <SafeAreaView style={styles.topBar} edges={['top']} pointerEvents="box-none">
