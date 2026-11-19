@@ -1,0 +1,62 @@
+# Builds the Expo web app and publishes it, together with the design
+# prototype, to the gh-pages branch on every push to main.
+#
+#   https://bolut916.github.io/wGlobe/            → app (MapLibre globe, Esri imagery)
+#   https://bolut916.github.io/wGlobe/prototype/  → HTML design prototype
+#
+# Repository setting required once: Settings → Pages → "Deploy from a branch",
+# branch gh-pages, folder / (root).
+name: Deploy GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type check
+        run: npx tsc --noEmit
+
+      - name: Export web build
+        run: npx expo export --platform web --output-dir dist
+        env:
+          CI: '1'
+
+      - name: Add prototype, SPA fallback and .nojekyll
+        run: |
+          cp -r prototype dist/prototype
+          # GitHub Pages serves 404.html for unknown paths → client-side routes work.
+          cp dist/index.html dist/404.html
+          # Folders starting with "_" (dist/_expo) are dropped by Jekyll otherwise.
+          touch dist/.nojekyll
+
+      - name: Publish to gh-pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: ./dist
+          force_orphan: true
+          commit_message: 'Deploy ${{ github.sha }}'
