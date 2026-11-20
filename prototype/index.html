@@ -253,6 +253,12 @@ svg.i.filled { fill: currentColor; }
 .eq i { width: 2px; height: 12px; border-radius: 1px; background: var(--fg-2); transform-origin: bottom; animation: eq var(--t) var(--e-inout) infinite alternate; }
 @keyframes eq { from { transform: scaleY(0.25); } to { transform: scaleY(1); } }
 .shuffle .rot { display: grid; transition: transform 320ms var(--e-standard); }
+/* Intro'dan ana sayfaya varış: küre yerine otururken arayüz 90 ms arayla, 10 px aşağıdan 420 ms'de belirir. */
+@keyframes arriveUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+#app.arrive .app-logo, #app.arrive .topbar { animation: arriveUp 420ms var(--e-enter) 0ms backwards; }
+#app.arrive .search { animation: arriveUp 420ms var(--e-enter) 90ms backwards; }
+#app.arrive .tabbar { animation: arriveUp 420ms var(--e-enter) 180ms backwards; }
+@media (prefers-reduced-motion: reduce) { #app.arrive .app-logo, #app.arrive .topbar, #app.arrive .search, #app.arrive .tabbar { animation: none; } }
 .hint { position: absolute; left: 0; right: 0; bottom: calc(96px + var(--sab)); text-align: center; font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em; color: var(--fg-3); opacity: 0; transition: opacity 320ms var(--e-enter); pointer-events: none !important; }
 .hint.show { opacity: 1; transition-delay: 1000ms; }
 .hint.gone { opacity: 0 !important; transition: opacity var(--d-sheet-close) var(--e-exit); }
@@ -1722,7 +1728,7 @@ const Globe = (() => {
       zoom.focal = hostPt(e); lastInteract = performance.now();
     }, { passive: false });
   }
-  return { setDayImage, mount, update, unmount, setActive, drive, impulse, faceSun, transition, whenReady, setBackground, setThemeInstant, setRotation, snapshots, snapshotView, resetZoom, get layout() { return lay; }, get zoom() { return zoom.z; },
+  return { get driving() { return !!driver; }, setDayImage, mount, update, unmount, setActive, drive, impulse, faceSun, transition, whenReady, setBackground, setThemeInstant, setRotation, snapshots, snapshotView, resetZoom, get layout() { return lay; }, get zoom() { return zoom.z; },
     /** Ekrandaki kürenin merkez enlem/boylamı ve piksel yerleşimi (MapLibre devir teslimi için). */
     get view() { let lng = (-rot.y - Math.PI / 2) / D2R; lng = ((lng + 180) % 360 + 360) % 360 - 180; return { lat: rot.x / D2R, lng, cx: lay.cx, cy: lay.cy, r: lay.r * zoom.z }; },
     _debug: { setSun(lat, lng) { sunObj.copy(latLngToVec3(lat, lng)); lastSun = performance.now() + 1e9; }, rot } };
@@ -2067,7 +2073,7 @@ function runIntro(after) {
     Globe.drive((now, W, H) => {
       const t = now - t0;
       const P0 = { x: -0.22 * W, y: -0.16 * H }, C1 = { x: 0.06 * W, y: 0.5 * H }, PC = { x: 0.5 * W, y: 0.44 * H };
-      const r0 = 0.05 * W, r1 = 0.15 * W, r2 = 0.19 * W, F = chooserLayout(W, H), C2 = { x: 1.0 * W, y: 0.3 * H };
+      const r0 = 0.05 * W, r1 = 0.15 * W, r2 = 0.19 * W, F = appLayout(W, H), C2 = { x: 0.82 * W, y: 0.34 * H };   // doğrudan ana sayfadaki yerine
       if (t < T.enter) { const e = easeOutCubic(t / T.enter), p = quad(P0, C1, PC, e); return { cx: p.x, cy: p.y, r: lerp(r0, r1, e) }; }
       if (t < T.grow) { const e = easeInOutCubic((t - T.enter) / (T.grow - T.enter)); return { cx: PC.x, cy: PC.y, r: lerp(r1, r2, e) }; }
       if (t < T.morph) { const e = easeInOutCubic((t - T.grow) / (T.morph - T.grow)); return { cx: lerp(PC.x, slot.x, e), cy: lerp(PC.y, slot.y, e), r: lerp(r2, slot.r, e) }; }
@@ -2125,7 +2131,7 @@ function mountGlobe() {
   if (state.view === 'welcome') Globe.mount($('#globeStage'), { interactive: false, autoRotate: true, markers: false, theme: state.theme, layout: chooserLayout, stars: false, bg: '#000000' });
   else if (state.view === 'app' && state.tab === 'globe') {
     if (MapGlobe.revealed && MapGlobe.show({ theme: state.theme, onSelect: handleSelect })) { Globe.unmount(); MapGlobe.setActive(state.activeCityId); updateInk(); return; }
-    Globe.mount($('#globeStage'), { interactive: true, autoRotate: !state.sheetOpen, markers: !MapGlobe.available(), theme: state.theme, layout: appLayout, onSelect: handleSelect, onCity: placeCityTag, zoomable: true });
+    Globe.mount($('#globeStage'), { interactive: true, autoRotate: !state.sheetOpen, markers: !MapGlobe.available(), theme: state.theme, layout: appLayout, onSelect: handleSelect, onCity: placeCityTag, zoomable: true, bg: '#030508' });   // arka plan ana küreyle aynı
     MapGlobe.setActive(state.activeCityId);
     MapGlobe.reveal({ theme: state.theme, onSelect: handleSelect }, () => { if (state.view === 'app' && state.tab === 'globe') Globe.unmount(); });
   }
@@ -2187,7 +2193,7 @@ const SatMosaic = (() => {
 })();
 
 /** Sürüm etiketi: sitede hangi sürümün açık olduğunu rozetten görmek için (önbellek kontrolü). */
-const BUILD = 'v17';
+const BUILD = 'v18';
 const MapGlobe = (() => {
   const host = document.getElementById('mapStage');
   const badge = document.getElementById('lodBadge');
@@ -2195,7 +2201,7 @@ const MapGlobe = (() => {
   let activeId = null, flight = null, bottomPad = 0, topPad = 0, basePad = { top: 0, bottom: 0 }, lastTouch = 0, userMoving = false, rafId = 0, lastFrame = 0, detentLon = null;
   // Açılış devir teslimi: harita intro sırasında görünmez yüklenir; ilk görüntü tamamlanınca
   // three.js küresinin açısını/boyutunu birebir alıp üstüne 400 ms'de belirir.
-  let firstReady = false, revealed = false, pendingReveal = null, tap = null;
+  let firstReady = false, revealed = false, revealStarted = false, pendingReveal = null, tap = null;
   // Kullanıcı küreye bir kez dokunduğunda kamera tamamen onun: otomatik dönüş, yörünge ve
   // haritadan yapılan seçimlerde otomatik uçuş kapanır. Yalnızca açık komutlar (karıştır) uçar.
   let userControl = false, selectFromMap = false;
@@ -2256,42 +2262,116 @@ const MapGlobe = (() => {
     }
   }
   /* Açılış küresindeki bulut dokusunun aynısı: eşdikdörtgen → Mercator, beyaz + yoğunluk = alfa. */
-  function addClouds() {
-    const im = new Image();
-    im.onload = () => {
-      try {
-        const Ws = im.naturalWidth, Hs = im.naturalHeight, M = 2048;
-        const sc = document.createElement('canvas'); sc.width = Ws; sc.height = Hs;
-        const sx = sc.getContext('2d', { willReadFrequently: true }); sx.drawImage(im, 0, 0);
-        const src = sx.getImageData(0, 0, Ws, Hs).data;
-        const out = document.createElement('canvas'); out.width = out.height = M;
-        const oc = out.getContext('2d'), img = oc.createImageData(M, M), d = img.data;
-        for (let y = 0; y < M; y++) {
-          const lat = Math.atan(Math.sinh(Math.PI * (1 - 2 * (y + 0.5) / M))) * R2D;
-          const row = Math.min(Hs - 1, Math.max(0, Math.floor((90 - lat) / 180 * Hs))) * Ws;
-          for (let x = 0; x < M; x++) {
-            const a = Math.min(1, src[(row + Math.floor((x + 0.5) / M * Ws)) * 4] / 255 * 1.08);
-            const o = (y * M + x) * 4; d[o] = d[o + 1] = d[o + 2] = 235; d[o + 3] = Math.round(a * 255);
+  // ── Görüntü hazırlığı (intro başlamadan, siyah açılışta yapılır → intro sırasında kasma yok) ──
+  let cloudUrl = null, bmUrl = null, bmReady = false, prepared = null;
+  /** Eşdikdörtgen bir görseli M×M Mercator kareye çevirip blob URL döndürür. alpha=true: bulut (beyaz + yoğunluk). */
+  // Önce Web Worker (OffscreenCanvas): dönüşüm ana thread'e hiç dokunmaz. Desteklenmiyorsa ana thread'de yapılır.
+  let worker = null, workerSeq = 0; const workerJobs = new Map();
+  function getWorker() {
+    if (worker !== null) return worker || null;
+    try {
+      if (typeof OffscreenCanvas === 'undefined' || typeof createImageBitmap === 'undefined') throw new Error('no offscreen');
+      worker = new Worker(new URL('lib/reproject-worker.js', document.baseURI).href);
+      worker.onmessage = e => { const job = workerJobs.get(e.data.id); if (!job) return; workerJobs.delete(e.data.id); job(e.data); };
+      worker.onerror = () => { const jobs = [...workerJobs.values()]; workerJobs.clear(); worker = false; jobs.forEach(j => j({ error: 'worker' })); };
+    } catch (e) { worker = false; }
+    return worker || null;
+  }
+  function toMercatorBlob(src, M, alpha) {
+    const w = getWorker();
+    if (!w) return toMercatorBlobMain(src, M, alpha);
+    return new Promise(res => {
+      const id = ++workerSeq;
+      workerJobs.set(id, r => r.blob ? res(URL.createObjectURL(r.blob)) : toMercatorBlobMain(src, M, alpha).then(res));
+      w.postMessage({ id, url: new URL(src, document.baseURI).href, size: M, alpha });
+    });
+  }
+  function toMercatorBlobMain(src, M, alpha) {
+    return new Promise(res => {
+      const im = new Image();
+      im.onload = () => {
+        try {
+          const Ws = im.naturalWidth, Hs = im.naturalHeight;
+          const sc = document.createElement('canvas'); sc.width = Ws; sc.height = Hs;
+          const sx = sc.getContext('2d', { willReadFrequently: true }); sx.drawImage(im, 0, 0);
+          const px = sx.getImageData(0, 0, Ws, Hs).data;
+          const out = document.createElement('canvas'); out.width = out.height = M;
+          const oc = out.getContext('2d'), img = oc.createImageData(M, M), d = img.data;
+          const colOf = new Int32Array(M); for (let x = 0; x < M; x++) colOf[x] = Math.floor((x + 0.5) / M * Ws) * 4;
+          for (let y = 0; y < M; y++) {
+            const lat = Math.atan(Math.sinh(Math.PI * (1 - 2 * (y + 0.5) / M))) * R2D;
+            const row = Math.min(Hs - 1, Math.max(0, Math.floor((90 - lat) / 180 * Hs))) * Ws * 4;
+            for (let x = 0, o = y * M * 4; x < M; x++, o += 4) {
+              const i = row + colOf[x];
+              if (alpha) { d[o] = d[o + 1] = d[o + 2] = 235; d[o + 3] = Math.min(255, px[i] * 1.08); }
+              else { d[o] = px[i]; d[o + 1] = px[i + 1]; d[o + 2] = px[i + 2]; d[o + 3] = 255; }
+            }
           }
-        }
-        oc.putImageData(img, 0, 0);
-        out.toBlob(blob => {
-          if (!blob || !map) { cloudsReady = true; checkReady(); return; }
-          const L = 85.051129;
-          map.addSource('clouds', { type: 'image', url: URL.createObjectURL(blob), coordinates: [[-180, L], [180, L], [180, -L], [-180, -L]] });
-          // Bulutlar küre ölçeğinde görünür, şehre yaklaştıkça (zoom 3 → 5,5) tamamen kaybolur.
-          map.addLayer({ id: 'clouds', type: 'raster', source: 'clouds', paint: { 'raster-opacity': ['interpolate', ['linear'], ['zoom'], 3, 1, 5.5, 0], 'raster-fade-duration': 0, 'raster-resampling': 'linear' } }, 'borders');
-          map.once('sourcedata', () => { cloudsReady = true; checkReady(); });
-          setTimeout(() => { cloudsReady = true; checkReady(); }, 3000);
-        }, 'image/png');
-      } catch (e) { cloudsReady = true; checkReady(); }
-    };
-    im.onerror = () => { cloudsReady = true; checkReady(); };
-    im.src = 'earth-clouds.jpg';
+          oc.putImageData(img, 0, 0);
+          out.toBlob(blob => res(blob ? URL.createObjectURL(blob) : null), alpha ? 'image/png' : 'image/jpeg', 0.92);
+        } catch (e) { res(null); }
+      };
+      im.onerror = () => res(null);
+      im.src = src;
+    });
+  }
+  /** Bulutlar ve (uydu karoları gelmiyorsa) intro küresinin NASA görüntüsü; ikisi de açılış küresiyle aynı doku. */
+  function prepareImagery(esriOk) {
+    if (prepared) return prepared;
+    prepared = Promise.all([
+      toMercatorBlob('earth-clouds.jpg', 1024, true),
+      esriOk ? Promise.resolve(null) : toMercatorBlob('earth-day.webp', 2048, false),
+    ]).then(([c, bm]) => { cloudUrl = c; bmUrl = bm; if (!c) cloudsReady = true; attachImagery(); });
+    return prepared;
+  }
+  const L85 = 85.051129, WORLD = [[-180, L85], [180, L85], [180, -L85], [-180, -L85]];
+  /** Hazırlanan katmanları stil hazır olduğunda ekler (hangisi önce biterse). */
+  function attachImagery() {
+    if (!ready || !map) return;
+    if (bmUrl && !map.getSource('bluemarble')) {
+      map.addSource('bluemarble', { type: 'image', url: bmUrl, coordinates: WORLD });
+      map.addLayer({ id: 'bluemarble', type: 'raster', source: 'bluemarble', paint: { 'raster-opacity': bmOpacity(), 'raster-fade-duration': 0, 'raster-resampling': 'linear' } }, 'borders');
+      map.setLayoutProperty('land', 'visibility', 'none');
+      const done = () => { if (!bmReady) { bmReady = true; checkReady(); } };
+      map.on('sourcedata', e => { if (e.sourceId === 'bluemarble' && e.isSourceLoaded) done(); }); setTimeout(done, 3000);
+    }
+    if (cloudUrl && !map.getSource('clouds')) {
+      map.addSource('clouds', { type: 'image', url: cloudUrl, coordinates: WORLD });
+      // Bulutlar küre ölçeğinde görünür, şehre yaklaştıkça (zoom 3 → 5,5) tamamen kaybolur.
+      map.addLayer({ id: 'clouds', type: 'raster', source: 'clouds', paint: { 'raster-opacity': ['interpolate', ['linear'], ['zoom'], 3, 1, 5.5, 0], 'raster-fade-duration': 0, 'raster-resampling': 'linear' } }, 'borders');
+      const done = () => { if (!cloudsReady) { cloudsReady = true; checkReady(); } };
+      map.on('sourcedata', e => { if (e.sourceId === 'clouds' && e.isSourceLoaded) done(); }); setTimeout(done, 3000);
+    }
+  }
+  /** Uydu karoları sonradan engellendiyse NASA katmanı (tek sefer) hazırlanır; olmazsa vektöre geçilir. */
+  let fallbackStarted = false;
+  function ensureFallback() {
+    if (bmUrl || fallbackStarted) return; fallbackStarted = true;
+    Promise.resolve(prepared).then(() => bmUrl ? null : toMercatorBlob('earth-day.webp', 2048, false)).then(u => {
+      if (u) { bmUrl = u; attachImagery(); map.setPaintProperty('coast', 'line-opacity', ['interpolate', ['linear'], ['zoom'], 3.5, 0, 4.5, 0.85]); }
+      else if (revealed) loadVectorData(); else bmReady = false;
+      checkReady();
+    });
+  }
+  /** NASA katmanı: uydu karoları akıyorsa yalnız küre ölçeğinde (z3 → 4,5 arası ESRI'ye devreder), yoksa her zaman. */
+  const bmOpacity = () => imagery === 'satellite' ? ['interpolate', ['linear'], ['zoom'], 3, 1, 4.5, 0] : 1;
+  /** Kıyı/sınır verisi: ana thread'de ağır (3 MB), bu yüzden yalnız gerekince ve geçişten sonra işlenir. */
+  let vectorLoaded = false;
+  function loadVectorData() {
+    if (vectorLoaded || !map) return; vectorLoaded = true;
+    Promise.all([fetch('world/land-10m.json').then(r => r.json()), fetch('world/countries-50m.json').then(r => r.json())])
+      .then(([land, countries]) => {
+        const landGeo = topojson.feature(land, land.objects.land);
+        map.getSource('coastline').setData(coastlines(landGeo));
+        map.getSource('land').setData(fixPolygons(landGeo));
+        map.getSource('borders').setData(topojson.mesh(countries, countries.objects.countries, (a, b) => a !== b));
+        dataStatus = 'veri hazır'; updateBadge(); checkReady();
+      })
+      .catch(() => { dataStatus = 'veri hatası'; updateBadge(); });
   }
   function checkReady() {
     if (firstReady || !ready || imagery === 'probing' || !cloudsReady) return;
-    if (imagery === 'vector' && dataStatus !== 'veri hazır') return;
+    if (imagery === 'vector' && !bmReady && dataStatus !== 'veri hazır') return;
     if (!map.areTilesLoaded()) return;
     firstReady = true;
     if (pendingReveal) { const f = pendingReveal; pendingReveal = null; f(); }
@@ -2306,7 +2386,7 @@ const MapGlobe = (() => {
   function updateBadge() {
     if (!visible) { badge.classList.remove('on'); return; }
     const z = map ? map.getZoom().toFixed(1) : '–';
-    if (imagery === 'vector') badge.textContent = BUILD + ' · Z ' + z + ' · vektör 1:10m · ' + dataStatus + ' · uydu karosu engelli';
+    if (imagery === 'vector') badge.textContent = BUILD + ' · Z ' + z + (bmReady ? ' · NASA görüntüsü' : ' · vektör 1:10m · ' + dataStatus) + ' · uydu karosu engelli';
     else badge.textContent = BUILD + ' · Z ' + z + ' · Uydu karo: ' + satTiles + ' · Hata: ' + satErrors + (imagery === 'probing' ? ' · bağlanıyor' : '') + (satLastError ? '\n' + satLastError.slice(0, 48) : '');
     badge.classList.add('on');
   }
@@ -2343,8 +2423,12 @@ const MapGlobe = (() => {
       if (map.getLayer('satellite')) map.removeLayer('satellite');
       if (map.getSource('satellite')) map.removeSource('satellite');
       map.setLayoutProperty('coast', 'visibility', 'visible');
+      // NASA görüntüsü varsa kıyılar yalnız yaklaşınca (z3,5+) belirir; yoksa vektör veri hemen yüklenir.
+      if (bmUrl) map.setPaintProperty('coast', 'line-opacity', ['interpolate', ['linear'], ['zoom'], 3.5, 0, 4.5, 0.85]);
+      else ensureFallback();
       map.setMaxZoom(14);
     }
+    if (map.getLayer('bluemarble')) map.setPaintProperty('bluemarble', 'raster-opacity', bmOpacity());
     updateBadge(); checkReady();
   }
 
@@ -2388,16 +2472,7 @@ const MapGlobe = (() => {
     map.once('style.load', () => {
       clearTimeout(bootTimer); ready = true;
       paint(themeId); applyActive(); map.setPadding(padding());
-      setTimeout(addClouds, 60);
-      Promise.all([fetch('world/land-10m.json').then(r => r.json()), fetch('world/countries-50m.json').then(r => r.json())])
-        .then(([land, countries]) => {
-          const landGeo = topojson.feature(land, land.objects.land);
-          map.getSource('coastline').setData(coastlines(landGeo));
-          map.getSource('land').setData(fixPolygons(landGeo));
-          map.getSource('borders').setData(topojson.mesh(countries, countries.objects.countries, (a, b) => a !== b));
-          dataStatus = 'veri hazır'; updateBadge(); checkReady();
-        })
-        .catch(e => { dataStatus = 'veri hatası'; updateBadge(); });
+      attachImagery();
       rafId = requestAnimationFrame(animate);
     });
     map.on('error', e => {
@@ -2549,6 +2624,8 @@ const MapGlobe = (() => {
   return {
     available,
     get revealed() { return revealed && !failed; },
+    /** Intro'dan önce: bulut (ve gerekirse NASA) katmanlarını hazırlar. */
+    prepare(esriOk) { return available() ? prepareImagery(esriOk) : Promise.resolve(); },
     /** Intro başlarken çağrılır: harita görünmezken yüklenir (karolar önceden iner). */
     preload(theme, view) {
       if (!available() || map) return;
@@ -2560,12 +2637,17 @@ const MapGlobe = (() => {
       if (!available()) return false;
       themeId = opts.theme || themeId; onSelect = opts.onSelect || null;
       if (!map) create(); if (failed) return false;
+      if (revealStarted) return true;   // mountGlobe birden çok kez çağrılabilir: devir teslim tek sefer
+      revealStarted = true;
       const go = () => {
         if (failed) return;
+        if (Globe.driving) { setTimeout(go, 50); return; }   // intro küresi yerine oturmadan devir yok
         matchView(Globe.view);
         Globe.update({ autoRotate: false }); Globe.setRotation({ x: Globe._debug.rot.x, y: Globe._debug.rot.y });
         paint(themeId); applyActive(); lastTouch = Date.now();
-        const show = () => { matchView(Globe.view); visible = true; revealed = true; host.classList.add('on'); updateBadge(); setTimeout(done, 420); };
+        const show = () => { matchView(Globe.view); visible = true; revealed = true; host.classList.add('on'); updateBadge(); setTimeout(done, 420);
+          // Kıyı/sınır verisi geçiş bittikten sonra, boşta işlenir (uydu modunda yalnız sınırlar için).
+          setTimeout(loadVectorData, 1600); };
         // Görünmeden önce bu açıdaki karoların tamamı inmeli: 'idle' = çizim bitti ve bekleyen karo yok.
         // (jumpTo sonrası areTilesLoaded() yeni karolar istenmeden önce yanlışlıkla true dönebilir.)
         let shown = false; const once = () => { if (!shown) { shown = true; show(); } };
@@ -3363,8 +3445,10 @@ renderLive(); $('#hint').classList.add('show'); tickClock();
 if (state.activeCityId) renderSheet();
 
 function afterIntro() {
-  if (state.auth) { enterApp(); }
-  else { state.view = 'welcome'; $('#welcome').classList.add('choose'); mountGlobe(); }
+  // Doğrudan ana sayfa: hesap yoksa misafir olarak devam edilir (Üye ol / Giriş yap Profil sekmesinde).
+  if (!state.auth) { state.auth = 'guest'; save(); }
+  enterApp();
+  const app = $('#app'); app.classList.add('arrive'); setTimeout(() => app.classList.remove('arrive'), 1200);
 }
 go('welcome', { replace: true });
 // MapLibre küresini intro sırasında, intro'nun varacağı açıda görünmez olarak yükle.
@@ -3374,11 +3458,20 @@ MapGlobe.preload(state.theme, () => {
 });
 // Açılış küresi ana küreyle aynı uydu görüntüsünü kullansın: z2 mozaiği gelince (en fazla 1,2 sn) intro başlar,
 // ardından z3 (daha keskin, aynı renkler) sessizce yerine geçer. Karolar engelliyse NASA dokusuyla devam edilir.
-SatMosaic.load(2, 1200).then(c2 => {
-  if (c2) { Globe.setDayImage(c2); SatMosaic.load(3, 20000).then(c3 => { if (c3) Globe.setDayImage(c3); }); }
-  if (reduceMotion.matches) { afterIntro(); }
-  else { runIntro(afterIntro); }
-});
+// Uydu mozaiği intro başlamadan (≤1,2 sn); bulut ve NASA katmanları Web Worker'da intro sürerken hazırlanır:
+// ana thread boş kalır, intro animasyonu kasmaz.
+SatMosaic.load(2, 1200)
+  .then(c2 => {
+    if (c2) Globe.setDayImage(c2);
+    MapGlobe.prepare(!!c2);   // bulut/NASA katmanları işçide hazırlanır; intro beklemez, devir teslim bekler
+    return c2;
+  })
+  .then(c2 => {
+    if (reduceMotion.matches) { afterIntro(); }
+    else { runIntro(afterIntro); }
+    // Daha keskin z3 mozaiği: devir tesliminden sonra, açılış küresi görünmezken (Koleksiyon vb. için).
+    if (c2) setTimeout(() => SatMosaic.load(3, 20000).then(c3 => { if (c3) Globe.setDayImage(c3); }), 9000);
+  });
 })();
 </script>
 </body></html>
