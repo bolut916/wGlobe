@@ -90,7 +90,7 @@ svg.i.filled { fill: currentColor; }
 .map-stage .maplibregl-canvas-container, .map-stage .maplibregl-canvas { position: absolute; left: 0; top: 0; }
 .map-stage .maplibregl-canvas { outline: none; touch-action: none; }
 .map-stage .maplibregl-ctrl-attrib, .map-stage .maplibregl-ctrl-bottom-right, .map-stage .maplibregl-ctrl-bottom-left { display: none; }
-.lod-badge { position: absolute; left: 20px; top: calc(var(--sat) + 64px); z-index: 3; font: 600 10px/1.35 ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .3px; white-space: pre-line; color: rgba(255,255,255,.72); background: rgba(3,5,8,.62); border: 1px solid rgba(255,255,255,.12); padding: 6px 8px; border-radius: 8px; pointer-events: none; opacity: 0; transition: opacity 200ms ease-out; }
+.lod-badge { position: absolute; left: 20px; top: calc(var(--sat) + 120px); z-index: 3; font: 600 10px/1.35 ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .3px; white-space: pre-line; color: rgba(255,255,255,.72); background: rgba(3,5,8,.62); border: 1px solid rgba(255,255,255,.12); padding: 6px 8px; border-radius: 8px; pointer-events: none; opacity: 0; transition: opacity 200ms ease-out; }
 .lod-badge.on { opacity: 1; }
 .globe-host canvas, .globe-stage canvas { position: absolute; inset: 0; width: 100% !important; height: 100% !important; display: block; touch-action: none; }
 .view { position: absolute; inset: 0; z-index: 2; opacity: 0; visibility: hidden; transition: opacity var(--d-page) var(--e-standard), visibility 0s linear var(--d-page); }
@@ -191,7 +191,7 @@ svg.i.filled { fill: currentColor; }
 
 /* ── Uygulama ─────────────────────────────────────────── */
 #app { pointer-events: none; }
-#app .tabbar, #app .pane.active:not(#pane-globe), #pane-globe.active .topbar, #pane-globe.active .live-dock:not(.hidden) .live, #pane-globe.active .sheet, #pane-globe.active .hint { pointer-events: auto; }
+#app .tabbar, #app .pane.active:not(#pane-globe), #pane-globe.active .topbar, #pane-globe.active .search, #pane-globe.active .live-dock:not(.hidden) .live, #pane-globe.active .sheet, #pane-globe.active .hint { pointer-events: auto; }
 .pane { position: absolute; inset: 0; opacity: 0; visibility: hidden; transition: opacity 260ms var(--e-standard), visibility 0s linear 260ms; }
 .pane.active { opacity: 1; visibility: inherit; transition: opacity 260ms var(--e-standard), visibility 0s; }
 .view:not(.active) .pane, .view:not(.active) .tabbar { pointer-events: none !important; }
@@ -211,6 +211,23 @@ svg.i.filled { fill: currentColor; }
 .tab.active .dot { transform: scale(1); }
 
 /* Küre sekmesi */
+/* Arama: düz yüzey, ince çizgi; bulanıklık, gölge, geçiş animasyonu yok. */
+.search { position: absolute; top: calc(var(--sat) + 64px); left: 16px; right: 16px; z-index: 11; }
+.search-field { display: flex; align-items: center; gap: 10px; height: 46px; padding: 0 6px 0 14px; background: #0E1218; border: 1px solid rgba(238,234,227,0.14); border-radius: 14px; color: var(--fg-3); }
+.search-field:focus-within { border-color: rgba(238,234,227,0.34); }
+.search-field input { flex: 1; min-width: 0; height: 100%; background: transparent; border: 0; outline: none; color: var(--fg); font: 400 15px/1 var(--font); -webkit-appearance: none; appearance: none; }
+.search-field input::placeholder { color: var(--fg-3); }
+.search-field input::-webkit-search-cancel-button { display: none; }
+.s-clear { width: 34px; height: 34px; border: 0; background: transparent; color: var(--fg-2); font-size: 20px; line-height: 1; border-radius: 10px; cursor: pointer; }
+.search-results { margin-top: 6px; background: #0E1218; border: 1px solid rgba(238,234,227,0.14); border-radius: 14px; max-height: min(58vh, 460px); overflow-y: auto; overscroll-behavior: contain; }
+.sr-label { padding: 12px 14px 6px; font: 600 10px/1 var(--mono); letter-spacing: 0.12em; color: var(--fg-3); text-transform: uppercase; }
+.sr-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; padding: 11px 14px; border: 0; background: transparent; color: var(--fg); text-align: left; font: 400 15px/1.25 var(--font); cursor: pointer; }
+.sr-row:active, .sr-row:focus-visible { background: rgba(238,234,227,0.06); outline: none; }
+.sr-row .m { font-size: 12px; color: var(--fg-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 48%; text-align: right; }
+.sr-row .t { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sr-head { display: flex; align-items: center; gap: 8px; padding: 10px 10px 4px; color: var(--fg); font: 600 15px/1.2 var(--font); }
+.sr-head button { width: 34px; height: 34px; border: 0; background: transparent; color: var(--fg-2); border-radius: 10px; cursor: pointer; display: grid; place-items: center; }
+.sr-note { padding: 12px 14px 14px; font-size: 13px; color: var(--fg-3); }
 .topbar { position: absolute; top: calc(var(--sat) + 8px); right: 16px; display: flex; justify-content: flex-end; align-items: center; z-index: 10; }
 .live-dock { position: absolute; left: 16px; right: 16px; bottom: calc(86px + var(--sab)); display: flex; justify-content: center; z-index: 10; pointer-events: none !important; transition: opacity 280ms var(--e-enter), transform 420ms var(--spring-button); }
 .live-dock.hidden { opacity: 0; transform: translateY(12px); transition: opacity 180ms var(--e-exit), transform 180ms var(--e-exit); }
@@ -511,6 +528,10 @@ svg.i.filled { fill: currentColor; }
           <div class="topbar">
             
             <button class="round glass press tight shuffle" id="shuffle" aria-label="Rastgele şehir"><span class="rot" id="shuffleRot" data-icon="shuffle"></span></button>
+          </div>
+          <div class="search" id="search">
+            <div class="search-field"><span data-icon="search" data-size="18"></span><input id="searchInput" type="search" placeholder="Şehir, ülke veya istasyon ara" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search" aria-label="Şehir, ülke veya istasyon ara" aria-controls="searchResults"><button class="s-clear" id="searchClear" aria-label="Aramayı temizle" hidden>×</button></div>
+            <div class="search-results" id="searchResults" role="listbox" aria-label="Arama sonuçları" hidden></div>
           </div>
           <div class="hint" id="hint">KÜREYİ ÇEVİR · BİR ŞEHRE DOKUN</div>
           <div class="live-dock hidden" id="liveDock"><button class="live press" id="live" aria-label="Radyo durumu"><span class="dot"></span><span class="txt"><span class="lab" id="liveLab">RADYO KAPALI</span><span class="sub" id="liveSub" hidden></span></span><span class="eq"><i style="--t:310ms"></i><i style="--t:240ms"></i><i style="--t:360ms"></i></span></button></div>
@@ -825,6 +846,16 @@ const CITIES = [
   ['port-moresby','Port Moresby','Papua Yeni Gine',-9.4438,147.1803,'Pacific/Port_Moresby','PG','Tropikal Ritimler'],
 ].map(([id,name,country,lat,lng,timezone,countryCode,vibeTag]) => ({id,name,country,lat,lng,timezone,countryCode,vibeTag}));
 const CITY = Object.fromEntries(CITIES.map(c => [c.id, c]));
+// Aramayla bulunan yerler (dünyadaki herhangi bir şehir/kasaba). CITY'ye eklenir, cihazda saklanır.
+const PLACES = {};
+const PLACES_KEY = 'wglobe-places-v1';
+function registerPlace(pl) {
+  if (CITY[pl.id] && !PLACES[pl.id]) return CITY[pl.id];
+  PLACES[pl.id] = pl; CITY[pl.id] = pl;
+  try { const ids = Object.keys(PLACES).slice(-120); localStorage.setItem(PLACES_KEY, JSON.stringify(ids.map(id => PLACES[id]))); } catch (e) {}
+  return pl;
+}
+try { (JSON.parse(localStorage.getItem(PLACES_KEY) || '[]') || []).forEach(pl => { if (pl && pl.id && Number.isFinite(pl.lat)) { PLACES[pl.id] = pl; CITY[pl.id] = pl; } }); } catch (e) {}
 
 // Örnek hava (uygulamada Open-Meteo): [°C, WMO, rüzgâr km/s]
 const SAMPLE_WX = { istanbul:[14,3,18], tokyo:[15,1,9], 'new-york':[9,2,16], london:[10,61,21], paris:[11,3,12], reykjavik:[1,71,28], 'buenos-aires':[24,0,14], cairo:[24,0,11], seoul:[8,2,10], sydney:[22,1,19], lisbon:[16,2,15], vienna:[6,3,13], 'rio-de-janeiro':[27,80,12], nairobi:[22,2,9], toronto:[5,3,20], amsterdam:[9,61,24], rome:[15,1,8], bangkok:[30,2,7], 'mexico-city':[19,1,10], stockholm:[4,3,17], 'cape-town':[21,0,26], dubai:[28,0,13], singapore:[29,95,9], prague:[6,45,6], athens:[17,1,14] };
@@ -896,6 +927,8 @@ const ICONS = {
   'cloud-sun':'<path d="M12 2v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="M20 12h2"/><path d="m19.07 4.93-1.41 1.41"/><path d="M15.947 12.65a4 4 0 0 0-5.925-4.128"/><path d="M13 22H7a5 5 0 1 1 4.9-6H13a3 3 0 0 1 0 6Z"/>',
   'cloud-snow':'<path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M8 15h.01"/><path d="M8 19h.01"/><path d="M12 17h.01"/><path d="M12 21h.01"/><path d="M16 15h.01"/><path d="M16 19h.01"/>',
   'cloud-fog':'<path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M16 17H7"/><path d="M17 21H9"/>',
+  search:'<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+  'chevron-left':'<path d="m15 18-6-6 6-6"/>',
   'cloud-lightning':'<path d="M6 16.326A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 .5 8.973"/><path d="m13 12-3 5h4l-3 5"/>',
 };
 const icon = (name, size = 20, cls = '') => `<svg class="i ${cls}" style="--s:${size}px" viewBox="0 0 24 24" aria-hidden="true">${ICONS[name] || ''}</svg>`;
@@ -1806,9 +1839,11 @@ async function fetchCountryStations(cc) {
   } catch (e) { return hit ? hit.stations : []; }   // bayat önbellek > sessizlik
 }
 async function loadQueue(city) {
-  // Sıra: konumun yakını → ülkenin geri kalanı → global yedekler → (ağ kapalıysa) önizleme sesi
+  // Sıra: (aramada seçilen istasyon/bölge) → konumun yakını → ülkenin geri kalanı → global yedekler → önizleme
   const [near, country] = await Promise.all([fetchNearbyStations(city), fetchCountryStations(city.countryCode)]);
-  const local = dedupe(near.concat(country));
+  const pinned = state.pinned && state.pinned.cityId === city.id ? state.pinned.stations : [];
+  state.pinned = null;
+  const local = dedupe(pinned.concat(near, country));
   return { local: local.length, stations: local.concat(GLOBAL_STREAMS, [DEMO_STATION]) };
 }
 const emptyQueue = () => ({ stations: null, local: 0 });
@@ -1840,20 +1875,27 @@ const Radio = (() => {
       if (cancelRace) cancelRace(new Error('superseded'));
       halt();
       return new Promise((resolve, reject) => {
-        const n = Math.min(urls.length, POOL); let done = false, failed = 0, blocked = false; const offs = [];
-        const finish = fn => { if (done) return; done = true; clearTimeout(timer); offs.forEach(off => off()); cancelRace = null; fn(); };
-        const timer = setTimeout(() => finish(() => { halt(); reject(new Error('timeout')); }), timeoutMs);
+        // Öncelik: sıradaki konum önemli (aramada seçilen istasyon en başta). Daha arkadaki bir yayın
+        // önce açılırsa, öndekiler için en fazla 1,5 sn beklenir; öndekiler düşerse hemen o seçilir.
+        const n = Math.min(urls.length, POOL), GRACE = 1500; let done = false, blocked = false, graceTimer = null; const offs = [], st = new Array(n).fill('pending');
+        const finish = fn => { if (done) return; done = true; clearTimeout(timer); clearTimeout(graceTimer); offs.forEach(off => off()); cancelRace = null; fn(); };
+        const win = k => finish(() => {
+          const a = pool[k]; pool.forEach((o, j) => { if (j !== k) stopEl(o); });
+          cur = a; live = true; a.muted = false; setVol(a, 0); resolve(k);
+        });
+        const decide = force => {
+          if (done) return;
+          const first = st.indexOf('playing');
+          if (first >= 0 && (force || st.slice(0, first).every(x => x === 'failed'))) { win(first); return; }
+          if (first >= 0 && !graceTimer) graceTimer = setTimeout(() => decide(true), GRACE);
+          if (st.every(x => x === 'failed')) finish(() => { halt(); const e = new Error(blocked ? 'blocked' : 'all failed'); if (blocked) e.name = 'NotAllowedError'; reject(e); });
+        };
+        const timer = setTimeout(() => { if (st.includes('playing')) decide(true); else finish(() => { halt(); reject(new Error('timeout')); }); }, timeoutMs);
         cancelRace = err => finish(() => { halt(); reject(err); });
         for (let k = 0; k < n; k++) {
           const a = pool[k];
-          const onPlay = () => finish(() => {
-            pool.forEach((o, j) => { if (j !== k) stopEl(o); });
-            cur = a; live = true; a.muted = false; setVol(a, 0); resolve(k);
-          });
-          const onErr = err => {
-            if (done) return; failed++; if (err && err.name === 'NotAllowedError') blocked = true;
-            if (failed >= n) finish(() => { halt(); const e = new Error(blocked ? 'blocked' : 'all failed'); if (blocked) e.name = 'NotAllowedError'; reject(e); });
-          };
+          const onPlay = () => { if (st[k] === 'pending') { st[k] = 'playing'; decide(false); } };
+          const onErr = err => { if (done || st[k] === 'failed') return; if (err && err.name === 'NotAllowedError') blocked = true; st[k] = 'failed'; stopEl(a); decide(false); };
           const onMediaErr = () => onErr(null);
           a.addEventListener('playing', onPlay); a.addEventListener('error', onMediaErr);
           offs.push(() => { a.removeEventListener('playing', onPlay); a.removeEventListener('error', onMediaErr); });
@@ -2088,7 +2130,7 @@ $('#modal').addEventListener('click', e => { if (e.target.id === 'modal') closeM
 //  MapLibre başlatılamazsa eski three.js küreye sessizce geri dönülür.
 // ═════════════════════════════════════════════════════════
 /** Sürüm etiketi: sitede hangi sürümün açık olduğunu rozetten görmek için (önbellek kontrolü). */
-const BUILD = 'v15';
+const BUILD = 'v16';
 const MapGlobe = (() => {
   const host = document.getElementById('mapStage');
   const badge = document.getElementById('lodBadge');
@@ -2121,7 +2163,7 @@ const MapGlobe = (() => {
   };
 
   const available = () => !failed && typeof window.maplibregl !== 'undefined' && typeof window.topojson !== 'undefined';
-  const cityFeatures = () => ({ type: 'FeatureCollection', features: CITIES.map(c => ({ type: 'Feature', properties: { id: c.id }, geometry: { type: 'Point', coordinates: [c.lng, c.lat] } })) });
+  const cityFeatures = () => ({ type: 'FeatureCollection', features: CITIES.concat(Object.values(PLACES)).map(c => ({ type: 'Feature', properties: { id: c.id }, geometry: { type: 'Point', coordinates: [c.lng, c.lat] } })) });
   const padding = () => ({ top: topPad, left: 0, right: 0, bottom: bottomPad });
   /** Haritada dokunulan noktaya en yakın konum (büyük daire mesafesi). */
   function nearestCity(lat, lng) {
@@ -2397,9 +2439,11 @@ const MapGlobe = (() => {
       map.setPaintProperty('city-pulse2', 'circle-stroke-opacity', 0.55 * (1 - ph2));
     }
 
-    if (!userControl && !state.sheetOpen && !userMoving && !flight && !map.isMoving() && Date.now() - lastTouch > PHYS.idleDelay && map.getZoom() < 3.5) {
-      const k = Math.min(1, (3.5 - map.getZoom()) / 1.5), c = map.getCenter();
-      map.setCenter([c.lng - 3 * k * dt, c.lat]);
+    // Kendiliğinden dönüş: açılıştan itibaren (1,2 sn'de yumuşak hızlanma), ilk dokunuşa kadar.
+    if (!userControl && !userMoving && !flight && !map.isMoving() && map.getZoom() < 3.5) {
+      const ramp = Math.min(1, (Date.now() - lastTouch) / 1200);
+      const k = Math.min(1, (3.5 - map.getZoom()) / 1.5) * ramp * ramp * (3 - 2 * ramp), c = map.getCenter();
+      map.setCenter([c.lng - 4 * k * dt, c.lat]);
     }
   }
 
@@ -2448,7 +2492,13 @@ const MapGlobe = (() => {
     },
     hide() { visible = false; host.classList.remove('on'); badge.classList.remove('on'); },
     setTheme(id) { themeId = id; if (ready) paint(id); },
-    setActive(id) { activeId = id; applyActive(); },
+    setActive(id) {
+      activeId = id;
+      if (ready && id && PLACES[id]) map.getSource('cities').setData(cityFeatures());   // aramayla gelen yer
+      applyActive();
+    },
+    /** Arama gibi açık bir seçim de kontrolü kullanıcıya verir (otomatik dönüş durur). */
+    takeControl() { userControl = true; },
     /** Sheet açık: şehre in (kartın üstünde kalan alanın ortası). Kapalı: yörüngeye çık. */
     focus(city, open, sheetHeight) {
       if (!ready || !visible) return;
@@ -2627,6 +2677,177 @@ sheetEl.addEventListener('pointermove', moveSheetDrag); sheetEl.addEventListener
 $('#live').addEventListener('click', () => { if (!state.activeCityId) return; if (!$('#sheetContent').children.length) renderSheet(); openSheet(true); });
 let shuffleDeg = 0;
 $('#shuffle').addEventListener('click', () => { shuffleDeg += 180; $('#shuffleRot').style.transform = `rotate(${shuffleDeg}deg)`; vibrate(12); const pool = CITIES.filter(c => c.id !== state.activeCityId); handleSelect(pool[Math.floor(Math.random() * pool.length)]); });
+
+// ═════════════════════════════════════════════════════════
+//  ARAMA: şehir / ülke / istasyon → yerel radyo
+//  Yerel: 198 konum + tüm ülkeler (Intl, Türkçe & İngilizce adlar).
+//  Uzak: Open-Meteo yer arama (dünyadaki her şehir/kasaba) + Radio Browser
+//  istasyon adı araması (veritabanındaki tüm istasyonlar). Ülke seçilince
+//  o ülkenin şehir/bölgeleri gerçek istasyon sayılarıyla sorulur.
+//  Görsel: düz liste, efekt ve animasyon yok.
+// ═════════════════════════════════════════════════════════
+const Search = (() => {
+  const input = $('#searchInput'), box = $('#searchResults'), clearBtn = $('#searchClear');
+  const norm = t => (t || '').toLocaleLowerCase('tr-TR').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/ı/g, 'i').replace(/\s+/g, ' ').trim();
+  const COUNTRIES = (() => {
+    const out = [];
+    try {
+      const tr = new Intl.DisplayNames(['tr'], { type: 'region' }), en = new Intl.DisplayNames(['en'], { type: 'region' });
+      const A = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+      for (const a of A) for (const b of A) {
+        const code = a + b; let name, eng;
+        try { name = tr.of(code); eng = en.of(code); } catch (e) { continue; }
+        if (!name || name === code || /bilinmeyen|unknown|pseudo|outlying|europe|united nations|eurozone/i.test(eng || '') || /^(Q[M-Z]|X[A-Z]|ZZ|EU|EZ|UN)$/.test(code)) continue;
+        out.push({ code, name, en: eng, n: norm(name), ne: norm(eng) });
+      }
+    } catch (e) {}
+    return out;
+  })();
+  const countryName = cc => (COUNTRIES.find(c => c.code === cc) || {}).name || cc;
+  const vibeFor = lat => Math.abs(lat) < 23.5 ? 'Tropikal Ritimler' : Math.abs(lat) > 55 ? 'Yağmurlu Sokaklar' : 'Sabah Kahvesi';
+  const matches = (n, q) => n.startsWith(q) || n.includes(' ' + q);
+  let seq = 0, timer = null, items = [];
+
+  const badgeEl = document.getElementById('lodBadge');
+  // Liste açıkken rozet gizlenir (rozet görünüm katmanının üstünde, listeyi örterdi).
+  function open() { box.hidden = false; badgeEl.style.visibility = 'hidden'; }
+  function close() { box.hidden = true; box.innerHTML = ''; items = []; badgeEl.style.visibility = ''; }
+  function reset() { input.value = ''; clearBtn.hidden = true; close(); input.blur(); }
+
+  function render(groups, extra = '') {
+    items = []; let html = extra;
+    groups.forEach(g => {
+      if (!g.rows.length) return;
+      html += `<div class="sr-label">${esc(g.label)}</div>`;
+      g.rows.forEach(r => { items.push(r); html += `<button class="sr-row" role="option" data-i="${items.length - 1}"><span class="t">${esc(r.title)}</span><span class="m">${esc(r.meta || '')}</span></button>`; });
+    });
+    if (!items.length && !extra) html = '<div class="sr-note">Sonuç yok. Başka bir yazım dene.</div>';
+    box.innerHTML = html; open();
+  }
+
+  function localGroups(q) {
+    const countries = COUNTRIES.filter(c => matches(c.n, q) || matches(c.ne, q)).slice(0, 4)
+      .map(c => ({ kind: 'country', title: c.name, meta: 'Ülke · şehir seç', cc: c.code }));
+    const cities = CITIES.concat(Object.values(PLACES)).filter(c => matches(norm(c.name), q)).slice(0, 6)
+      .map(c => ({ kind: 'city', title: c.name, meta: c.country, city: c }));
+    return { countries, cities };
+  }
+
+  async function geocode(name, cc) {
+    const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(name)}&count=8&language=tr&format=json${cc ? '&countryCode=' + cc : ''}`;
+    const r = await fetch(url); if (!r.ok) throw new Error('HTTP ' + r.status);
+    const d = await r.json(); return (d && d.results) || [];
+  }
+  const placeFromGeo = g => registerPlace({ id: 'g' + g.id, name: g.name, country: g.country || countryName(g.country_code), lat: g.latitude, lng: g.longitude,
+    timezone: g.timezone || 'UTC', countryCode: (g.country_code || '').toUpperCase(), vibeTag: vibeFor(g.latitude) });
+
+  function nearestCityTo(lat, lng) {
+    let best = CITIES[0], bd = Infinity;
+    CITIES.forEach(c => { const d = kmBetween([lat, lng], [c.lat, c.lng]); if (d < bd) { bd = d; best = c; } });
+    return best;
+  }
+  /** İstasyon için bir yer: istasyonun konumu varsa orası, yoksa ülkesindeki ilk konum. */
+  function placeForStation(raw, st) {
+    const cc = (raw.countrycode || '').toUpperCase();
+    if (st.geo) {
+      const near = nearestCityTo(st.geo[0], st.geo[1]);
+      return registerPlace({ id: 's' + raw.stationuuid.slice(0, 12), name: raw.state || near.name, country: raw.country || countryName(cc),
+        lat: st.geo[0], lng: st.geo[1], timezone: near.timezone, countryCode: cc || near.countryCode, vibeTag: vibeFor(st.geo[0]) });
+    }
+    return CITIES.find(c => c.countryCode === cc) || null;
+  }
+
+  async function search(q) {
+    const my = ++seq, qn = norm(q);
+    if (qn.length < 2) { close(); return; }
+    const { countries, cities } = localGroups(qn);
+    render([{ label: 'Ülkeler', rows: countries }, { label: 'Şehirler', rows: cities }], '');
+    clearTimeout(timer);
+    timer = setTimeout(async () => {
+      const [geo, stations] = await Promise.all([
+        geocode(q).catch(() => []),
+        rbFetch(`/json/stations/search?name=${encodeURIComponent(q)}&limit=12&order=clickcount&reverse=true&hidebroken=true`).catch(() => []),
+      ]);
+      if (my !== seq) return;
+      const known = new Set(cities.map(r => norm(r.city.name) + '|' + r.city.countryCode));
+      const places = geo.filter(g => !known.has(norm(g.name) + '|' + (g.country_code || '').toUpperCase())).slice(0, 6)
+        .map(g => ({ kind: 'geo', title: g.name, meta: [g.admin1, g.country].filter(Boolean).join(', '), geo: g }));
+      const sts = (Array.isArray(stations) ? stations : []).map(raw => ({ raw, st: toStation(raw) })).filter(x => x.st).slice(0, 8)
+        .map(x => ({ kind: 'station', title: x.st.name, meta: [x.raw.state, countryName((x.raw.countrycode || '').toUpperCase())].filter(Boolean).join(' · '), raw: x.raw, st: x.st }));
+      render([{ label: 'Ülkeler', rows: countries }, { label: 'Şehirler', rows: cities.concat(places) }, { label: 'İstasyonlar', rows: sts }]);
+    }, 300);
+  }
+
+  /** Ülke seçildi: hangi şehir? (kayıtlı konumlar + istasyon sayısına göre gerçek bölgeler) */
+  async function askCity(cc, name) {
+    const my = ++seq;
+    const header = `<div class="sr-head"><button id="srBack" aria-label="Geri">${icon('chevron-left', 20)}</button><span>${esc(name)} · hangi şehir?</span></div>`;
+    const ours = CITIES.filter(c => c.countryCode === cc).map(c => ({ kind: 'city', title: c.name, meta: 'Konum', city: c }));
+    render([{ label: 'Şehirler', rows: ours }], header + '<div class="sr-note">İstasyonlar taranıyor…</div>');
+    bindBack(name);
+    let raw = [];
+    try { raw = await rbFetch(`/json/stations/bycountrycodeexact/${encodeURIComponent(cc)}?limit=1000&order=clickcount&reverse=true&hidebroken=true`); } catch (e) { raw = []; }
+    if (my !== seq) return;
+    const groups = new Map();
+    (Array.isArray(raw) ? raw : []).forEach(r => {
+      const st = toStation(r); if (!st) return;
+      const label = (r.state || '').replace(/\s+/g, ' ').trim(); if (!label || label.length > 40) return;
+      const key = norm(label); if (!groups.has(key)) groups.set(key, { label, stations: [] });
+      groups.get(key).stations.push(st);
+    });
+    const ourNames = new Set(ours.map(r => norm(r.title)));
+    const regions = [...groups.values()].filter(g => !ourNames.has(norm(g.label))).sort((a, b) => b.stations.length - a.stations.length).slice(0, 30)
+      .map(g => ({ kind: 'region', title: g.label, meta: `${g.stations.length} istasyon`, cc, region: g }));
+    ours.forEach(r => { const g = groups.get(norm(r.title)); if (g) r.meta = `${g.stations.length} istasyon`; r.region = g; });
+    const all = { kind: 'country-all', title: 'Tüm ülke (en çok dinlenenler)', meta: `${(Array.isArray(raw) ? raw.length : 0) || ''} istasyon`.trim(), cc, raw };
+    const note = raw.length ? '' : '<div class="sr-note">İstasyon listesi alınamadı; kayıtlı konumlardan seçebilirsin.</div>';
+    render([{ label: 'Şehirler', rows: ours }, { label: 'Bölgeler', rows: regions }, { label: 'Ülke geneli', rows: ours.length || raw.length ? [all] : [] }], header + note);
+    bindBack(name);
+  }
+  function bindBack(name) { const b = $('#srBack'); if (b) b.onclick = () => { input.value = name; search(name); input.focus(); }; }
+
+  function play(place, pinnedStations) {
+    if (!place) return;
+    MapGlobe.takeControl();
+    state.pinned = pinnedStations && pinnedStations.length ? { cityId: place.id, stations: pinnedStations } : null;
+    if (state.activeCityId === place.id) state.activeCityId = null;   // aynı yer seçildiyse de yeni sırayla yeniden başlat
+    reset(); vibrate(8);
+    handleSelect(place);
+  }
+
+  async function choose(r) {
+    if (r.kind === 'city') return play(r.city, r.region ? r.region.stations : null);
+    if (r.kind === 'geo') return play(placeFromGeo(r.geo));
+    if (r.kind === 'station') return play(placeForStation(r.raw, r.st), [r.st]);
+    if (r.kind === 'country') { input.value = r.title; return askCity(r.cc, r.title); }
+    if (r.kind === 'region') {
+      // Bölgenin konumu Open-Meteo ile bulunur; bulunamazsa ülkenin ilk kayıtlı konumu, o da yoksa ilk istasyonun konumu.
+      let place = null;
+      try { const g = (await geocode(r.region.label, r.cc))[0]; if (g) place = placeFromGeo(g); } catch (e) {}
+      if (!place) place = CITIES.find(c => c.countryCode === r.cc) || null;
+      if (!place) { const withGeo = r.region.stations.find(st => st.geo); if (withGeo) { const near = nearestCityTo(withGeo.geo[0], withGeo.geo[1]); place = registerPlace({ id: 'r' + r.cc + norm(r.region.label).replace(/[^a-z0-9]/g, ''), name: r.region.label, country: countryName(r.cc), lat: withGeo.geo[0], lng: withGeo.geo[1], timezone: near.timezone, countryCode: r.cc, vibeTag: vibeFor(withGeo.geo[0]) }); } }
+      return play(place, r.region.stations);
+    }
+    if (r.kind === 'country-all') {
+      let place = CITIES.find(c => c.countryCode === r.cc) || null;
+      if (!place) { try { const g = (await geocode(countryName(r.cc), r.cc))[0]; if (g) place = placeFromGeo(g); } catch (e) {} }
+      const sts = (Array.isArray(r.raw) ? r.raw : []).map(toStation).filter(Boolean).slice(0, 20);
+      return play(place, sts);
+    }
+  }
+
+  input.addEventListener('input', () => { clearBtn.hidden = !input.value; search(input.value); });
+  input.addEventListener('focus', () => { if (input.value.trim().length >= 2 && box.hidden) search(input.value); });
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); const first = items[0]; if (first) choose(first); }
+    if (e.key === 'Escape') reset();
+  });
+  clearBtn.addEventListener('click', () => { reset(); });
+  box.addEventListener('click', e => { const b = e.target.closest('.sr-row'); if (!b) return; const r = items[Number(b.dataset.i)]; if (r) choose(r); });
+  // Arama dışına dokununca liste kapanır
+  document.addEventListener('pointerdown', e => { if (!box.hidden && !e.target.closest('#search')) close(); });
+  return { reset, get countries() { return COUNTRIES.length; } };
+})();
 
 // ═════════════════════════════════════════════════════════
 //  KEŞFET
