@@ -462,7 +462,7 @@ svg.i.filled { fill: currentColor; }
         <div class="wordmark" id="wordmark" aria-hidden="true"><span class="ch">w</span><span class="ch g">G</span><span class="ch">l</span><span class="oslot" id="oslot"></span><span class="ch">b</span><span class="ch">e</span></div>
         <div class="chooser">
           <div class="ch-top">
-            <div class="brand-row reveal" style="--i:0"><span class="brand-mark">w<span>Globe</span></span><span class="label">25 şehir · canlı</span></div>
+            <div class="brand-row reveal" style="--i:0"><span class="brand-mark">w<span>Globe</span></span><span class="label">tüm dünya · canlı</span></div>
             <h1 class="display reveal" style="--i:1">Bir şehre dokun. O anın radyosunu dinle.</h1>
           </div>
           <div class="ch-actions">
@@ -1728,7 +1728,14 @@ const Globe = (() => {
       zoom.focal = hostPt(e); lastInteract = performance.now();
     }, { passive: false });
   }
-  return { get driving() { return !!driver; }, setDayImage, mount, update, unmount, setActive, drive, impulse, faceSun, transition, whenReady, setBackground, setThemeInstant, setRotation, snapshots, snapshotView, resetZoom, get layout() { return lay; }, get zoom() { return zoom.z; },
+  return { get driving() { return !!driver; },
+    /** Küre yerine oturdu mu: intro sürücüsü yok, yerleşim geçişi bitti, hedefe 0,5 px'ten yakın. */
+    get settled() {
+      if (driver || lt || !host || !lay.init) return false;
+      const { W, H } = hostSize(), T = targetLayout(W, H);
+      return Math.abs(lay.cx - T.cx) < 0.5 && Math.abs(lay.cy - T.cy) < 0.5 && Math.abs(lay.r - T.r) < 0.5;
+    },
+    setDayImage, mount, update, unmount, setActive, drive, impulse, faceSun, transition, whenReady, setBackground, setThemeInstant, setRotation, snapshots, snapshotView, resetZoom, get layout() { return lay; }, get zoom() { return zoom.z; },
     /** Ekrandaki kürenin merkez enlem/boylamı ve piksel yerleşimi (MapLibre devir teslimi için). */
     get view() { let lng = (-rot.y - Math.PI / 2) / D2R; lng = ((lng + 180) % 360 + 360) % 360 - 180; return { lat: rot.x / D2R, lng, cx: lay.cx, cy: lay.cy, r: lay.r * zoom.z }; },
     _debug: { setSun(lat, lng) { sunObj.copy(latLngToVec3(lat, lng)); lastSun = performance.now() + 1e9; }, rot } };
@@ -2073,7 +2080,7 @@ function runIntro(after) {
     Globe.drive((now, W, H) => {
       const t = now - t0;
       const P0 = { x: -0.22 * W, y: -0.16 * H }, C1 = { x: 0.06 * W, y: 0.5 * H }, PC = { x: 0.5 * W, y: 0.44 * H };
-      const r0 = 0.05 * W, r1 = 0.15 * W, r2 = 0.19 * W, F = appLayout(W, H), C2 = { x: 0.82 * W, y: 0.34 * H };   // doğrudan ana sayfadaki yerine
+      const r0 = 0.05 * W, r1 = 0.15 * W, r2 = 0.19 * W, F = state.auth ? appLayout(W, H) : chooserLayout(W, H), C2 = state.auth ? { x: 0.82 * W, y: 0.34 * H } : { x: 1.0 * W, y: 0.3 * H };   // hesabı olan: ana sayfa; yeni kullanıcı: karşılama
       if (t < T.enter) { const e = easeOutCubic(t / T.enter), p = quad(P0, C1, PC, e); return { cx: p.x, cy: p.y, r: lerp(r0, r1, e) }; }
       if (t < T.grow) { const e = easeInOutCubic((t - T.enter) / (T.grow - T.enter)); return { cx: PC.x, cy: PC.y, r: lerp(r1, r2, e) }; }
       if (t < T.morph) { const e = easeInOutCubic((t - T.grow) / (T.morph - T.grow)); return { cx: lerp(PC.x, slot.x, e), cy: lerp(PC.y, slot.y, e), r: lerp(r2, slot.r, e) }; }
@@ -2193,7 +2200,7 @@ const SatMosaic = (() => {
 })();
 
 /** Sürüm etiketi: sitede hangi sürümün açık olduğunu rozetten görmek için (önbellek kontrolü). */
-const BUILD = 'v18';
+const BUILD = 'v19';
 const MapGlobe = (() => {
   const host = document.getElementById('mapStage');
   const badge = document.getElementById('lodBadge');
@@ -2641,7 +2648,7 @@ const MapGlobe = (() => {
       revealStarted = true;
       const go = () => {
         if (failed) return;
-        if (Globe.driving) { setTimeout(go, 50); return; }   // intro küresi yerine oturmadan devir yok
+        if (Globe.driving || !Globe.settled) { setTimeout(go, 50); return; }   // küre yerine tam oturmadan devir yok
         matchView(Globe.view);
         Globe.update({ autoRotate: false }); Globe.setRotation({ x: Globe._debug.rot.x, y: Globe._debug.rot.y });
         paint(themeId); applyActive(); lastTouch = Date.now();
@@ -3411,7 +3418,13 @@ function setLoading(btn, on) { btn.classList.toggle('loading', on); btn.disabled
 document.querySelectorAll('[data-eye]').forEach(b => b.addEventListener('click', () => { const inp = document.getElementById(b.dataset.eye); const show = inp.type === 'password'; inp.type = show ? 'text' : 'password'; b.innerHTML = icon(show ? 'eye-off' : 'eye', 18); b.setAttribute('aria-label', show ? 'Şifreyi gizle' : 'Şifreyi göster'); }));
 ['loginEmail', 'loginPass', 'regEmail', 'regPass', 'regConfirm'].forEach(id => document.getElementById(id).addEventListener('input', () => setFieldError(id, null)));
 $('#regPass').addEventListener('input', e => { const s = strength(e.target.value); document.querySelectorAll('#segs .seg').forEach((seg, i) => { seg.classList.toggle('on', s > i); seg.querySelector('i').style.background = STRENGTH[s][1]; }); const l = $('#strengthLabel'); l.textContent = STRENGTH[s][0]; l.style.color = STRENGTH[s][1]; });
-function enterApp(msg) { history = []; go('app', { replace: true }); setTab('globe'); if (msg) toast(msg); }
+function enterApp(msg) {
+  history = []; go('app', { replace: true }); setTab('globe'); if (msg) toast(msg);
+  // Aynı küre karşılamadaki yerinden ana sayfadaki yerine 700 ms'de süzülür; harita ancak küre oturunca devralır.
+  // (Intro sürücüsü çalışıyorsa küre zaten ana sayfa konumuna uçuyor; ikinci bir geçiş sıçratırdı.)
+  if (!MapGlobe.revealed && !Globe.driving) Globe.transition(700, easeInOutCubic);
+  arrive();
+}
 $('#loginForm').addEventListener('submit', async e => {
   e.preventDefault();
   const email = $('#loginEmail').value, pass = $('#loginPass').value, ee = validateEmail(email), pe = validatePass(pass, false);
@@ -3445,11 +3458,12 @@ renderLive(); $('#hint').classList.add('show'); tickClock();
 if (state.activeCityId) renderSheet();
 
 function afterIntro() {
-  // Doğrudan ana sayfa: hesap yoksa misafir olarak devam edilir (Üye ol / Giriş yap Profil sekmesinde).
-  if (!state.auth) { state.auth = 'guest'; save(); }
-  enterApp();
-  const app = $('#app'); app.classList.add('arrive'); setTimeout(() => app.classList.remove('arrive'), 1200);
+  // Hesabı (veya misafir oturumu) olan doğrudan ana sayfaya; yeni kullanıcı karşılama ekranına (Giriş / Üye ol / Misafir).
+  if (state.auth) { enterApp(); }
+  else { state.view = 'welcome'; $('#welcome').classList.add('choose'); mountGlobe(); }
 }
+/** Ana sayfa arayüzünün kademeli gelişi (logo+üst → arama → sekme çubuğu, 90 ms arayla). */
+function arrive() { const app = $('#app'); app.classList.remove('arrive'); void app.offsetWidth; app.classList.add('arrive'); setTimeout(() => app.classList.remove('arrive'), 1200); }
 go('welcome', { replace: true });
 // MapLibre küresini intro sırasında, intro'nun varacağı açıda görünmez olarak yükle.
 MapGlobe.preload(state.theme, () => {
