@@ -470,6 +470,62 @@ svg.i.filled { fill: currentColor; }
 .acct button .i { color: var(--fg-3); }
 .acct button.del .i { color: var(--err); }
 
+/* Profil — Seyir Defteri: pasaport kartı, kıtalar, sayılar, damgalar */
+.pf { gap: 34px; }
+.pf.pf-static .enter, .pf.pf-static .pf-arc, .pf.pf-static .pf-stamp { animation: none !important; }
+.pf-pass { position: relative; overflow: hidden; border-radius: 26px; padding: 20px 20px 16px; background: linear-gradient(145deg, #1a1610 0%, #0d0c0a 62%, #0a0a0b 100%); box-shadow: inset 0 0 0 1px rgba(200,157,84,0.28), 0 18px 40px rgba(0,0,0,0.35); display: flex; flex-direction: column; gap: 16px; }
+.pf-guil { position: absolute; right: -70px; top: -60px; width: 250px; height: 250px; opacity: 0.16; pointer-events: none; }
+.pf-head { display: flex; justify-content: space-between; align-items: center; }
+.pf-head .label { color: var(--accent); }
+.pf-id { display: flex; align-items: center; gap: 16px; }
+.pf-ava { position: relative; width: 78px; height: 78px; flex: none; display: grid; place-items: center; }
+.pf-ava svg.ring { position: absolute; inset: 0; width: 78px; height: 78px; transform: rotate(-90deg); }
+.pf-ava .core { width: 58px; height: 58px; border-radius: 50%; display: grid; place-items: center; color: var(--accent-2); font-size: 23px; font-weight: 600; background: radial-gradient(circle at 35% 30%, #2a2418, #0d0b08 70%); box-shadow: inset 0 0 0 1px rgba(200,157,84,0.35); }
+.pf-arc { fill: none; stroke-width: 3; stroke-linecap: round; }
+.pf-arc.off { stroke: rgba(238,234,227,0.12); }
+.pf-arc.on { stroke: var(--accent-2); stroke-dasharray: var(--len) var(--len); stroke-dashoffset: var(--len); animation: pfDraw 520ms var(--e-enter) forwards; animation-delay: calc(220ms + var(--i) * 70ms); }
+@keyframes pfDraw { to { stroke-dashoffset: 0; } }
+.pf-who { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.pf-who b { font-size: 22px; line-height: 26px; font-weight: 650; letter-spacing: -0.03em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pf-tag { align-self: flex-start; padding: 3px 9px; border-radius: 999px; font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em; color: var(--accent-2); box-shadow: inset 0 0 0 1px rgba(200,157,84,0.4); }
+.pf-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 16px; }
+.pf-fields span { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.pf-fields i { font-style: normal; font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.14em; color: var(--fg-3); }
+.pf-fields em { font-style: normal; font-size: 14px; color: var(--fg); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pf-mrz { font-family: var(--mono); font-size: 11px; line-height: 15px; letter-spacing: 0.08em; color: rgba(238,234,227,0.42); white-space: nowrap; overflow: hidden; border-top: 1px dashed rgba(200,157,84,0.25); padding-top: 12px; }
+.pf-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.pf-stat { display: flex; flex-direction: column; gap: 4px; padding: 16px 14px; border-radius: 20px; background: rgba(238,234,227,0.04); box-shadow: inset 0 0 0 1px var(--hair); }
+.pf-stat b { font-size: 30px; line-height: 32px; font-weight: 650; letter-spacing: -0.04em; font-variant-numeric: tabular-nums; }
+.pf-stat b small { font-size: 14px; font-weight: 550; color: var(--fg-2); letter-spacing: 0; margin-left: 2px; }
+.pf-conts { display: flex; flex-wrap: wrap; gap: 8px; }
+.pf-cont { display: inline-flex; align-items: center; gap: 7px; padding: 7px 12px; border-radius: 999px; font-size: 13px; color: var(--fg-3); box-shadow: inset 0 0 0 1px var(--hair); transition: color 180ms var(--e-standard); }
+.pf-cont i { width: 6px; height: 6px; border-radius: 50%; background: rgba(238,234,227,0.18); }
+.pf-cont.on { color: var(--fg); box-shadow: inset 0 0 0 1px rgba(200,157,84,0.45); }
+.pf-cont.on i { background: var(--accent-2); }
+.pf-sec { display: flex; flex-direction: column; gap: 14px; }
+.pf-sec-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.pf-stamps { display: flex; gap: 6px; overflow-x: auto; margin: 0 -20px; padding: 4px 20px 8px; scrollbar-width: none; scroll-snap-type: x proximity; }
+.pf-stamps::-webkit-scrollbar { display: none; }
+.pf-stamp { flex: none; width: 96px; height: 96px; display: grid; place-items: center; scroll-snap-align: start; border-radius: 50%; opacity: 0; animation: pfStamp 340ms var(--spring-button) forwards; animation-delay: calc(260ms + min(var(--i), 8) * 45ms); }
+.pf-stamp svg { width: 92px; height: 92px; }
+.pf-stamp:active { transform: scale(0.94); transition: transform 100ms var(--e-standard); }
+@keyframes pfStamp { 0% { opacity: 0; transform: scale(1.35); } 60% { opacity: 1; transform: scale(0.96); } 100% { opacity: 1; transform: none; } }
+.pf-empty { display: flex; align-items: center; gap: 14px; padding: 18px; border-radius: 20px; box-shadow: inset 0 0 0 1px var(--hair); color: var(--fg-2); font-size: 14px; line-height: 20px; }
+.pf-empty .i { color: var(--accent); flex: none; }
+.pf-empty b { display: block; color: var(--fg); font-weight: 600; margin-bottom: 2px; }
+.pf .list-row .pf-eq { display: none; align-items: flex-end; gap: 2px; height: 12px; }
+.pf .list-row.current .pf-eq { display: flex; }
+.pf .list-row.current .pf-eq i { width: 2px; height: 12px; border-radius: 1px; background: var(--accent); transform-origin: bottom; animation: eq var(--t) var(--e-inout) infinite alternate; }
+.pf .list-row.current.paused .pf-eq i { animation-play-state: paused; }
+.pf .list-row.current .pf-ico-radio { display: none; }
+.pf-card .sec-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.pf-card .segmented button { text-align: center; }
+.pf-card { padding: 18px; border-radius: 22px; background: rgba(238,234,227,0.03); box-shadow: inset 0 0 0 1px var(--hair); display: flex; flex-direction: column; gap: 14px; }
+@media (prefers-reduced-motion: reduce) {
+  .pf-arc.on { animation: none; stroke-dashoffset: 0; }
+  .pf-stamp { animation: none; opacity: 1; }
+}
+
 /* Onay & bildirim */
 .modal { position: absolute; inset: 0; z-index: 80; display: flex; align-items: flex-end; padding: 10px; background: rgba(2,3,5,0); visibility: hidden; transition: background 320ms var(--e-standard), visibility 0s linear 320ms; }
 .modal.open { background: rgba(2,3,5,0.62); visibility: visible; transition: background 320ms var(--e-standard), visibility 0s; }
@@ -1056,8 +1112,10 @@ const state = {
   status: 'idle', queue: {}, index: 0, sleep: { minutes: null, endsAt: null, fading: false }, previewTheme: 'classic',
 };
 try { const saved = JSON.parse(localStorage.getItem(STORE_KEY) || 'null'); if (saved) Object.assign(state, saved); } catch (e) {}
+if (!state.uid) state.uid = Math.random().toString(36).slice(2, 10);
+if (!Number.isFinite(state.listenMs)) state.listenMs = 0;
 function save() {
-  try { const { auth, email, theme, unlocked, favorites, visits, lastCityId } = state; localStorage.setItem(STORE_KEY, JSON.stringify({ auth, email, theme, unlocked, favorites, visits, lastCityId })); } catch (e) {}
+  try { const { auth, email, theme, unlocked, favorites, visits, lastCityId, listenMs, joinedAt, uid } = state; localStorage.setItem(STORE_KEY, JSON.stringify({ auth, email, theme, unlocked, favorites, visits, lastCityId, listenMs, joinedAt, uid })); } catch (e) {}
 }
 
 // ═════════════════════════════════════════════════════════
@@ -1999,7 +2057,14 @@ const Sound = {
 };
 
 let attemptToken = 0, startTimer = null, failedAttempts = 0;
-function setStatus(s) { state.status = s; renderLive(); renderSheetDynamic(); waveSync(); }
+// Dinleme süresi (Profil): 'playing' durumunda geçen süre toplanır, durunca ve sayfa gizlenince kaydedilir.
+let listenSince = 0;
+function listenTotal() { return (state.listenMs || 0) + (listenSince ? Date.now() - listenSince : 0); }
+function flushListen(keep) { if (!listenSince) return; state.listenMs = (state.listenMs || 0) + (Date.now() - listenSince); listenSince = keep ? Date.now() : 0; save(); }
+function trackListen(s) { if (s === 'playing') { if (!listenSince) listenSince = Date.now(); } else flushListen(false); }
+addEventListener('pagehide', () => flushListen(true));
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') flushListen(true); });
+function setStatus(s) { trackListen(s); state.status = s; renderLive(); renderSheetDynamic(); waveSync(); profileSync(); }
 async function startAttempt(i, isFailover) {
   const city = CITY[state.activeCityId]; if (!city) { setStatus('error'); return; }
   const token = ++attemptToken; clearTimeout(startTimer);
@@ -2038,7 +2103,7 @@ function onStarted(token) {
   const city = CITY[state.activeCityId]; setStatus('playing');
   const lastV = state.visits[0];
   if (!lastV || lastV.cityId !== city.id || Date.now() - new Date(lastV.visitedAt) > 30 * 60 * 1000) {
-    state.visits.unshift({ id: 'v' + Date.now(), cityId: city.id, cityName: city.name, visitedAt: new Date().toISOString() }); state.visits = state.visits.slice(0, 200); save();
+    state.visits.unshift({ id: 'v' + Date.now(), cityId: city.id, cityName: city.name, visitedAt: new Date().toISOString(), cc: city.countryCode, lat: city.lat, lng: city.lng, tz: city.timezone }); state.visits = state.visits.slice(0, 200); save();
   }
 }
 function play() { const city = CITY[state.activeCityId]; if (!city) return; Ambient.unlock(); failedAttempts = 0; startAttempt(Math.max(0, state.index), false); }
@@ -2237,7 +2302,7 @@ const SatMosaic = (() => {
 })();
 
 /** Sürüm etiketi: sitede hangi sürümün açık olduğunu rozetten görmek için (önbellek kontrolü). */
-const BUILD = 'v20';
+const BUILD = 'v21';
 const MapGlobe = (() => {
   const host = document.getElementById('mapStage');
   const badge = document.getElementById('lodBadge');
@@ -3562,20 +3627,103 @@ $('#themeAction').addEventListener('click', themeAction);
 // ═════════════════════════════════════════════════════════
 //  PROFİL
 // ═════════════════════════════════════════════════════════
-function renderProfile() {
-  const guest = state.auth === 'guest', st = currentStation();
-  const name = guest ? 'Misafir gezgin' : (state.email || 'Gezgin'), initial = guest ? '' : (state.email || '?')[0].toLocaleUpperCase('tr-TR');
-  let i = 0; const nx = () => `class="enter" style="--step:60ms;--i:${i++};display:flex;flex-direction:column;gap:14px"`;
-  $('#profileScroll').innerHTML = `
-    <div ${nx()}><div class="identity"><div class="avatar">${initial ? esc(initial) : icon('globe', 24)}</div><div class="t"><b>${esc(name)}</b><span class="label">${guest ? 'misafir' : 'üye'} · ${state.favorites.length} favori · ${state.visits.length} damga</span></div></div></div>
-    ${guest ? `<div ${nx()}><div class="callout"><div class="row">${icon('cloud-upload', 22)}<div><b>Hesap oluştur, verilerini eşitle</b><span class="small">Favorilerin, damgaların ve temaların şu an yalnızca bu cihazda. Bir hesapla her yerde seninle olsun.</span></div></div>
+// Seyir Defteri: pasaport kartı → sayılar → kıtalar → damgalar → favoriler → uyku → hesap.
+// Koreografi: bölümler 60 ms arayla alttan gelir (.enter) · kıta halkası 220 ms'den itibaren 70 ms arayla çizilir (520 ms)
+// · sayılar 700 ms'de sayar · damgalar "basılır" (1.35→0.96→1, 340 ms, 45 ms arayla).
+const CONTINENTS = [['EU', 'Avrupa'], ['AS', 'Asya'], ['AF', 'Afrika'], ['NA', 'K. Amerika'], ['SA', 'G. Amerika'], ['OC', 'Okyanusya']];
+function continentOf(lat, lng, tz) {
+  const z = String(tz || '').split('/')[0];
+  if (z === 'Europe' || z === 'Atlantic') return 'EU';
+  if (z === 'Asia' || z === 'Indian') return 'AS';
+  if (z === 'Africa') return 'AF';
+  if (z === 'Australia' || z === 'Pacific' || z === 'Antarctica') return 'OC';
+  if (z === 'America') return lat >= 10 ? 'NA' : 'SA';
+  if (!Number.isFinite(lat)) return null;
+  if (lng < -25) return lat >= 10 ? 'NA' : 'SA';
+  if (lat < -10 && lng > 110) return 'OC';
+  if (lng < 60 && lat > 36) return 'EU';
+  if (lng < 52 && lat <= 36) return 'AF';
+  return 'AS';
+}
+/** Ziyaret → yer bilgisi (eski kayıtlarda yalnızca şehir kimliği var). */
+function visitInfo(v) {
+  const c = CITY[v.cityId] || {};
+  const lat = Number.isFinite(v.lat) ? v.lat : c.lat, lng = Number.isFinite(v.lng) ? v.lng : c.lng;
+  return { cc: v.cc || c.countryCode || '', lat, lng, tz: v.tz || c.timezone || '' };
+}
+function profileStats() {
+  const ccs = new Set(), cities = new Set(), conts = new Set();
+  state.visits.forEach(v => { const x = visitInfo(v); if (x.cc) ccs.add(x.cc); cities.add(v.cityId); const k = continentOf(x.lat, x.lng, x.tz); if (k) conts.add(k); });
+  return { countries: ccs.size, cities: cities.size, conts, listenMs: listenTotal() };
+}
+function listenParts(ms) { const m = Math.floor(ms / 60000); return m >= 60 ? { n: Math.floor(m / 60), u: 'sa', sub: m % 60 } : { n: m, u: 'dk', sub: null }; }
+const asciiUp = t => (t || '').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/ı/g, 'i').toUpperCase().replace(/[^A-Z0-9]+/g, '<');
+function passportNo() {
+  const src = state.email || state.uid || 'guest'; let h = 5381;
+  for (let k = 0; k < src.length; k++) h = ((h << 5) + h + src.charCodeAt(k)) >>> 0;
+  return 'WG' + h.toString(36).toUpperCase().padStart(7, '0').slice(-7);
+}
+function ringSvg(conts) {
+  const R = 35, C = 39, seg = 60, gap = 9;
+  return `<svg class="ring" viewBox="0 0 78 78" aria-hidden="true">${CONTINENTS.map(([k], i) => {
+    const a0 = (i * seg + gap / 2) * D2R, a1 = ((i + 1) * seg - gap / 2) * D2R, len = (R * (a1 - a0)).toFixed(2);
+    const p = a => `${(C + R * Math.cos(a)).toFixed(2)} ${(C + R * Math.sin(a)).toFixed(2)}`;
+    return `<path class="pf-arc ${conts.has(k) ? 'on' : 'off'}" style="--len:${len};--i:${i}" d="M ${p(a0)} A ${R} ${R} 0 0 1 ${p(a1)}"/>`;
+  }).join('')}</svg>`;
+}
+const GUILLOCHE = (() => { let d = ''; for (let k = 0; k < 14; k++) d += `<ellipse cx="125" cy="125" rx="${118 - k * 3}" ry="${44 + k * 5}" transform="rotate(${k * 13} 125 125)"/>`; return `<svg class="pf-guil" viewBox="0 0 250 250" fill="none" stroke="#C89D54" stroke-width="0.6" aria-hidden="true">${d}</svg>`; })();
+function countUp(root) {
+  root.querySelectorAll('[data-count]').forEach(el => {
+    const to = Number(el.dataset.count) || 0;
+    if (reduceMotion.matches || to === 0 || root.classList.contains('pf-static')) { el.textContent = String(to); return; }
+    const t0 = performance.now() + 240, D = 700;
+    el.textContent = '0';
+    const step = now => { const k = clamp((now - t0) / D, 0, 1); el.textContent = String(Math.round(to * easeOutCubic(k))); if (k < 1 && el.isConnected) requestAnimationFrame(step); };
+    requestAnimationFrame(step);
+  });
+}
+function favRow(f, st) {
+  const cur = !!(st && st.uuid === f.stationUuid && state.activeCityId === f.cityId);
+  return `<div class="list-row ${cur ? 'current' : ''} ${cur && state.status !== 'playing' ? 'paused' : ''}" data-fav-uuid="${esc(f.stationUuid)}"><button class="main press" data-play-fav="${f.id}" aria-label="${esc(f.stationName)} dinle"><span class="ico"><span class="pf-ico-radio">${icon('radio', 18)}</span><span class="pf-eq"><i style="--t:300ms"></i><i style="--t:230ms"></i><i style="--t:350ms"></i></span></span><span class="tx"><b>${esc(f.stationName)}</b><span class="label">${esc(f.countryCode || '')} · ${esc(f.cityName)}</span></span></button><button class="round heartbtn press tight" data-rm-fav="${f.id}" aria-label="${esc(f.stationName)} favorilerden çıkar">${icon('heart', 20, 'filled')}</button></div>`;
+}
+function renderProfile(animate = true) {
+  const guest = state.auth === 'guest', st = currentStation(), sc = profileStats(), L = listenParts(sc.listenMs);
+  const name = guest ? 'Misafir gezgin' : ((state.email || 'Gezgin').split('@')[0].split(/[._\-+]+/).filter(Boolean).map(w => w[0].toLocaleUpperCase('tr-TR') + w.slice(1)).join(' ') || 'Gezgin'), initial = guest ? '' : name[0].toLocaleUpperCase('tr-TR');
+  const joined = state.joinedAt ? new Date(state.joinedAt) : new Date();
+  const mrz = ('P<WGLOBE<<' + asciiUp(guest ? 'MISAFIR GEZGIN' : name) + '<'.repeat(44)).slice(0, 44);
+  // Damgalar: şehir başına en son ziyaret, en yeniden eskiye
+  const seen = new Set(), stamps = state.visits.filter(v => !seen.has(v.cityId) && seen.add(v.cityId)).slice(0, 24);
+  let i = 0; const nx = () => `class="enter" style="--step:60ms;--i:${i++}"`;
+  const root = $('#profileScroll');
+  root.classList.add('pf'); root.classList.toggle('pf-static', !animate);
+  root.innerHTML = `
+    <div ${nx()}><div class="pf-pass">${GUILLOCHE}
+      <div class="pf-head"><span class="label">wGlobe · pasaport</span><span class="label num">${passportNo()}</span></div>
+      <div class="pf-id"><div class="pf-ava">${ringSvg(sc.conts)}<div class="core">${initial ? esc(initial) : icon('globe', 26)}</div></div>
+        <div class="pf-who"><b>${esc(name)}</b><span class="pf-tag">${guest ? 'MİSAFİR · BU CİHAZ' : 'ÜYE'}</span></div></div>
+      <div class="pf-fields"><span><i>KATILIM</i><em class="num">${stampShort(joined.toISOString())}</em></span><span><i>KITA</i><em class="num">${sc.conts.size} / 6</em></span>
+        <span><i>SON DURAK</i><em>${esc(state.visits[0] ? state.visits[0].cityName : '—')}</em></span><span><i>KÜRE</i><em>${esc((THEMES[state.theme] || {}).name || '—')}</em></span></div>
+      <div class="pf-mrz" aria-hidden="true">${esc(mrz)}</div>
+    </div></div>
+    ${guest ? `<div ${nx()}><div class="callout"><div class="row">${icon('cloud-upload', 22)}<div><b>Pasaportunu kaybetme</b><span class="small">Damgaların, favorilerin ve kürelerin şu an yalnızca bu cihazda. Bir hesapla her yerde seninle olsun.</span></div></div>
       <div class="btns"><button class="btn solid press" data-go="register"><span class="lbl">Üye ol</span></button><button class="btn line press" data-go="login"><span class="lbl">Giriş yap</span></button></div></div></div>` : ''}
-    <div ${nx()}><div class="sec-head"><h3 class="h2">Favori istasyonlar</h3>${state.favorites.length ? `<span class="label">${state.favorites.length}</span>` : ''}</div>
-      ${state.favorites.length === 0 ? `<div class="empty">${icon('heart', 22)}<b>Henüz favorin yok</b><span class="small">Bir şehri dinlerken kalbe dokun; istasyon buraya gelsin.</span></div>`
-      : `<div class="list">${state.favorites.map(f => { const cur = st && st.uuid === f.stationUuid; return `<div class="list-row ${cur ? 'current' : ''}"><button class="main press" data-play-fav="${f.id}" aria-label="${esc(f.stationName)} dinle"><span class="ico">${icon(cur ? 'play' : 'radio', 18, cur ? 'filled' : '')}</span><span class="tx"><b>${esc(f.stationName)}</b><span class="label">${f.countryCode} · ${esc(f.cityName)}</span></span></button><button class="round heartbtn press tight" data-rm-fav="${f.id}" aria-label="${esc(f.stationName)} favorilerden çıkar">${icon('heart', 20, 'filled')}</button></div>`; }).join('')}</div>`}</div>
-    <div ${nx()} id="sleepCard"></div>
+    <div ${nx()}><div class="pf-stats">
+      <div class="pf-stat"><b><span data-count="${sc.countries}">${sc.countries}</span></b><span class="label">ülke</span></div>
+      <div class="pf-stat"><b><span data-count="${sc.cities}">${sc.cities}</span></b><span class="label">şehir</span></div>
+      <div class="pf-stat"><b><span data-count="${L.n}">${L.n}</span><small>${L.u}</small>${L.sub !== null ? `<small>${pad(L.sub)}</small>` : ''}</b><span class="label">dinleme</span></div>
+    </div></div>
+    <div ${nx()}><div class="pf-sec"><div class="pf-sec-head"><h3 class="h2">Kıtalar</h3><span class="label">${sc.conts.size === 6 ? 'dünya turu tamam' : `${6 - sc.conts.size} kıta kaldı`}</span></div>
+      <div class="pf-conts">${CONTINENTS.map(([k, n]) => `<span class="pf-cont ${sc.conts.has(k) ? 'on' : ''}"><i></i>${n}</span>`).join('')}</div></div></div>
+    <div ${nx()}><div class="pf-sec"><div class="pf-sec-head"><h3 class="h2">Damgalar</h3>${stamps.length ? `<span class="label">${stamps.length} şehir</span>` : ''}</div>
+      ${stamps.length ? `<div class="pf-stamps">${stamps.map((v, k) => `<button class="pf-stamp press" style="--i:${k}" data-stamp="${esc(v.cityId)}" aria-label="${esc(v.cityName)}: kürede aç">${stampSvg(v, k)}</button>`).join('')}</div>`
+      : `<div class="pf-empty">${icon('stamp', 22)}<span><b>Pasaportun boş</b>Bir şehrin radyosu çalmaya başlayınca damgası buraya basılır.</span></div>`}</div></div>
+    <div ${nx()}><div class="pf-sec"><div class="pf-sec-head"><h3 class="h2">Favoriler</h3>${state.favorites.length ? `<span class="label">${state.favorites.length}</span>` : ''}</div>
+      ${state.favorites.length ? `<div class="list">${state.favorites.map(f => favRow(f, st)).join('')}</div>`
+      : `<div class="pf-empty">${icon('heart', 22)}<span><b>Henüz favorin yok</b>Dinlerken kalbe dokun ya da Keşfet'te karta çift dokun.</span></div>`}</div></div>
+    <div ${nx()}><div class="pf-card" id="sleepCard"></div></div>
     <div ${nx()}><div class="acct"><button class="press" id="signOut">${icon('log-out', 20)}${guest ? 'Misafir modundan çık' : 'Çıkış yap'}</button>${guest ? '' : `<button class="press del" id="deleteAcct">${icon('trash', 20)}Hesabı sil</button>`}</div></div>`;
   renderSleep(true);
+  countUp(root);
   $('#signOut').addEventListener('click', async () => {
     const ok = await confirmDialog(guest ? 'Misafir modundan çık' : 'Çıkış yap', guest ? 'Favorilerin ve pasaportun bu cihazda saklanmaya devam eder.' : 'Bu cihazdaki oturumun kapatılacak. Verilerin hesabında güvende.', guest ? 'Çık' : 'Çıkış yap');
     if (!ok) return; pause(); openSheet(false); state.auth = null; state.email = null; save(); history = []; go('welcome', { replace: true });
@@ -3583,13 +3731,24 @@ function renderProfile() {
   const del = $('#deleteAcct');
   if (del) del.addEventListener('click', async () => {
     const ok = await confirmDialog('Hesabı kalıcı olarak sil', 'Favorilerin, pasaport damgaların ve açtığın temalar dahil tüm verilerin silinecek. Bu işlem geri alınamaz.', 'Hesabı sil');
-    if (!ok) return; pause(); openSheet(false); Object.assign(state, { auth: null, email: null, favorites: [], visits: [], theme: 'classic', unlocked: ['classic'] }); save(); history = []; go('welcome', { replace: true }); toast('Hesabın silindi');
+    if (!ok) return; pause(); openSheet(false); Object.assign(state, { auth: null, email: null, favorites: [], visits: [], theme: 'classic', unlocked: ['classic'], listenMs: 0, joinedAt: null }); save(); history = []; go('welcome', { replace: true }); toast('Hesabın silindi');
+  });
+}
+/** Yayın durumu değişince favori satırlarındaki "çalıyor" göstergesi (yeniden çizmeden). */
+function profileSync() {
+  if (state.view !== 'app' || state.tab !== 'profile') return;
+  const st = currentStation();
+  document.querySelectorAll('#profileScroll [data-fav-uuid]').forEach(row => {
+    const f = state.favorites.find(x => x.stationUuid === row.dataset.favUuid);
+    const cur = !!(f && st && st.uuid === f.stationUuid && state.activeCityId === f.cityId);
+    row.classList.toggle('current', cur); row.classList.toggle('paused', cur && state.status !== 'playing');
   });
 }
 $('#profileScroll').addEventListener('click', e => {
   const g = e.target.closest('[data-go]'); if (g) { go(g.dataset.go); return; }
+  const sp = e.target.closest('[data-stamp]'); if (sp) { vibrate(6); openCity(sp.dataset.stamp); return; }
   const p = e.target.closest('[data-play-fav]'); if (p) { const f = state.favorites.find(x => x.id === p.dataset.playFav); if (f) playFavorite(f); return; }
-  const r = e.target.closest('[data-rm-fav]'); if (r) { r.closest('.list-row').classList.add('leaving'); vibrate(6); setTimeout(() => { state.favorites = state.favorites.filter(x => x.id !== r.dataset.rmFav); save(); renderProfile(); }, DUR.toggle); }
+  const r = e.target.closest('[data-rm-fav]'); if (r) { r.closest('.list-row').classList.add('leaving'); vibrate(6); setTimeout(() => { state.favorites = state.favorites.filter(x => x.id !== r.dataset.rmFav); save(); renderProfile(false); }, DUR.toggle); }
 });
 function playFavorite(f) {
   const city = CITY[f.cityId]; if (!city) return; setTab('globe');
@@ -3652,6 +3811,7 @@ document.querySelectorAll('[data-eye]').forEach(b => b.addEventListener('click',
 ['loginEmail', 'loginPass', 'regEmail', 'regPass', 'regConfirm'].forEach(id => document.getElementById(id).addEventListener('input', () => setFieldError(id, null)));
 $('#regPass').addEventListener('input', e => { const s = strength(e.target.value); document.querySelectorAll('#segs .seg').forEach((seg, i) => { seg.classList.toggle('on', s > i); seg.querySelector('i').style.background = STRENGTH[s][1]; }); const l = $('#strengthLabel'); l.textContent = STRENGTH[s][0]; l.style.color = STRENGTH[s][1]; });
 function enterApp(msg) {
+  if (!state.joinedAt) { state.joinedAt = new Date().toISOString(); save(); }
   history = []; go('app', { replace: true }); setTab('globe'); if (msg) toast(msg);
   // Aynı küre karşılamadaki yerinden ana sayfadaki yerine 700 ms'de süzülür; harita ancak küre oturunca devralır.
   // (Intro sürücüsü çalışıyorsa küre zaten ana sayfa konumuna uçuyor; ikinci bir geçiş sıçratırdı.)
