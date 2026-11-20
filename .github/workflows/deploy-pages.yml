@@ -1,8 +1,9 @@
-# Publishes the design prototype and the Expo web app to the gh-pages branch
-# on every push to main.
+# Publishes the wGlobe web prototype (the latest design, with live satellite
+# imagery and live radio) to the gh-pages branch on every push to main.
 #
-#   https://bolut916.github.io/wGlobe/       → design prototype (same as the artifact)
-#   https://bolut916.github.io/wGlobe/app/   → Expo web app (experiments.baseUrl = /wGlobe/app)
+#   https://bolut916.github.io/wGlobe/       → web prototype
+#   https://bolut916.github.io/wGlobe/app/   → redirects to the prototype (the Expo
+#                                              app's web build had the older UI)
 #
 # Repository setting required once: Settings → Pages → "Deploy from a branch",
 # branch gh-pages, folder / (root).
@@ -39,18 +40,14 @@ jobs:
       - name: Type check
         run: npx tsc --noEmit
 
-      - name: Export web app
-        run: npx expo export --platform web --output-dir dist/app
-        env:
-          CI: '1'
-
-      - name: Add prototype at the site root, SPA fallback and .nojekyll
+      - name: Assemble site
         run: |
+          mkdir -p dist/app
           cp -r prototype/. dist/
-          # Unknown paths get 404.html; serving the app there makes deep links
-          # such as /wGlobe/app/globe work after a reload.
-          cp dist/app/index.html dist/404.html
-          # Folders starting with "_" (dist/app/_expo) are dropped by Jekyll otherwise.
+          # Old links (/app/, unknown paths) land on the latest prototype.
+          REDIRECT='<!doctype html><meta charset="utf-8"><title>wGlobe</title><meta http-equiv="refresh" content="0; url=/wGlobe/"><script>location.replace("/wGlobe/")</script>'
+          echo "$REDIRECT" > dist/app/index.html
+          echo "$REDIRECT" > dist/404.html
           touch dist/.nojekyll
 
       - name: Publish to gh-pages

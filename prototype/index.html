@@ -843,7 +843,7 @@ const MOODS = [
 const THEMES = {
   classic: { name:'Klasik', short:'KLASİK', desc:'Gerçek bir gezegen: derin okyanuslar, kabartmalı kıtalar, bulutlar ve gece tarafında yanan şehirler.', premium:false,
     p:{ oceanDeep:'#030D1B', oceanShallow:'#0A2746', shelf:'#145067', landLow:'#2F3A27', landHigh:'#6E6346', ice:'#D9E1E6', coast:'#9DB9CC', grid:'#C89D54', equator:'#C89D54', night:'#010309', lights:'#FFC878', atmoDay:'#6FB0FF', atmoDusk:'#FF9A5A', cloud:'#F4F6F8', background:'#05070A',
-      gridOpacity:0.06, gridSpacingDeg:15, nightStrength:0.88, lightsStrength:0.95, lightsDay:0, atmoStrength:0.95, terminatorSoftness:0.12, specular:0.55, relief:1, coastStrength:0.18, hatch:0, flat:0, clouds:0.6 } },
+      gridOpacity:0.06, gridSpacingDeg:15, nightStrength:0.88, lightsStrength:0.95, lightsDay:0, atmoStrength:0.95, terminatorSoftness:0.12, specular:0.55, relief:1, coastStrength:0.18, hatch:0, flat:0, clouds:0 } },
   parchment: { name:'Parşömen', short:'PARŞÖMEN', desc:'Bir kâşifin haritası: sepya mürekkep, taranmış dağlar, solgun kâğıt okyanuslar.', premium:true,
     p:{ oceanDeep:'#C2AC83', oceanShallow:'#E8DABC', shelf:'#D8C69E', landLow:'#9A7A4E', landHigh:'#6A4A2A', ice:'#EDE3CC', coast:'#3A2412', grid:'#5C3D22', equator:'#8C3B1F', night:'#2A1C0E', lights:'#FFB45E', atmoDay:'#F6E7C8', atmoDusk:'#E9A15A', cloud:'#FFFFFF', background:'#100B06',
       gridOpacity:0.32, gridSpacingDeg:10, nightStrength:0.5, lightsStrength:0.2, lightsDay:0, atmoStrength:0.45, terminatorSoftness:0.3, specular:0, relief:0.55, coastStrength:0.9, hatch:0.7, flat:0, clouds:0 } },
@@ -859,7 +859,7 @@ const COLOR_KEYS = ['oceanDeep','oceanShallow','shelf','landLow','landHigh','ice
 const FLOAT_KEYS = ['gridOpacity','gridSpacingDeg','nightStrength','lightsStrength','lightsDay','atmoStrength','terminatorSoftness','specular','relief','coastStrength','hatch','flat','clouds'];
 
 const PHYS = { damping:0.95, drag:0.0048, minV:0.0001, maxV:0.12, focusLerp:0.085, focusEps:0.0015, hapticDeg:15, hapticMinMs:40, idleSpin:0.0008, idleDelay:4000, idleRamp:1200, maxPitch:Math.PI/2.4, tapSlop:8, tapMs:250 };
-const DUR = { press:100, toggle:180, card:280, sheetClose:240, page:450, themeMorph:700, pulse:1600, audioIn:600, audioOut:200, startTimeout:5000, sleepFade:30000 };
+const DUR = { press:100, toggle:180, card:280, sheetClose:240, page:450, themeMorph:700, pulse:1600, audioIn:600, audioOut:200, startTimeout:6000, sleepFade:30000 };
 
 // ═════════════════════════════════════════════════════════
 //  İKONLAR (lucide, ISC)
@@ -1385,7 +1385,7 @@ const Globe = (() => {
     if (instant || !revealed) { bg.cur.copy(c); bg.start = 0; return; }
     bg.from.copy(bg.cur); bg.to.copy(c); bg.start = performance.now();
   }
-  function setThemeInstant(id) { pal = toNum(THEMES[id].p); from = to = null; applyPal(pal); }
+  function setThemeInstant(id) { opts.theme = id; pal = toNum(THEMES[id].p); from = to = null; applyPal(pal); }
   function setRotation(r) { rot.x = r.x; rot.y = r.y; focus = null; vel.x = vel.y = 0; lastInteract = performance.now(); }
 
   /** Snapshot yardımcıları: aynı HDR hattıyla ayrı bir bağlamda çizer */
@@ -1536,7 +1536,10 @@ const Globe = (() => {
       pal.f.gridSpacingDeg = e < 0.5 ? from.f.gridSpacingDeg : to.f.gridSpacingDeg;
       applyPal(pal); if (raw >= 1) from = to = null;
     }
-    if (now - lastSun > 10000) { lastSun = now; const s = subsolar(new Date()); sunObj.copy(latLngToVec3(s.lat, s.lng)); }
+    // Gün ışığı modu: uydu haritasıyla aynı görünüm için güneş kameranın hafif yukarısında durur
+    // (görünen yüz tamamen aydınlık, kabartma ve okyanus parlaması korunur). Gece temasında gerçek güneş.
+    if (opts.theme !== 'night_lights' && camObj.lengthSq() > 0) { sunObj.copy(camObj).normalize(); sunObj.y += 0.35; sunObj.normalize(); }
+    else if (now - lastSun > 10000) { lastSun = now; const s = subsolar(new Date()); sunObj.copy(latLngToVec3(s.lat, s.lng)); }
     syncUniforms(camera);
 
     const show = opts.markers !== false && !driver;
@@ -1811,50 +1814,63 @@ async function loadQueue(city) {
 const emptyQueue = () => ({ stations: null, local: 0 });
 
 const Radio = (() => {
-  const audio = new Audio();
-  audio.preload = 'none';
-  let factor = 1, tune = 1, fadeRaf = 0, live = false, pendingReject = null, unlocked = false;
-  // 0.05 sn sessiz WAV: iOS Safari'de <audio> ilk dokunuşta bununla "açılır",
-  // sonraki asenkron play() çağrıları (istasyon listesi geldikten sonra) engellenmez.
+  // 3 öğelik havuz: sıradaki 3 istasyon AYNI ANDA sessizde denenir, ilk çalmaya başlayan kazanır.
+  // (Tek tek 5 sn beklemek, açılmayan istasyonlarda dakikalarca sessizlik demekti.)
+  const POOL = 3;
+  const pool = Array.from({ length: POOL }, () => { const a = new Audio(); a.preload = 'none'; return a; });
+  let cur = null, factor = 1, tune = 1, fadeRaf = 0, live = false, cancelRace = null, unlocked = false;
+  const level = () => clamp(factor * tune, 0, 1);
+  const setVol = (a, v) => { try { a.volume = clamp(v, 0, 1); } catch (e) {} };
+  // 0.05 sn sessiz WAV: iOS Safari'de <audio> öğeleri ilk dokunuşta bununla "açılır".
   const SILENT = (() => { const n = 400, b = new Uint8Array(44 + n), v = new DataView(b.buffer), w = (o, t) => { for (let i = 0; i < t.length; i++) b[o + i] = t.charCodeAt(i); };
     w(0, 'RIFF'); v.setUint32(4, 36 + n, true); w(8, 'WAVEfmt '); v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true); v.setUint32(24, 8000, true); v.setUint32(28, 8000, true); v.setUint16(32, 1, true); v.setUint16(34, 8, true); w(36, 'data'); v.setUint32(40, n, true); b.fill(128, 44);
     let bin = ''; b.forEach(x => { bin += String.fromCharCode(x); }); return 'data:audio/wav;base64,' + btoa(bin); })();
-  const level = () => clamp(factor * tune, 0, 1);
-  const setVol = v => { try { audio.volume = clamp(v, 0, 1); } catch (e) {} };
+  function stopEl(a) { try { a.pause(); a.removeAttribute('src'); a.load(); } catch (e) {} }
+  function halt() { cancelAnimationFrame(fadeRaf); pool.forEach(stopEl); live = false; cur = null; }
   function fadeTo(v, ms, done) {
+    const a = cur; if (!a) { if (done) done(); return; }
     cancelAnimationFrame(fadeRaf);
-    const from = audio.volume, t0 = performance.now();
-    const step = now => { const k = Math.min(1, (now - t0) / Math.max(ms, 1)); setVol(from + (v - from) * k); if (k < 1) fadeRaf = requestAnimationFrame(step); else if (done) done(); };
+    const from = a.volume, t0 = performance.now();
+    const step = now => { const k = Math.min(1, (now - t0) / Math.max(ms, 1)); setVol(a, from + (v - from) * k); if (k < 1) fadeRaf = requestAnimationFrame(step); else if (done) done(); };
     fadeRaf = requestAnimationFrame(step);
   }
-  function halt() { cancelAnimationFrame(fadeRaf); try { audio.pause(); audio.removeAttribute('src'); audio.load(); } catch (e) {} live = false; }
   return {
-    /** Akışı başlatır; 'playing' gelince çözülür, hata ya da zaman aşımında reddedilir. */
-    start(url, timeoutMs) {
-      if (pendingReject) { pendingReject(new Error('superseded')); pendingReject = null; }
+    /** En fazla 3 URL'yi aynı anda dener; ilk 'playing' olanın sırasını döndürür. */
+    race(urls, timeoutMs) {
+      if (cancelRace) cancelRace(new Error('superseded'));
       halt();
       return new Promise((resolve, reject) => {
-        let timer = null;
-        const cleanup = () => { clearTimeout(timer); audio.removeEventListener('playing', onPlay); audio.removeEventListener('error', onErr); if (pendingReject === fail) pendingReject = null; };
-        const fail = err => { cleanup(); halt(); reject(err); };
-        const onPlay = () => { cleanup(); live = true; resolve(); };
-        const onErr = () => fail(new Error('media error'));
-        pendingReject = fail;
-        audio.addEventListener('playing', onPlay); audio.addEventListener('error', onErr);
-        timer = setTimeout(() => fail(new Error('timeout')), timeoutMs);
-        setVol(0); audio.src = url;
-        const p = audio.play(); if (p && p.catch) p.catch(err => fail(err));
+        const n = Math.min(urls.length, POOL); let done = false, failed = 0, blocked = false; const offs = [];
+        const finish = fn => { if (done) return; done = true; clearTimeout(timer); offs.forEach(off => off()); cancelRace = null; fn(); };
+        const timer = setTimeout(() => finish(() => { halt(); reject(new Error('timeout')); }), timeoutMs);
+        cancelRace = err => finish(() => { halt(); reject(err); });
+        for (let k = 0; k < n; k++) {
+          const a = pool[k];
+          const onPlay = () => finish(() => {
+            pool.forEach((o, j) => { if (j !== k) stopEl(o); });
+            cur = a; live = true; a.muted = false; setVol(a, 0); resolve(k);
+          });
+          const onErr = err => {
+            if (done) return; failed++; if (err && err.name === 'NotAllowedError') blocked = true;
+            if (failed >= n) finish(() => { halt(); const e = new Error(blocked ? 'blocked' : 'all failed'); if (blocked) e.name = 'NotAllowedError'; reject(e); });
+          };
+          const onMediaErr = () => onErr(null);
+          a.addEventListener('playing', onPlay); a.addEventListener('error', onMediaErr);
+          offs.push(() => { a.removeEventListener('playing', onPlay); a.removeEventListener('error', onMediaErr); });
+          a.muted = true; setVol(a, 1); a.src = urls[k];   // iOS'ta volume salt okunur, muted değil
+          const p = a.play(); if (p && p.catch) p.catch(onErr);
+        }
       });
     },
-    /** Kullanıcı dokunuşu sırasında çağrılır (selectCity / play / next / Keşfet). */
-    unlock() {
-      if (unlocked || live || pendingReject) return; unlocked = true;
-      try { audio.src = SILENT; const p = audio.play(); if (p && p.then) p.then(() => { if (!live && !pendingReject) audio.pause(); }).catch(() => { unlocked = false; }); } catch (e) { unlocked = false; }
-    },
     fadeIn(ms) { fadeTo(level(), ms); },
-    fadeOut(ms = DUR.audioOut) { if (pendingReject) { pendingReject(new Error('stopped')); pendingReject = null; } if (!live) { halt(); return; } fadeTo(0, ms, halt); },
-    setFactor(v) { factor = v; if (live) setVol(level()); },
-    setTune(v) { tune = clamp(v, 0, 1); if (live) setVol(level()); },
+    fadeOut(ms = DUR.audioOut) { if (cancelRace) { cancelRace(new Error('stopped')); return; } if (!live) { halt(); return; } fadeTo(0, ms, halt); },
+    setFactor(v) { factor = v; if (live && cur) setVol(cur, level()); },
+    setTune(v) { tune = clamp(v, 0, 1); if (live && cur) setVol(cur, level()); },
+    /** Kullanıcı dokunuşu sırasında çağrılır: havuzdaki tüm öğeleri açar. */
+    unlock() {
+      if (unlocked || live || cancelRace) return; unlocked = true;
+      pool.forEach(a => { try { a.muted = true; a.src = SILENT; const p = a.play(); if (p && p.then) p.then(() => { if (!live && !cancelRace) a.pause(); }).catch(() => { unlocked = false; }); } catch (e) { unlocked = false; } });
+    },
     get live() { return live; },
   };
 })();
@@ -1880,24 +1896,27 @@ async function startAttempt(i, isFailover) {
     if (state.pendingUuid) { const k = q.stations.findIndex(st => st.uuid === state.pendingUuid); i = k >= 0 ? k : 0; state.pendingUuid = null; }
     renderSheet();
   }
-  const st = state.queue.stations[i]; if (!st) { setStatus('error'); return; }
+  const list = state.queue.stations, st = list[i]; if (!st) { setStatus('error'); return; }
   state.index = i; renderSheetDynamic();
   if (st.demo) { Radio.fadeOut(0); Ambient.play(city.vibeTag, 0); onStarted(token); return; }
   Ambient.fadeOut(0);
-  Radio.start(st.url, DUR.startTimeout).then(() => {
+  // Bu istasyon + sıradaki en fazla 2 gerçek istasyon birlikte denenir.
+  const batch = []; for (let k = i; k < list.length && batch.length < 3 && !list[k].demo; k++) batch.push(k);
+  Radio.race(batch.map(k => list[k].url), DUR.startTimeout).then(won => {
     if (token !== attemptToken) { Radio.fadeOut(0); return; }
+    state.index = batch[won]; renderSheetDynamic();
     Radio.fadeIn(DUR.audioIn); onStarted(token);
   }).catch(err => {
     if (token !== attemptToken) return;
     // Tarayıcı otomatik oynatmayı engellediyse istasyonu bozuk sayma: kullanıcı ▶ ile başlatsın.
     if (err && err.name === 'NotAllowedError') { setStatus('paused'); return; }
-    failover(token);
+    failover(token, batch.length);
   });
 }
-function failover(token) {
-  if (token !== attemptToken) return; failedAttempts++;
+function failover(token, tried = 1) {
+  if (token !== attemptToken) return; failedAttempts += tried;
   if (failedAttempts >= state.queue.stations.length) { setStatus('error'); return; }
-  startAttempt((state.index + 1) % state.queue.stations.length, true);
+  startAttempt((state.index + tried) % state.queue.stations.length, true);
 }
 function onStarted(token) {
   if (token !== attemptToken) return; failedAttempts = 0;
@@ -2068,6 +2087,8 @@ $('#modal').addEventListener('click', e => { if (e.target.id === 'modal') closeM
 //     Earth 1:10m kara/kıyı verisinden GPU'da çizilir. Karar otomatik verilir.
 //  MapLibre başlatılamazsa eski three.js küreye sessizce geri dönülür.
 // ═════════════════════════════════════════════════════════
+/** Sürüm etiketi: sitede hangi sürümün açık olduğunu rozetten görmek için (önbellek kontrolü). */
+const BUILD = 'v15';
 const MapGlobe = (() => {
   const host = document.getElementById('mapStage');
   const badge = document.getElementById('lodBadge');
@@ -2076,6 +2097,9 @@ const MapGlobe = (() => {
   // Açılış devir teslimi: harita intro sırasında görünmez yüklenir; ilk görüntü tamamlanınca
   // three.js küresinin açısını/boyutunu birebir alıp üstüne 400 ms'de belirir.
   let firstReady = false, revealed = false, pendingReveal = null, tap = null;
+  // Kullanıcı küreye bir kez dokunduğunda kamera tamamen onun: otomatik dönüş, yörünge ve
+  // haritadan yapılan seçimlerde otomatik uçuş kapanır. Yalnızca açık komutlar (karıştır) uçar.
+  let userControl = false, selectFromMap = false;
   let dataStatus = 'yükleniyor';
   // Uydu modu: 'probing' → ilk karolar bekleniyor, 'satellite' → karo akıyor, 'vector' → engelli
   let imagery = 'probing', satTiles = 0, satErrors = 0, satLastError = '';
@@ -2148,8 +2172,8 @@ const MapGlobe = (() => {
   function updateBadge() {
     if (!visible) { badge.classList.remove('on'); return; }
     const z = map ? map.getZoom().toFixed(1) : '–';
-    if (imagery === 'vector') badge.textContent = 'Z ' + z + ' · vektör 1:10m · ' + dataStatus + ' · uydu karosu engelli';
-    else badge.textContent = 'Z ' + z + ' · Uydu karo: ' + satTiles + ' · Hata: ' + satErrors + (imagery === 'probing' ? ' · bağlanıyor' : '') + (satLastError ? '\n' + satLastError.slice(0, 48) : '');
+    if (imagery === 'vector') badge.textContent = BUILD + ' · Z ' + z + ' · vektör 1:10m · ' + dataStatus + ' · uydu karosu engelli';
+    else badge.textContent = BUILD + ' · Z ' + z + ' · Uydu karo: ' + satTiles + ' · Hata: ' + satErrors + (imagery === 'probing' ? ' · bağlanıyor' : '') + (satLastError ? '\n' + satLastError.slice(0, 48) : '');
     badge.classList.add('on');
   }
 
@@ -2257,7 +2281,7 @@ const MapGlobe = (() => {
     });
     // Ağ sessizce düşürürse (CSP bazen hata olayı üretmez): 6 sn'de karo yoksa vektöre geç.
     setTimeout(() => { if (imagery === 'probing' && satTiles === 0) setImagery('vector'); }, 6000);
-    ['dragstart', 'zoomstart', 'rotatestart', 'pitchstart'].forEach(n => map.on(n, ev => { if (ev.originalEvent) { userMoving = true; flight = null; lastTouch = Date.now(); state.interacted = true; $('#hint').classList.add('gone'); hideCityTag(); } }));
+    ['dragstart', 'zoomstart', 'rotatestart', 'pitchstart'].forEach(n => map.on(n, ev => { if (ev.originalEvent) { userMoving = true; userControl = true; flight = null; lastTouch = Date.now(); state.interacted = true; $('#hint').classList.add('gone'); hideCityTag(); } }));
     map.on('moveend', ev => { if (ev && ev.wglobeFlight) flight = null; if (userMoving) lastTouch = Date.now(); userMoving = false; });
     map.on('move', ev => {
       updateBadge(); placeTag();
@@ -2267,7 +2291,7 @@ const MapGlobe = (() => {
     });
     // Haritada herhangi bir yere dokun → en yakın konumun yerel radyosu.
     map.on('click', ev => {
-      lastTouch = Date.now();
+      lastTouch = Date.now(); userControl = true; selectFromMap = true;
       const { lng, lat } = ev.lngLat;
       map.getSource('tap').setData({ type: 'Feature', properties: {}, geometry: { type: 'Point', coordinates: [lng, lat] } });
       tap = performance.now();
@@ -2372,11 +2396,8 @@ const MapGlobe = (() => {
       map.setPaintProperty('city-pulse2', 'circle-radius', 10 + 16 * e2);
       map.setPaintProperty('city-pulse2', 'circle-stroke-opacity', 0.55 * (1 - ph2));
     }
-    // Drone yörüngesi: kart açık ve yayın çalarken kamera şehrin etrafında 3°/sn döner; dokununca durur.
-    if (state.sheetOpen && state.status === 'playing' && !reduceMotion.matches && !userMoving && !flight && !map.isMoving() && Date.now() - lastTouch > 1500) {
-      map.setBearing(map.getBearing() + 3 * dt);
-    }
-    if (!state.sheetOpen && !userMoving && !flight && !map.isMoving() && Date.now() - lastTouch > PHYS.idleDelay && map.getZoom() < 3.5) {
+
+    if (!userControl && !state.sheetOpen && !userMoving && !flight && !map.isMoving() && Date.now() - lastTouch > PHYS.idleDelay && map.getZoom() < 3.5) {
       const k = Math.min(1, (3.5 - map.getZoom()) / 1.5), c = map.getCenter();
       map.setCenter([c.lng - 3 * k * dt, c.lat]);
     }
@@ -2433,12 +2454,11 @@ const MapGlobe = (() => {
       if (!ready || !visible) return;
       bottomPad = open ? Math.round(sheetHeight + 84) : basePad.bottom;
       topPad = open ? 0 : basePad.top;
-      // Sinematik iniş: şehre eğik (52°) ve hafif dönük (−18°) iner, ufuk ve gökyüzü kadraja girer.
-      // Kapanışta aynı yoldan düzleşerek yörüngeye çıkar. "Hareketi azalt" açıksa düz iniş.
-      const cine = !reduceMotion.matches;
-      if (open && city) flyTo(city.lng, city.lat, imagery === 'satellite' ? 10.5 : 5.6, 1.1, cine ? (imagery === 'satellite' ? 52 : 35) : 0, cine ? -18 : 0);
-      else if (city) flyTo(city.lng, city.lat, Math.min(map.getZoom(), 2.2), 1.4, 0, 0);
-      else map.easeTo({ padding: padding(), duration: 320 });
+      // Haritaya dokunarak seçildiyse kamera yerinde kalır (kontrol kullanıcıda).
+      // Karıştır gibi açık komutlarda şehre düz açıyla uçulur; kart kapanınca kamera oynamaz.
+      const fromMap = selectFromMap; selectFromMap = false;
+      if (!open || fromMap || !city) return;
+      flyTo(city.lng, city.lat, imagery === 'satellite' ? 10.5 : 5.6, 1.1, 0, 0);
     },
     get ready() { return ready; },
     get map() { return map; },
@@ -2507,7 +2527,9 @@ function statusLine() {
   const s = state.status, st = currentStation();
   if (s === 'loading') return 'Yayın aranıyor…';
   if (s === 'failover') return 'Yayın yanıt vermedi, sıradakine geçiliyor…';
-  if (s === 'playing') return st && st.demo ? 'Önizleme sesi · ağ kapalı' : st && st.fallback ? 'Global yayın · canlı' : `${st.local ? 'Yerel · ' : 'Canlı · '}${st.codec}${st.bitrate ? ' ' + st.bitrate + ' kbps' : ''}`;
+  // Şehir değişirken istasyon listesi henüz yüklenmemiş olabilir (st = null): çökmeden 'aranıyor' göster.
+  if (s === 'playing' && !st) return 'Yayın aranıyor…';
+  if (s === 'playing') return st.demo ? 'Önizleme sesi · ağ kapalı' : st.fallback ? 'Global yayın · canlı' : `${st.local ? 'Yerel · ' : 'Canlı · '}${st.codec}${st.bitrate ? ' ' + st.bitrate + ' kbps' : ''}`;
   if (s === 'error') return 'Şu an yayın alınamıyor. Bağlantını kontrol edip tekrar dene.';
   if (s === 'paused') return 'Duraklatıldı';
   return 'Dinlemek için oynat’a dokun';
