@@ -1108,7 +1108,7 @@ void main() { vObj = position; vec4 wp = modelMatrix * vec4(position, 1.0); vWor
 
 const SURFACE_FRAG = `precision highp float;
 uniform sampler2D uDay; uniform sampler2D uLights; uniform sampler2D uClouds; uniform sampler2D uHeight; uniform sampler2D uWater; uniform sampler2D uLand;
-uniform float uHasLights; uniform float uHasClouds;
+uniform float uHasLights; uniform float uHasClouds; uniform float uUnlit; uniform vec2 uDaySize;
 uniform vec3 uSunObj; uniform vec3 uCamObj;
 uniform float uReal; uniform float uSun; uniform float uLightsGain; uniform float uCloudGain; uniform float uMoon; uniform float uRelief;
 uniform vec3 uOceanDeep; uniform vec3 uOceanShallow; uniform vec3 uShelf; uniform vec3 uLandLow; uniform vec3 uLandHigh; uniform vec3 uIce; uniform vec3 uCoast; uniform vec3 uGrid; uniform vec3 uEquator; uniform vec3 uNight;
@@ -1134,10 +1134,12 @@ void main() {
   float mu = dot(n, L);
   vec4 land = textureGrad(uLand, uv, gx, gy);
   vec3 real = vec3(0.0);
+  vec3 rawAlb = vec3(0.0);
   float cloudHere = 0.0;
 
   if (uReal > 0.001) {
-    vec3 albedo = srgb2lin(sampleSmart(uDay, uv, vec2(4096.0, 2048.0), gx, gy).rgb);
+    vec3 albedo = srgb2lin(sampleSmart(uDay, uv, uDaySize, gx, gy).rgb);
+    rawAlb = albedo;
     float water = smoothstep(0.3, 0.7, textureGrad(uWater, uv, gx, gy).r);
     // Okyanus: derin su + kıta sahanlığı + gerçek batimetriden hafif iz
     vec3 oceanAlb = mix(vec3(0.0026, 0.0080, 0.0205), vec3(0.0055, 0.026, 0.040), smoothstep(0.55, 0.97, land.g));
@@ -1208,11 +1210,18 @@ void main() {
     sc = mix(sc, uEquator, (1.0 - smoothstep(0.0035, 0.0035 + wLat * 1.5, abs(lat))) * clamp(uGridOpacity * 2.2, 0.0, 1.0));
     color = mix(sc, real, uReal);
   }
+  // Düz mod (klasik tema): uydu görüntüsünün kendisi, ışıksız; bulutlar ekran (sRGB) uzayında beyaz 235 ile
+  // alfa karışımı — ana ekrandaki MapLibre bulut katmanıyla birebir aynı formül.
+  if (uUnlit > 0.5 && uReal > 0.999) {
+    vec3 g = mix(rawAlb * 12.92, 1.055 * pow(rawAlb, vec3(1.0 / 2.4)) - 0.055, step(vec3(0.0031308), rawAlb));
+    float ca = clamp(cloudHere * 1.08, 0.0, 1.0);
+    color = srgb2lin(mix(g, vec3(235.0 / 255.0), ca));
+  }
   gl_FragColor = vec4(color, 1.0);
 }`.replace('__GLSL_COMMON__', GLSL_COMMON);
 
 const CLOUD_FRAG = `precision highp float;
-uniform sampler2D uClouds; uniform vec3 uSunObj; uniform float uCloudGain; uniform float uHasClouds; uniform float uSun; uniform float uMoon;
+uniform sampler2D uClouds; uniform vec3 uSunObj; uniform float uCloudGain; uniform float uHasClouds; uniform float uSun; uniform float uMoon; uniform float uUnlit;
 varying vec3 vObj; varying vec3 vWorldPos;
 __GLSL_COMMON__
 void main() {
@@ -1230,12 +1239,13 @@ void main() {
   float lit = (0.18 + 0.82 * max(mu, 0.0)) * smoothstep(-0.035, 0.09, mu);
   float skyK = smoothstep(-0.309, 0.08, mu); skyK *= skyK;
   vec3 col = vec3(0.80) * (T * lit * uSun + vec3(0.35, 0.5, 1.0) * 0.07 * skyK * uSun) + vec3(0.55, 0.7, 1.0) * uMoon * 0.8;
+  if (uUnlit > 0.5) col = vec3(0.82);   // düz mod: ana küredeki bulut katmanıyla aynı ton
   gl_FragColor = vec4(col * alpha, alpha);
 }`.replace('__GLSL_COMMON__', GLSL_COMMON);
 
 /* Tek saçılımlı atmosfer: Rayleigh + Mie, gezegen yarıçapı birimlerinde */
 const ATMO_FRAG = `precision highp float;
-uniform vec3 uCenter; uniform float uR; uniform vec3 uSunWorld; uniform float uAtmoGain;
+uniform vec3 uCenter; uniform float uR; uniform vec3 uSunWorld; uniform float uAtmoGain; uniform float uUnlit;
 varying vec3 vObj; varying vec3 vWorldPos;
 #define PI 3.141592653589793
 const float RA = 1.0157;
@@ -1279,13 +1289,13 @@ void main() {
   vec3 inscatter = PI * (BR * sumR * pR + BM * sumM * pM);
   vec3 trans = exp(-(BR * od.x + BME * od.y));
   float a = 1.0 - dot(trans, vec3(1.0 / 3.0));
-  float clarity = hitsGround ? 0.5 : 1.0;
+  float clarity = hitsGround ? (uUnlit > 0.5 ? 0.0 : 0.5) : 1.0;   // düz modda disk üstünde pus yok, yalnız kenar halesi
   gl_FragColor = vec4(inscatter, a) * uAtmoGain * clarity;
 }`;
 
 const POST_VERT = `varying vec2 vUv; void main() { vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }`;
 const POST_FRAG = `precision highp float;
-uniform sampler2D tScene; uniform float uExposure; uniform float uFrame; varying vec2 vUv;
+uniform sampler2D tScene; uniform float uExposure; uniform float uFrame; uniform float uBypass; varying vec2 vUv;
 vec3 RRTAndODTFit(vec3 v) { vec3 a = v * (v + 0.0245786) - 0.000090537; vec3 b = v * (0.983729 * v + 0.4329510) + 0.238081; return a / b; }
 vec3 ACESFilmic(vec3 color) {
   const mat3 IN = mat3(vec3(0.59719, 0.07600, 0.02840), vec3(0.35458, 0.90834, 0.13383), vec3(0.04823, 0.01566, 0.83777));
@@ -1297,7 +1307,7 @@ vec3 lin2srgb(vec3 c) { return mix(c * 12.92, 1.055 * pow(c, vec3(1.0 / 2.4)) - 
 float hash12(vec2 p) { vec3 p3 = fract(vec3(p.xyx) * 0.1031); p3 += dot(p3, p3.yzx + 33.33); return fract((p3.x + p3.y) * p3.z); }
 void main() {
   vec4 s = texture2D(tScene, vUv);
-  vec3 c = lin2srgb(ACESFilmic(max(s.rgb, 0.0)));
+  vec3 c = uBypass > 0.5 ? lin2srgb(max(s.rgb, 0.0)) : lin2srgb(ACESFilmic(max(s.rgb, 0.0)));
   c += (hash12(gl_FragCoord.xy + uFrame * 17.0) - 0.5) / 255.0;   // bantlaşmayı kıran titreşim
   gl_FragColor = vec4(c, s.a);
 }`;
@@ -1322,12 +1332,13 @@ const Globe = (() => {
   const sunObj = new THREE.Vector3(1, 0, 0), sunWorld = new THREE.Vector3(), camObj = new THREE.Vector3(), center = new THREE.Vector3();
   let lastSun = 0;
   const tex = {};
+  let pendingDay = null;   // ESRI mozaiği earth-day.webp'den önce gelirse sonra uygulanır
   const coreM = new THREE.MeshBasicMaterial({ color: 0xffffff }), haloM = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.16, blending: THREE.AdditiveBlending, depthWrite: false });
 
   /** HDR işleme hattı: sahne → yarım-kayan MSAA hedef → ACES + sRGB + titreşim */
   function makePipe(r, samples) {
     const rt = new THREE.WebGLRenderTarget(4, 4, { type: THREE.HalfFloatType, samples: r.capabilities.isWebGL2 ? samples : 0, depthBuffer: true });
-    const mat = new THREE.ShaderMaterial({ vertexShader: POST_VERT, fragmentShader: POST_FRAG, uniforms: { tScene: { value: rt.texture }, uExposure: { value: EXPOSURE }, uFrame: { value: 0 } }, depthTest: false, depthWrite: false });
+    const mat = new THREE.ShaderMaterial({ vertexShader: POST_VERT, fragmentShader: POST_FRAG, uniforms: { tScene: { value: rt.texture }, uExposure: { value: EXPOSURE }, uFrame: { value: 0 }, uBypass: { value: 0 } }, depthTest: false, depthWrite: false });
     const quad = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), mat); quad.frustumCulled = false;
     const qs = new THREE.Scene(); qs.add(quad);
     return { rt, mat, qs, qc: new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1) };
@@ -1336,7 +1347,7 @@ const Globe = (() => {
     const size = r.getDrawingBufferSize(new THREE.Vector2());
     if (p.rt.width !== size.x || p.rt.height !== size.y) p.rt.setSize(size.x, size.y);
     r.setRenderTarget(p.rt); r.setClearColor(clearCol, clearA); r.clear(); r.render(scene, cam);
-    r.setRenderTarget(null); p.mat.uniforms.uFrame.value = frameNo % 64; r.render(p.qs, p.qc);
+    r.setRenderTarget(null); p.mat.uniforms.uFrame.value = frameNo % 64; p.mat.uniforms.uBypass.value = gMat.uniforms.uUnlit.value; r.render(p.qs, p.qc);
   }
   function loadTex(key, url, critical, opt = {}) {
     return new Promise(res => new THREE.TextureLoader().load(url, t => {
@@ -1358,15 +1369,15 @@ const Globe = (() => {
     globe = new THREE.Group(); rig.add(globe);
     const blank = new THREE.DataTexture(new Uint8Array([0, 0, 0, 255]), 1, 1); blank.needsUpdate = true;
     const uniforms = { uDay: { value: blank }, uLights: { value: blank }, uClouds: { value: blank }, uHeight: { value: blank }, uWater: { value: blank }, uLand: { value: blank },
-      uHasLights: { value: 0 }, uHasClouds: { value: 0 }, uSunObj: { value: sunObj }, uCamObj: { value: camObj }, uRelief: { value: RELIEF }, uGridSpacing: { value: 15 * D2R } };
+      uHasLights: { value: 0 }, uHasClouds: { value: 0 }, uUnlit: { value: 1 }, uDaySize: { value: new THREE.Vector2(4096, 2048) }, uSunObj: { value: sunObj }, uCamObj: { value: camObj }, uRelief: { value: RELIEF }, uGridSpacing: { value: 15 * D2R } };
     STYLE_COLORS.forEach(k => uniforms[U(k)] = { value: new THREE.Vector3() });
     STYLE_FLOATS.concat(['real', 'sun', 'lightsGain', 'cloudGain', 'moon']).forEach(k => uniforms[U(k)] = { value: 0 });
     const ext = { derivatives: true, shaderTextureLOD: true };
     gMat = new THREE.ShaderMaterial({ vertexShader: VERT_OBJ, fragmentShader: SURFACE_FRAG, uniforms, extensions: ext });
     globeMesh = new THREE.Mesh(new THREE.SphereGeometry(1, 320, 220), gMat); globe.add(globeMesh);
-    cMat = new THREE.ShaderMaterial({ vertexShader: VERT_OBJ, fragmentShader: CLOUD_FRAG, uniforms: { uClouds: uniforms.uClouds, uSunObj: { value: sunObj }, uCloudGain: { value: 0 }, uHasClouds: uniforms.uHasClouds, uSun: { value: 1 }, uMoon: { value: 0 } }, extensions: ext, transparent: true, premultipliedAlpha: true, blending: THREE.NormalBlending, depthWrite: false });
+    cMat = new THREE.ShaderMaterial({ vertexShader: VERT_OBJ, fragmentShader: CLOUD_FRAG, uniforms: { uClouds: uniforms.uClouds, uSunObj: { value: sunObj }, uCloudGain: { value: 0 }, uHasClouds: uniforms.uHasClouds, uSun: { value: 1 }, uMoon: { value: 0 }, uUnlit: uniforms.uUnlit }, extensions: ext, transparent: true, premultipliedAlpha: true, blending: THREE.NormalBlending, depthWrite: false });
     clouds = new THREE.Mesh(new THREE.SphereGeometry(1.0035, 256, 180), cMat); clouds.renderOrder = 1; globe.add(clouds);
-    aMat = new THREE.ShaderMaterial({ vertexShader: VERT_OBJ, fragmentShader: ATMO_FRAG, uniforms: { uCenter: { value: center }, uR: { value: 1 }, uSunWorld: { value: sunWorld }, uAtmoGain: { value: 0 } }, transparent: true, premultipliedAlpha: true, blending: THREE.NormalBlending, depthWrite: false });
+    aMat = new THREE.ShaderMaterial({ vertexShader: VERT_OBJ, fragmentShader: ATMO_FRAG, uniforms: { uCenter: { value: center }, uR: { value: 1 }, uSunWorld: { value: sunWorld }, uAtmoGain: { value: 0 }, uUnlit: uniforms.uUnlit }, transparent: true, premultipliedAlpha: true, blending: THREE.NormalBlending, depthWrite: false });
     atmoMesh = new THREE.Mesh(new THREE.SphereGeometry(1.0157, 192, 128), aMat); atmoMesh.renderOrder = 2; rig.add(atmoMesh);
 
     const coreG = new THREE.SphereGeometry(0.013, 14, 14), haloG = new THREE.SphereGeometry(0.024, 16, 16), hitG = new THREE.SphereGeometry(0.013 * 6, 8, 8);
@@ -1388,6 +1399,7 @@ const Globe = (() => {
     // Dokular: kritik olanlar gelince küre belirir; ışıklar ve bulutlar sonradan
     Promise.all([loadTex('day', 'earth-day.webp'), loadTex('land', 'land.webp'), loadTex('water', 'earth-water.png'), loadTex('height', 'earth-height.png')]).then(() => {
       ['day', 'land', 'water', 'height'].forEach(k => { if (tex[k]) uniforms[U(k)].value = tex[k]; });
+      if (pendingDay) { const c = pendingDay; pendingDay = null; setDayImage(c); }
       landReady = true; onLandReady.splice(0).forEach(fn => fn());
       loadTex('lights', 'earth-lights.jpg').then(ok => { if (ok) { uniforms.uLights.value = tex.lights; uniforms.uHasLights.value = 1; } });
       loadTex('clouds', 'earth-clouds.jpg').then(ok => { if (ok) { uniforms.uClouds.value = tex.clouds; uniforms.uHasClouds.value = 1; } });
@@ -1406,9 +1418,11 @@ const Globe = (() => {
     STYLE_COLORS.forEach(k => { const x = sceneFromDisplay(p.c[k]); u[U(k)].value.set(x[0], x[1], x[2]); });
     STYLE_FLOATS.forEach(k => { u[U(k)].value = p.f[k]; });
     u.uGridSpacing.value = p.f.gridSpacingDeg * D2R;
+    // Klasik tema (gerçek + güneşli) düz çizilir: ana küredeki uydu görüntüsüyle aynı renkler.
+    u.uUnlit.value = p.f.real > 0.999 && p.f.sun > 0.999 ? 1 : 0;
     u.uReal.value = p.f.real; u.uSun.value = p.f.sun; u.uLightsGain.value = p.f.lightsGain; u.uCloudGain.value = p.f.cloudGain; u.uMoon.value = p.f.moon;
     cMat.uniforms.uCloudGain.value = p.f.cloudGain * p.f.real; cMat.uniforms.uSun.value = p.f.sun; cMat.uniforms.uMoon.value = p.f.moon;
-    clouds.visible = p.f.cloudGain * p.f.real > 0.003;
+    clouds.visible = p.f.cloudGain * p.f.real > 0.003 && u.uUnlit.value < 0.5;   // düz modda bulutlar yüzeyde
     aMat.uniforms.uAtmoGain.value = p.f.atmoGain * p.f.real; atmoMesh.visible = aMat.uniforms.uAtmoGain.value > 0.003;
   }
   const bg = { cur: new THREE.Color('#000000'), from: new THREE.Color(), to: new THREE.Color(), start: 0 };
@@ -1417,6 +1431,15 @@ const Globe = (() => {
     const c = new THREE.Color(THEMES[target] ? THEMES[target].p.background : target);
     if (instant || !revealed) { bg.cur.copy(c); bg.start = 0; return; }
     bg.from.copy(bg.cur); bg.to.copy(c); bg.start = performance.now();
+  }
+  /** Gün dokusunu değiştirir (ESRI uydu mozaiği): açılış küresi ana küreyle aynı görüntüyü kullanır. */
+  function setDayImage(canvasEl) {
+    if (!renderer || !landReady) { pendingDay = canvasEl; return; }
+    const t = new THREE.CanvasTexture(canvasEl);
+    t.wrapS = THREE.RepeatWrapping; t.wrapT = THREE.ClampToEdgeWrapping;
+    t.minFilter = THREE.LinearMipmapLinearFilter; t.magFilter = THREE.LinearFilter; t.anisotropy = renderer.capabilities.getMaxAnisotropy();
+    const old = tex.day; tex.day = t; gMat.uniforms.uDay.value = t; gMat.uniforms.uDaySize.value.set(canvasEl.width, canvasEl.height);
+    if (old && old !== t) old.dispose();
   }
   function setThemeInstant(id) { opts.theme = id; pal = toNum(THEMES[id].p); from = to = null; applyPal(pal); }
   function setRotation(r) { rot.x = r.x; rot.y = r.y; focus = null; vel.x = vel.y = 0; lastInteract = performance.now(); }
@@ -1699,7 +1722,7 @@ const Globe = (() => {
       zoom.focal = hostPt(e); lastInteract = performance.now();
     }, { passive: false });
   }
-  return { mount, update, unmount, setActive, drive, impulse, faceSun, transition, whenReady, setBackground, setThemeInstant, setRotation, snapshots, snapshotView, resetZoom, get layout() { return lay; }, get zoom() { return zoom.z; },
+  return { setDayImage, mount, update, unmount, setActive, drive, impulse, faceSun, transition, whenReady, setBackground, setThemeInstant, setRotation, snapshots, snapshotView, resetZoom, get layout() { return lay; }, get zoom() { return zoom.z; },
     /** Ekrandaki kürenin merkez enlem/boylamı ve piksel yerleşimi (MapLibre devir teslimi için). */
     get view() { let lng = (-rot.y - Math.PI / 2) / D2R; lng = ((lng + 180) % 360 + 360) % 360 - 180; return { lat: rot.x / D2R, lng, cx: lay.cx, cy: lay.cy, r: lay.r * zoom.z }; },
     _debug: { setSun(lat, lng) { sunObj.copy(latLngToVec3(lat, lng)); lastSun = performance.now() + 1e9; }, rot } };
@@ -2129,8 +2152,42 @@ $('#modal').addEventListener('click', e => { if (e.target.id === 'modal') closeM
 //     Earth 1:10m kara/kıyı verisinden GPU'da çizilir. Karar otomatik verilir.
 //  MapLibre başlatılamazsa eski three.js küreye sessizce geri dönülür.
 // ═════════════════════════════════════════════════════════
+// ═════════════════════════════════════════════════════════
+//  UYDU MOZAİĞİ: açılış küresi ana küreyle AYNI ESRI görüntüsünü kullansın diye
+//  z2/z3 Mercator karoları birleştirilip eşdikdörtgen (enlem-boylam) dokuya çevrilir.
+// ═════════════════════════════════════════════════════════
+const SatMosaic = (() => {
+  const URL_T = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
+  const loadImg = url => new Promise((res, rej) => { const im = new Image(); im.crossOrigin = 'anonymous'; im.onload = () => res(im); im.onerror = rej; im.src = url; });
+  async function build(z) {
+    const n = 2 ** z, T = 256, M = n * T;
+    const merc = document.createElement('canvas'); merc.width = merc.height = M;
+    const mc = merc.getContext('2d', { willReadFrequently: true });
+    const jobs = [];
+    for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) {
+      jobs.push(loadImg(URL_T.replace('{z}', z).replace('{y}', y).replace('{x}', x)).then(im => mc.drawImage(im, x * T, y * T)));
+    }
+    await Promise.all(jobs);
+    const src = mc.getImageData(0, 0, M, M).data;            // CORS yoksa burada hata atar → null
+    const W = M, H = M / 2, out = document.createElement('canvas'); out.width = W; out.height = H;
+    const oc = out.getContext('2d'), dst = oc.createImageData(W, H), d = dst.data, LIM = 85.0511;
+    for (let j = 0; j < H; j++) {
+      const lat = clamp(90 - (j + 0.5) / H * 180, -LIM, LIM);
+      const yy = (1 - Math.log(Math.tan(Math.PI / 4 + lat * D2R / 2)) / Math.PI) / 2 * M;
+      const row = Math.min(M - 1, Math.max(0, Math.floor(yy))) * M * 4, o = j * W * 4;
+      d.set(src.subarray(row, row + W * 4), o);
+    }
+    oc.putImageData(dst, 0, 0);
+    return out;
+  }
+  return {
+    /** z seviyesinde mozaik; süre dolarsa ya da karolar alınamazsa null. */
+    load(z, timeoutMs) { return Promise.race([build(z).catch(() => null), new Promise(r => setTimeout(() => r(null), timeoutMs))]); },
+  };
+})();
+
 /** Sürüm etiketi: sitede hangi sürümün açık olduğunu rozetten görmek için (önbellek kontrolü). */
-const BUILD = 'v16';
+const BUILD = 'v17';
 const MapGlobe = (() => {
   const host = document.getElementById('mapStage');
   const badge = document.getElementById('lodBadge');
@@ -2142,6 +2199,7 @@ const MapGlobe = (() => {
   // Kullanıcı küreye bir kez dokunduğunda kamera tamamen onun: otomatik dönüş, yörünge ve
   // haritadan yapılan seçimlerde otomatik uçuş kapanır. Yalnızca açık komutlar (karıştır) uçar.
   let userControl = false, selectFromMap = false;
+  let cloudsReady = false;   // bulut katmanı yüklenene kadar devir teslim beklenir (iki küre aynı görünsün)
   let dataStatus = 'yükleniyor';
   // Uydu modu: 'probing' → ilk karolar bekleniyor, 'satellite' → karo akıyor, 'vector' → engelli
   let imagery = 'probing', satTiles = 0, satErrors = 0, satLastError = '';
@@ -2149,7 +2207,7 @@ const MapGlobe = (() => {
   const SAT_TILE_SIZE = 128;   // 256 px görüntü / 128 CSS px → 4× karo yoğunluğu
   const SAT_MAX_ZOOM = 19;
   const RASTER = {
-    classic:       { 'raster-saturation': 0.12, 'raster-contrast': 0.08, 'raster-brightness-min': 0, 'raster-brightness-max': 1, 'raster-hue-rotate': 0 },
+    classic:       { 'raster-saturation': 0, 'raster-contrast': 0, 'raster-brightness-min': 0, 'raster-brightness-max': 1, 'raster-hue-rotate': 0 },
     parchment:     { 'raster-saturation': -0.6, 'raster-contrast': 0.1, 'raster-brightness-min': 0.1, 'raster-brightness-max': 1, 'raster-hue-rotate': 18 },
     night_lights:  { 'raster-saturation': -0.1, 'raster-contrast': 0.18, 'raster-brightness-min': 0, 'raster-brightness-max': 0.82, 'raster-hue-rotate': 0 },
     swiss_minimal: { 'raster-saturation': -1, 'raster-contrast': 0.22, 'raster-brightness-min': 0.04, 'raster-brightness-max': 1, 'raster-hue-rotate': 0 },
@@ -2197,8 +2255,42 @@ const MapGlobe = (() => {
       map.jumpTo({ zoom: map.getZoom() + Math.log2(v.r / R) });
     }
   }
+  /* Açılış küresindeki bulut dokusunun aynısı: eşdikdörtgen → Mercator, beyaz + yoğunluk = alfa. */
+  function addClouds() {
+    const im = new Image();
+    im.onload = () => {
+      try {
+        const Ws = im.naturalWidth, Hs = im.naturalHeight, M = 2048;
+        const sc = document.createElement('canvas'); sc.width = Ws; sc.height = Hs;
+        const sx = sc.getContext('2d', { willReadFrequently: true }); sx.drawImage(im, 0, 0);
+        const src = sx.getImageData(0, 0, Ws, Hs).data;
+        const out = document.createElement('canvas'); out.width = out.height = M;
+        const oc = out.getContext('2d'), img = oc.createImageData(M, M), d = img.data;
+        for (let y = 0; y < M; y++) {
+          const lat = Math.atan(Math.sinh(Math.PI * (1 - 2 * (y + 0.5) / M))) * R2D;
+          const row = Math.min(Hs - 1, Math.max(0, Math.floor((90 - lat) / 180 * Hs))) * Ws;
+          for (let x = 0; x < M; x++) {
+            const a = Math.min(1, src[(row + Math.floor((x + 0.5) / M * Ws)) * 4] / 255 * 1.08);
+            const o = (y * M + x) * 4; d[o] = d[o + 1] = d[o + 2] = 235; d[o + 3] = Math.round(a * 255);
+          }
+        }
+        oc.putImageData(img, 0, 0);
+        out.toBlob(blob => {
+          if (!blob || !map) { cloudsReady = true; checkReady(); return; }
+          const L = 85.051129;
+          map.addSource('clouds', { type: 'image', url: URL.createObjectURL(blob), coordinates: [[-180, L], [180, L], [180, -L], [-180, -L]] });
+          // Bulutlar küre ölçeğinde görünür, şehre yaklaştıkça (zoom 3 → 5,5) tamamen kaybolur.
+          map.addLayer({ id: 'clouds', type: 'raster', source: 'clouds', paint: { 'raster-opacity': ['interpolate', ['linear'], ['zoom'], 3, 1, 5.5, 0], 'raster-fade-duration': 0, 'raster-resampling': 'linear' } }, 'borders');
+          map.once('sourcedata', () => { cloudsReady = true; checkReady(); });
+          setTimeout(() => { cloudsReady = true; checkReady(); }, 3000);
+        }, 'image/png');
+      } catch (e) { cloudsReady = true; checkReady(); }
+    };
+    im.onerror = () => { cloudsReady = true; checkReady(); };
+    im.src = 'earth-clouds.jpg';
+  }
   function checkReady() {
-    if (firstReady || !ready || imagery === 'probing') return;
+    if (firstReady || !ready || imagery === 'probing' || !cloudsReady) return;
     if (imagery === 'vector' && dataStatus !== 'veri hazır') return;
     if (!map.areTilesLoaded()) return;
     firstReady = true;
@@ -2226,7 +2318,7 @@ const MapGlobe = (() => {
     map.setPaintProperty('coast', 'line-color', c.coast);
     map.setPaintProperty('borders', 'line-color', c.border);
     if (map.getLayer('satellite')) { const r = RASTER[id] || RASTER.classic; Object.keys(r).forEach(k => map.setPaintProperty('satellite', k, r[k])); }
-    map.setSky({ 'sky-color': c.sky, 'horizon-color': c.horizon, 'sky-horizon-blend': 0.6, 'horizon-fog-blend': 0.5, 'fog-color': c.horizon, 'fog-ground-blend': 0, 'atmosphere-blend': ['interpolate', ['linear'], ['zoom'], 0, 1, 5, 1, 7, 0] });
+    map.setSky({ 'sky-color': c.sky, 'horizon-color': c.horizon, 'sky-horizon-blend': 0.6, 'horizon-fog-blend': 0.5, 'fog-color': c.horizon, 'fog-ground-blend': 0, 'atmosphere-blend': ['interpolate', ['linear'], ['zoom'], 0, 0.55, 5, 0.55, 7, 0] });   // hale açılış küresininkiyle aynı yumuşaklıkta
   }
 
   function applyActive() {
@@ -2296,6 +2388,7 @@ const MapGlobe = (() => {
     map.once('style.load', () => {
       clearTimeout(bootTimer); ready = true;
       paint(themeId); applyActive(); map.setPadding(padding());
+      setTimeout(addClouds, 60);
       Promise.all([fetch('world/land-10m.json').then(r => r.json()), fetch('world/countries-50m.json').then(r => r.json())])
         .then(([land, countries]) => {
           const landGeo = topojson.feature(land, land.objects.land);
@@ -2472,7 +2565,7 @@ const MapGlobe = (() => {
         matchView(Globe.view);
         Globe.update({ autoRotate: false }); Globe.setRotation({ x: Globe._debug.rot.x, y: Globe._debug.rot.y });
         paint(themeId); applyActive(); lastTouch = Date.now();
-        const show = () => { visible = true; revealed = true; host.classList.add('on'); updateBadge(); setTimeout(done, 420); };
+        const show = () => { matchView(Globe.view); visible = true; revealed = true; host.classList.add('on'); updateBadge(); setTimeout(done, 420); };
         // Görünmeden önce bu açıdaki karoların tamamı inmeli: 'idle' = çizim bitti ve bekleyen karo yok.
         // (jumpTo sonrası areTilesLoaded() yeni karolar istenmeden önce yanlışlıkla true dönebilir.)
         let shown = false; const once = () => { if (!shown) { shown = true; show(); } };
@@ -3279,8 +3372,13 @@ MapGlobe.preload(state.theme, () => {
   const st = $('#globeStage'), W = st.clientWidth || 390, H = st.clientHeight || 844, L = appLayout(W, H), sun = subsolar(new Date());
   return { lat: sun.lat * 0.4, lng: sun.lng - 22, cx: L.cx, cy: L.cy, r: L.r };
 });
-if (reduceMotion.matches) { afterIntro(); }
-else { runIntro(afterIntro); }
+// Açılış küresi ana küreyle aynı uydu görüntüsünü kullansın: z2 mozaiği gelince (en fazla 1,2 sn) intro başlar,
+// ardından z3 (daha keskin, aynı renkler) sessizce yerine geçer. Karolar engelliyse NASA dokusuyla devam edilir.
+SatMosaic.load(2, 1200).then(c2 => {
+  if (c2) { Globe.setDayImage(c2); SatMosaic.load(3, 20000).then(c3 => { if (c3) Globe.setDayImage(c3); }); }
+  if (reduceMotion.matches) { afterIntro(); }
+  else { runIntro(afterIntro); }
+});
 })();
 </script>
 </body></html>
