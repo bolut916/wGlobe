@@ -317,37 +317,76 @@ svg.i.filled { fill: currentColor; }
 .city-tag b { color: var(--accent-2); font-weight: 500; }
 .city-tag::after { content: ""; position: absolute; left: 50%; bottom: -12px; width: 1px; height: 12px; background: linear-gradient(rgba(200,157,84,0.7), rgba(200,157,84,0)); }
 
-/* Keşfet — Ayar: dünya çapında bir radyo kadranı */
+/* Keşfet — Dalga: dikey canlı yayın akışı. Kaydır → yeni bir yer, yeni bir yayın. */
 #pane-explore.solid::after { display: none; }
-.tuner { position: absolute; inset: 0; overflow: hidden; background: #05070A; touch-action: none; user-select: none; -webkit-user-select: none; cursor: grab; }
-.tuner.dragging { cursor: grabbing; }
-.tn-bg { position: absolute; inset: 0; }
-.tn-img { position: absolute; inset: -4%; background-size: cover; background-position: center top; opacity: 0; will-change: opacity, transform; transform: scale(1.06); }
-.tn-noise { position: absolute; inset: 0; width: 100%; height: 100%; image-rendering: pixelated; mix-blend-mode: screen; opacity: 0; pointer-events: none; }
-.tn-shade { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(180deg, rgba(5,7,10,0.7) 0%, rgba(5,7,10,0) 22%, rgba(5,7,10,0) 46%, rgba(5,7,10,0.55) 66%, rgba(5,7,10,0.96) 86%); }
-.tn-side { position: absolute; right: 16px; top: calc(var(--sat) + 8px); display: flex; flex-direction: column; align-items: center; gap: 10px; z-index: 3; }
-.tn-side .round.on { color: var(--accent); }
-.tn-side .heart { display: grid; }
-.tn-count { font-size: 10.5px; letter-spacing: 0.08em; color: rgba(238,234,227,0.7); }
-.tn-center { position: absolute; left: 0; right: 0; bottom: calc(232px + var(--sab)); display: flex; flex-direction: column; align-items: flex-start; gap: 8px; padding: 0 22px; z-index: 2; pointer-events: none; }
-.tn-meta { font-size: 11px; letter-spacing: 0.14em; color: rgba(238,234,227,0.75); }
-.tn-city { pointer-events: auto; font-size: 64px; line-height: 0.95; font-weight: 650; letter-spacing: -0.055em; color: var(--fg); text-align: left; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: clip; will-change: transform, filter; }
-.tn-city.m { font-size: 52px; } .tn-city.s { font-size: 42px; }
-.tn-sig { display: flex; align-items: flex-end; gap: 3px; height: 14px; margin-top: 4px; }
-.tn-sig i { width: 4px; border-radius: 1px; background: rgba(238,234,227,0.22); transition: background 160ms var(--e-standard); }
-.tn-sig i:nth-child(1) { height: 4px; } .tn-sig i:nth-child(2) { height: 6.5px; } .tn-sig i:nth-child(3) { height: 9px; } .tn-sig i:nth-child(4) { height: 11.5px; } .tn-sig i:nth-child(5) { height: 14px; }
-.tn-sig i.on { background: var(--accent-2); }
-.tn-dock { position: absolute; left: 0; right: 0; bottom: calc(84px + var(--sab)); height: 140px; z-index: 2; }
-.tn-freq { position: absolute; left: 22px; top: 0; display: flex; align-items: baseline; gap: 6px; font-size: 30px; letter-spacing: -0.02em; color: var(--fg); }
-.tn-freq small { font-size: 11px; letter-spacing: 0.14em; color: rgba(238,234,227,0.55); }
-.tn-band-wrap { position: absolute; left: 0; right: 0; top: 46px; height: 70px; overflow: hidden; -webkit-mask-image: linear-gradient(90deg, transparent, #000 18%, #000 82%, transparent); mask-image: linear-gradient(90deg, transparent, #000 18%, #000 82%, transparent); }
-.tn-band { position: absolute; left: 0; top: 0; height: 70px; will-change: transform; }
-.tn-band svg { display: block; height: 70px; }
-.tn-needle { position: absolute; left: 50%; top: 0; width: 2px; height: 58px; margin-left: -1px; border-radius: 1px; background: var(--accent); }
-.tn-needle::before { content: ""; position: absolute; left: 50%; top: -4px; width: 8px; height: 8px; margin-left: -4px; border-radius: 50%; background: var(--accent); }
-.tn-hint { position: absolute; left: 0; right: 0; bottom: 0; text-align: center; font-family: var(--mono); font-size: 10px; letter-spacing: 0.2em; color: rgba(238,234,227,0.5); transition: opacity 400ms var(--e-standard); animation: hintSway 1600ms var(--e-inout) infinite alternate; }
-.tn-hint.gone { opacity: 0; }
-@keyframes hintSway { from { transform: translateX(-6px); } to { transform: translateX(6px); } }
+.wave { position: absolute; inset: 0; overflow: hidden; background: #05070A; }
+.wv-feed { position: absolute; inset: 0; overflow-y: auto; overflow-x: hidden; scroll-snap-type: y mandatory; overscroll-behavior: contain; scrollbar-width: none; -webkit-overflow-scrolling: touch; transition: opacity 320ms var(--e-enter); }
+.wv-feed::-webkit-scrollbar { display: none; }
+.wv-feed.dragging { scroll-snap-type: none; cursor: grabbing; }
+.wv-feed.fading { opacity: 0; transition: opacity 160ms var(--e-exit); }
+.wv-card { position: relative; display: block; width: 100%; height: 100%; margin: 0; scroll-snap-align: start; scroll-snap-stop: always; overflow: hidden; contain: layout paint; cursor: pointer; -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none; }
+.wv-img { position: absolute; inset: 0; background: radial-gradient(circle at 50% 34%, #16202e, #05070A 72%); background-size: 100% 100%; opacity: 1; transform: scale(1.06); transition: transform 1400ms var(--e-enter); will-change: transform; }
+.wv-img::after { content: ""; position: absolute; inset: 0; background-image: var(--img); background-size: 100% 100%; opacity: 0; transition: opacity 600ms var(--e-standard); }
+.wv-card.wv-ready .wv-img::after { opacity: 1; }
+.wv-card.on .wv-img { transform: none; }
+.wv-shade { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(180deg, rgba(5,7,10,0.72) 0%, rgba(5,7,10,0) 20%, rgba(5,7,10,0) 44%, rgba(5,7,10,0.6) 64%, rgba(5,7,10,0.97) 88%); }
+.wv-pin { position: absolute; left: 50%; top: 34%; width: 10px; height: 10px; margin: -5px 0 0 -5px; border-radius: 50%; background: var(--accent-2); box-shadow: 0 0 0 2px rgba(5,7,10,0.6); opacity: 0; transform: scale(0.4); transition: opacity 300ms var(--e-enter), transform 420ms var(--spring-button); }
+.wv-card.wv-ready.on .wv-pin { opacity: 1; transform: none; transition-delay: 380ms; }
+.wv-pin::before, .wv-pin::after { content: ""; position: absolute; inset: -1px; border-radius: 50%; border: 1.5px solid var(--accent-2); opacity: 0; }
+.wv-card.on.wv-live .wv-pin::before, .wv-card.on.wv-live .wv-pin::after { animation: wvSonar 2400ms var(--e-standard) infinite; }
+.wv-card.on.wv-live .wv-pin::after { animation-delay: 1200ms; }
+@keyframes wvSonar { 0% { transform: scale(1); opacity: 0.9; } 100% { transform: scale(5.5); opacity: 0; } }
+.wv-info { position: absolute; left: 22px; right: 84px; bottom: calc(100px + var(--sab)); display: flex; flex-direction: column; align-items: flex-start; gap: 8px; pointer-events: none; }
+.wv-info > * { opacity: 0; transform: translateY(14px); }
+.wv-card.on .wv-info > * { animation: wvIn 380ms var(--e-enter) forwards; }
+.wv-card.on .wv-info > :nth-child(2) { animation-delay: 60ms; }
+.wv-card.on .wv-info > :nth-child(3) { animation-delay: 120ms; }
+.wv-card.on .wv-info > :nth-child(4) { animation-delay: 180ms; }
+.wv-card.on .wv-info > :nth-child(5) { animation-delay: 240ms; }
+@keyframes wvIn { to { opacity: 1; transform: none; } }
+.wv-meta { font-size: 11px; letter-spacing: 0.14em; color: rgba(238,234,227,0.72); }
+.wv-name { margin: 0; font-size: 44px; line-height: 1.02; font-weight: 650; letter-spacing: -0.045em; color: var(--fg); max-width: 100%; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow-wrap: anywhere; }
+.wv-name.m { font-size: 36px; } .wv-name.s { font-size: 29px; }
+.wv-place { font-size: 15px; color: var(--fg-2); }
+.wv-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.wv-tags span { padding: 4px 10px; border-radius: 999px; font-size: 12px; color: var(--fg-2); box-shadow: inset 0 0 0 1px rgba(238,234,227,0.18); }
+.wv-tags:empty { display: none; }
+.wv-state { display: flex; align-items: center; gap: 8px; min-height: 22px; font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; color: var(--fg-2); }
+.wv-state .ld { width: 7px; height: 7px; border-radius: 50%; background: var(--fg-4); flex: none; transition: background 160ms var(--e-standard); }
+.wv-state.wv-busy .ld { background: transparent; border: 1.5px solid var(--accent-2); border-top-color: transparent; width: 10px; height: 10px; animation: rot 800ms linear infinite; }
+.wv-state.wv-live { color: var(--accent-2); }
+.wv-state.wv-live .ld { background: var(--ok); }
+.wv-state.wv-err .ld { background: var(--err); }
+.wv-state .eq { display: none; align-items: flex-end; gap: 2px; height: 12px; }
+.wv-state.wv-live .eq { display: flex; }
+.wv-state .eq i { background: var(--accent-2); }
+.wv-top { position: absolute; left: 0; right: 0; top: calc(var(--sat) + 54px); z-index: 3; pointer-events: none; }
+.wv-chips { display: flex; gap: 8px; overflow-x: auto; padding: 0 20px 4px; scrollbar-width: none; pointer-events: auto; -webkit-mask-image: linear-gradient(90deg, #000 88%, transparent); mask-image: linear-gradient(90deg, #000 88%, transparent); }
+.wv-chips::-webkit-scrollbar { display: none; }
+.wv-chip { flex: none; min-height: 36px; padding: 0 15px; border-radius: 999px; font-size: 14px; font-weight: 550; color: var(--fg); background: rgba(5,7,10,0.55); box-shadow: inset 0 0 0 1px rgba(238,234,227,0.16); opacity: 0; transform: translateY(8px); transition: background 180ms var(--e-standard), color 180ms var(--e-standard), box-shadow 180ms var(--e-standard); }
+.wave.wv-enter .wv-chip { animation: wvIn 260ms var(--e-enter) forwards; animation-delay: calc(var(--i) * 40ms); }
+.wave.wv-shown .wv-chip { opacity: 1; transform: none; }
+.wv-chip.on { background: var(--fg); color: var(--ivory-ink); box-shadow: none; }
+.wv-chip:active { transform: scale(0.96); transition-duration: 100ms; }
+.wv-rail { position: absolute; right: 14px; bottom: calc(104px + var(--sab)); z-index: 3; display: flex; flex-direction: column; align-items: center; gap: 14px; }
+.wv-rail .round { background: rgba(5,7,10,0.5); box-shadow: inset 0 0 0 1px rgba(238,234,227,0.16); transition: opacity 180ms var(--e-standard), color 180ms var(--e-standard); }
+.wv-rail .round:active { transform: scale(0.92); }
+.wv-rail .round[disabled] { opacity: 0.35; }
+.wv-rail .round.on { color: var(--accent); }
+.wv-rail .heart { display: grid; }
+.wv-hint { position: absolute; left: 0; right: 0; bottom: calc(80px + var(--sab)); z-index: 3; display: flex; justify-content: center; pointer-events: none; font-family: var(--mono); font-size: 10px; letter-spacing: 0.2em; color: rgba(238,234,227,0.55); transition: opacity 300ms var(--e-standard); animation: wvBob 1400ms var(--e-inout) infinite alternate; }
+.wv-hint.gone { opacity: 0; }
+@keyframes wvBob { from { transform: translateY(0); } to { transform: translateY(-5px); } }
+.wv-burst { position: absolute; z-index: 4; width: 96px; height: 96px; margin: -48px 0 0 -48px; color: var(--accent); pointer-events: none; display: grid; place-items: center; }
+.wv-burst svg { width: 96px; height: 96px; fill: currentColor; stroke: none; filter: drop-shadow(0 6px 18px rgba(0,0,0,0.5)); }
+.wv-skel .wv-img::before { content: ""; position: absolute; inset: 0; background: linear-gradient(100deg, rgba(255,255,255,0) 30%, rgba(255,255,255,0.05) 50%, rgba(255,255,255,0) 70%); animation: wvShimmer 1300ms linear infinite; }
+@keyframes wvShimmer { from { transform: translateX(-100%); } to { transform: translateX(100%); } }
+.wv-skel .wv-info > * { opacity: 1; transform: none; animation: none; }
+@media (prefers-reduced-motion: reduce) {
+  .wv-img, .wv-card.on .wv-img { transform: none; transition: none; }
+  .wv-card.on .wv-info > *, .wave.wv-enter .wv-chip { animation-duration: 1ms; animation-delay: 0ms; }
+  .wv-hint, .wv-card.on.wv-live .wv-pin::before, .wv-card.on.wv-live .wv-pin::after { animation: none; }
+}
 
 /* Koleksiyon — Küre Cebi */
 .th { position: absolute; inset: 0; z-index: 1; display: flex; flex-direction: column; gap: 12px; padding: calc(var(--sat) + 17px) 20px calc(80px + var(--sab)); color: var(--fg); transition: color 500ms var(--e-standard); }
@@ -548,21 +587,15 @@ svg.i.filled { fill: currentColor; }
           </div>
         </div>
         <div class="pane solid" id="pane-explore">
-          <div class="tuner" id="tuner">
-            <div class="tn-bg"><div class="tn-img" id="tnImgA"></div><div class="tn-img" id="tnImgB"></div></div>
-            <canvas class="tn-noise" id="tnNoise" width="96" height="208" aria-hidden="true"></canvas>
-            <div class="tn-shade"></div>
-            <div class="tn-side"><button class="round glass press tight" id="tnFav" aria-label="Favorilere ekle"><span class="heart" id="tnHeart"></span></button><span class="tn-count num" id="tnCount"></span></div>
-            <div class="tn-center">
-              <span class="tn-meta num" id="tnMeta"></span>
-              <button class="tn-city" id="tnCity" aria-label="Bu şehre kürede git"></button>
-              <span class="tn-sig" id="tnSig" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+          <div class="wave" id="wave">
+            <div class="wv-feed" id="wvFeed" role="feed" aria-label="Canlı yayın akışı: yukarı kaydırarak yeni bir yer keşfet" tabindex="0"></div>
+            <div class="wv-top"><div class="wv-chips" id="wvChips" role="tablist" aria-label="Tür"></div></div>
+            <div class="wv-rail">
+              <button class="round press" id="wvFav" aria-label="Favorilere ekle"><span class="heart" id="wvHeart"></span></button>
+              <button class="round press" id="wvGlobe" aria-label="Kürede aç"><span data-icon="globe" data-size="20"></span></button>
+              <button class="round press" id="wvNext" aria-label="Sonraki yayın"><span data-icon="skip-forward" data-size="18"></span></button>
             </div>
-            <div class="tn-dock">
-              <div class="tn-freq num"><span id="tnFreq">88.0</span><small>MHz</small></div>
-              <div class="tn-band-wrap" id="tnBandWrap"><div class="tn-band" id="tnBand"></div><span class="tn-needle"></span></div>
-              <span class="tn-hint" id="tnHint">← ÇEVİR →</span>
-            </div>
+            <div class="wv-hint" id="wvHint">↑ KAYDIR · YENİ BİR YER</div>
           </div>
         </div>
         <div class="pane" id="pane-themes">
@@ -1491,6 +1524,10 @@ const Globe = (() => {
         const tp = toNum(THEMES[o.theme].p); applyPal(tp); syncUniforms(s.cam);
         const b = sceneFromDisplay(tp.c.background);
         renderPipe(s.r2, s.pipe, s.cam, new THREE.Color(b[0], b[1], b[2]), 1);
+        // Odak noktasının görüntüdeki yeri (0–1): kartlar iğneyi tam şehrin üstüne koyar
+        rig.updateMatrixWorld(true);
+        const pv = latLngToVec3(o.lat, o.lng, 1.0).applyMatrix4(globe.matrixWorld).project(s.cam);
+        snapshotView.pin = { x: (pv.x + 1) / 2, y: (1 - pv.y) / 2 };
         return s.r2.domElement.toDataURL('image/jpeg', 0.88);
       });
     } catch (e) { return null; }
@@ -1962,7 +1999,7 @@ const Sound = {
 };
 
 let attemptToken = 0, startTimer = null, failedAttempts = 0;
-function setStatus(s) { state.status = s; renderLive(); renderSheetDynamic(); }
+function setStatus(s) { state.status = s; renderLive(); renderSheetDynamic(); waveSync(); }
 async function startAttempt(i, isFailover) {
   const city = CITY[state.activeCityId]; if (!city) { setStatus('error'); return; }
   const token = ++attemptToken; clearTimeout(startTimer);
@@ -2200,7 +2237,7 @@ const SatMosaic = (() => {
 })();
 
 /** Sürüm etiketi: sitede hangi sürümün açık olduğunu rozetten görmek için (önbellek kontrolü). */
-const BUILD = 'v19';
+const BUILD = 'v20';
 const MapGlobe = (() => {
   const host = document.getElementById('mapStage');
   const badge = document.getElementById('lodBadge');
@@ -3047,161 +3084,356 @@ function stampSvg(v, i) {
     <text font-family="Geist Mono, monospace" font-size="6.6" letter-spacing="1" fill="#C89D54"><textPath href="#${id}b" startOffset="50%" text-anchor="middle">${stampShort(v.visitedAt)} · ${stampTime(v.visitedAt)}</textPath></text>
   </svg>`;
 }
-// ── Ayar: istasyonlar batıdan doğuya boylama göre; frekans 88.0 + i·0.8 MHz ──
-const BAND = [...CITIES].sort((a, b) => a.lng - b.lng);
-const SPACING = 132;
-const freqOf = x => 88 + (x / SPACING) * 0.8;
-const tn = { pos: 0, vel: 0, dragging: false, raf: null, last: 0, locked: -1, shown: -1, settleAt: 0, lastStation: -1, audio: false, imgs: {}, layer: 0, decodeTimer: null, pid: null, lx: 0, samples: [] };
-function lngLabel(l) { return `${Math.abs(Math.round(l))}°${l >= 0 ? 'D' : 'B'}`; }
-function buildBand() {
-  const W = $('#tnBandWrap').clientWidth || 390, pad = W / 2, total = (BAND.length - 1) * SPACING + W;
-  const visited = new Set(state.visits.map(v => v.cityId));
-  let svg = `<svg width="${total}" viewBox="0 0 ${total} 70" aria-hidden="true">`;
-  for (let x = 0; x <= (BAND.length - 1) * SPACING; x += SPACING / 6) {
-    const major = Math.abs(x % SPACING) < 0.5; const X = (pad + x).toFixed(1);
-    svg += `<line x1="${X}" y1="${major ? 6 : 16}" x2="${X}" y2="${major ? 42 : 34}" stroke="rgba(238,234,227,${major ? 0.6 : 0.22})" stroke-width="${major ? 1.4 : 1}"/>`;
-  }
-  BAND.forEach((c, i) => {
-    const X = pad + i * SPACING;
-    svg += `<text x="${X}" y="58" text-anchor="middle" font-family="Geist Mono, monospace" font-size="10" letter-spacing="1" fill="rgba(238,234,227,0.6)">${c.countryCode}</text>`;
-    svg += `<text x="${X}" y="68" text-anchor="middle" font-family="Geist Mono, monospace" font-size="7.5" fill="rgba(238,234,227,0.32)">${freqOf(i * SPACING).toFixed(1)}</text>`;
-    if (visited.has(c.id)) svg += `<circle cx="${X + 9}" cy="9" r="3.2" fill="none" stroke="#C89D54" stroke-width="1.1"/><circle cx="${X + 9}" cy="9" r="1.1" fill="#C89D54"/>`;
-  });
-  $('#tnBand').innerHTML = svg + '</svg>';
-  tn.pad = pad;
+// ── Dalga: dikey canlı yayın akışı ──
+// Her kart = dünyanın bir yerinden gerçek bir istasyon. Kart yerine oturunca (kaydırma durduktan ~300 ms sonra)
+// o istasyon çalar. Tek dokunuş: duraklat/sürdür · çift dokunuş: favori · küre düğmesi: o yere kürede git.
+// Koreografi: kaydırma durur → görsel 1.06→1 (1400 ms, yavaş iniş) · yazılar alttan sırayla (380 ms, 60 ms arayla)
+// → iğne düşer (380 ms gecikmeli) → yayın açılınca sonar halkaları.
+const WAVE_GENRES = [
+  { id: 'all', label: 'Senin için', tag: '' },
+  { id: 'jazz', label: 'Caz', tag: 'jazz' },
+  { id: 'pop', label: 'Pop', tag: 'pop' },
+  { id: 'news', label: 'Haber', tag: 'news' },
+  { id: 'classical', label: 'Klasik', tag: 'classical' },
+  { id: 'electronic', label: 'Elektronik', tag: 'electronic' },
+  { id: 'rock', label: 'Rock', tag: 'rock' },
+  { id: 'chill', label: 'Sakin', tag: 'chillout' },
+  { id: 'folk', label: 'Folk', tag: 'folk' },
+];
+const WAVE_PAGE = 60, WAVE_SETTLE_MS = 120, WAVE_TUNE_MS = 180, WAVE_FETCH_MS = 9000;
+var wv = null;
+let waveDN = null;
+try { waveDN = new Intl.DisplayNames(['tr'], { type: 'region' }); } catch (e) {}
+const waveCountry = (cc, fb) => { try { return (cc && waveDN && waveDN.of(cc)) || fb || cc || ''; } catch (e) { return fb || cc || ''; } };
+const waveBusy = () => ['playing', 'loading', 'failover'].includes(state.status);
+
+function waveNearest(lat, lng) {
+  let best = CITIES[0], bd = Infinity;
+  CITIES.forEach(c => { const d = kmBetween([lat, lng], [c.lat, c.lng]); if (d < bd) { bd = d; best = c; } });
+  return { city: best, km: bd };
 }
-function decodeName(el, text) {
-  clearInterval(tn.decodeTimer);
-  const glyphs = '░▒▓#%&@ABCDEFGHIJKLMNOPRSTUVYZ0123456789';
-  el.classList.toggle('m', text.length > 8 && text.length <= 11); el.classList.toggle('s', text.length > 11);
-  if (reduceMotion.matches) { el.textContent = text; return; }
-  const t0 = performance.now(), D = 420;
-  tn.decodeTimer = setInterval(() => {
-    const p = Math.min(1, (performance.now() - t0) / D), n = Math.floor(p * text.length);
-    el.textContent = text.slice(0, n) + [...text.slice(n)].map(ch => ch === ' ' ? ' ' : glyphs[Math.floor(Math.random() * glyphs.length)]).join('');
-    if (p >= 1) { clearInterval(tn.decodeTimer); el.textContent = text; }
-  }, 32);
+/** Saat dilimi: aynı ülkedeki en yakın kayıtlı şehrinki; yoksa boylamdan (Etc/GMT±N, işaret ters). */
+function waveZone(lat, lng, cc) {
+  const n = waveNearest(lat, lng);
+  if (n.city.countryCode === cc && n.km < 1500) return n.city.timezone;
+  const h = clamp(Math.round(lng / 15), -12, 12);
+  return h === 0 ? 'UTC' : `Etc/GMT${h > 0 ? '-' : '+'}${Math.abs(h)}`;
 }
-function tunerImage(i) {
-  const c = BAND[i]; const key = state.theme + '|' + c.id;
-  if (tn.imgs[key] !== undefined) return tn.imgs[key];
-  tn.imgs[key] = null; let sync = true;
-  // Yörünge görünümü: şehir üst üçte birde, gezegenin kavisli ufku tepede
-  const w = 340, h = 736, r = 430, pitch = 0.78;
+function waveTime(tz) { try { return cityTime(tz).slice(0, 5); } catch (e) { return ''; } }
+
+function waveCardFromRaw(raw) {
+  const st = toStation(raw); if (!st || !st.geo) return null;
+  const cc = st.cc, [lat, lng] = st.geo;
+  const region = (raw.state || '').replace(/\s+/g, ' ').trim();
+  const country = waveCountry(cc, raw.country);
+  const tags = (raw.tags || '').split(',').map(t => t.trim().toLocaleLowerCase('tr-TR')).filter(t => t && t.length <= 16).slice(0, 3);
+  const tz = waveZone(lat, lng, cc);
+  const place = { id: 's' + String(raw.stationuuid || st.uuid).slice(0, 12), name: region && region.length <= 32 ? region : country || 'Bilinmeyen yer', country, lat, lng, timezone: tz, countryCode: cc,
+    vibeTag: Math.abs(lat) < 23.5 ? 'Tropikal Ritimler' : Math.abs(lat) > 55 ? 'Yağmurlu Sokaklar' : 'Sabah Kahvesi' };
+  return { key: st.uuid, st, place, tags, lat, lng, title: st.name, where: [region && region !== country ? region : '', country].filter(Boolean).join(', ') };
+}
+function waveCardFromCity(c, st) {
+  return { key: (st ? st.uuid : 'city') + ':' + c.id, st: st && !st.fallback ? st : null, place: c, tags: [], lat: c.lat, lng: c.lng,
+    title: st && !st.demo ? st.name : c.name, where: st && !st.demo ? `${c.name}, ${c.country}` : `${c.country} · ${c.vibeTag}` };
+}
+/** Aynı ülkeden iki yayın art arda gelmesin: ülkelere göre sırayla dağıt. */
+function waveInterleave(cards) {
+  const by = new Map(); cards.forEach(c => { const k = c.place.countryCode || '?'; if (!by.has(k)) by.set(k, []); by.get(k).push(c); });
+  const lanes = [...by.values()].sort((a, b) => b.length - a.length), out = [];
+  while (lanes.some(l => l.length)) lanes.forEach(l => { if (l.length) out.push(l.shift()); });
+  return out;
+}
+function waveOfflineCards() {
+  const pool = [...CITIES]; for (let i = pool.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [pool[i], pool[j]] = [pool[j], pool[i]]; }
+  return waveInterleave(pool.slice(0, 60).map(c => waveCardFromCity(c, null)));
+}
+
+async function waveFetch(genre, offset) {
+  const g = WAVE_GENRES.find(x => x.id === genre) || WAVE_GENRES[0];
+  const q = `/json/stations/search?${g.tag ? 'tag=' + encodeURIComponent(g.tag) + '&' : ''}has_geo_info=true&is_https=true&hidebroken=true&order=clickcount&reverse=true&limit=${WAVE_PAGE}&offset=${offset}`;
+  const raw = await Promise.race([rbFetch(q), sleep(WAVE_FETCH_MS).then(() => { throw new Error('timeout'); })]);
+  return (Array.isArray(raw) ? raw : []).map(waveCardFromRaw).filter(Boolean);
+}
+
+function waveInit() {
+  if (wv) return;
+  wv = { genre: 'all', deck: [], seen: new Set(), offset: 0, loading: false, end: false, offline: false, active: -1, seq: 0,
+    settleTimer: 0, tuneTimer: 0, errTimer: 0, tapTimer: 0, lastTap: 0, userPaused: false, swiped: false, imgs: new Map(), imgQueue: [], imgBusy: false, scrolling: false, drag: null };
+  $('#wvChips').innerHTML = WAVE_GENRES.map((g, i) => `<button class="wv-chip press" role="tab" data-genre="${g.id}" style="--i:${i}" aria-selected="${g.id === wv.genre}">${esc(g.label)}</button>`).join('');
+  $('#wvChips').querySelectorAll('.wv-chip').forEach(b => b.classList.toggle('on', b.dataset.genre === wv.genre));
+  bindWave();
+}
+
+function waveCardHTML(c, i) {
+  const len = c.title.length, size = len > 24 ? 's' : len > 14 ? 'm' : '';
+  const meta = [c.place.countryCode, waveTime(c.place.timezone), c.st && c.st.bitrate ? c.st.bitrate + ' KBPS' : c.st ? c.st.codec : 'ÖNİZLEME'].filter(Boolean).join(' · ');
+  return `<article class="wv-card" data-i="${i}" aria-label="${esc(c.title)}, ${esc(c.where)}">
+    <div class="wv-img"></div><div class="wv-shade"></div><span class="wv-pin"></span>
+    <div class="wv-info"><span class="wv-meta num">${esc(meta)}</span><h2 class="wv-name ${size}">${esc(c.title)}</h2><span class="wv-place">${esc(c.where)}</span>
+      <div class="wv-tags">${c.tags.map(t => `<span>${esc(t)}</span>`).join('')}</div>
+      <div class="wv-state"><span class="ld"></span><span class="eq"><i style="--t:300ms"></i><i style="--t:230ms"></i><i style="--t:350ms"></i></span><span class="tx"></span></div></div>
+  </article>`;
+}
+function waveAppend(cards) {
+  const fresh = cards.filter(c => !wv.seen.has(c.key)); if (!fresh.length) return 0;
+  fresh.forEach(c => wv.seen.add(c.key));
+  const start = wv.deck.length; wv.deck.push(...fresh);
+  $('#wvFeed').insertAdjacentHTML('beforeend', fresh.map((c, k) => waveCardHTML(c, start + k)).join(''));
+  return fresh.length;
+}
+function waveSkeleton() {
+  $('#wvFeed').innerHTML = `<article class="wv-card wv-skel on" aria-busy="true"><div class="wv-img"></div><div class="wv-shade"></div>
+    <div class="wv-info"><span class="wv-meta num">DÜNYA TARANIYOR</span><h2 class="wv-name m">Yayınlar aranıyor…</h2><span class="wv-place">Canlı istasyonlar toplanıyor</span></div></article>`;
+}
+
+/** Akışı (yeniden) kurar. Ağ yoksa kayıtlı şehirlerden çevrimdışı bir akış kurulur; akış hiçbir zaman boş kalmaz. */
+async function waveLoad(genre) {
+  const my = ++wv.seq;
+  wv.genre = genre; wv.deck = []; wv.seen = new Set(); wv.end = false; wv.offline = false; wv.active = -1; wv.loading = true;
+  wv.offset = genre === 'all' ? Math.floor(Math.random() * 5) * 40 : 0;
+  clearTimeout(wv.tuneTimer); clearTimeout(wv.errTimer);
+  const feed = $('#wvFeed');
+  waveSkeleton(); feed.scrollTop = 0;
+  // Şu an bir yayın çalıyorsa akış onunla başlar (kopukluk olmasın)
+  const nowCity = CITY[state.activeCityId], nowSt = currentStation();
+  const lead = genre === 'all' && nowCity && waveBusy() ? [waveCardFromCity(nowCity, nowSt)] : [];
+  let cards = [];
+  try { cards = await waveFetch(genre, wv.offset); } catch (e) { cards = []; }
+  if (my !== wv.seq) return;
+  wv.offset += WAVE_PAGE; wv.loading = false;
+  if (!cards.length) { wv.offline = true; wv.end = true; cards = waveOfflineCards(); }
+  feed.innerHTML = ''; waveAppend(lead.concat(waveInterleave(cards)));
+  feed.scrollTop = 0;
+  if (lead.length) wv.active = -1;
+  waveActivate(0, !!lead.length);
+}
+async function waveMore() {
+  if (wv.loading || wv.end) return;
+  const my = wv.seq; wv.loading = true;
+  let cards = [];
+  try { cards = await waveFetch(wv.genre, wv.offset); } catch (e) { cards = []; }
+  if (my !== wv.seq) return;
+  wv.loading = false; wv.offset += WAVE_PAGE;
+  if (!cards.length || !waveAppend(waveInterleave(cards))) wv.end = true;
+}
+
+// ── Görseller: kürenin yörüngeden görünümü, yalnızca aktif kart ve komşuları için, kaydırma dururken ──
+function waveImgKey(c, w, h) { return `${state.theme}|${c.lat.toFixed(2)},${c.lng.toFixed(2)}|${w}x${h}`; }
+function waveImgSize() {
+  const f = $('#wvFeed'), W = f.clientWidth || 390, H = f.clientHeight || 844, k = Math.min(1, 760 / Math.max(W, H));
+  return { w: Math.max(120, Math.round(W * k)), h: Math.max(120, Math.round(H * k)) };
+}
+function waveApplyImg(i) {
+  const el = $('#wvFeed').children[i], c = wv.deck[i]; if (!el || !c) return false;
+  const { w, h } = waveImgSize(), im = wv.imgs.get(waveImgKey(c, w, h));
+  if (!im) return false;
+  const img = el.querySelector('.wv-img'); img.style.setProperty('--img', `url(${im.url})`);
+  const pin = el.querySelector('.wv-pin'); pin.style.left = (clamp(im.pin.x, 0.05, 0.95) * 100).toFixed(2) + '%'; pin.style.top = (clamp(im.pin.y, 0.05, 0.6) * 100).toFixed(2) + '%';
+  requestAnimationFrame(() => el.classList.add('wv-ready'));
+  return true;
+}
+function waveQueueImages(center) {
+  wv.imgQueue = [center, center + 1, center - 1, center + 2].filter(i => i >= 0 && i < wv.deck.length);
+  // Uzaktaki kartların görsellerini bırak (bellek)
+  [...$('#wvFeed').children].forEach((el, i) => { if (Math.abs(i - center) > 3 && el.classList.contains('wv-ready')) { el.classList.remove('wv-ready'); el.querySelector('.wv-img').style.removeProperty('--img'); } });
+  wavePumpImages();
+}
+function wavePumpImages() {
+  if (wv.imgBusy || wv.scrolling || state.tab !== 'explore') return;
+  const i = wv.imgQueue.shift(); if (i === undefined) return;
+  const c = wv.deck[i]; if (!c) { wavePumpImages(); return; }
+  const { w, h } = waveImgSize(), key = waveImgKey(c, w, h);
+  if (wv.imgs.has(key)) { waveApplyImg(i); wavePumpImages(); return; }
+  wv.imgBusy = true;
   Globe.whenReady(() => {
-    const url = Globe.snapshotView({ w, h, lat: c.lat, lng: c.lng, r, cy: h * 0.34 + r * Math.sin(pitch), pitch, theme: state.theme, pins: [CITIES.indexOf(c)] });
-    tn.imgs[key] = url || '';
-    if (!sync && url && tn.shown === i) showImage(i, true);
+    const r = Math.max(w, h) * 0.584, pitch = 0.78;
+    const url = Globe.snapshotView({ w, h, lat: c.lat, lng: c.lng, r, cy: h * 0.34 + r * Math.sin(pitch), pitch, theme: state.theme });
+    wv.imgBusy = false;
+    if (url) { wv.imgs.set(key, { url, pin: Globe.snapshotView.pin || { x: 0.5, y: 0.34 } }); if (wv.imgs.size > 24) wv.imgs.delete(wv.imgs.keys().next().value); waveApplyImg(i); }
+    setTimeout(wavePumpImages, 140);   // kare başına bir görsel: kaydırma akıcı kalır
   });
-  sync = false;
-  return tn.imgs[key];
 }
-function showImage(i, force) {
-  if (tn.shown === i && !force) return; tn.shown = i;
-  const url = tunerImage(i);
-  const A = $('#tnImgA'), B = $('#tnImgB'), next = tn.layer ? A : B, prev = tn.layer ? B : A; tn.layer = 1 - tn.layer;
-  next.style.backgroundImage = url ? `url(${url})` : `radial-gradient(circle at 50% 30%, #1b2333, #05070A 70%)`;
-  next.getAnimations().forEach(a => a.cancel()); prev.getAnimations().forEach(a => a.cancel());
-  next.animate([{ opacity: 0, transform: 'scale(1.14)' }, { opacity: 1, transform: 'scale(1.04)' }], { duration: reduceMotion.matches ? 1 : 900, easing: 'cubic-bezier(0.05,0.7,0.1,1)', fill: 'forwards' });
-  prev.animate([{ opacity: parseFloat(getComputedStyle(prev).opacity) || 1 }, { opacity: 0 }], { duration: 500, easing: 'cubic-bezier(0.3,0,0.8,0.15)', fill: 'forwards' });
-  // Komşuları önceden çek (kaydırırken bekleme olmasın), kare başına bir tane
-  [i + 1, i - 1, i + 2, i - 2].forEach((k, n) => { if (BAND[k]) setTimeout(() => tunerImage(k), 120 * (n + 1)); });
+
+// ── Etkin kart ──
+function waveActivate(i, keepAudio) {
+  const feed = $('#wvFeed'), cards = feed.children; if (!cards[i] || !wv.deck[i]) return;
+  if (wv.active === i) { waveSync(); return; }
+  if (wv.active >= 0 && cards[wv.active]) cards[wv.active].classList.remove('on', 'wv-live');
+  if (wv.active >= 0 && i !== wv.active) { wv.swiped = true; $('#wvHint').classList.add('gone'); vibrate(5); }
+  wv.active = i; cards[i].classList.add('on');
+  clearTimeout(wv.tuneTimer); clearTimeout(wv.errTimer); clearTimeout(wv.imgTimer);
+  wv.tunePending = !keepAudio && !wv.userPaused;
+  if (wv.tunePending) wv.tuneTimer = setTimeout(() => { wv.tunePending = false; waveTune(i); }, WAVE_TUNE_MS);
+  waveSync();
+  // Görseller yayın başladıktan sonra çizilir: ses hiçbir zaman görsel yüzünden gecikmez
+  wv.imgTimer = setTimeout(() => waveQueueImages(i), wv.tunePending ? WAVE_TUNE_MS + 60 : 0);
+  if (i >= wv.deck.length - 6) waveMore();
 }
-function updateTunerChrome(i) {
-  const c = BAND[i]; if (!c) return;
-  $('#tnMeta').textContent = `${c.countryCode} · ${cityTime(c.timezone).slice(0, 5)} · ${lngLabel(c.lng)}${state.visits.some(v => v.cityId === c.id) ? ' · DAMGALI' : ''}`;
-  $('#tnCity').setAttribute('aria-label', `${c.name}: kürede aç`);
-  decodeName($('#tnCity'), c.name);
-  $('#tnCount').textContent = `${new Set(state.visits.map(v => v.cityId)).size}/25`;
-  updateTunerFav();
+function waveIsOn(c) {
+  if (!c || state.activeCityId !== c.place.id) return false;
+  if (!c.st) return true;
+  const cur = currentStation();
+  return !state.queue.stations || !cur || cur.uuid === c.st.uuid || waveBusy();
 }
-function updateTunerFav() {
-  const st = currentStation(), c = BAND[tn.locked];
-  const live = c && state.activeCityId === c.id && st;
-  const on = !!(live && state.favorites.some(f => f.stationUuid === st.uuid));
-  const b = $('#tnFav'); b.classList.toggle('on', on); b.disabled = !live; b.style.opacity = live ? 1 : 0.4;
-  $('#tnHeart').innerHTML = icon('heart', 20, on ? 'filled' : '');
+/** Kartın istasyonunu çal (aynı yer zaten çalıyorsa dokunma). */
+function waveTune(i) {
+  const c = wv.deck[i]; if (!c || state.tab !== 'explore' || i !== wv.active) return;
+  if (waveIsOn(c) && waveBusy()) { waveSync(); return; }
+  const place = CITY[c.place.id] || registerPlace(c.place);
+  state.pinned = c.st ? { cityId: place.id, stations: [c.st] } : null;
+  if (state.activeCityId === place.id) state.activeCityId = null;   // yeni sırayla yeniden başlat
+  state.interacted = true; Ambient.unlock();
+  selectCity(place);
 }
-let noiseCtx = null, noiseImg = null;
-function drawNoise(level) {
-  const cv = $('#tnNoise');
-  cv.style.opacity = level.toFixed(3);
-  if (level < 0.02) return;
-  if (!noiseCtx) { noiseCtx = cv.getContext('2d'); noiseImg = noiseCtx.createImageData(cv.width, cv.height); }
-  const d = noiseImg.data;
-  for (let k = 0; k < d.length; k += 4) { const v = Math.random() * 255 | 0; d[k] = v; d[k + 1] = v; d[k + 2] = v; d[k + 3] = 255; }
-  noiseCtx.putImageData(noiseImg, 0, 0);
+/** Yayın durumu → kart üzerindeki satır, iğne ve favori düğmesi. setStatus her değişimde çağırır. */
+function waveSync() {
+  if (!wv || wv.active < 0 || state.tab !== 'explore') return;
+  const el = $('#wvFeed').children[wv.active], c = wv.deck[wv.active]; if (!el || !c) return;
+  const line = el.querySelector('.wv-state'), tx = line.querySelector('.tx');
+  const mine = waveIsOn(c), s = mine ? state.status : 'idle', cur = currentStation();
+  let cls = '', text;
+  if (s === 'playing') {
+    cls = 'wv-live';
+    text = cur && c.st && cur.uuid !== c.st.uuid ? `YAYIN KAPALI · YERİNE ${cur.name.toLocaleUpperCase('tr-TR')}` : cur && cur.demo ? 'ÖNİZLEME SESİ' : 'CANLI';
+  } else if (s === 'loading' || s === 'failover') { cls = 'wv-busy'; text = s === 'failover' ? 'BAŞKA YAYIN DENENİYOR' : 'BAĞLANIYOR'; }
+  else if (s === 'error') { cls = 'wv-err'; text = 'YAYIN AÇILAMADI · SIRADAKİNE GEÇİLİYOR'; }
+  else if (wv.tunePending) { cls = 'wv-busy'; text = 'AYARLANIYOR'; }
+  else if (s === 'paused' || wv.userPaused) text = 'DURAKLATILDI · DİNLEMEK İÇİN DOKUN';
+  else text = 'DİNLEMEK İÇİN DOKUN';
+  line.className = 'wv-state ' + cls; if (tx.textContent !== text) tx.textContent = text;
+  el.classList.toggle('wv-live', s === 'playing');
+  // Ölü yayında sessiz kalma: 1,5 sn sonra sıradaki karta geç
+  clearTimeout(wv.errTimer);
+  if (s === 'error' && !wv.userPaused) { const at = wv.active; wv.errTimer = setTimeout(() => { if (wv.active === at && state.tab === 'explore') waveGo(at + 1); }, 1500); }
+  waveRail();
 }
-function tunerFrame(time) {
-  tn.raf = null; if (state.view !== 'app' || state.tab !== 'explore') return;
-  const now = performance.now(), dt = tn.last ? Math.min(0.05, (time - tn.last) / 1000) : 1 / 60, f = dt * 60; tn.last = time;
-  const max = (BAND.length - 1) * SPACING;
-  if (!tn.dragging) {
-    if (Math.abs(tn.vel) > 0.4) { tn.pos += tn.vel * f; tn.vel *= Math.pow(0.93, f); }
-    else { tn.vel = 0; const target = Math.round(tn.pos / SPACING) * SPACING; tn.pos += (target - tn.pos) * (1 - Math.pow(0.8, f)); if (Math.abs(target - tn.pos) < 0.3) tn.pos = target; }
-    if (tn.pos < 0) { tn.pos *= 0.8; tn.vel = 0; } if (tn.pos > max) { tn.pos = max + (tn.pos - max) * 0.8; tn.vel = 0; }
+function waveFavUuid(c) { if (c.st) return c.st.uuid; const cur = currentStation(); return waveIsOn(c) && cur && !cur.demo ? cur.uuid : null; }
+function waveRail() {
+  const c = wv.deck[wv.active], fav = $('#wvFav'); if (!c) return;
+  const uuid = waveFavUuid(c), on = !!(uuid && state.favorites.some(f => f.stationUuid === uuid));
+  fav.disabled = !uuid; fav.classList.toggle('on', on);
+  fav.setAttribute('aria-label', on ? 'Favorilerden çıkar' : 'Favorilere ekle');
+  $('#wvHeart').innerHTML = icon('heart', 20, on ? 'filled' : '');
+  $('#wvNext').disabled = wv.active >= wv.deck.length - 1 && wv.end;
+}
+function waveFavorite(forceOn) {
+  const c = wv.deck[wv.active]; if (!c) return false;
+  const uuid = waveFavUuid(c); if (!uuid) return false;
+  const i = state.favorites.findIndex(f => f.stationUuid === uuid);
+  if (i >= 0 && forceOn) return true;
+  if (i >= 0) { state.favorites.splice(i, 1); vibrate(6); }
+  else {
+    const place = CITY[c.place.id] || registerPlace(c.place), st = c.st || currentStation();
+    state.favorites.unshift({ id: 'f' + Date.now(), stationUuid: uuid, stationName: st.name, cityId: place.id, cityName: place.name, countryCode: place.countryCode, index: 0,
+      station: { uuid: st.uuid, name: st.name, url: st.url, codec: st.codec, bitrate: st.bitrate, cc: st.cc, geo: st.geo, fallback: false } });
+    vibrate([8, 40, 8]);
   }
-  const n = clamp(Math.round(tn.pos / SPACING), 0, BAND.length - 1);
-  const d = Math.abs(tn.pos - n * SPACING) / SPACING;
-  const t = clamp((d - 0.04) / 0.38, 0, 1), signal = 1 - t * t * (3 - 2 * t);
-  $('#tnBand').style.transform = `translateX(${(-tn.pos).toFixed(2)}px)`;
-  $('#tnFreq').textContent = freqOf(clamp(tn.pos, 0, max)).toFixed(1);
-  if (n !== tn.lastStation) { if (tn.lastStation !== -1) vibrate(5); tn.lastStation = n; showImage(n); updateTunerChrome(n); }
-  // Sinyal: görsel + ses
-  const stat = (1 - signal);
-  drawNoise(reduceMotion.matches ? stat * 0.3 : 0.05 + stat * 0.75);
-  const city = $('#tnCity');
-  city.style.filter = stat > 0.02 ? `blur(${(stat * 7).toFixed(1)}px)` : 'none';
-  city.style.transform = stat > 0.05 && !reduceMotion.matches ? `translateX(${((Math.random() - 0.5) * stat * 10).toFixed(1)}px)` : 'none';
-  const cur = tn.shown >= 0 ? [$('#tnImgA'), $('#tnImgB')][tn.layer] : null;
-  if (cur) cur.style.filter = `saturate(${(1.12 - stat * 0.9).toFixed(2)}) brightness(${(1.18 - stat * 0.55).toFixed(2)})`;
-  $('#tnSig').querySelectorAll('i').forEach((b, k) => b.classList.toggle('on', signal > k / 5 + 0.05));
-  if (tn.audio) { Ambient.setStatic(stat * 0.9); Sound.setTune(tn.locked === n ? signal : 0); }
-  // Kilitlenme: istasyonda durunca yayın başlar
-  if (!tn.dragging && signal > 0.97 && Math.abs(tn.vel) < 0.5) {
-    if (!tn.settleAt) tn.settleAt = now;
-    if (tn.audio && tn.locked !== n && now - tn.settleAt > 320) {
-      tn.locked = n; const c = BAND[n];
-      if (state.activeCityId !== c.id || !['playing', 'loading', 'failover'].includes(state.status)) selectCity(c);
-      Sound.setTune(1); updateTunerFav();
+  save(); waveRail();
+  const h = $('#wvHeart'); h.classList.remove('pop'); void h.offsetWidth; h.classList.add('pop');
+  return true;
+}
+function waveToggle() {
+  const c = wv.deck[wv.active]; if (!c) return;
+  if (waveIsOn(c) && waveBusy() || wv.tunePending) { wv.userPaused = true; wv.tunePending = false; clearTimeout(wv.tuneTimer); pause(); }
+  else { wv.userPaused = false; Ambient.unlock(); if (waveIsOn(c) && state.status === 'paused') play(); else waveTune(wv.active); }
+  vibrate(6); waveSync();
+}
+function waveGo(i) {
+  const feed = $('#wvFeed'); if (!wv.deck.length) return;
+  i = clamp(i, 0, wv.deck.length - 1);
+  feed.scrollTo({ top: i * feed.clientHeight, behavior: reduceMotion.matches ? 'auto' : 'smooth' });
+}
+function waveBurst(x, y) {
+  const w = $('#wave'), r = w.getBoundingClientRect(), b = document.createElement('span');
+  b.className = 'wv-burst'; b.style.left = (x - r.left) + 'px'; b.style.top = (y - r.top) + 'px'; b.innerHTML = icon('heart', 96, 'filled');
+  w.appendChild(b);
+  const a = b.animate([{ transform: 'scale(0.3) rotate(-12deg)', opacity: 0 }, { transform: 'scale(1.15) rotate(4deg)', opacity: 1, offset: 0.35 }, { transform: 'scale(1) rotate(0)', opacity: 1, offset: 0.6 }, { transform: 'scale(1.05) translateY(-24px)', opacity: 0 }],
+    { duration: reduceMotion.matches ? 300 : 760, easing: 'cubic-bezier(0.2,0,0,1)' });
+  a.onfinish = () => b.remove();
+}
+function waveSettle() {
+  const feed = $('#wvFeed'); if (feed.classList.contains('dragging')) return; wv.scrolling = false;
+  const H = feed.clientHeight || 1, i = clamp(Math.round(feed.scrollTop / H), 0, Math.max(0, wv.deck.length - 1));
+  if (wv.deck.length) { if (wv.active === i) wavePumpImages(); else { wv.userPaused = false; waveActivate(i); } }
+}
+
+function bindWave() {
+  const feed = $('#wvFeed');
+  feed.addEventListener('scroll', () => { wv.scrolling = true; clearTimeout(wv.settleTimer); wv.settleTimer = setTimeout(waveSettle, WAVE_SETTLE_MS); }, { passive: true });
+  // Dokunma: tek → duraklat/sürdür (çift dokunuşla karışmasın diye 240 ms beklenir) · çift → favori
+  let down = null;
+  feed.addEventListener('pointerdown', e => {
+    if (!wv.deck.length) return;
+    down = { x: e.clientX, y: e.clientY, t: performance.now(), id: e.pointerId, top: feed.scrollTop, mouse: e.pointerType === 'mouse', moved: false };
+  });
+  feed.addEventListener('pointermove', e => {
+    if (!down || e.pointerId !== down.id) return;
+    const dy = e.clientY - down.y;
+    if (Math.abs(dy) > 8 || Math.abs(e.clientX - down.x) > 8) down.moved = true;
+    // Fare ile sürükleme (dokunmatikte tarayıcının kendi kaydırması çalışır)
+    if (down.mouse && down.moved && e.buttons === 1) {
+      if (!feed.classList.contains('dragging')) { feed.classList.add('dragging'); try { feed.setPointerCapture(down.id); } catch (err) {} }
+      feed.scrollTop = down.top - dy;
     }
-  } else tn.settleAt = 0;
-  tn.raf = requestAnimationFrame(tunerFrame);
-}
-function renderExplore() {
-  buildBand();
-  const startId = state.activeCityId || 'istanbul';
-  const i = Math.max(0, BAND.findIndex(c => c.id === startId));
-  tn.pos = i * SPACING; tn.vel = 0; tn.lastStation = -1; tn.shown = -1;
-  tn.locked = state.activeCityId && ['playing', 'loading', 'failover'].includes(state.status) ? i : -1;
-  if (tn.locked >= 0) tn.audio = true;
-  $('#tnHint').classList.toggle('gone', tn.audio);
-  if (!tn.raf) { tn.last = 0; tn.raf = requestAnimationFrame(tunerFrame); }
-}
-function leaveTuner() { if (tn.audio) { Ambient.setStatic(0); Sound.setTune(1); } if (tn.raf) { cancelAnimationFrame(tn.raf); tn.raf = null; } }
-(() => {
-  const el = $('#tuner');
-  el.addEventListener('pointerdown', e => {
-    if (e.target.closest('button') || tn.pid !== null) return;
-    tn.pid = e.pointerId; el.setPointerCapture(tn.pid); tn.dragging = true; tn.vel = 0; tn.lx = e.clientX; tn.samples = [[performance.now(), e.clientX]];
-    el.classList.add('dragging');
-    if (!tn.audio) { tn.audio = true; Ambient.unlock(); $('#tnHint').classList.add('gone'); }
   });
-  el.addEventListener('pointermove', e => {
-    if (e.pointerId !== tn.pid) return;
-    const dx = e.clientX - tn.lx; tn.lx = e.clientX; const max = (BAND.length - 1) * SPACING;
-    tn.pos -= (tn.pos < 0 || tn.pos > max) ? dx * 0.35 : dx;
-    const now = performance.now(); tn.samples.push([now, e.clientX]); while (tn.samples.length > 2 && now - tn.samples[0][0] > 90) tn.samples.shift();
-  });
-  const end = e => {
-    if (e.pointerId !== tn.pid) return; tn.pid = null; tn.dragging = false; el.classList.remove('dragging');
-    const a = tn.samples[0], b = tn.samples[tn.samples.length - 1];
-    if (performance.now() - b[0] < 80 && b[0] > a[0]) tn.vel = clamp(-(b[1] - a[1]) / (b[0] - a[0]) * 16.67, -60, 60);
+  const up = e => {
+    if (!down || e.pointerId !== down.id) return;
+    const d = down; down = null;
+    if (feed.classList.contains('dragging')) {
+      const H = feed.clientHeight, dy = e.clientY - d.y, base = Math.round(d.top / H);
+      const target = Math.abs(dy) > H * 0.15 ? base + (dy < 0 ? 1 : -1) : base;
+      feed.classList.remove('dragging'); waveGo(target); return;
+    }
+    if (e.type === 'pointercancel' || d.moved || performance.now() - d.t > 450) return;
+    const now = performance.now();
+    if (now - wv.lastTap < 300) {
+      clearTimeout(wv.tapTimer); wv.lastTap = 0;
+      const c = wv.deck[wv.active];
+      if (c && !waveFavUuid(c)) { wv.userPaused = false; waveTune(wv.active); toast('Önce yayın açılsın, sonra favorilere eklenir'); return; }
+      if (waveFavorite(true)) waveBurst(e.clientX, e.clientY);
+      return;
+    }
+    wv.lastTap = now;
+    wv.tapTimer = setTimeout(() => { wv.lastTap = 0; waveToggle(); }, 240);
   };
-  el.addEventListener('pointerup', end); el.addEventListener('pointercancel', end);
-  $('#tnCity').addEventListener('click', () => { const c = BAND[clamp(Math.round(tn.pos / SPACING), 0, BAND.length - 1)]; if (c) { vibrate(8); leaveTuner(); openCity(c.id); } });
-  $('#tnFav').addEventListener('click', () => { if (!tn.audio || tn.locked < 0) return; const heart = $('#tnHeart'); heart.classList.remove('pop'); void heart.offsetWidth; heart.classList.add('pop'); toggleFavorite(); updateTunerFav(); });
-})();
+  feed.addEventListener('pointerup', up); feed.addEventListener('pointercancel', up);
+  feed.addEventListener('keydown', e => {
+    if (e.key === 'ArrowDown' || e.key === 'PageDown' || e.key === 'j') { e.preventDefault(); waveGo(wv.active + 1); }
+    else if (e.key === 'ArrowUp' || e.key === 'PageUp' || e.key === 'k') { e.preventDefault(); waveGo(wv.active - 1); }
+    else if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); waveToggle(); }
+  });
+  $('#wvChips').addEventListener('click', e => {
+    const b = e.target.closest('.wv-chip'); if (!b || b.dataset.genre === wv.genre && !wv.loading) return;
+    $('#wvChips').querySelectorAll('.wv-chip').forEach(x => { const on = x === b; x.classList.toggle('on', on); x.setAttribute('aria-selected', on); });
+    b.scrollIntoView({ inline: 'center', block: 'nearest', behavior: reduceMotion.matches ? 'auto' : 'smooth' });
+    vibrate(5); wv.userPaused = false; Ambient.unlock();
+    feed.classList.add('fading');
+    setTimeout(() => { feed.classList.remove('fading'); waveLoad(b.dataset.genre); }, 160);
+  });
+  $('#wvFav').addEventListener('click', () => { waveFavorite(false); });
+  $('#wvNext').addEventListener('click', () => { Ambient.unlock(); wv.userPaused = false; waveGo(wv.active + 1); });
+  $('#wvGlobe').addEventListener('click', () => {
+    const c = wv.deck[wv.active]; if (!c) return;
+    const place = CITY[c.place.id] || registerPlace(c.place);
+    if (!(waveIsOn(c) && waveBusy())) { state.pinned = c.st ? { cityId: place.id, stations: [c.st] } : null; if (state.activeCityId === place.id) state.activeCityId = null; }
+    vibrate(8); MapGlobe.takeControl(); setTab('globe'); handleSelect(place);
+  });
+  addEventListener('resize', () => { if (!wv || state.tab !== 'explore' || wv.active < 0) return; clearTimeout(wv.resizeTimer); wv.resizeTimer = setTimeout(() => { $('#wvFeed').scrollTop = wv.active * $('#wvFeed').clientHeight; waveQueueImages(wv.active); }, 200); });
+}
+
+/** Sekmeye giriş (sekme dokunuşu kullanıcı jestidir: ses burada açılır). */
+function renderExplore() {
+  const first = !wv; waveInit(); Ambient.unlock();
+  const w = $('#wave'); w.classList.remove('wv-enter', 'wv-shown'); void w.offsetWidth; w.classList.add(first || reduceMotion.matches ? 'wv-enter' : 'wv-shown');
+  if (first) setTimeout(() => { w.classList.remove('wv-enter'); w.classList.add('wv-shown'); }, 800);
+  $('#wvHint').classList.toggle('gone', wv.swiped);
+  if (first || !wv.deck.length) { waveLoad(wv.genre); return; }
+  // Geri dönüş: başka bir yerde çalan yayına dokunma; kart görsellerini tazele
+  const feed = $('#wvFeed'); feed.scrollTop = Math.max(0, wv.active) * feed.clientHeight;
+  wv.scrolling = false; waveQueueImages(Math.max(0, wv.active)); waveSync();
+}
+function leaveTuner() { if (!wv) return; wv.tunePending = false; clearTimeout(wv.imgTimer); clearTimeout(wv.tuneTimer); clearTimeout(wv.errTimer); clearTimeout(wv.tapTimer); wv.imgQueue = []; }
+
 
 // ═════════════════════════════════════════════════════════
 //  KOLEKSİYON
@@ -3364,6 +3596,7 @@ function playFavorite(f) {
   state.interacted = true; $('#hint').classList.add('gone');
   state.activeCityId = city.id; state.lastCityId = city.id; save(); Globe.setActive(city.id);
   state.queue = emptyQueue(); state.index = 0; state.pendingUuid = f.stationUuid;
+  state.pinned = f.station && f.station.url ? { cityId: city.id, stations: [f.station] } : null;   // Keşfet'ten eklenen istasyon tam olarak çalsın
   if (state.status === 'playing') Sound.fadeOut();
   renderSheet(); openSheet(true); Ambient.unlock(); failedAttempts = 0; startAttempt(state.index, false);
 }
