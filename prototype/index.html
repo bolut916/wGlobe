@@ -426,6 +426,45 @@ svg.i.filled { fill: currentColor; }
 .pk-labels .i { --s: 9px; }
 .pk-hint { position: absolute; left: 50%; bottom: 38px; transform: translateX(-50%); font-family: var(--mono); font-size: 9px; letter-spacing: 0.16em; color: rgba(220,238,255,0.75); white-space: nowrap; opacity: 0; transition: opacity 240ms var(--e-standard); pointer-events: none; }
 .pocket.open .pk-hint { opacity: 1; transition-delay: 200ms; }
+/* Koleksiyon çekmecesi: 100 küre, 10 seri */
+.pk-hint { opacity: 1 !important; bottom: 40px; }
+#pane-themes .pocket { transition: opacity 260ms var(--e-standard), transform 420ms var(--e-spring); }
+#pane-themes.pk-open .pocket { opacity: 0; transform: translateY(24px); pointer-events: none !important; }
+#pane-themes.pk-open .pocket * { pointer-events: none !important; }
+.pk-drawer { position: absolute; left: 10px; right: 10px; top: calc(var(--sat) + 132px); bottom: calc(84px + var(--sab)); z-index: 4; display: flex; flex-direction: column; border-radius: 30px; overflow: hidden;
+  background: rgba(10,19,40,0.95); box-shadow: 0 30px 70px rgba(2,6,16,0.6), inset 0 0 0 1px rgba(232,240,255,0.1); -webkit-backdrop-filter: blur(24px) saturate(1.4); backdrop-filter: blur(24px) saturate(1.4);
+  transform: translateY(calc(100% + 40px)); opacity: 0; visibility: hidden; transition: transform 300ms var(--e-exit), opacity 240ms var(--e-exit), visibility 0s linear 300ms; }
+.pk-drawer.open { transform: none; opacity: 1; visibility: visible; transition: transform 560ms var(--e-spring), opacity 240ms var(--e-enter), visibility 0s; }
+.pk-drawer::before { content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1px; background: var(--grad); opacity: 0.35; pointer-events: none; -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0); }
+.pkd-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 14px 10px 6px 20px; }
+.pkd-head b { font-family: var(--display); font-size: 22px; font-weight: 700; letter-spacing: -0.03em; }
+.pkd-head .label { margin-left: auto; }
+.pkd-series { display: flex; gap: 6px; overflow-x: auto; padding: 4px 16px 10px; scrollbar-width: none; flex: none; }
+.pkd-series::-webkit-scrollbar { display: none; }
+.pkd-chip { flex: none; min-height: 32px; padding: 0 13px; border-radius: 16px; font-size: 13px; font-weight: 600; color: var(--fg-2); background: rgba(232,240,255,0.05); box-shadow: inset 0 0 0 1px rgba(232,240,255,0.1); transition: background 200ms var(--e-standard), color 200ms var(--e-standard); }
+.pkd-chip.on { background: var(--grad); color: var(--accent-ink); box-shadow: none; }
+.pkd-grid { position: relative; flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 0 12px 20px; scrollbar-width: none; }
+.pkd-grid::-webkit-scrollbar { display: none; }
+.pkd-sec { padding-top: 10px; }
+.pkd-sh { display: flex; align-items: baseline; justify-content: space-between; padding: 6px 8px 8px; }
+.pkd-sh b { font-size: 15px; font-weight: 600; }
+.pkd-items { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px 2px; }
+.pkd-item { position: relative; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 6px 2px 8px; border-radius: 18px; min-width: 0; }
+.pk-drawer.open .pkd-item { animation: pkdIn 460ms var(--e-spring) backwards; animation-delay: calc(min(var(--i), 24) * 18ms + 120ms); }
+@keyframes pkdIn { from { opacity: 0; transform: translateY(18px) scale(0.8); } }
+.pkd-item .mb-img { width: 72px; height: 72px; display: block; border-radius: 50%; transition: transform 420ms var(--e-spring), opacity 200ms var(--e-standard); }
+.pkd-item .mb-css { width: 58px; height: 58px; margin: 7px; border-radius: 50%; }
+.pkd-item img.fresh { animation: pkdFresh 420ms var(--e-enter); }
+@keyframes pkdFresh { from { opacity: 0; transform: scale(0.85); } }
+.pkd-item:hover .mb-img { transform: scale(1.06) rotate(-4deg); }
+.pkd-item.on { background: rgba(232,240,255,0.07); box-shadow: inset 0 0 0 1px rgba(205,230,255,0.4); }
+.pkd-item.picked .mb-img { opacity: 0; }
+.pkd-n { display: flex; align-items: center; justify-content: center; gap: 3px; max-width: 100%; font-size: 11px; line-height: 14px; color: var(--fg-2); text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pkd-n .i { --s: 9px; flex: none; }
+.pkd-item.locked .pkd-n { color: var(--fg-3); }
+.pkd-use { font-family: var(--mono); font-size: 8px; letter-spacing: 0.12em; color: var(--a1); min-height: 10px; }
+#pane-themes .marble { pointer-events: auto; cursor: pointer; }
+@media (prefers-reduced-motion: reduce) { .pk-drawer, .pk-drawer.open { transition: none; } .pk-drawer.open .pkd-item, .pkd-item img.fresh { animation: none; } }
 .flying { position: absolute; left: 0; top: 0; z-index: 45; pointer-events: none; transform-origin: 50% 50%; will-change: transform, opacity; }
 .screen.ink-dark .statusbar { color: #141414; }
 .screen.ink-dark .hint { color: rgba(20,20,20,0.5); }
@@ -843,9 +882,14 @@ svg.i.filled { fill: currentColor; }
                 <path d="M1 24 Q181 -3 361 24" fill="none" stroke="url(#trayRim)" stroke-width="1.6" stroke-opacity="0.9"/>
                 <path d="M1 26 L1 52 Q1 79 28 79 L334 79 Q361 79 361 52 L361 26" fill="none" stroke="url(#trayRim)" stroke-opacity="0.28" stroke-width="1"/>
               </svg>
-              <span class="pk-hint">BİR KÜRE SEÇ</span>
+              <span class="pk-hint">100 KÜRE · <span id="pkCount"></span></span>
               <div class="pk-labels" id="pkLabels"></div>
             </div>
+          </div>
+          <div class="pk-drawer" id="pkDrawer" role="dialog" aria-label="Koleksiyon: 100 küre" aria-hidden="true">
+            <div class="pkd-head"><b>Koleksiyon</b><span class="label num" id="pkdCount"></span><button class="round press tight" id="pkdClose" aria-label="Koleksiyonu kapat" data-icon="x" data-size="20"></button></div>
+            <div class="pkd-series" id="pkdSeries" role="tablist" aria-label="Seriler"></div>
+            <div class="pkd-grid" id="pkdGrid"></div>
           </div>
         </div>
         <div class="pane" id="pane-profile"><div class="scroll" id="profileScroll"></div></div>
@@ -1143,7 +1187,7 @@ const THEMES = {
     p:{ oceanDeep:'#F3F3EF', oceanShallow:'#FBFBF8', shelf:'#F3F3EF', landLow:'#D2D2CC', landHigh:'#D2D2CC', ice:'#E6E6E1', coast:'#111111', grid:'#111111', equator:'#E30613', night:'#A3A39E', lights:'#000000', atmoDay:'#FFFFFF', atmoDusk:'#FFFFFF', cloud:'#FFFFFF', background:'#E8E8E3',
       gridOpacity:0.3, gridSpacingDeg:15, nightStrength:0.2, lightsStrength:0, lightsDay:0, atmoStrength:0.12, terminatorSoftness:0.02, specular:0, relief:0, coastStrength:1, hatch:0, flat:1, clouds:0 } },
 };
-const THEME_ORDER = ['classic','parchment','night_lights','swiss_minimal'];
+const THEME_ORDER = ['classic','parchment','night_lights','swiss_minimal'];   // katalog aşağıda 100 küreye genişletir
 const COLOR_KEYS = ['oceanDeep','oceanShallow','shelf','landLow','landHigh','ice','coast','grid','equator','night','lights','atmoDay','atmoDusk','cloud','background'];
 const FLOAT_KEYS = ['gridOpacity','gridSpacingDeg','nightStrength','lightsStrength','lightsDay','atmoStrength','terminatorSoftness','specular','relief','coastStrength','hatch','flat','clouds'];
 
@@ -1300,6 +1344,173 @@ THEMES.classic.desc = 'NASA uydu verisinden gerçek Dünya: fiziksel ışık, at
 THEMES.night_lights.desc = 'Güneşsiz bir gece: NASA şehir ışıkları, ay ışığında belli belirsiz kıtalar.';
 THEMES.classic.p.background = '#000000';
 THEMES.night_lights.p.background = '#000000';
+// ═════════════════════════════════════════════════════════
+//  KOLEKSİYON KATALOĞU — 10 seri × 10 küre
+// ═════════════════════════════════════════════════════════
+// Her küre 3–5 el seçimi tohum renkten (o: okyanus, l: kara, a: mürekkep/vurgu, d: ekvator/2. vurgu, b: zemin, w: yüksek kara)
+// ve bir boyama tarifinden (real · night · atlas · flat · soft · glow) türetilir. Tarif; kabartmayı, taramayı, ızgarayı,
+// alacakaranlığı ve gerçek uydu görüntüsü karışımını belirler — böylece aynı serideki küreler birbirine akraba olur.
+const hx = h => { const n = parseInt(h.slice(1), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; };
+const toHex = c => '#' + c.map(v => Math.round(Math.max(0, Math.min(255, v))).toString(16).padStart(2, '0')).join('').toUpperCase();
+const mixH = (a, b, t) => { const A = hx(a), B = hx(b); return toHex(A.map((v, i) => v + (B[i] - v) * t)); };
+const W_ = '#FFFFFF', K_ = '#000000';
+const RECIPES = {
+  real:  s => ({ c: soft(s), f: { gridOpacity: 0.04, gridSpacingDeg: 15, nightStrength: 0.85, lightsStrength: 0.9, lightsDay: 0, atmoStrength: 0.9, terminatorSoftness: 0.12, specular: 0.5, relief: 1, coastStrength: 0.12, hatch: 0, flat: 0, clouds: 0 },
+    look: { real: s.r || 0.72, sun: 1, lightsGain: 1.25, cloudGain: 0.9, atmoGain: 0.9, moon: 0 } }),
+  night: s => ({ c: soft(s), f: { gridOpacity: 0.03, gridSpacingDeg: 20, nightStrength: 0.6, lightsStrength: 1.3, lightsDay: 0.4, atmoStrength: 0.6, terminatorSoftness: 0.1, specular: 0.2, relief: 0.5, coastStrength: 0.3, hatch: 0, flat: 0, clouds: 0 },
+    look: { real: 1, sun: 0, lightsGain: 1.6, cloudGain: 0.5, atmoGain: 0, moon: 0.28 } }),
+  atlas: s => ({ c: { oceanDeep: mixH(s.o, K_, 0.12), oceanShallow: mixH(s.o, W_, 0.35), shelf: mixH(s.o, W_, 0.18), landLow: s.l, landHigh: s.w || mixH(s.l, s.a, 0.45), ice: mixH(W_, s.o, 0.12),
+      coast: s.a, grid: mixH(s.a, s.o, 0.2), equator: s.d || s.a, night: mixH(s.a, K_, 0.5), lights: '#FFB45E', atmoDay: mixH(s.o, W_, 0.6), atmoDusk: '#E9A15A', cloud: W_, background: s.b || mixH(s.a, K_, 0.85) },
+    f: { gridOpacity: 0.3, gridSpacingDeg: 10, nightStrength: 0.45, lightsStrength: 0.2, lightsDay: 0, atmoStrength: 0.45, terminatorSoftness: 0.3, specular: 0, relief: 0.55, coastStrength: 0.9, hatch: 0.7, flat: 0, clouds: 0 },
+    look: { real: 0, sun: 1, lightsGain: 0, cloudGain: 0, atmoGain: 0, moon: 0 } }),
+  flat: s => ({ c: { oceanDeep: s.o, oceanShallow: mixH(s.o, W_, 0.06), shelf: s.o, landLow: s.l, landHigh: s.l, ice: mixH(s.l, W_, 0.4), coast: s.a, grid: s.a, equator: s.d || s.a,
+      night: mixH(s.o, K_, 0.3), lights: K_, atmoDay: W_, atmoDusk: W_, cloud: W_, background: s.b || mixH(s.o, K_, 0.08) },
+    f: { gridOpacity: 0.28, gridSpacingDeg: 15, nightStrength: 0.18, lightsStrength: 0, lightsDay: 0, atmoStrength: 0.12, terminatorSoftness: 0.02, specular: 0, relief: 0, coastStrength: 1, hatch: 0, flat: 1, clouds: 0 },
+    look: { real: 0, sun: 1, lightsGain: 0, cloudGain: 0, atmoGain: 0, moon: 0 } }),
+  soft: s => ({ c: soft(s), f: { gridOpacity: 0.06, gridSpacingDeg: 15, nightStrength: 0.7, lightsStrength: 0.6, lightsDay: 0, atmoStrength: 0.8, terminatorSoftness: 0.14, specular: 0.3, relief: 0.9, coastStrength: 0.3, hatch: 0, flat: 0, clouds: 0 },
+    look: { real: 0, sun: 1, lightsGain: 0, cloudGain: 0, atmoGain: 0, moon: 0 } }),
+  glow: s => ({ c: { oceanDeep: mixH(s.o, K_, 0.5), oceanShallow: mixH(s.o, K_, 0.25), shelf: s.o, landLow: mixH(s.l, K_, 0.35), landHigh: s.l, ice: mixH(s.l, W_, 0.2), coast: s.a, grid: s.a,
+      equator: s.d || s.a, night: K_, lights: s.d || s.a, atmoDay: s.a, atmoDusk: s.d || s.a, cloud: mixH(s.a, W_, 0.5), background: s.b || '#000103' },
+    f: { gridOpacity: 0.035, gridSpacingDeg: 20, nightStrength: 0.5, lightsStrength: 1.4, lightsDay: 0.5, atmoStrength: 1, terminatorSoftness: 0.1, specular: 0.2, relief: 0.35, coastStrength: 0.6, hatch: 0, flat: 0, clouds: 0 },
+    look: { real: 0.35, sun: 0, lightsGain: 2.4, cloudGain: 0.25, atmoGain: 0.5, moon: 0.06 } }),
+};
+function soft(s) {
+  return { oceanDeep: mixH(s.o, K_, 0.35), oceanShallow: mixH(s.o, W_, 0.15), shelf: mixH(s.o, W_, 0.3), landLow: s.l, landHigh: s.w || mixH(s.l, W_, 0.35), ice: mixH(W_, s.o, 0.08),
+    coast: s.a, grid: s.a, equator: s.d || s.a, night: mixH(s.o, K_, 0.75), lights: '#FFC878', atmoDay: mixH(s.o, W_, 0.5), atmoDusk: '#FF9A5A', cloud: W_, background: s.b || mixH(s.o, K_, 0.88) };
+}
+// [id, ad, kısa, açıklama, tarif, tohumlar, ince ayar]
+const SERIES = [
+  { id: 'gercek', name: 'Gerçek Dünya', themes: [
+    ['classic'], ['night_lights'],
+    ['altin_saat', 'Altın Saat', 'ALTIN', 'Gün batımının bal rengi ışığı bütün gezegene yayılmış; kıtalar sıcak, okyanuslar derin.', 'real', { o: '#3A5A78', l: '#C9A46A', a: '#F2C27B', r: 0.7 }],
+    ['kutup_sabahi', 'Kutup Sabahı', 'KUTUP', 'Soğuk, berrak bir sabah: buz mavisi denizler, kar beyazına çalan kıtalar.', 'real', { o: '#6E9CC2', l: '#D8E4EA', a: '#FFFFFF', r: 0.72 }],
+    ['derin_mavi', 'Derin Mavi', 'DERİN', 'Okyanusların ağır bastığı bir Dünya; sahanlıklar camgöbeği, açık deniz gece mavisi.', 'real', { o: '#0B3D6B', l: '#2E5A4C', a: '#7FC4FF', r: 0.75 }],
+    ['yesil_gezegen', 'Yeşil Gezegen', 'YEŞİL', 'Ormanların geri kazandığı bir gezegen: zümrüt kıtalar, sakin koyu sular.', 'real', { o: '#0E3B4A', l: '#3F7A3A', a: '#B9E07A', r: 0.72 }],
+    ['col_ruzgari', 'Çöl Rüzgârı', 'ÇÖL', 'Kum fırtınası sonrası: kehribar çöller, toz pembesi ufuk.', 'real', { o: '#2E4F63', l: '#D2A86E', a: '#F0D3A0', r: 0.7 }],
+    ['ay_isigi', 'Ay Işığı', 'AY', 'Güneş yok; dolunayın gümüş ışığında kıtalar ve şehirlerin ılık parıltısı.', 'night', { o: '#1B2A44', l: '#4A5568', a: '#C9D6EA' }],
+    ['mavi_bilye', 'Mavi Bilye', 'BİLYE', '1972, Apollo 17: tam aydınlık, masmavi, kusursuz bir bilye.', 'real', { o: '#1C4F8C', l: '#4E7A4A', a: '#FFFFFF', r: 0.9 }],
+    ['kizil_gezegen', 'Kızıl Gezegen', 'KIZIL', 'Mars’ın tozlu tonlarında bir Dünya hayali: pas rengi kara, koyu bakır denizler.', 'real', { o: '#4A2A2A', l: '#B5643C', a: '#F0A070', r: 0.55 }],
+  ] },
+  { id: 'kartografya', name: 'Kartografya', themes: [
+    ['parchment'],
+    ['deniz_haritasi', 'Deniz Haritası', 'DENİZ', 'Kaptan köşkünden: derinlik tonları, ince kıyı çizgileri, sakin bir lacivert mürekkep.', 'atlas', { o: '#CFE0E3', l: '#E9DFC8', a: '#2B4A5E', b: '#0B1418' }],
+    ['eski_atlas', 'Eski Atlas', 'ATLAS', 'Kütüphanenin en arka rafından: yıpranmış deri, kahverengi mürekkep, taranmış dağlar.', 'atlas', { o: '#D7C9A6', l: '#B9925E', a: '#4A2E18', b: '#120C07' }],
+    ['mavi_kopya', 'Mavi Kopya', 'KOPYA', 'Mühendis masasından bir plan: lacivert zemin, beyaz tebeşir kıyılar.', 'atlas', { o: '#1D4E89', l: '#2E64A6', a: '#DDEBFF', b: '#0A1E38' }],
+    ['sepya', 'Sepya', 'SEPYA', 'Eski bir fotoğraf gibi: tek ton, sıcak ve sessiz.', 'atlas', { o: '#C9B79C', l: '#8E6F4E', a: '#3B2A1C', b: '#0F0B08' }],
+    ['kasif_defteri', 'Kâşif Defteri', 'KÂŞİF', 'Sahada tutulmuş notlar: zeytin yeşili kara, kurşun kalem kıyılar.', 'atlas', { o: '#E3D8BF', l: '#A3B18A', a: '#3F4A2F', b: '#10120C' }],
+    ['venedik', 'Venedik', 'VENEDİK', 'Ticaret yollarının haritası: lagün yeşili sular, terakota kıtalar.', 'atlas', { o: '#BFD3CF', l: '#D9B98C', a: '#6B2E1F', b: '#120B08' }],
+    ['ipek_yolu', 'İpek Yolu', 'İPEK', 'Kervanların haritası: safran tonları ve kırmızı bir ekvator.', 'atlas', { o: '#D8C3A0', l: '#C58B5A', a: '#5A2A1A', d: '#A0382A', b: '#140A06' }],
+    ['piri_reis', 'Piri Reis', 'PİRİ', '1513’ün ruhuyla: ceylan derisi tonları, el çizimi kıyılar, kırmızı ekvator.', 'atlas', { o: '#CDB68E', l: '#9F7A4C', a: '#2F1E10', d: '#8C1F1F', b: '#0F0A05' }],
+    ['gemici', 'Gemici', 'GEMİCİ', 'Rüzgâr gülü ve pusula: gri-mavi denizler, kırmızı bir yön çizgisi.', 'atlas', { o: '#A9C5D3', l: '#EDE4CF', a: '#1F3446', d: '#B33A2C', b: '#0A121A' }],
+  ] },
+  { id: 'minimal', name: 'Minimal', themes: [
+    ['swiss_minimal'],
+    ['bauhaus', 'Bauhaus', 'BAUHAUS', 'Kara mavi, kıyı siyah, ekvator kırmızı. Biçim işlevi izler.', 'flat', { o: '#F2EEE3', l: '#1F3A93', a: '#111111', d: '#E1251B', b: '#EAE5D8' }],
+    ['kar', 'Kar', 'KAR', 'Beyazın üstüne beyaz; yalnızca kıyılar belli belirsiz.', 'flat', { o: '#EEF3F7', l: '#FFFFFF', a: '#9FB3C8', b: '#E4EBF1' }],
+    ['murekkep', 'Mürekkep', 'MÜREKKEP', 'Siyah kâğıda tek bir beyaz çizgi.', 'flat', { o: '#111111', l: '#2A2A2A', a: '#F2F2F2', b: '#0A0A0A' }, { gridOpacity: 0.1 }],
+    ['grafit', 'Grafit', 'GRAFİT', 'Kurşun kalem grileri ve ince bir sarı ekvator.', 'flat', { o: '#3A3D42', l: '#5D6168', a: '#C9CDD2', d: '#E8B04A', b: '#26282C' }, { gridOpacity: 0.12 }],
+    ['kagit', 'Kâğıt', 'KÂĞIT', 'Krem kâğıt, sıcak gri kara, tuğla rengi bir ekvator.', 'flat', { o: '#FAF8F3', l: '#E7E2D6', a: '#6E6A61', d: '#C24A2C', b: '#F1EEE6' }],
+    ['gece_minimal', 'Gece Minimal', 'GECE M.', 'Lacivert üstüne buz mavisi kıyılar; sessiz bir gece.', 'flat', { o: '#0D1B2A', l: '#1B2E44', a: '#8FB8DE', b: '#08121C' }, { gridOpacity: 0.12 }],
+    ['kum', 'Kum', 'KUM', 'Kumsal tonları; kahverengi tek bir çizgi.', 'flat', { o: '#E9DCC3', l: '#CBB28A', a: '#7A5C3A', b: '#E0D2B6' }],
+    ['nane', 'Nane', 'NANE', 'Ferah, serin, sade: nane yeşili kıtalar.', 'flat', { o: '#DDF1EA', l: '#9FD8C4', a: '#24564A', b: '#D3EAE2' }],
+    ['iskandinav', 'İskandinav', 'İSKAN.', 'Açık gri denizler, kemik beyazı kara, mercan bir ekvator.', 'flat', { o: '#DCE3E6', l: '#F5F1EA', a: '#2F3B45', d: '#C8553D', b: '#D3DADD' }],
+  ] },
+  { id: 'gece', name: 'Gece & Işık', themes: [
+    ['kehribar', 'Kehribar Şehirler', 'KEHRİBAR', 'Karanlık kıtalarda kehribar gibi yanan kıyı şehirleri.', 'glow', { o: '#0A1220', l: '#1A1E28', a: '#FFB24A' }],
+    ['kutup_isigi', 'Kutup Işığı', 'AURORA', 'Kutuplardan süzülen yeşil perdeler; kıyılar nane, ufuk mavi.', 'glow', { o: '#06121C', l: '#0E1A22', a: '#5CF2C2', d: '#7AA8FF' }],
+    ['neon_tokyo', 'Neon Tokyo', 'NEON', 'Gece yarısı caddeleri: pembe kıyılar, camgöbeği ışıklar.', 'glow', { o: '#0A0614', l: '#160E22', a: '#FF4FA3', d: '#4FD8FF' }],
+    ['mavi_saat', 'Mavi Saat', 'MAVİ S.', 'Gün batımından hemen sonra: her şey derin bir maviye gömülür.', 'glow', { o: '#061226', l: '#0E1C33', a: '#6FB0FF', d: '#CFE5FF' }],
+    ['lav', 'Lav', 'LAV', 'Kıyılar akkor, denizler kömür karası.', 'glow', { o: '#0F0605', l: '#1E0C08', a: '#FF5A1F', d: '#FFB347' }],
+    ['yildiz_tozu', 'Yıldız Tozu', 'YILDIZ', 'Lavanta ışıltısıyla çizilmiş kıtalar; uzayın en sakin köşesi.', 'glow', { o: '#07061A', l: '#13102A', a: '#E8E3FF', d: '#B9A8FF' }],
+    ['zumrut_gece', 'Zümrüt Gece', 'ZÜMRÜT', 'Derin yeşil sular ve fosforlu kıyılar.', 'glow', { o: '#031410', l: '#0A1F18', a: '#3DDC97', d: '#C9FF8A' }],
+    ['sonar', 'Sonar', 'SONAR', 'Denizaltı ekranından: yeşil tek bir sinyal ve karanlık.', 'glow', { o: '#020A05', l: '#06140C', a: '#39FF88' }],
+    ['sehir_isiklari', 'Şehir Işıkları', 'ŞEHİR', 'Sıcak beyaz ışıklarla örülmüş kıyılar; sessiz bir uçuş.', 'glow', { o: '#050608', l: '#101218', a: '#FFE3A3', d: '#FFD27A' }],
+    ['kozmik', 'Kozmik', 'KOZMİK', 'Mor ve pembe bir bulutsunun ortasında asılı bir gezegen.', 'glow', { o: '#08041A', l: '#120A28', a: '#B28DFF', d: '#FF8DC7' }],
+  ] },
+  { id: 'mevsimler', name: 'Mevsimler', themes: [
+    ['ilkbahar', 'İlkbahar', 'BAHAR', 'Taze yeşil, açık mavi, çiçek pembesi kıyılar.', 'soft', { o: '#4C8FA8', l: '#8DBF6A', a: '#F2B8C6' }],
+    ['yaz', 'Yaz', 'YAZ', 'Güneşte yanmış kıtalar, berrak turkuaz denizler.', 'soft', { o: '#1F7FA8', l: '#C8B25E', a: '#FFE08A' }],
+    ['sonbahar', 'Sonbahar', 'GÜZ', 'Pas, bal ve tarçın: dökülen yaprakların gezegeni.', 'soft', { o: '#3C5A6E', l: '#B8642E', a: '#E8A04A' }],
+    ['kis', 'Kış', 'KIŞ', 'Karla örtülü kıtalar ve çelik mavisi denizler.', 'soft', { o: '#5D7E99', l: '#E6ECEF', a: '#FFFFFF' }],
+    ['muson', 'Muson', 'MUSON', 'Yağmurla doymuş yeşiller, ağır ve ıslak bir hava.', 'soft', { o: '#2F5D62', l: '#4E7D4A', a: '#A8D5BA' }],
+    ['hasat', 'Hasat', 'HASAT', 'Buğday tarlaları gibi altın kıtalar.', 'soft', { o: '#4A6670', l: '#C9A24A', a: '#F0D080' }],
+    ['lale', 'Lale Zamanı', 'LALE', 'Nisan bahçeleri: yeşil kara, kıyılarda lale kırmızısı.', 'soft', { o: '#3E6E8E', l: '#7FA65A', a: '#E0475C' }],
+    ['kiraz', 'Kiraz Çiçeği', 'KİRAZ', 'Pembe beyaz çiçeklerle kaplı bir gezegen.', 'soft', { o: '#7FA7C4', l: '#E9C6CF', a: '#C2416B' }],
+    ['ilk_kar', 'İlk Kar', 'İLK KAR', 'Kışın ilk sabahı: her şey yumuşak ve sessiz.', 'soft', { o: '#8FA9BD', l: '#DDE6EA', a: '#F7FAFC' }],
+    ['tropikal', 'Tropikal', 'TROPİK', 'Camgöbeği lagünler, gür yeşil adalar.', 'soft', { o: '#0F8FA0', l: '#3FA35A', a: '#FFD166' }],
+  ] },
+  { id: 'mineral', name: 'Taş & Mineral', themes: [
+    ['mermer', 'Mermer', 'MERMER', 'Damarlı beyaz taştan oyulmuş bir küre.', 'soft', { o: '#D8D6D0', l: '#BDB8AE', a: '#5E5A52', b: '#1A1917' }],
+    ['obsidyen', 'Obsidyen', 'OBSİDYEN', 'Volkanik cam: siyahın içinde gri yansımalar.', 'soft', { o: '#16181E', l: '#262832', a: '#8C93A8' }],
+    ['yesim', 'Yeşim', 'YEŞİM', 'Doğu’nun değerli taşı: süt yeşili kıtalar.', 'soft', { o: '#2E6B57', l: '#9CC9A8', a: '#E6F2E8' }],
+    ['kehribar_tas', 'Kehribar', 'AMBER', 'Reçinenin içinde donmuş sıcak bir ışık.', 'soft', { o: '#5A3510', l: '#D18A2C', a: '#FFD58A' }],
+    ['lapis', 'Lapis Lazuli', 'LAPİS', 'Lacivert taşın içinde altın damarlar.', 'soft', { o: '#1B2F7A', l: '#3550B0', a: '#E3C25A' }],
+    ['bakir', 'Bakır', 'BAKIR', 'Patine olmuş yeşil denizler ve parlak bakır kıtalar.', 'soft', { o: '#2C4E4A', l: '#B66A3C', a: '#E8A27A' }],
+    ['akik', 'Akik', 'AKİK', 'Şarap kırmızısı, tütsü ve gül tonları.', 'soft', { o: '#5B1F24', l: '#C46A5A', a: '#F2C9B8' }],
+    ['ametist', 'Ametist', 'AMETİST', 'Mor kristallerin sakin ışığı.', 'soft', { o: '#2C1A4A', l: '#7B5BA6', a: '#D9C8F2' }],
+    ['turkuaz', 'Turkuaz', 'TURKUAZ', 'Anadolu’nun taşı: turkuaz denizler, kum rengi kara.', 'soft', { o: '#127A84', l: '#C9B98F', a: '#E8F6F4' }],
+    ['granit', 'Granit', 'GRANİT', 'Sağlam, gri, zamansız.', 'soft', { o: '#4A4C50', l: '#8A8780', a: '#D8D4CC' }],
+  ] },
+  { id: 'gokyuzu', name: 'Gökyüzü Saatleri', themes: [
+    ['safak', 'Şafak', 'ŞAFAK', 'Günün ilk ışığı: şeftali kıyılar, mor bir gökyüzü.', 'soft', { o: '#3D4F7A', l: '#C98E7A', a: '#FFD3B0', b: '#140E1C' }],
+    ['gun_ortasi', 'Gün Ortası', 'ÖĞLE', 'Tepedeki güneş: parlak mavi denizler, berrak kıtalar.', 'soft', { o: '#2F8FD6', l: '#9CB86A', a: '#FFFFFF', b: '#0A1A2C' }],
+    ['gun_batimi', 'Gün Batımı', 'G. BATIMI', 'Turuncu kıtalar, mürdüm denizler.', 'soft', { o: '#3A2F5C', l: '#D2734A', a: '#FFB070', b: '#140A14' }],
+    ['alacakaranlik', 'Alacakaranlık', 'ALACA', 'Işığın çekildiği an: gri-mavi bir dinginlik.', 'soft', { o: '#24365E', l: '#5A5F7E', a: '#A9B8FF', b: '#0A0E1C' }],
+    ['gece_yarisi', 'Gece Yarısı', 'G. YARISI', 'Gecenin en koyu saati; kıyılar soluk mavi.', 'soft', { o: '#0A1430', l: '#1E2A44', a: '#8FA8E0', b: '#03060F' }],
+    ['kutup_gunesi', 'Kutup Güneşi', 'GÜNEŞ', 'Hiç batmayan güneş: buz beyazı kıtalar, altın kıyılar.', 'soft', { o: '#7FB2D9', l: '#F2F2F2', a: '#FFE7A8', b: '#0E1A26' }],
+    ['firtina', 'Fırtına', 'FIRTINA', 'Kurşun rengi bir gökyüzü altında gergin bir sessizlik.', 'soft', { o: '#2E3A44', l: '#59646B', a: '#CFD8DC', b: '#0B0F12' }],
+    ['sis', 'Sis', 'SİS', 'Her şey yumuşak, her şey uzak.', 'soft', { o: '#9AA6AD', l: '#C2C8C5', a: '#F2F4F2', b: '#1A1E20' }],
+    ['yildizli_gece', 'Yıldızlı Gece', 'YILDIZLI', 'Bir ressamın gecesi: lacivert girdaplar, altın kıyılar.', 'soft', { o: '#10204A', l: '#2A3A6E', a: '#F2D56B', b: '#050A1A' }],
+    ['tan_yeri', 'Tan Yeri', 'TAN', 'Lila ve gül kurusu; uyanmak üzere bir dünya.', 'soft', { o: '#556C8A', l: '#B9A2B8', a: '#F4D7C8', b: '#10121C' }],
+  ] },
+  { id: 'sanat', name: 'Sanat', themes: [
+    ['ukiyoe', 'Ukiyo-e', 'UKİYO-E', 'Japon gravürü: yosun yeşili kara, çivit kıyılar, kırmızı bir mühür.', 'atlas', { o: '#E8DCC2', l: '#6E8F7A', a: '#1F2A44', d: '#C23B22', b: '#F0E6D0' }],
+    ['art_deco', 'Art Deco', 'DECO', 'Gece kulübü zarafeti: siyah ve altın.', 'flat', { o: '#0E1A1C', l: '#1E2E30', a: '#D4AF37', b: '#0A1112' }, { gridOpacity: 0.14 }],
+    ['pastel', 'Pastel', 'PASTEL', 'Bebek mavisi denizler, pudra pembesi kıtalar.', 'flat', { o: '#CFE3F2', l: '#F4D6DE', a: '#8A8FB8', b: '#EEF1F6' }],
+    ['monokrom', 'Monokrom', 'MONO', 'Siyah deniz, beyaz kara; başka hiçbir şey.', 'flat', { o: '#1A1A1A', l: '#E6E6E6', a: '#000000', b: '#F5F5F5' }],
+    ['pop_art', 'Pop Art', 'POP', 'Saf mavi, saf sarı, kalın siyah çizgi.', 'flat', { o: '#2B6CFF', l: '#FFD400', a: '#111111', d: '#FF2D55', b: '#FFF8E7' }],
+    ['risograf', 'Risograf', 'RİSO', 'İki renkli baskı makinesinden çıkmış gibi.', 'flat', { o: '#3E64FF', l: '#FF8FA3', a: '#1A1A40', b: '#FFF4E8' }],
+    ['suluboya', 'Suluboya', 'SULU', 'Kâğıda yayılmış ıslak mavi ve yeşil.', 'soft', { o: '#7BAFD4', l: '#B8C99A', a: '#F2EDE4', b: '#F4F0E8' }],
+    ['karakalem', 'Karakalem', 'KALEM', 'Taranmış gölgeler, kömür kıyılar.', 'atlas', { o: '#E9E9E4', l: '#CFCFC8', a: '#2A2A2A', b: '#F2F2EE' }],
+    ['vitray', 'Vitray', 'VİTRAY', 'Katedral camından süzülen bordo, altın ve camgöbeği.', 'glow', { o: '#0B2A4A', l: '#6B1F3A', a: '#F2C14E', d: '#3FB6A8' }],
+    ['empresyonist', 'Empresyonist', 'EMPR.', 'Nilüferli bir bahçe: mavi, yeşil ve güneş sarısı.', 'soft', { o: '#5B8FB9', l: '#A7B86A', a: '#F4E3A1' }],
+  ] },
+  { id: 'kultur', name: 'Kültürler', themes: [
+    ['istanbul_cini', 'İstanbul Çini', 'ÇİNİ', 'İznik çinisi: kobalt mavi denizler, süt beyazı kara, mercan kırmızısı.', 'flat', { o: '#1F5FA8', l: '#F4F1EA', a: '#0E2E5C', d: '#C8302E', b: '#E9F0F7' }],
+    ['kyoto', 'Kyoto', 'KYOTO', 'Tapınak bahçesi: yosun, ahşap ve kırmızı bir kapı.', 'atlas', { o: '#DCD3C2', l: '#8C9A6E', a: '#3A2E2A', d: '#B23A2E', b: '#F1EBDF' }],
+    ['marakes', 'Marakeş', 'MARAKEŞ', 'Kızıl surlar, safran ve Majorelle mavisi.', 'soft', { o: '#2E6E8E', l: '#C8643C', a: '#F2C28A' }],
+    ['lizbon', 'Lizbon', 'LİZBON', 'Azulejo karoları: beyaz denizler, kobalt kıtalar.', 'flat', { o: '#FFFFFF', l: '#2456A6', a: '#123A7A', b: '#EEF3FA' }],
+    ['santorini', 'Santorini', 'SANTORİNİ', 'Kireç beyazı adalar, koyu Ege mavisi.', 'flat', { o: '#1E5AA8', l: '#FFFFFF', a: '#0B2D5C', b: '#DCE8F5' }],
+    ['havana', 'Havana', 'HAVANA', 'Pastel cepheler, turkuaz Karayip, şeftali kıyılar.', 'soft', { o: '#2FA3A0', l: '#E59A6B', a: '#F7E3B0' }],
+    ['izlanda', 'İzlanda', 'İZLANDA', 'Lav taşı, yosun ve buzul suyu.', 'soft', { o: '#2B4C5E', l: '#6E7F68', a: '#E8F0F2' }],
+    ['sahra', 'Sahra', 'SAHRA', 'Kum tepelerinin altın dalgaları.', 'soft', { o: '#36576B', l: '#E0B070', a: '#FFE2A8' }],
+    ['amazon', 'Amazon', 'AMAZON', 'Dünyanın ciğeri: koyu yeşil, bereketli, nemli.', 'soft', { o: '#1E4E4A', l: '#2F6B32', a: '#9FD38A' }],
+    ['nordik_gece', 'Nordik Gece', 'NORDİK', 'Kutup dairesinin uzun gecesi; buz mavisi kıyılar.', 'glow', { o: '#050C14', l: '#0F1A22', a: '#7FE7FF', d: '#C8F7FF' }],
+  ] },
+  { id: 'bilim', name: 'Bilim', themes: [
+    ['topografya', 'Topoğrafya', 'TOPO', 'Yükseklik katmanları: ovalar yeşil, dağlar kum rengi, ızgara görünür.', 'soft', { o: '#3A6E9A', l: '#7FA05A', a: '#F2EFE4', w: '#E8D9B0' }, { gridOpacity: 0.16, relief: 1.6, coastStrength: 0.5 }],
+    ['batimetri', 'Batimetri', 'BATİ.', 'Denizin altı: kıta sahanlıkları ve derin hendekler öne çıkar.', 'soft', { o: '#052A4A', l: '#E6E2D8', a: '#7FD1FF' }, { coastStrength: 0.6 }],
+    ['isi_haritasi', 'Isı Haritası', 'ISI', 'Mor soğuktan sarı sıcağa bir veri gezegeni.', 'glow', { o: '#1A0A2E', l: '#4A1A5A', a: '#FF8C3B', d: '#FFE05A' }],
+    ['kizilotesi', 'Kızılötesi', 'IR', 'Bitki örtüsü kızıla döner; uydu gözüyle bir bakış.', 'soft', { o: '#1A1A2E', l: '#C2253D', a: '#FFB8C6' }],
+    ['rontgen', 'Röntgen', 'X-RAY', 'İçi görünen bir gezegen: soğuk beyaz kontürler.', 'glow', { o: '#02060A', l: '#0C1C24', a: '#CFF6FF' }],
+    ['radar', 'Radar', 'RADAR', 'Hava kontrol ekranı: yeşil fosfor ve karanlık.', 'glow', { o: '#021006', l: '#062014', a: '#6CFF9A' }],
+    ['termal', 'Termal', 'TERMAL', 'Kıyılar sıcak, denizler soğuk.', 'glow', { o: '#0B0F3A', l: '#3A1B6E', a: '#FF5E3A', d: '#FFD166' }],
+    ['jeoloji', 'Jeoloji', 'JEOLOJİ', 'Kayaç katmanları: toprak tonları ve taranmış dağlar.', 'atlas', { o: '#D9E2E4', l: '#C89B6E', a: '#4A3B2E', d: '#8A4B2A', b: '#111315' }],
+    ['manyetik', 'Manyetik Alan', 'MANYETİK', 'Kutuplar arasında gerilen mavi ve pembe çizgiler.', 'glow', { o: '#07101C', l: '#101C2A', a: '#6FA8FF', d: '#FF6F91' }],
+    ['kontur', 'Kontur', 'KONTUR', 'Yalnızca çizgiler: ızgara, kıyı ve ekvator.', 'flat', { o: '#0B1622', l: '#0F1D2C', a: '#9FD0FF', b: '#08111B' }, { gridOpacity: 0.45, gridSpacingDeg: 10 }],
+  ] },
+];
+const THEME_SERIES = {};
+THEME_ORDER.length = 0;
+SERIES.forEach(sr => sr.themes.forEach(row => {
+  const [id, name, short, desc, recipe, seeds, tune] = row;
+  if (!THEMES[id]) {
+    const R = RECIPES[recipe](seeds);
+    THEMES[id] = { name, short, desc, premium: true, recipe, p: Object.assign({}, R.c, R.f, tune || {}, R.look) };
+  }
+  THEME_SERIES[id] = sr.id; THEME_ORDER.push(id);
+}));
+Object.assign(THEMES.classic, { recipe: 'real' }); Object.assign(THEMES.night_lights, { recipe: 'night' }); Object.assign(THEMES.parchment, { recipe: 'atlas' }); Object.assign(THEMES.swiss_minimal, { recipe: 'flat' });
 
 // ── Ton eşleme (son işlem geçişiyle birebir aynı) ve tersi ──
 const EXPOSURE = 1.0;
@@ -2469,7 +2680,7 @@ const SatMosaic = (() => {
 })();
 
 /** Sürüm etiketi: sitede hangi sürümün açık olduğunu rozetten görmek için (önbellek kontrolü). */
-const BUILD = 'v25';
+const BUILD = 'v26';
 const MapGlobe = (() => {
   const host = document.getElementById('mapStage');
   const badge = document.getElementById('lodBadge');
@@ -2667,13 +2878,19 @@ const MapGlobe = (() => {
     badge.classList.add('on');
   }
 
+  /** 100 kürenin harita karşılığı: okyanus, kara, kıyı ve gökyüzü temanın kendi paletinden */
+  function mapStyleFor(id) {
+    const t = THEMES[id]; if (!t) return STYLE.classic;
+    const p = t.p, co = hx(p.coast);
+    return { ocean: mixH(p.oceanDeep, p.oceanShallow, 0.45), land: p.landLow, landHi: p.landHigh, coast: p.coast, border: `rgba(${co[0]},${co[1]},${co[2]},0.35)`, sky: p.background, horizon: p.atmoDay };
+  }
   function paint(id) {
-    const c = STYLE[id] || STYLE.classic;
+    const c = STYLE[id] || mapStyleFor(id);
     map.setPaintProperty('ocean', 'background-color', c.ocean);
     map.setPaintProperty('land', 'fill-color', ['interpolate', ['linear'], ['zoom'], 1, c.land, 7, c.landHi]);
     map.setPaintProperty('coast', 'line-color', c.coast);
     map.setPaintProperty('borders', 'line-color', c.border);
-    if (map.getLayer('satellite')) { const r = RASTER[id] || RASTER.classic; Object.keys(r).forEach(k => map.setPaintProperty('satellite', k, r[k])); }
+    if (map.getLayer('satellite')) { const t = THEMES[id], rc = t && t.recipe; const r = RASTER[id] || (rc === 'flat' ? RASTER.swiss_minimal : rc === 'atlas' ? RASTER.parchment : rc === 'glow' || rc === 'night' ? RASTER.night_lights : rc === 'soft' ? { 'raster-saturation': -0.35, 'raster-contrast': 0.08, 'raster-brightness-min': 0.02, 'raster-brightness-max': 0.95, 'raster-hue-rotate': 0 } : RASTER.classic); Object.keys(r).forEach(k => map.setPaintProperty('satellite', k, r[k])); }
     map.setSky({ 'sky-color': c.sky, 'horizon-color': c.horizon, 'sky-horizon-blend': 0.6, 'horizon-fog-blend': 0.5, 'fog-color': c.horizon, 'fog-ground-blend': 0, 'atmosphere-blend': ['interpolate', ['linear'], ['zoom'], 0, 0.55, 5, 0.55, 7, 0] });   // hale açılış küresininkiyle aynı yumuşaklıkta
   }
 
@@ -3562,7 +3779,8 @@ function themeStateLabel(id) { return state.theme === id ? 'kullanılıyor' : st
 function renderThemes(dir, delayIn = 210) {
   const id = state.previewTheme, t = THEMES[id], unlocked = state.unlocked.includes(id), selected = state.theme === id, idx = THEME_ORDER.indexOf(id);
   $('#th').classList.toggle('ink-dark', isLightTheme(id)); updateInk();
-  $('#thCount').textContent = `KOLEKSİYON · ${pad(idx + 1)} / ${pad(THEME_ORDER.length)}`;
+  const ser = SERIES.find(x => x.id === THEME_SERIES[id]);
+  $('#thCount').textContent = `${ser ? ser.name.toLocaleUpperCase('tr-TR') + ' · ' : ''}${String(idx + 1).padStart(3, '0')} / ${THEME_ORDER.length}`;
   const swaps = [$('#thName'), $('#thState'), $('#thDesc')];
   const fill = () => { $('#thName').textContent = t.name; $('#thDesc').textContent = t.desc; const el = $('#thState'); el.textContent = themeStateLabel(id); el.classList.toggle('accent', selected || unlocked); };
   themeAnims.forEach(a => a.cancel()); themeAnims = [];
@@ -3580,65 +3798,145 @@ function renderThemes(dir, delayIn = 210) {
   btn.className = `btn press th-action ${selected ? 'line' : unlocked ? 'solid' : 'brass'} ${themeBusy ? 'loading' : ''}`; btn.disabled = selected;
   btn.querySelector('.lbl').innerHTML = selected ? icon('check', 17) + 'Küre bu temayı kullanıyor' : unlocked ? icon('sparkles', 17) + 'Küreye uygula' : icon('lock-open', 17) + 'Kilidi aç ve uygula';
 }
-function renderPocket() {
-  $('#pkMarbles').innerHTML = THEME_ORDER.map((tid, k) => {
-    const x = THEMES[tid], un = state.unlocked.includes(tid), img = snaps && snaps.images[tid];
-    return `<button class="marble ${tid === state.previewTheme ? 'out' : ''}" data-theme-id="${tid}" style="--i:${k}" aria-label="${x.name}${un ? '' : ', kilitli'}${tid === state.previewTheme ? ', sahnede' : ''}"><span class="mb-hollow"></span>${img ? `<img class="mb-img" src="${img}" alt="" draggable="false">` : `<span class="mb-img"><span class="mb-css" style="display:block;margin:8px;${orbStyle(x.p)}"></span></span>`}</button>`;
-  }).join('');
-  $('#pkLabels').innerHTML = THEME_ORDER.map(tid => `<span class="${tid === state.previewTheme ? 'on' : ''}">${state.unlocked.includes(tid) ? '' : icon('lock', 9)}${THEMES[tid].short}</span>`).join('');
+// ── Cep → çekmece: 100 küre, 10 seri ──
+// Kapalı: cam tepside önizlenen küre ve serideki 3 komşusu süzülür. Dokun → çekmece yaylanarak açılır (560 ms),
+// bilyeler 18 ms arayla belirir. Bilye seç → sahnedeki küre aşağı çekilip küçülür (420 ms), seçilen bilye kavis
+// çizerek sahneye uçar (780 ms) ve gerçek 3D küreye dönüşür; çekmece uçuş başlarken kapanır.
+const SNAP_PX = 144;
+function marbleImg(tid) {
+  const img = snaps && snaps.images[tid];
+  return img ? `<img class="mb-img" src="${img}" alt="" draggable="false">` : `<span class="mb-img"><span class="mb-css" style="display:block;${orbStyle(THEMES[tid].p)}"></span></span>`;
 }
-function ensureSnaps() {
-  if (snaps) return;
-  Globe.whenReady(() => { if (snaps) return; snaps = Globe.snapshots(THEME_ORDER, 320); if (!picking) renderPocket(); });
+function trayIds() {
+  const sid = THEME_SERIES[state.previewTheme], list = THEME_ORDER.filter(t => THEME_SERIES[t] === sid), i = Math.max(0, list.indexOf(state.previewTheme));
+  return [0, 1, 2, 3].map(k => list[(i + k) % list.length]);
+}
+let drawerBuilt = false;
+function buildDrawer() {
+  if (drawerBuilt) return; drawerBuilt = true;
+  $('#pkdSeries').innerHTML = SERIES.map(sr => `<button class="pkd-chip press" data-series="${sr.id}">${esc(sr.name)}</button>`).join('');
+  let k = 0;
+  $('#pkdGrid').innerHTML = SERIES.map(sr => `<section class="pkd-sec" id="pkd-${sr.id}" data-series="${sr.id}"><div class="pkd-sh"><b>${esc(sr.name)}</b><span class="label">${sr.themes.length} küre</span></div>
+    <div class="pkd-items">${sr.themes.map(row => { const tid = row[0]; return `<button class="pkd-item press" data-theme-id="${tid}" style="--i:${k++}" aria-label="${esc(THEMES[tid].name)}">${marbleImg(tid)}<span class="pkd-n"></span><span class="pkd-use"></span></button>`; }).join('')}</div></section>`).join('');
+}
+function renderPocket() {
+  const ids = trayIds();
+  $('#pkMarbles').innerHTML = ids.map((tid, k) => `<span class="marble" data-theme-id="${tid}" style="--i:${k}">${marbleImg(tid)}</span>`).join('');
+  $('#pkLabels').innerHTML = ids.map(tid => `<span class="${tid === state.previewTheme ? 'on' : ''}">${state.unlocked.includes(tid) ? '' : icon('lock', 9)}${THEMES[tid].short}</span>`).join('');
+  $('#pkCount').textContent = `${state.unlocked.length} / ${THEME_ORDER.length} AÇIK`;
+  if (!drawerBuilt) return;
+  $('#pkdCount').textContent = `${THEME_ORDER.length} KÜRE · ${state.unlocked.length} AÇIK`;
+  $('#pkdGrid').querySelectorAll('.pkd-item').forEach(b => {
+    const tid = b.dataset.themeId, un = state.unlocked.includes(tid);
+    b.classList.toggle('on', tid === state.previewTheme); b.classList.toggle('used', tid === state.theme); b.classList.toggle('locked', !un);
+    const n = b.querySelector('.pkd-n'), html = `${un ? '' : icon('lock', 9)}${esc(THEMES[tid].name)}`; if (n.innerHTML !== html) n.innerHTML = html;
+    b.querySelector('.pkd-use').textContent = tid === state.theme ? 'KULLANILIYOR' : '';
+  });
+}
+/** Önizleme görselleri: kare başına iki bilye; tepsidekiler ve görünen seri önce. */
+let snapQueue = [], snapPumping = false;
+function ensureSnaps(prioritySeries) {
+  if (!snaps) snaps = { images: {}, rot: null };
+  const first = trayIds(), sid = prioritySeries || THEME_SERIES[state.previewTheme];
+  const order = first.concat(THEME_ORDER.filter(t => THEME_SERIES[t] === sid), THEME_ORDER);
+  const seen = new Set(); snapQueue = order.filter(t => !snaps.images[t] && !seen.has(t) && seen.add(t));
+  if (!snapPumping) pumpSnaps();
+}
+function pumpSnaps() {
+  if (!snapQueue.length || state.tab !== 'themes' || state.view !== 'app') { snapPumping = false; return; }
+  if (picking) { snapPumping = true; setTimeout(pumpSnaps, 200); return; }
+  snapPumping = true;
+  Globe.whenReady(() => {
+    const ids = snapQueue.splice(0, 2), res = Globe.snapshots(ids, SNAP_PX);
+    if (!res) { snapPumping = false; return; }
+    if (!snaps.rot) snaps.rot = res.rot;
+    ids.forEach(tid => { snaps.images[tid] = res.images[tid]; applySnap(tid); });
+    setTimeout(pumpSnaps, 40);
+  });
+}
+function applySnap(tid) {
+  document.querySelectorAll(`#pane-themes [data-theme-id="${tid}"] span.mb-img`).forEach(sp => {
+    const img = document.createElement('img'); img.className = 'mb-img fresh'; img.src = snaps.images[tid]; img.alt = ''; img.draggable = false; sp.replaceWith(img);
+  });
 }
 function setPocket(open) {
   if (pocketOpen === open) return;
-  pocketOpen = open; $('#pocket').classList.toggle('open', open); $('#pane-themes').classList.toggle('pk-open', open);
-  $('#pocket').setAttribute('aria-label', open ? 'Küre cebi açık: bir küre seç' : 'Küre cebi: açmak için dokun');
+  pocketOpen = open;
+  if (open) { buildDrawer(); renderPocket(); }
+  const d = $('#pkDrawer'); d.classList.toggle('open', open); d.setAttribute('aria-hidden', String(!open));
+  $('#pane-themes').classList.toggle('pk-open', open);
+  $('#pocket').setAttribute('aria-label', open ? 'Koleksiyon açık' : 'Koleksiyon: 100 küre, açmak için dokun');
+  if (open) {
+    const sid = THEME_SERIES[state.previewTheme], sec = document.getElementById('pkd-' + sid), grid = $('#pkdGrid');
+    if (sec) grid.scrollTop = sec.offsetTop - 4;
+    markSeries(sid); ensureSnaps(sid);
+  }
   vibrate(open ? 8 : 4);
 }
-/** Cepten küre seç: sahnedeki küre cebe düşer, seçilen küre cepten sahneye uçar ve gerçek küreye dönüşür */
-function pickTheme(id, marbleEl) {
-  const oldId = state.previewTheme; if (id === oldId || picking) return;
+function markSeries(sid) {
+  $('#pkdSeries').querySelectorAll('.pkd-chip').forEach(c => { const on = c.dataset.series === sid; c.classList.toggle('on', on); if (on && pocketOpen) c.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' }); });
+}
+/** Çekmeceden küre seç: sahnedeki küre çekilir, seçilen bilye sahneye uçar ve gerçek küreye dönüşür. */
+function pickTheme(id, itemEl) {
+  const oldId = state.previewTheme; if (id === oldId || picking || !THEMES[id]) { if (id === oldId) setPocket(false); return; }
   picking = true; vibrate([6, 30, 10]);
   const dir = THEME_ORDER.indexOf(id) > THEME_ORDER.indexOf(oldId) ? 1 : -1;
   const stageR = $('#globeStage').getBoundingClientRect(), scr = $('#screen').getBoundingClientRect();
   const target = themesLayout(stageR.width, stageR.height);
-  const oldMarble = $(`.marble[data-theme-id="${oldId}"]`), om = oldMarble.getBoundingClientRect();
-  const slot = { x: om.left - stageR.left + om.width / 2, y: om.top - stageR.top + om.height / 2 };
   const L0 = { ...Globe.layout }, t0 = performance.now();
-  // 1) Sahnedeki küre kavis çizerek kendi oyuğuna düşer
-  const FALL = reduceMotion.matches ? 1 : 460;
-  const fc = { x: (L0.cx + slot.x) / 2 - dir * 30, y: Math.min(L0.cy, slot.y) - 30 };
-  Globe.drive(now => { const t = Math.min(1, (now - t0) / FALL); if (t >= 1) return { cx: slot.x, cy: slot.y, r: 0.001 }; const e = t * t * t, q = quad({ x: L0.cx, y: L0.cy }, fc, slot, e); return { cx: q.x, cy: q.y, r: lerp(L0.r, 32, e) }; });
-  setTimeout(() => { oldMarble.classList.remove('out'); oldMarble.classList.add('land'); setTimeout(() => oldMarble.classList.remove('land'), 600); }, FALL);
+  // 1) Sahnedeki küre aşağı çekilerek küçülür
+  const FALL = reduceMotion.matches ? 1 : 420;
+  Globe.drive(now => { const t = Math.min(1, (now - t0) / FALL); const e = t * t * t; return t >= 1 ? { cx: L0.cx, cy: L0.cy + 48, r: 0.001 } : { cx: L0.cx, cy: L0.cy + 48 * e, r: lerp(L0.r, 0.001, e) }; });
   // 2) Zemin ve yazılar yeni temaya geçer
   state.previewTheme = id; Globe.setBackground(id); renderThemes(dir, 760);
-  $('#pkLabels').querySelectorAll('span').forEach((sp, k) => sp.classList.toggle('on', THEME_ORDER[k] === id));
-  // 3) Seçilen küre cepten sahneye uçar
-  const img = marbleEl.querySelector('.mb-img'), r0 = img.getBoundingClientRect();
-  marbleEl.classList.add('out');
-  const fly = img.cloneNode(true); fly.classList.add('flying'); fly.style.width = r0.width + 'px'; fly.style.height = r0.height + 'px'; fly.style.animation = 'none';
+  // 3) Seçilen bilye sahneye uçar; çekmece uçuş başlarken kapanır
+  const img = itemEl.querySelector('.mb-img'), r0 = img.getBoundingClientRect();
+  let fly = img.cloneNode(true); fly.classList.add('flying'); fly.classList.remove('fresh'); fly.style.width = r0.width + 'px'; fly.style.height = r0.height + 'px'; fly.style.animation = 'none';
+  // Uçuş sahne boyutuna kadar büyür: küçük bilye yerine yüksek çözünürlüklü bir kare çizilir, devir teslim de aynı açıdan yapılır
+  let handRot = snaps && snaps.rot;
+  try { const hi = Globe.snapshots([id], 480); if (hi && hi.images[id]) { handRot = hi.rot; if (fly.tagName === 'IMG') fly.src = hi.images[id]; else { const im = document.createElement('img'); im.className = fly.className; im.style.cssText = fly.style.cssText; im.src = hi.images[id]; im.alt = ''; fly = im; } } } catch (e) {}
   $('#screen').appendChild(fly);
+  itemEl.classList.add('picked');
+  setTimeout(() => setPocket(false), reduceMotion.matches ? 0 : 140);
   const a = { x: r0.left - scr.left + r0.width / 2, y: r0.top - scr.top + r0.height / 2 };
   const b = { x: target.cx + stageR.left - scr.left, y: target.cy + stageR.top - scr.top };
   const c = { x: (a.x + b.x) / 2 + dir * 60, y: Math.min(a.y, b.y) - 90 };
-  const sEnd = (target.r / 0.4) / r0.width;
+  const sEnd = (target.r / 0.4) / Math.max(1, r0.width);
   const kf = []; for (let k = 0; k <= 30; k++) { const tt = k / 30, e = easeInOutCubic(tt), q = quad(a, c, b, e), sc = lerp(1, sEnd, e); kf.push({ offset: tt, transform: `translate(${q.x - r0.width / 2}px, ${q.y - r0.height / 2}px) scale(${sc}) rotate(${dir * 8 * Math.sin(Math.PI * tt)}deg)` }); }
-  const flight = fly.animate(kf, { duration: reduceMotion.matches ? 1 : 780, delay: reduceMotion.matches ? 0 : 140, easing: 'linear', fill: 'both' });
-  flight.onfinish = () => {
-    // 4) Devir teslim: uçan fotoğrafın yerine gerçek 3D küre, aynı açı ve boyutta
-    Globe.setThemeInstant(id); if (snaps) Globe.setRotation(snaps.rot);
+  const flight = fly.animate(kf, { duration: reduceMotion.matches ? 1 : 780, delay: reduceMotion.matches ? 0 : 120, easing: 'linear', fill: 'both' });
+  const land = () => {
+    // 4) Devir teslim: uçan görüntünün yerine gerçek 3D küre, aynı açı ve boyutta
+    Globe.setThemeInstant(id); if (handRot) Globe.setRotation(handRot);
     const T = themesLayout(stageR.width, stageR.height);
     Globe.drive(() => ({ cx: T.cx, cy: T.cy, r: T.r }));
     requestAnimationFrame(() => requestAnimationFrame(() => {
       Globe.drive(null); themeSettle = performance.now();
       fly.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 200, fill: 'forwards' }).onfinish = () => fly.remove();
-      renderPocket();
-      setTimeout(() => { setPocket(false); picking = false; }, 320);
+      itemEl.classList.remove('picked'); renderPocket(); picking = false;
+      if (snapQueue.length && !snapPumping) pumpSnaps();
     }));
   };
+  flight.onfinish = land;
+  flight.oncancel = () => { fly.remove(); itemEl.classList.remove('picked'); Globe.drive(null); Globe.setThemeInstant(id); renderPocket(); picking = false; };
 }
+$('#pocket').addEventListener('click', () => { if (!picking) setPocket(true); });
+$('#pkDim').addEventListener('click', () => { if (!picking) setPocket(false); });
+$('#pkdClose').addEventListener('click', () => { if (!picking) setPocket(false); });
+$('#pkdGrid').addEventListener('click', e => { const b = e.target.closest('.pkd-item'); if (b && !picking) pickTheme(b.dataset.themeId, b); });
+$('#pkdSeries').addEventListener('click', e => {
+  const c = e.target.closest('.pkd-chip'); if (!c) return;
+  const sec = document.getElementById('pkd-' + c.dataset.series); if (!sec) return;
+  vibrate(4); $('#pkdGrid').scrollTo({ top: sec.offsetTop - 4, behavior: reduceMotion.matches ? 'auto' : 'smooth' });
+  markSeries(c.dataset.series); ensureSnaps(c.dataset.series);
+});
+let spyT = 0;
+$('#pkdGrid').addEventListener('scroll', () => { clearTimeout(spyT); spyT = setTimeout(() => {
+  const g = $('#pkdGrid'), y = g.scrollTop + 40; let cur = SERIES[0].id;
+  g.querySelectorAll('.pkd-sec').forEach(s => { if (s.offsetTop <= y) cur = s.dataset.series; });
+  markSeries(cur); ensureSnaps(cur);
+}, 120); }, { passive: true });
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && pocketOpen && !picking) setPocket(false); });
+
 function changeTheme(id) {
   if (!THEMES[id] || id === state.previewTheme || picking) return;
   const dir = THEME_ORDER.indexOf(id) > THEME_ORDER.indexOf(state.previewTheme) ? 1 : -1;
@@ -3653,14 +3951,6 @@ async function themeAction() {
   state.theme = id; save(); MapGlobe.setTheme(id); vibrate([8, 40, 8]); renderThemes(0); renderPocket(); updateInk();
   toast(unlocked ? `${THEMES[id].name} küreye uygulandı` : `${THEMES[id].name} koleksiyonuna eklendi`);
 }
-$('#pocket').addEventListener('click', e => {
-  if (picking) return;
-  const m = e.target.closest('.marble');
-  if (!pocketOpen) { setPocket(true); return; }
-  if (!m || m.classList.contains('out')) { setPocket(false); return; }
-  pickTheme(m.dataset.themeId, m);
-});
-$('#pkDim').addEventListener('click', () => { if (!picking) setPocket(false); });
 $('#themeAction').addEventListener('click', themeAction);
 (() => { // Sahnede kaydırarak hızlı geçiş
   const el = $('#thStage'); let pid = null, x0 = 0, t0 = 0;
