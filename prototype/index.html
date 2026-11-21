@@ -1,7 +1,7 @@
 <!doctype html><html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>html,body{margin:0;padding:0}</style></head><body><title>wGlobe</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@300..700&family=Geist+Mono:wght@400..600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Geist:wght@300..700&family=Geist+Mono:wght@400..600&display=swap">
 <style>
 /* Düzen: masaüstünde ortalanmış telefon + not sütunu; telefonda tam ekran uygulama.
    Uygulama tek bir dünyaya ait: gece boşluğu, sıcak fildişi yazı, pirinç yalnızca vurgu. Tek tema bilinçli. */
@@ -16,12 +16,12 @@
   --fg-4: rgba(236,234,255, 0.2);
   --hair: rgba(236,234,255, 0.09);
   --hair-2: rgba(236,234,255, 0.18);
-  --accent: #B49CFF;
-  --accent-2: #9FF0D8;
+  --accent: #C9C6DE;
+  --accent-2: #E8E6F0;
   --accent-ink: #0B0820;
   --ivory-ink: #07090D;
-  --live: #FF8FB1;
-  --ok: #7CF7D4;
+  --live: #E6A9B6;
+  --ok: #EEEDF4;
   --warn: #F0C766;
   --err: #F2726A;
   --stage: #03030C;
@@ -41,6 +41,14 @@
 
   --sat: env(safe-area-inset-top, 0px);
   --sab: env(safe-area-inset-bottom, 0px);
+  /* Aurora · Sıfır Yerçekimi */
+  --a1: #EEEDF4; --a2: #D9D8E4; --a3: #C8C5D9; --a4: #E2D2DB;
+  --grad: linear-gradient(100deg, #EEEDF4 0%, #D9D8E4 38%, #C8C5D9 68%, #E2D2DB 100%);
+  --grad-soft: linear-gradient(120deg, rgba(220,220,235,0.07), rgba(150,150,180,0.06) 45%, rgba(165,160,195,0.07) 75%, rgba(200,190,205,0.06));
+  --display: "Bricolage Grotesque", var(--font);
+  --e-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --e-float: cubic-bezier(0.45, 0, 0.55, 1);
+  --pod-r: 28px;
   color-scheme: dark;
 }
 html, body { height: 100%; }
@@ -312,10 +320,10 @@ svg.i.filled { fill: currentColor; }
 .play.active .ic-pause { opacity: 1; transform: none; }
 .play .ring { position: absolute; inset: -6px; border-radius: 50%; border: 1.5px solid var(--accent); border-top-color: transparent; border-right-color: transparent; opacity: 0; transition: opacity var(--d-toggle); animation: rot 900ms linear infinite; }
 .play.busy .ring { opacity: 1; }
-.city-tag { position: absolute; left: 0; top: 0; z-index: 9; display: flex; align-items: center; gap: 7px; padding: 6px 11px; border-radius: 16px; background: var(--glass-strong); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); box-shadow: inset 0 0 0 1px rgba(180,156,255,0.4); font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; color: var(--fg); white-space: nowrap; pointer-events: none !important; opacity: 0; will-change: transform, opacity; transition: opacity 240ms var(--e-exit); }
+.city-tag { position: absolute; left: 0; top: 0; z-index: 9; display: flex; align-items: center; gap: 7px; padding: 6px 11px; border-radius: 16px; background: var(--glass-strong); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); box-shadow: inset 0 0 0 1px rgba(200,198,222,0.4); font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; color: var(--fg); white-space: nowrap; pointer-events: none !important; opacity: 0; will-change: transform, opacity; transition: opacity 240ms var(--e-exit); }
 .city-tag.show { opacity: 1; transition: opacity 360ms var(--e-enter); }
 .city-tag b { color: var(--accent-2); font-weight: 500; }
-.city-tag::after { content: ""; position: absolute; left: 50%; bottom: -12px; width: 1px; height: 12px; background: linear-gradient(rgba(180,156,255,0.7), rgba(180,156,255,0)); }
+.city-tag::after { content: ""; position: absolute; left: 50%; bottom: -12px; width: 1px; height: 12px; background: linear-gradient(rgba(200,198,222,0.7), rgba(200,198,222,0)); }
 
 /* Keşfet — Dalga: dikey canlı yayın akışı. Kaydır → yeni bir yer, yeni bir yayın. */
 #pane-explore.solid::after { display: none; }
@@ -415,17 +423,17 @@ svg.i.filled { fill: currentColor; }
 @keyframes bob { from { transform: translateY(0); } to { transform: translateY(-4px); } }
 .pocket.open .marble:not(.out):hover .mb-img { transform: scale(1.06); }
 .marble.out .mb-img { opacity: 0; }
-.mb-hollow { position: absolute; width: 60px; height: 60px; border-radius: 50%; border: 1.5px dashed rgba(180,156,255,0.6); background: radial-gradient(circle, rgba(0,0,0,0.5), rgba(0,0,0,0)); opacity: 0; transform: scale(0.8); transition: opacity 240ms var(--e-standard), transform 320ms var(--spring-button); }
+.mb-hollow { position: absolute; width: 60px; height: 60px; border-radius: 50%; border: 1.5px dashed rgba(200,198,222,0.6); background: radial-gradient(circle, rgba(0,0,0,0.5), rgba(0,0,0,0)); opacity: 0; transform: scale(0.8); transition: opacity 240ms var(--e-standard), transform 320ms var(--spring-button); }
 .marble.out .mb-hollow { opacity: 1; transform: none; }
 .marble.land .mb-img { animation: land 560ms var(--spring-button) both; }
 @keyframes land { from { transform: translateY(-16px) scale(0.55); opacity: 0.2; } to { transform: none; opacity: 1; } }
 .pk-front { position: absolute; left: 0; right: 0; bottom: 0; height: 80px; filter: drop-shadow(0 -6px 14px rgba(0,0,0,0.35)) drop-shadow(0 10px 20px rgba(0,0,0,0.45)); }
 .pk-front svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 .pk-labels { position: absolute; left: 0; right: 0; bottom: 14px; display: grid; grid-template-columns: repeat(4, 1fr); justify-items: center; }
-.pk-labels span { display: flex; align-items: center; gap: 4px; font-family: var(--mono); font-size: 9px; letter-spacing: 0.1em; color: rgba(180,156,255,0.62); white-space: nowrap; transition: color var(--d-toggle); }
-.pk-labels span.on { color: #9FF0D8; }
+.pk-labels span { display: flex; align-items: center; gap: 4px; font-family: var(--mono); font-size: 9px; letter-spacing: 0.1em; color: rgba(200,198,222,0.62); white-space: nowrap; transition: color var(--d-toggle); }
+.pk-labels span.on { color: #E8E6F0; }
 .pk-labels .i { --s: 9px; }
-.pk-hint { position: absolute; left: 50%; bottom: 38px; transform: translateX(-50%); font-family: var(--mono); font-size: 9px; letter-spacing: 0.16em; color: rgba(159,240,216,0.75); white-space: nowrap; opacity: 0; transition: opacity 240ms var(--e-standard); pointer-events: none; }
+.pk-hint { position: absolute; left: 50%; bottom: 38px; transform: translateX(-50%); font-family: var(--mono); font-size: 9px; letter-spacing: 0.16em; color: rgba(232,230,240,0.75); white-space: nowrap; opacity: 0; transition: opacity 240ms var(--e-standard); pointer-events: none; }
 .pocket.open .pk-hint { opacity: 1; transition-delay: 200ms; }
 .flying { position: absolute; left: 0; top: 0; z-index: 45; pointer-events: none; transform-origin: 50% 50%; will-change: transform, opacity; }
 .screen.ink-dark .statusbar { color: #141414; }
@@ -435,7 +443,7 @@ svg.i.filled { fill: currentColor; }
 
 /* Profil */
 .identity { display: flex; align-items: center; gap: 14px; }
-.avatar { width: 54px; height: 54px; border-radius: 50%; display: grid; place-items: center; color: var(--accent-2); font-size: 21px; font-weight: 600; flex: none; background: radial-gradient(circle at 35% 30%, #2a2418, #0d0b08 70%); box-shadow: inset 0 0 0 1px rgba(180,156,255,0.35); }
+.avatar { width: 54px; height: 54px; border-radius: 50%; display: grid; place-items: center; color: var(--accent-2); font-size: 21px; font-weight: 600; flex: none; background: radial-gradient(circle at 35% 30%, #2a2418, #0d0b08 70%); box-shadow: inset 0 0 0 1px rgba(200,198,222,0.35); }
 .identity .t { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
 .identity .t b { font-size: 20px; font-weight: 600; letter-spacing: -0.02em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .callout { display: flex; flex-direction: column; gap: 16px; padding: 22px 0; border-top: 1px solid var(--hair); border-bottom: 1px solid var(--hair); }
@@ -480,219 +488,235 @@ svg.i.filled { fill: currentColor; }
 .toast { position: absolute; left: 50%; top: calc(var(--sat) + 12px); transform: translate(-50%, -12px); opacity: 0; z-index: 90; padding: 11px 18px; border-radius: 22px; background: var(--glass-strong); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); box-shadow: inset 0 0 0 1px var(--hair-2); font-size: 13px; white-space: nowrap; pointer-events: none; transition: opacity var(--d-card) var(--e-enter), transform var(--d-card) var(--e-enter); }
 .toast.show { opacity: 1; transform: translate(-50%, 0); }
 
-.screen.no-debug .lod-badge { display: none !important; }
-[hidden] { display: none !important; }
 /* ════════════════════════════════════════════════════════════════════
-   SADE — tasarım dili
-   İlke: arayüz geri çekilir, deneyim öne çıkar. Küre, şehir, saat ve yayın.
-   Yüzeyler düz ve opak. Bulanıklık, gölge, parlama, renk geçişi yok.
-   Tek vurgu beyaz; tek sinyal rengi canlı yayın için kırmızı nokta.
-   Hareket yalnızca işlevsel: 150–250 ms solma, kart 280 ms kayar. Yay ve sıçrama yok.
+   AURORA · SIFIR YERÇEKİMİ — tasarım dili (ay ışığı paleti: inci, gri-leylak; renk patlaması yok)
+   Felsefe: arayüz uzayda süzülen kapsüllerden oluşur. Hiçbir şey yere
+   çakılı değil; her kapsül kendi ritminde nefes alır (6–9 sn, ±4 px).
+   Dokununca yay gibi esner (100 ms basış → 520 ms yaylı bırakış).
+   Renk tek bir vurgu değil, kutup ışığı: nane → mavi → lila → pembe.
+   Zamanlama: mikro 100–200 ms · kapsül 280–420 ms · sahne 520–700 ms.
    ════════════════════════════════════════════════════════════════════ */
-:root {
-  --bg: #0B0B0C; --raise: #161617; --surface: #161617; --surface-2: #1E1E20; --line: #2A2A2D;
-  --glass: #161617; --glass-strong: #161617;
-  --fg: #F4F4F2; --fg-2: #A3A39E; --fg-3: #75756F; --fg-4: #4A4A47;
-  --hair: #2A2A2D; --hair-2: #3A3A3D;
-  --accent: #F4F4F2; --accent-2: #F4F4F2; --accent-ink: #0B0B0C; --ivory-ink: #0B0B0C;
-  --live: #FF453A; --ok: #32D74B; --err: #FF6961; --stage: #050505;
-  --e-standard: cubic-bezier(0.2, 0, 0, 1); --e-enter: cubic-bezier(0.2, 0, 0, 1); --spring-button: cubic-bezier(0.2, 0, 0, 1); --spring-sheet: cubic-bezier(0.2, 0, 0, 1); --spring-sheet-d: 280ms;
-}
-*, *::before, *::after { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
-body { background: var(--stage); }
-.screen { background: var(--bg); }
-.stage { background: #050505; }
-.phone { box-shadow: 0 0 0 1px #222; background: #111; }
 
-/* Tipografi: tek aile, net hiyerarşi */
-.display { font-weight: 600; letter-spacing: -0.03em; }
-.h2 { font-weight: 600; letter-spacing: -0.02em; }
-.label { letter-spacing: 0.08em; color: var(--fg-3); }
-.label.accent { color: var(--fg-2); }
-.app-logo, .brand-mark { font-weight: 600; letter-spacing: -0.03em; }
-.app-logo span, .brand-mark span, .wordmark .ch.g { color: var(--fg-2); }
+/* Kutup ışığı katmanı: kürenin üstünde, arayüzün altında; yalnızca transform ile hareket eder */
+.aurora { position: absolute; inset: 0; z-index: 1; pointer-events: none; overflow: hidden; opacity: 0.5; transition: opacity 700ms var(--e-standard); }
+.aurora i { position: absolute; width: 130%; height: 70%; border-radius: 50%; will-change: transform; }
+.aurora i:nth-child(1) { left: -45%; top: -22%; background: radial-gradient(closest-side, rgba(220,220,235,0.20), rgba(220,220,235,0)); animation: auA 23s var(--e-float) infinite alternate; }
+.aurora i:nth-child(2) { right: -50%; top: 8%; background: radial-gradient(closest-side, rgba(165,160,195,0.22), rgba(165,160,195,0)); animation: auB 29s var(--e-float) infinite alternate; }
+.aurora i:nth-child(3) { left: -20%; bottom: -30%; background: radial-gradient(closest-side, rgba(200,190,205,0.14), rgba(150,150,180,0.10) 55%, rgba(150,150,180,0)); animation: auC 31s var(--e-float) infinite alternate; }
+@keyframes auA { to { transform: translate3d(18%, 14%, 0) rotate(14deg) scale(1.1); } }
+@keyframes auB { to { transform: translate3d(-22%, 18%, 0) rotate(-10deg) scale(0.92); } }
+@keyframes auC { to { transform: translate3d(16%, -16%, 0) rotate(8deg) scale(1.12); } }
+.screen.no-aurora .aurora, .screen.ink-dark .aurora { opacity: 0; }
+.screen { background: radial-gradient(120% 80% at 50% 0%, #0E0C2A 0%, var(--bg) 60%); }
 
-/* Basış: ölçek yok, kısa saydamlık */
-.press { transition: opacity 120ms linear; }
-.press:active, .press.tight:active { transform: none; opacity: 0.55; transition: opacity 60ms linear; }
+/* Süzülme: transform'dan bağımsız 'translate' özelliği — basış ve giriş animasyonlarıyla çakışmaz */
+.fly { animation: drift var(--fd, 7s) var(--e-float) var(--fp, 0s) infinite alternate; }
+@keyframes drift { 0% { translate: 0 0; } 50% { translate: var(--fx, 1.5px) calc(var(--fa, 4px) * -1); } 100% { translate: calc(var(--fx, 1.5px) * -1) calc(var(--fa, 4px) * 0.5); } }
+
+/* Yaylı basış: hepsi aynı fizik */
+.press { transition: transform 520ms var(--e-spring), opacity var(--d-toggle); }
+.press:active { transform: scale(0.94); transition: transform 100ms var(--e-press); }
+.press.tight:active { transform: scale(0.86); }
+
+/* Tipografi */
+.display, .h2, .s-city, .th-name, .wv-name, .brand-mark, .app-logo, .wordmark, .px-name, .modal-card h3, .countdown { font-family: var(--display); }
+.display { font-weight: 700; letter-spacing: -0.04em; }
+.h2 { font-weight: 650; letter-spacing: -0.03em; }
+.label.accent { color: var(--a1); }
+.grad-text, .app-logo span, .brand-mark span, .wordmark .ch.g { background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+/* Kapsül (pod): cam + kutup ışığı kenarı */
+.pod { position: relative; background: var(--glass-strong); border-radius: var(--pod-r); box-shadow: 0 18px 50px rgba(3,2,18,0.45); -webkit-backdrop-filter: blur(22px) saturate(1.5); backdrop-filter: blur(22px) saturate(1.5); }
+.rim::before { content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1px; background: var(--grad); opacity: 0.55; pointer-events: none;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0); }
 
 /* Düğmeler */
-.btn { border-radius: 12px; min-height: 52px; font-weight: 600; box-shadow: none; }
-.btn.solid, .btn.brass { background: var(--fg); color: var(--bg); }
-.btn.line { background: transparent; box-shadow: inset 0 0 0 1px var(--line); color: var(--fg); }
-.btn.danger { background: transparent; color: var(--err); box-shadow: inset 0 0 0 1px var(--line); }
-.btn.text { color: var(--fg-2); }
-.round { color: var(--fg); }
-.round.glass { background: var(--surface); box-shadow: inset 0 0 0 1px var(--line); }
+.btn { border-radius: 22px; font-weight: 600; }
+.btn.solid, .btn.brass { background: var(--grad); color: var(--accent-ink); box-shadow: 0 10px 30px rgba(150,150,180,0.28), inset 0 1px 0 rgba(255,255,255,0.45); background-size: 160% 100%; background-position: 0% 50%; transition: transform 520ms var(--e-spring), background-position 900ms var(--e-standard), opacity var(--d-toggle); }
+.btn.solid:hover, .btn.brass:hover { background-position: 100% 50%; }
+.btn.line { background: rgba(236,234,255,0.05); box-shadow: inset 0 0 0 1px rgba(236,234,255,0.16); }
+.btn.danger { background: rgba(242,114,106,0.08); }
+.round.glass { background: var(--glass); box-shadow: inset 0 0 0 1px rgba(236,234,255,0.12), 0 10px 28px rgba(3,2,18,0.35); }
 
-/* Sekmeler: tam genişlikte düz çubuk, etkin sekme beyaz */
-.pane, .pane.active { transform: none; }
-.pane { transition: opacity 180ms linear, visibility 0s linear 180ms; }
-.pane.active { transition: opacity 180ms linear, visibility 0s; }
-.pane.solid { background: var(--bg); }
-.pane.solid::after { background: var(--bg); height: calc(var(--sat) + 58px); }
-.tabbar { left: 0; right: 0; bottom: 0; height: calc(64px + var(--sab)); padding: 0 0 var(--sab); border-radius: 0; background: var(--bg); box-shadow: inset 0 1px 0 var(--line); }
-.tab { color: var(--fg-3); font-size: 11px; font-weight: 500; gap: 4px; }
-.tab.active { color: var(--fg); }
+/* Sekme geçişi: sekme sırasına göre yandan gelir, yay gibi oturur */
+.pane { transform: translate3d(calc(var(--pdir, 0) * 36px), 0, 0) scale(0.985); transition: opacity 200ms var(--e-exit), transform 240ms var(--e-exit), visibility 0s linear 240ms; }
+.pane.active { transform: none; transition: opacity 360ms var(--e-enter), transform 640ms var(--e-spring), visibility 0s; }
+.pane.solid { background: transparent; }
+#pane-explore.solid { background: var(--bg); }
+.pane.solid::after { background: linear-gradient(180deg, rgba(7,7,22,0.85) 40%, rgba(7,7,22,0)); }
+
+/* Dok: süzülen sıvı kapsül, etkin sekmeyi kutup ışığı damlası işaretler */
+.tabbar { left: 14px; right: 14px; bottom: calc(12px + var(--sab)); height: 66px; border-radius: 33px; padding: 7px; gap: 0; background: rgba(14,13,36,0.78); box-shadow: 0 20px 50px rgba(3,2,18,0.55), inset 0 0 0 1px rgba(236,234,255,0.1); overflow: visible; }
+.dock-blob { position: absolute; left: 0; top: 7px; height: 52px; border-radius: 26px; background: var(--grad); box-shadow: 0 8px 26px rgba(150,150,180,0.45), inset 0 1px 0 rgba(255,255,255,0.5); transform-origin: 50% 50%; will-change: transform, width; pointer-events: none; z-index: 0; opacity: 0; }
+.dock-blob.ready { opacity: 1; transition: opacity 300ms var(--e-enter); }
+.tab { position: relative; z-index: 1; border-radius: 26px; gap: 3px; color: var(--fg-3); font-size: 10.5px; font-weight: 600; transition: color 260ms var(--e-standard); }
 .tab .dot { display: none; }
-.tab .i, .tab.active .i { transform: none; }
-#app.arrive .app-logo, #app.arrive .topbar, #app.arrive .search, #app.arrive .tabbar { animation: fadeIn 240ms linear backwards; }
+.tab.active { color: var(--accent-ink); }
+.tab .i { transition: transform 520ms var(--e-spring); }
+.tab.active .i { transform: translateY(-1px) scale(1.08); }
+.tab:active .i { transform: scale(0.82); transition-duration: 100ms; }
+
+/* Logo */
+.app-logo { font-weight: 800; letter-spacing: -0.05em; }
 
 /* Küre sekmesi */
-.search-field { height: 48px; border-radius: 12px; padding: 0 6px 0 14px; background: var(--surface); border: 1px solid var(--line); box-shadow: none; }
-.search-field:focus-within { border-color: var(--fg-3); box-shadow: none; }
-.search-results { border-radius: 12px; background: var(--surface); border: 1px solid var(--line); box-shadow: none; }
-.sr-row { border-radius: 0; }
-.sr-row:active, .sr-row:focus-visible { background: var(--surface-2); }
-.topbar .round { width: 48px; height: 48px; border-radius: 12px; }
-.shuffle .rot { transition: none; }
-.live { border-radius: 12px; height: 48px; background: var(--surface); box-shadow: inset 0 0 0 1px var(--line); }
-.live .dot { background: var(--fg-4); }
-.live.playing .dot { background: var(--live); animation: none; box-shadow: none; }
-.live.busy .dot { background: var(--fg-2); animation: none; }
-.live.playing .lab { color: var(--fg); }
-.eq i { background: var(--fg-2); }
-.hint { color: var(--fg-3); letter-spacing: 0.08em; }
-.city-tag { border-radius: 8px; background: var(--surface); box-shadow: inset 0 0 0 1px var(--line); color: var(--fg); }
-.city-tag b { color: var(--fg); }
-.city-tag::after { background: var(--line); }
+.search-field { height: 50px; border-radius: 25px; padding: 0 8px 0 18px; background: rgba(16,14,40,0.78); border: 1px solid rgba(236,234,255,0.12); box-shadow: 0 14px 34px rgba(3,2,18,0.35); transition: border-color 180ms var(--e-standard), box-shadow 280ms var(--e-standard); }
+.search-field:focus-within { border-color: rgba(150,150,180,0.6); box-shadow: 0 0 0 4px rgba(150,150,180,0.12), 0 14px 34px rgba(3,2,18,0.35); }
+.s-clear { border-radius: 17px; }
+.search-results { border-radius: 24px; background: rgba(16,14,40,0.96); border: 1px solid rgba(236,234,255,0.12); margin-top: 8px; }
+.sr-row { border-radius: 14px; }
+.sr-row:active, .sr-row:focus-visible { background: rgba(150,150,180,0.12); }
+.topbar .round { width: 48px; height: 48px; border-radius: 24px; }
+.live { border-radius: 26px; background: rgba(16,14,40,0.78); box-shadow: 0 14px 34px rgba(3,2,18,0.4), inset 0 0 0 1px rgba(236,234,255,0.12); }
+.live.playing .dot { background: var(--a1); animation: pingA 1600ms var(--e-standard) infinite; }
+.live.playing .lab { color: var(--a1); }
+.eq i { background: var(--a1); }
+@keyframes pingA { 0% { box-shadow: 0 0 0 0 rgba(220,220,235,0.55); } 100% { box-shadow: 0 0 0 10px rgba(220,220,235,0); } }
+.sheet { left: 12px; right: 12px; bottom: calc(92px + var(--sab)); border-radius: 34px; background: rgba(14,13,36,0.9); box-shadow: 0 30px 70px rgba(3,2,18,0.6); }
+.sheet::before { content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1px; background: var(--grad); opacity: 0.45; pointer-events: none; -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0); }
+.s-city { font-weight: 750; letter-spacing: -0.045em; }
+.viz i { background: linear-gradient(180deg, var(--a1), var(--a2) 50%, var(--a3)); border-radius: 3px; }
+.play { background: var(--grad); color: var(--accent-ink); box-shadow: 0 10px 28px rgba(150,150,180,0.4), inset 0 1px 0 rgba(255,255,255,0.5); }
+.play.active:not(.busy) { animation: playGlow 2400ms var(--e-float) infinite alternate; }
+@keyframes playGlow { from { box-shadow: 0 10px 28px rgba(150,150,180,0.35), inset 0 1px 0 rgba(255,255,255,0.5); } to { box-shadow: 0 10px 40px rgba(165,160,195,0.65), inset 0 1px 0 rgba(255,255,255,0.5); } }
+.play .ring { border-color: var(--a1); border-top-color: transparent; border-right-color: transparent; }
+.st-status.on-air .ld { background: var(--a1); animation: pingA 1600ms var(--e-standard) infinite; }
+.ctl.fav.on { color: var(--a4); }
+.city-tag { border-radius: 18px; background: rgba(16,14,40,0.86); box-shadow: inset 0 0 0 1px rgba(150,150,180,0.45); }
+.city-tag::after { background: linear-gradient(rgba(150,150,180,0.8), rgba(150,150,180,0)); }
 
-/* Kart: kenarlardan ayrık değil, alttan gelen düz yüzey */
-.sheet { left: 0; right: 0; bottom: calc(64px + var(--sab)); border-radius: 16px 16px 0 0; background: var(--surface); box-shadow: inset 0 1px 0 var(--line); transition: transform 220ms cubic-bezier(0.4, 0, 1, 1); }
-.sheet.open { transition: transform 280ms cubic-bezier(0.2, 0, 0, 1); }
-.sheet::before { display: none; }
-.sheet-content .enter, .sheet-content.enter { animation: fadeIn 200ms linear both; }
-.drag i { background: var(--line); }
-.s-city { font-weight: 600; letter-spacing: -0.03em; }
-.s-meta .i { color: var(--fg-2); }
-.viz { display: none !important; }
-.play { background: var(--fg); color: var(--bg); box-shadow: none; animation: none !important; }
-.play .ring { border-color: var(--bg); border-top-color: transparent; border-right-color: transparent; }
-.st-status.on-air .ld { background: var(--live); animation: none; }
-.st-status.busy .ld { background: var(--fg-2); animation: none; }
-.ctl.fav.on { color: var(--fg); }
-.pop { animation: none; }
-.sample { color: var(--fg-3); }
+/* Keşfet */
+#pane-explore .wave { background: var(--bg); }
+.wv-chip { min-height: 38px; border-radius: 19px; background: rgba(16,14,40,0.62); box-shadow: inset 0 0 0 1px rgba(236,234,255,0.14); }
+.wv-chip.on { background: var(--grad); color: var(--accent-ink); box-shadow: 0 8px 22px rgba(150,150,180,0.35); }
+.wv-rail .round { width: 50px; height: 50px; border-radius: 25px; background: rgba(16,14,40,0.6); box-shadow: inset 0 0 0 1px rgba(236,234,255,0.14), 0 10px 24px rgba(3,2,18,0.4); }
+.wv-rail .round.on { color: var(--a4); }
+.wv-pin { background: var(--a1); box-shadow: 0 0 0 3px rgba(7,7,22,0.55), 0 0 18px rgba(220,220,235,0.8); }
+.wv-pin::before, .wv-pin::after { border-color: var(--a1); }
+.wv-name { font-weight: 750; letter-spacing: -0.05em; }
+.wv-tags span { border-radius: 12px; background: rgba(236,234,255,0.06); box-shadow: none; }
+.wv-state.wv-live { color: var(--a1); }
+.wv-state.wv-live .ld { background: var(--a1); }
+.wv-state .eq i { background: var(--a1); }
+.wv-burst { color: var(--a4); }
 
-/* Keşfet: üstte yer, altta düz bilgi paneli */
-#pane-explore .wave, .wave { background: var(--bg); }
-.wv-img, .wv-card.on .wv-img { transform: none; transition: none; }
-.wv-img { bottom: 0; background: var(--bg); }
-.wv-img::after { transition: opacity 200ms linear; }
-.wv-shade { display: none; }
-.wv-pin, .wv-card.wv-ready.on .wv-pin { width: 10px; height: 10px; margin: -5px 0 0 -5px; background: var(--fg); box-shadow: 0 0 0 2px var(--bg); opacity: 1; transform: none; transition: none; }
-.wv-pin::before, .wv-pin::after { display: none; }
-.wv-info { left: 0; right: 0; bottom: 0; min-height: calc(268px + var(--sab)); justify-content: flex-end; padding: 18px 84px calc(84px + var(--sab)) 20px; background: var(--bg); box-shadow: inset 0 1px 0 var(--line); gap: 6px; }
-.wv-info > *, .wv-card.on .wv-info > * { opacity: 1; transform: none; animation: none; }
-.wv-card .wv-info { opacity: 0; transition: opacity 180ms linear; }
-.wv-card.on .wv-info { opacity: 1; }
-.wv-name { font-size: 32px; line-height: 1.08; font-weight: 600; letter-spacing: -0.03em; }
-.wv-name.m { font-size: 28px; } .wv-name.s { font-size: 24px; }
-.wv-meta { letter-spacing: 0.06em; color: var(--fg-3); }
-.wv-place { color: var(--fg-2); }
-.wv-tags span { border-radius: 6px; padding: 3px 8px; background: var(--surface); box-shadow: none; color: var(--fg-2); }
-.wv-state { letter-spacing: 0.06em; color: var(--fg-2); }
-.wv-state.wv-live { color: var(--fg); }
-.wv-state.wv-live .ld { background: var(--live); }
-.wv-state.wv-busy .ld { width: 7px; height: 7px; border: 0; background: var(--fg-2); animation: none; }
-.wv-state .eq, .wv-state.wv-live .eq { display: none; }
-.wv-top { top: calc(var(--sat) + 52px); }
-.wv-chips { -webkit-mask-image: none; mask-image: none; padding: 0 16px 4px; gap: 6px; }
-.wv-chip { min-height: 34px; padding: 0 14px; border-radius: 8px; font-size: 14px; font-weight: 500; color: var(--fg-2); background: var(--bg); box-shadow: inset 0 0 0 1px var(--line); opacity: 1; transform: none; animation: none !important; transition: none; }
-.wv-chip.on { background: var(--fg); color: var(--bg); box-shadow: none; }
-.wv-chip:active { transform: none; }
-.wv-rail { right: 16px; bottom: calc(96px + var(--sab)); gap: 10px; }
-.wv-rail .round { width: 46px; height: 46px; border-radius: 12px; background: var(--surface); box-shadow: inset 0 0 0 1px var(--line); }
-.wv-rail .round.on { color: var(--fg); }
-.wv-hint { display: none; }
-.wv-burst { display: none; }
-.wv-skel .wv-img::before { display: none; }
-
-/* Koleksiyon: tema önizlemesi + dört seçenekli düz seçici */
-.th { padding-bottom: calc(80px + var(--sab)); }
-.th-name { font-weight: 600; letter-spacing: -0.03em; }
-.th-action { border-radius: 12px; }
-.tc-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-.tc { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 10px 4px 8px; border-radius: 12px; background: var(--surface); box-shadow: inset 0 0 0 1px var(--line); color: var(--fg-2); }
-.tc.on { box-shadow: inset 0 0 0 1.5px var(--fg); color: var(--fg); }
-.tc img, .tc-dot { width: 44px; height: 44px; border-radius: 50%; display: block; }
-.tc-n { display: flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 500; }
-.th.ink-dark .tc { background: rgba(20,20,20,0.06); box-shadow: inset 0 0 0 1px rgba(20,20,20,0.16); color: rgba(20,20,20,0.66); }
-.th.ink-dark .tc.on { box-shadow: inset 0 0 0 1.5px #141414; color: #141414; }
+/* Koleksiyon: cep yerine yörüngede süzülen cam tepsi */
+.pk-front { filter: drop-shadow(0 16px 30px rgba(3,2,18,0.55)); }
+.pk-mouth { background: radial-gradient(ellipse at 50% 62%, rgba(150,150,180,0.35) 0%, rgba(20,16,60,0.6) 45%, rgba(7,7,22,0) 72%); }
+.pk-labels span { color: rgba(236,234,255,0.5); }
+.pk-labels span.on { color: var(--a1); }
+.pk-hint { color: rgba(232,230,240,0.85); }
+.mb-hollow { border-color: rgba(150,150,180,0.7); }
+.th-name { font-weight: 750; letter-spacing: -0.045em; font-size: 38px; line-height: 42px; }
+.th-action { border-radius: 22px; }
 
 /* Kimlik ekranları */
-.field { border-bottom: 0; border-radius: 12px; padding: 0 6px 0 14px; background: var(--surface); box-shadow: inset 0 0 0 1px var(--line); transition: box-shadow 150ms linear; }
+.field { border-bottom: 0; border-radius: 18px; padding: 0 6px 0 16px; background: rgba(236,234,255,0.05); box-shadow: inset 0 0 0 1px rgba(236,234,255,0.12); transition: box-shadow 220ms var(--e-standard), background 220ms var(--e-standard); }
 .field::after { display: none; }
-.field:focus-within { box-shadow: inset 0 0 0 1px var(--fg-3); color: var(--fg-2); }
-.field.err { box-shadow: inset 0 0 0 1px var(--err); }
-.field input { padding: 14px 0 13px; caret-color: var(--fg); }
+.field:focus-within { background: rgba(150,150,180,0.08); box-shadow: inset 0 0 0 1.5px rgba(150,150,180,0.75), 0 0 0 4px rgba(150,150,180,0.1); color: var(--a2); }
+.field.err { box-shadow: inset 0 0 0 1.5px rgba(242,114,106,0.8); }
+.field input { padding: 15px 0 14px; caret-color: var(--a1); }
 .field-wrap .label { margin-bottom: 6px; display: block; }
-.notice { border: 0; border-radius: 12px; padding: 12px 14px; background: var(--surface); }
-.notice .i { color: var(--fg-2); }
-.seg { height: 3px; }
-.enter { animation: fadeIn 200ms linear both; animation-delay: calc(min(var(--i, 0), 8) * 40ms); }
-#welcome.choose .chooser .reveal { animation: fadeIn 300ms linear both; animation-delay: calc(min(var(--i, 0), 8) * 60ms); }
-.ch-top .display { font-size: 36px; line-height: 40px; }
+.notice { border: 0; border-radius: 18px; padding: 14px 16px; background: rgba(236,234,255,0.05); }
+.notice .i { color: var(--a1); }
+.seg { height: 4px; border-radius: 2px; }
+.scrim { background: linear-gradient(180deg, rgba(7,7,22,0.9) 0%, rgba(7,7,22,0.3) 30%, rgba(7,7,22,0) 48%, rgba(7,7,22,0.2) 62%, rgba(7,7,22,0.9) 82%, var(--bg) 100%); }
+.ch-top .display { font-size: 44px; line-height: 46px; }
 
 /* Onay & bildirim */
-.modal-card { border-radius: 16px; background: var(--surface); box-shadow: inset 0 0 0 1px var(--line); }
-.modal.open { background: rgba(0,0,0,0.6); }
-.toast { border-radius: 10px; background: var(--fg); color: var(--bg); box-shadow: none; font-weight: 500; }
+.modal-card { border-radius: 34px; background: rgba(14,13,36,0.94); }
+.toast { border-radius: 20px; background: rgba(16,14,40,0.92); box-shadow: 0 14px 34px rgba(3,2,18,0.45), inset 0 0 0 1px rgba(150,150,180,0.35); }
 
-/* Anahtar ve segment */
-.tg { position: relative; width: 50px; height: 30px; flex: none; border-radius: 15px; background: var(--surface-2); box-shadow: inset 0 0 0 1px var(--line); transition: background 150ms linear; }
-.tg[aria-checked="true"] { background: var(--fg); box-shadow: none; }
-.tg .knob { position: absolute; left: 3px; top: 3px; width: 24px; height: 24px; border-radius: 12px; background: var(--fg-2); transition: transform 180ms cubic-bezier(0.2, 0, 0, 1), background 150ms linear; }
-.tg[aria-checked="true"] .knob { transform: translateX(20px); background: var(--bg); }
-.segmented { height: 40px; border-radius: 10px; background: var(--surface-2); padding: 3px; }
-.segmented .ind { top: 3px; bottom: 3px; left: 3px; width: calc((100% - 6px) / 4); border-radius: 8px; background: var(--fg); box-shadow: none; transition: transform 200ms cubic-bezier(0.2, 0, 0, 1); }
+/* Anahtar (toggle): sıvı topuz esner, açılınca kıvılcım saçar */
+.tg { position: relative; width: 56px; height: 34px; flex: none; border-radius: 17px; background: rgba(236,234,255,0.1); box-shadow: inset 0 0 0 1px rgba(236,234,255,0.12); transition: background 260ms var(--e-standard), box-shadow 260ms var(--e-standard); overflow: visible; }
+.tg::before { content: ""; position: absolute; inset: 0; border-radius: inherit; background: var(--grad); opacity: 0; transition: opacity 260ms var(--e-standard); }
+.tg[aria-checked="true"]::before { opacity: 1; }
+.tg[aria-checked="true"] { box-shadow: 0 6px 18px rgba(150,150,180,0.4); }
+.tg .knob { position: absolute; left: 4px; top: 4px; width: 26px; height: 26px; border-radius: 13px; background: #F3F1FF; box-shadow: 0 3px 8px rgba(3,2,18,0.35); transform: translateX(0); transition: transform 520ms var(--e-spring); }
+.tg[aria-checked="true"] .knob { transform: translateX(22px); }
+.spark { position: absolute; width: 5px; height: 5px; border-radius: 50%; pointer-events: none; z-index: 5; }
+
+/* Segment (uyku): damla yaylı kayar */
+.segmented { height: 48px; border-radius: 24px; background: rgba(236,234,255,0.06); padding: 5px; }
+.segmented .ind { top: 5px; bottom: 5px; left: 5px; width: calc((100% - 10px) / 4); border-radius: 19px; background: var(--grad); box-shadow: 0 6px 18px rgba(150,150,180,0.35); transition: transform 560ms var(--e-spring); }
 .segmented button { text-align: center; }
-.segmented button.on { color: var(--bg); }
-.track { height: 2px; background: var(--line); }
-.track i { background: var(--fg); }
-.countdown { font-size: 28px; line-height: 32px; }
+.segmented button.on { color: var(--accent-ink); }
+.track i { background: var(--grad); }
+.countdown { font-weight: 700; letter-spacing: -0.03em; }
 
-/* Profil */
-#profileScroll { gap: 30px; padding-top: calc(var(--sat) + 64px); }
-#profileScroll .sp-in { animation: fadeIn 200ms linear both; }
-#profileScroll.static .sp-in { animation: none; }
-.sp-sec { display: flex; flex-direction: column; gap: 12px; }
-.sp-head { display: flex; align-items: center; gap: 14px; }
-.sp-ava { width: 52px; height: 52px; border-radius: 26px; flex: none; display: grid; place-items: center; background: var(--surface-2); color: var(--fg); font-size: 20px; font-weight: 600; }
-.sp-head .tx { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
-.sp-name { margin: 0; font-size: 24px; line-height: 28px; font-weight: 600; letter-spacing: -0.02em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.sp-summary { margin: 0; font-size: 17px; line-height: 25px; color: var(--fg-2); }
-.sp-summary b { color: var(--fg); font-weight: 600; }
-.sp-stats { display: grid; grid-template-columns: repeat(3, 1fr); border-radius: 12px; box-shadow: inset 0 0 0 1px var(--line); }
-.sp-stats div { display: flex; flex-direction: column; gap: 2px; padding: 14px; }
-.sp-stats div + div { box-shadow: inset 1px 0 0 var(--line); }
-.sp-stats b { font-size: 20px; font-weight: 600; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; white-space: nowrap; }
-.sp-stats span { font-size: 12px; color: var(--fg-3); }
-.sp-title { margin: 0; font-size: 13px; font-weight: 500; letter-spacing: 0.02em; color: var(--fg-3); }
-.sp-card { display: flex; flex-direction: column; gap: 6px; padding: 16px; border-radius: 12px; background: var(--surface); }
-.sp-card b { font-size: 17px; font-weight: 600; }
-.sp-btns { display: flex; gap: 8px; margin-top: 10px; }
-.sp-btns .btn { min-height: 46px; font-size: 15px; }
-.sp-list { display: flex; flex-direction: column; border-radius: 12px; background: var(--surface); overflow: hidden; }
-.sp-item, .sp-row { display: flex; align-items: center; gap: 10px; min-height: 58px; padding: 0 8px 0 14px; transition: opacity 180ms linear; }
-.sp-item + .sp-item, .sp-row + .sp-row, .sp-row + .sp-sleep, .sp-item + .sp-row { box-shadow: inset 0 1px 0 var(--line); }
-.sp-item.leaving { opacity: 0; }
-.sp-item .main { flex: 1; min-width: 0; display: flex; align-items: center; gap: 12px; min-height: 58px; text-align: left; }
-.sp-item .main.del, .sp-item .main.del .sp-ic { color: var(--err); }
-.sp-ic { width: 22px; display: grid; place-items: center; color: var(--fg-3); flex: none; }
-.sp-item .tx, .sp-row .tx { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
-.sp-item .tx b, .sp-row .tx b { font-size: 15.5px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.sp-row { padding-right: 14px; }
-.sp-when { flex: none; color: var(--fg-3); }
-.sp-now { display: none; color: var(--live); }
-.sp-item.current .sp-now { display: inline; }
-.sp-item.current.paused .sp-now { color: var(--fg-3); }
-.sp-item.current .sp-ic { color: var(--live); }
-.sp-empty { margin: 0; }
-.sp-sleep { display: flex; flex-direction: column; gap: 12px; padding: 16px 14px; box-shadow: inset 0 1px 0 var(--line); }
-.sp-sleep .sec-head { display: flex; align-items: baseline; justify-content: space-between; }
-.sp-sleep .h2 { font-size: 15.5px; line-height: 20px; font-weight: 500; }
+/* ── Profil · Yörünge ─────────────────────────────── */
+#pane-profile .scroll { padding-top: calc(var(--sat) + 62px); gap: 26px; }
+.px-hero { position: relative; height: 380px; margin: 0 -20px; }
+.px-globe { position: absolute; left: 50%; top: 52%; width: 250px; height: 250px; margin: -125px 0 0 -125px; border-radius: 50%; }
+.px-hi { position: absolute; left: 20px; top: 0; right: 20px; display: flex; flex-direction: column; gap: 2px; }
+.px-hi .label { color: var(--fg-2); }
+.px-name { margin: 0; font-size: 40px; line-height: 44px; font-weight: 800; letter-spacing: -0.05em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.px-orb { position: absolute; z-index: 2; display: flex; flex-direction: column; align-items: flex-start; gap: 1px; padding: 12px 16px; border-radius: 24px; background: rgba(16,14,40,0.7); box-shadow: inset 0 0 0 1px rgba(236,234,255,0.12), 0 16px 34px rgba(3,2,18,0.45); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); }
+.px-orb b { font-family: var(--display); font-size: 30px; line-height: 32px; font-weight: 750; letter-spacing: -0.04em; font-variant-numeric: tabular-nums; }
+.px-orb b small { font-size: 14px; font-weight: 600; color: var(--fg-2); margin-left: 2px; letter-spacing: 0; }
+.px-orb .label { font-size: 10px; }
+.px-orb.o1 { left: 16px; top: 112px; }
+.px-orb.o2 { right: 16px; top: 156px; }
+.px-orb.o3 { left: 30px; bottom: 6px; }
+.px-tag { position: absolute; right: 18px; bottom: 26px; z-index: 2; padding: 7px 12px; border-radius: 14px; font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em; color: var(--accent-ink); background: var(--grad); }
+.px-tag.guest { color: var(--fg); background: rgba(16,14,40,0.75); box-shadow: inset 0 0 0 1px rgba(236,234,255,0.16); }
+.px-sec { display: flex; flex-direction: column; gap: 14px; }
+.px-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.px-stars { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px 10px; justify-items: center; }
+.px-star { width: 92px; height: 92px; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; text-align: center; font-size: 12px; color: var(--fg-3); background: rgba(236,234,255,0.04); box-shadow: inset 0 0 0 1px rgba(236,234,255,0.1); }
+.px-star b { font-family: var(--display); font-size: 22px; font-weight: 750; letter-spacing: -0.03em; color: var(--fg-4); }
+.px-star.on { color: var(--accent-ink); background: var(--grad); box-shadow: 0 12px 30px rgba(150,150,180,0.35), inset 0 1px 0 rgba(255,255,255,0.5); }
+.px-star.on b { color: var(--accent-ink); }
+.px-star:nth-child(3n+2) { margin-top: 26px; }
+.px-stamps { display: flex; gap: 8px; overflow-x: auto; margin: 0 -20px; padding: 6px 20px 10px; scrollbar-width: none; scroll-snap-type: x proximity; }
+.px-stamps::-webkit-scrollbar { display: none; }
+.px-stamp { flex: none; width: 100px; height: 100px; display: grid; place-items: center; scroll-snap-align: start; border-radius: 50%; background: rgba(236,234,255,0.03); }
+.px-stamp svg { width: 92px; height: 92px; }
+.px-list { display: flex; flex-direction: column; gap: 8px; }
+.px-row { position: relative; display: flex; align-items: center; gap: 10px; padding: 6px 6px 6px 8px; border-radius: 22px; background: rgba(16,14,40,0.6); box-shadow: inset 0 0 0 1px rgba(236,234,255,0.08); transition: opacity 200ms var(--e-exit), transform 260ms var(--e-exit); }
+.px-row.leaving { opacity: 0; transform: translateX(40px) scale(0.96); }
+.px-row .main { flex: 1; min-width: 0; display: flex; align-items: center; gap: 12px; min-height: 52px; text-align: left; }
+.px-row .disc { width: 42px; height: 42px; border-radius: 21px; flex: none; display: grid; place-items: center; color: var(--fg-2); background: rgba(236,234,255,0.06); }
+.px-row.current .disc { background: var(--grad); color: var(--accent-ink); }
+.px-row .tx { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.px-row .tx b { font-size: 15.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.px-row .heartbtn { color: var(--a4); }
+.px-row .pf-eq { display: none; align-items: flex-end; gap: 2px; height: 14px; }
+.px-row.current .pf-eq { display: flex; }
+.px-row.current .pf-ico { display: none; }
+.px-row .pf-eq i { width: 3px; height: 14px; border-radius: 1.5px; background: var(--accent-ink); transform-origin: bottom; animation: eq var(--t) var(--e-inout) infinite alternate; }
+.px-row.current.paused .pf-eq i { animation-play-state: paused; }
+.px-card { padding: 8px 18px; border-radius: 28px; background: rgba(16,14,40,0.6); box-shadow: inset 0 0 0 1px rgba(236,234,255,0.08); display: flex; flex-direction: column; }
+.px-set { display: flex; align-items: center; gap: 14px; min-height: 66px; border-bottom: 1px solid rgba(236,234,255,0.07); }
+.px-set:last-child { border-bottom: 0; }
+.px-set .ico { width: 40px; height: 40px; border-radius: 20px; flex: none; display: grid; place-items: center; color: var(--a2); background: rgba(150,150,180,0.1); }
+.px-set .tx { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.px-set .tx b { font-size: 15.5px; font-weight: 600; }
+.px-sleep { padding: 16px 0 14px; display: flex; flex-direction: column; gap: 12px; }
+.px-sleep .sec-head { display: flex; align-items: baseline; justify-content: space-between; }
+.px-sleep .h2 { font-size: 17px; line-height: 22px; }
+.px-empty { display: flex; align-items: center; gap: 14px; padding: 18px; border-radius: 24px; background: rgba(16,14,40,0.5); box-shadow: inset 0 0 0 1px rgba(236,234,255,0.08); color: var(--fg-2); font-size: 14px; line-height: 20px; }
+.px-empty .i { color: var(--a3); flex: none; }
+.px-empty b { display: block; color: var(--fg); font-weight: 600; margin-bottom: 2px; }
+.px-call { padding: 20px; border-radius: 28px; background: var(--grad-soft), rgba(16,14,40,0.7); box-shadow: inset 0 0 0 1px rgba(150,150,180,0.3); display: flex; flex-direction: column; gap: 14px; }
+.px-call b { font-family: var(--display); font-size: 21px; font-weight: 700; letter-spacing: -0.03em; }
+.px-call .btns { display: flex; gap: 10px; }
+.px-call .btn { min-height: 48px; font-size: 15px; }
+.px-acct { display: flex; gap: 10px; }
+.px-acct .btn { min-height: 50px; font-size: 15px; }
+/* Profil girişi: kapsüller sırayla yükselir, sayılar sayar */
+#pane-profile .px-in { opacity: 0; animation: pxIn 560ms var(--e-spring) forwards; animation-delay: calc(var(--i) * 70ms); }
+@keyframes pxIn { from { opacity: 0; transform: translateY(26px) scale(0.96); } to { opacity: 1; transform: none; } }
+#profileScroll.static .px-in { animation: none; opacity: 1; }
 
+@media (prefers-reduced-motion: reduce) {
+  .fly, .aurora i, .play.active:not(.busy) { animation: none !important; }
+  .pane, .pane.active { transform: none !important; }
+}
+
+.screen.no-debug .lod-badge { display: none !important; }
+[hidden] { display: none !important; }
+#pane-profile::after { content: ""; position: absolute; left: 0; right: 0; top: 0; height: calc(var(--sat) + 78px); background: linear-gradient(180deg, rgba(8,7,24,0.97) 0%, rgba(8,7,24,0.9) 55%, rgba(8,7,24,0)); pointer-events: none; z-index: 2; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 1ms !important; animation-iteration-count: 1 !important; transition-duration: 1ms !important; transition-delay: 0ms !important; }
 }
@@ -706,6 +730,7 @@ body { background: var(--stage); }
 
       <div class="globe-stage" id="globeStage"></div>
       <div class="map-stage" id="mapStage"></div>
+      <div class="aurora" aria-hidden="true"><i></i><i></i><i></i></div>
       <div class="lod-badge" id="lodBadge" aria-hidden="true"></div>
 
       <!-- AÇILIŞ + SEÇİM -->
@@ -785,14 +810,14 @@ body { background: var(--stage); }
         <div class="pane" id="pane-globe">
           <div class="topbar">
             
-            <button class="round glass press tight shuffle" id="shuffle" aria-label="Rastgele şehir"><span class="rot" id="shuffleRot" data-icon="shuffle"></span></button>
+            <button class="round glass press tight shuffle fly" id="shuffle" aria-label="Rastgele şehir"><span class="rot" id="shuffleRot" data-icon="shuffle"></span></button>
           </div>
           <div class="search" id="search">
             <div class="search-field"><span data-icon="search" data-size="18"></span><input id="searchInput" type="search" placeholder="Şehir, ülke veya istasyon ara" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search" aria-label="Şehir, ülke veya istasyon ara" aria-controls="searchResults"><button class="s-clear" id="searchClear" aria-label="Aramayı temizle" hidden>×</button></div>
             <div class="search-results" id="searchResults" role="listbox" aria-label="Arama sonuçları" hidden></div>
           </div>
           <div class="hint" id="hint">KÜREYİ ÇEVİR · BİR ŞEHRE DOKUN</div>
-          <div class="live-dock hidden" id="liveDock"><button class="live press" id="live" aria-label="Radyo durumu"><span class="dot"></span><span class="txt"><span class="lab" id="liveLab">RADYO KAPALI</span><span class="sub" id="liveSub" hidden></span></span><span class="eq"><i style="--t:310ms"></i><i style="--t:240ms"></i><i style="--t:360ms"></i></span></button></div>
+          <div class="live-dock hidden" id="liveDock"><button class="live press fly" id="live" aria-label="Radyo durumu"><span class="dot"></span><span class="txt"><span class="lab" id="liveLab">RADYO KAPALI</span><span class="sub" id="liveSub" hidden></span></span><span class="eq"><i style="--t:310ms"></i><i style="--t:240ms"></i><i style="--t:360ms"></i></span></button></div>
           <div class="city-tag" id="cityTag" aria-hidden="true"><b id="ctName"></b><span id="ctTime"></span></div>
           <div class="sheet" id="sheet" aria-live="polite">
             <div class="drag" id="drag"><i></i></div>
@@ -804,9 +829,9 @@ body { background: var(--stage); }
             <div class="wv-feed" id="wvFeed" role="feed" aria-label="Canlı yayın akışı: yukarı kaydırarak yeni bir yer keşfet" tabindex="0"></div>
             <div class="wv-top"><div class="wv-chips" id="wvChips" role="tablist" aria-label="Tür"></div></div>
             <div class="wv-rail">
-              <button class="round press" id="wvFav" aria-label="Favorilere ekle"><span class="heart" id="wvHeart"></span></button>
-              <button class="round press" id="wvGlobe" aria-label="Kürede aç"><span data-icon="globe" data-size="20"></span></button>
-              <button class="round press" id="wvNext" aria-label="Sonraki yayın"><span data-icon="skip-forward" data-size="18"></span></button>
+              <button class="round press fly" id="wvFav" aria-label="Favorilere ekle"><span class="heart" id="wvHeart"></span></button>
+              <button class="round press fly" id="wvGlobe" aria-label="Kürede aç"><span data-icon="globe" data-size="20"></span></button>
+              <button class="round press fly" id="wvNext" aria-label="Sonraki yayın"><span data-icon="skip-forward" data-size="18"></span></button>
             </div>
             <div class="wv-hint" id="wvHint">↑ KAYDIR · YENİ BİR YER</div>
           </div>
@@ -820,12 +845,31 @@ body { background: var(--stage); }
               <p class="th-desc" id="thDesc"></p>
               <button class="btn press th-action" id="themeAction"><span class="lbl"></span><span class="spin"></span></button>
             </div>
-            <div class="tc-row" id="tcRow" role="radiogroup" aria-label="Küre teması"></div>
+            <div class="th-pocket-space"></div>
+          </div>
+          <div class="pk-dim" id="pkDim"></div>
+          <div class="pocket" id="pocket" role="group" aria-label="Küre cebi: açmak için dokun">
+            <div class="pk-mouth"></div>
+            <div class="pk-marbles" id="pkMarbles"></div>
+            <div class="pk-front">
+              <svg viewBox="0 0 362 80" preserveAspectRatio="none" aria-hidden="true">
+                <defs>
+                  <linearGradient id="trayGlass" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1C1A48" stop-opacity="0.92"/><stop offset="1" stop-color="#0D0C26" stop-opacity="0.96"/></linearGradient>
+                  <linearGradient id="trayRim" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#EEEDF4"/><stop offset="0.38" stop-color="#D9D8E4"/><stop offset="0.68" stop-color="#C8C5D9"/><stop offset="1" stop-color="#E2D2DB"/></linearGradient>
+                </defs>
+                <path d="M0 24 Q181 -4 362 24 L362 52 Q362 80 334 80 L28 80 Q0 80 0 52 Z" fill="url(#trayGlass)"/>
+                <path d="M1 24 Q181 -3 361 24" fill="none" stroke="url(#trayRim)" stroke-width="1.6" stroke-opacity="0.9"/>
+                <path d="M1 26 L1 52 Q1 79 28 79 L334 79 Q361 79 361 52 L361 26" fill="none" stroke="url(#trayRim)" stroke-opacity="0.28" stroke-width="1"/>
+              </svg>
+              <span class="pk-hint">BİR KÜRE SEÇ</span>
+              <div class="pk-labels" id="pkLabels"></div>
+            </div>
           </div>
         </div>
-        <div class="pane solid" id="pane-profile"><div class="scroll" id="profileScroll"></div></div>
+        <div class="pane" id="pane-profile"><div class="scroll" id="profileScroll"></div></div>
         <div class="app-logo" role="img" aria-label="wGlobe">w<span>Globe</span></div>
         <nav class="tabbar" aria-label="Sekmeler">
+          <span class="dock-blob" id="dockBlob" aria-hidden="true"></span>
           <button class="tab" data-tab="globe"><span data-icon="globe" data-size="21"></span><span>Küre</span><span class="dot"></span></button>
           <button class="tab" data-tab="explore"><span data-icon="compass" data-size="21"></span><span>Keşfet</span><span class="dot"></span></button>
           <button class="tab" data-tab="themes"><span data-icon="layers" data-size="21"></span><span>Koleksiyon</span><span class="dot"></span></button>
@@ -1616,7 +1660,7 @@ const Globe = (() => {
 
     const coreG = new THREE.SphereGeometry(0.013, 14, 14), haloG = new THREE.SphereGeometry(0.024, 16, 16), hitG = new THREE.SphereGeometry(0.013 * 6, 8, 8);
     const hitM = new THREE.MeshBasicMaterial({ visible: false });
-    const brass = sceneFromDisplay(new THREE.Color('#B49CFF')), brass2 = sceneFromDisplay(new THREE.Color('#9FF0D8'));
+    const brass = sceneFromDisplay(new THREE.Color('#C9C6DE')), brass2 = sceneFromDisplay(new THREE.Color('#E8E6F0'));
     coreM.color.setRGB(brass[0], brass[1], brass[2]); haloM.color.setRGB(brass2[0] * 0.5, brass2[1] * 0.5, brass2[2] * 0.5);
     CITIES.forEach((c, i) => {
       const p = latLngToVec3(c.lat, c.lng, 1.007); vectors.push(p);
@@ -2361,17 +2405,21 @@ function go(view, { replace = false } = {}) {
 const back = () => go(history.pop() || 'welcome', { replace: true });
 function restartEnter(root) { root.querySelectorAll('.enter').forEach(el => { el.style.animation = 'none'; void el.offsetWidth; el.style.animation = ''; }); }
 function setTab(tab) {
+  const prevTab = state.tab; paneDirection(prevTab, tab);
   state.tab = tab;
   document.querySelectorAll('.tab').forEach(t => { const on = t.dataset.tab === tab; t.classList.toggle('active', on); t.setAttribute('aria-current', on ? 'page' : 'false'); });
   document.querySelectorAll('.pane').forEach(p => p.classList.toggle('active', p.id === 'pane-' + tab));
   if (tab === 'explore') renderExplore();
+  if (tab !== 'themes' && pocketOpen) setPocket(false);
   if (tab !== 'explore') leaveTuner();
   if (tab === 'themes') { state.previewTheme = state.theme; renderThemes(0); renderPocket(); ensureSnaps(); Globe.faceSun(); }
   updateInk();
   if (tab === 'profile') renderProfile();
   mountGlobe();
+  placeDock(prevTab !== tab);
 }
 function mountGlobe() {
+  updateAurora();
   if (introRunning) return;
   if (state.view === 'welcome') Globe.mount($('#globeStage'), { interactive: false, autoRotate: true, markers: false, theme: state.theme, layout: chooserLayout, stars: false, bg: '#000000' });
   else if (state.view === 'app' && state.tab === 'globe') {
@@ -2381,6 +2429,7 @@ function mountGlobe() {
     MapGlobe.reveal({ theme: state.theme, onSelect: handleSelect }, () => { if (state.view === 'app' && state.tab === 'globe') Globe.unmount(); });
   }
   else if (state.view === 'app' && state.tab === 'themes') Globe.mount($('#globeStage'), { interactive: false, autoRotate: true, markers: false, theme: state.previewTheme, layout: themesLayout, lerp: 0.7 });
+  else if (state.view === 'app' && state.tab === 'profile') Globe.mount($('#globeStage'), { interactive: false, autoRotate: true, markers: false, theme: state.theme, layout: profileLayout, lerp: 0.6 });
   else Globe.unmount();
   if (!(state.view === 'app' && state.tab === 'globe')) MapGlobe.hide();
   updateInk();
@@ -2438,7 +2487,7 @@ const SatMosaic = (() => {
 })();
 
 /** Sürüm etiketi: sitede hangi sürümün açık olduğunu rozetten görmek için (önbellek kontrolü). */
-const BUILD = 'v23';
+const BUILD = 'v24';
 const MapGlobe = (() => {
   const host = document.getElementById('mapStage');
   const badge = document.getElementById('lodBadge');
@@ -2702,9 +2751,9 @@ const MapGlobe = (() => {
             { id: 'satellite', type: 'raster', source: 'satellite', paint: Object.assign({ 'raster-opacity': 0, 'raster-opacity-transition': { duration: 400, delay: 0 }, 'raster-fade-duration': 200, 'raster-resampling': 'linear' }, RASTER[themeId] || RASTER.classic) },
             { id: 'borders', type: 'line', source: 'borders', paint: { 'line-color': c.border, 'line-width': ['interpolate', ['linear'], ['zoom'], 1, 0.4, 6, 1, 10, 1.4] } },
             { id: 'coast', type: 'line', source: 'coastline', layout: { 'line-join': 'round', 'line-cap': 'round' }, paint: { 'line-color': c.coast, 'line-opacity': 0.85, 'line-width': ['interpolate', ['exponential', 1.6], ['zoom'], 1, 0.5, 6, 1.1, 12, 2.2] } },
-            { id: 'city-pulse', type: 'circle', source: 'cities', filter: ['==', ['get', 'id'], ''], paint: { 'circle-radius': 10, 'circle-color': 'rgba(0,0,0,0)', 'circle-stroke-width': 2, 'circle-stroke-color': '#9FF0D8', 'circle-stroke-opacity': 0.5, 'circle-pitch-alignment': 'map' } },
-            { id: 'city-pulse2', type: 'circle', source: 'cities', filter: ['==', ['get', 'id'], ''], paint: { 'circle-radius': 10, 'circle-color': 'rgba(0,0,0,0)', 'circle-stroke-width': 2, 'circle-stroke-color': '#9FF0D8', 'circle-stroke-opacity': 0, 'circle-pitch-alignment': 'map' } },
-            { id: 'city-core', type: 'circle', source: 'cities', filter: ['==', ['get', 'id'], ''], paint: { 'circle-radius': 6, 'circle-color': '#9FF0D8', 'circle-stroke-width': 1.5, 'circle-stroke-color': '#ffffff', 'circle-stroke-opacity': 0.9, 'circle-pitch-alignment': 'map' } },
+            { id: 'city-pulse', type: 'circle', source: 'cities', filter: ['==', ['get', 'id'], ''], paint: { 'circle-radius': 10, 'circle-color': 'rgba(0,0,0,0)', 'circle-stroke-width': 2, 'circle-stroke-color': '#E8E6F0', 'circle-stroke-opacity': 0.5, 'circle-pitch-alignment': 'map' } },
+            { id: 'city-pulse2', type: 'circle', source: 'cities', filter: ['==', ['get', 'id'], ''], paint: { 'circle-radius': 10, 'circle-color': 'rgba(0,0,0,0)', 'circle-stroke-width': 2, 'circle-stroke-color': '#E8E6F0', 'circle-stroke-opacity': 0, 'circle-pitch-alignment': 'map' } },
+            { id: 'city-core', type: 'circle', source: 'cities', filter: ['==', ['get', 'id'], ''], paint: { 'circle-radius': 6, 'circle-color': '#E8E6F0', 'circle-stroke-width': 1.5, 'circle-stroke-color': '#ffffff', 'circle-stroke-opacity': 0.9, 'circle-pitch-alignment': 'map' } },
             { id: 'tap-ring', type: 'circle', source: 'tap', paint: { 'circle-radius': 4, 'circle-color': 'rgba(0,0,0,0)', 'circle-stroke-width': 1.6, 'circle-stroke-color': '#ffffff', 'circle-stroke-opacity': 0, 'circle-pitch-alignment': 'map' } },
           ],
         },
@@ -3279,11 +3328,11 @@ function stampSvg(v, i) {
   const fs = name.length > 11 ? 7.2 : name.length > 8 ? 8.2 : 9.2;
   return `<svg viewBox="0 0 100 100" style="transform:rotate(${tilt}deg)" role="img" aria-label="${name} damgası ${stampShort(v.visitedAt)}">
     <defs><path id="${id}" d="M 17 52 A 33 33 0 0 1 83 52"/><path id="${id}b" d="M 22 54 A 28 28 0 0 0 78 54"/></defs>
-    <circle cx="50" cy="50" r="46" fill="none" stroke="#B49CFF" stroke-width="1.3"/>
-    <circle cx="50" cy="50" r="41" fill="none" stroke="#B49CFF" stroke-width="0.7" stroke-dasharray="1.6 2.2" opacity="0.8"/>
-    <text font-family="Geist Mono, monospace" font-size="${fs}" letter-spacing="1.4" fill="#9FF0D8"><textPath href="#${id}" startOffset="50%" text-anchor="middle">${name}</textPath></text>
+    <circle cx="50" cy="50" r="46" fill="none" stroke="#C9C6DE" stroke-width="1.3"/>
+    <circle cx="50" cy="50" r="41" fill="none" stroke="#C9C6DE" stroke-width="0.7" stroke-dasharray="1.6 2.2" opacity="0.8"/>
+    <text font-family="Geist Mono, monospace" font-size="${fs}" letter-spacing="1.4" fill="#E8E6F0"><textPath href="#${id}" startOffset="50%" text-anchor="middle">${name}</textPath></text>
     <text x="50" y="58" text-anchor="middle" font-family="Geist, sans-serif" font-weight="600" font-size="17" fill="#F3F1FF">${c ? c.countryCode : '—'}</text>
-    <text font-family="Geist Mono, monospace" font-size="6.6" letter-spacing="1" fill="#B49CFF"><textPath href="#${id}b" startOffset="50%" text-anchor="middle">${stampShort(v.visitedAt)} · ${stampTime(v.visitedAt)}</textPath></text>
+    <text font-family="Geist Mono, monospace" font-size="6.6" letter-spacing="1" fill="#C9C6DE"><textPath href="#${id}b" startOffset="50%" text-anchor="middle">${stampShort(v.visitedAt)} · ${stampTime(v.visitedAt)}</textPath></text>
   </svg>`;
 }
 // ── Dalga: dikey canlı yayın akışı ──
@@ -3592,7 +3641,7 @@ function bindWave() {
       clearTimeout(wv.tapTimer); wv.lastTap = 0;
       const c = wv.deck[wv.active];
       if (c && !waveFavUuid(c)) { wv.userPaused = false; waveTune(wv.active); toast('Önce yayın açılsın, sonra favorilere eklenir'); return; }
-      if (waveFavorite(true)) toast('Favorilere eklendi');
+      if (waveFavorite(true)) waveBurst(e.clientX, e.clientY);
       return;
     }
     wv.lastTap = now;
@@ -3659,7 +3708,7 @@ function renderThemes(dir, delayIn = 210) {
   themeAnims.forEach(a => a.cancel()); themeAnims = [];
   if (!dir || reduceMotion.matches) fill();
   else {
-    const dx = 0;
+    const dx = 28 * dir;
     swaps.forEach((el, k) => themeAnims.push(el.animate([{ transform: 'none', opacity: 1 }, { transform: `translateX(${-dx}px)`, opacity: 0 }], { duration: 170, delay: k * 25, easing: 'cubic-bezier(0.3,0,0.8,0.15)', fill: 'forwards' })));
     setTimeout(() => {
       if (state.previewTheme !== id) return;
@@ -3672,20 +3721,69 @@ function renderThemes(dir, delayIn = 210) {
   btn.querySelector('.lbl').innerHTML = selected ? icon('check', 17) + 'Küre bu temayı kullanıyor' : unlocked ? icon('sparkles', 17) + 'Küreye uygula' : icon('lock-open', 17) + 'Kilidi aç ve uygula';
 }
 function renderPocket() {
-  $('#tcRow').innerHTML = THEME_ORDER.map(tid => {
-    const x = THEMES[tid], un = state.unlocked.includes(tid), img = snaps && snaps.images[tid], on = tid === state.previewTheme;
-    return `<button class="tc press ${on ? 'on' : ''}" role="radio" aria-checked="${on}" data-theme-id="${tid}" aria-label="${x.name}${un ? '' : ', kilitli'}">${img ? `<img src="${img}" alt="" draggable="false">` : `<span class="tc-dot" style="background:${x.p.oceanDeep}"></span>`}<span class="tc-n">${un ? '' : icon('lock', 10)}${x.short}</span></button>`;
+  $('#pkMarbles').innerHTML = THEME_ORDER.map((tid, k) => {
+    const x = THEMES[tid], un = state.unlocked.includes(tid), img = snaps && snaps.images[tid];
+    return `<button class="marble ${tid === state.previewTheme ? 'out' : ''}" data-theme-id="${tid}" style="--i:${k}" aria-label="${x.name}${un ? '' : ', kilitli'}${tid === state.previewTheme ? ', sahnede' : ''}"><span class="mb-hollow"></span>${img ? `<img class="mb-img" src="${img}" alt="" draggable="false">` : `<span class="mb-img"><span class="mb-css" style="display:block;margin:8px;${orbStyle(x.p)}"></span></span>`}</button>`;
   }).join('');
+  $('#pkLabels').innerHTML = THEME_ORDER.map(tid => `<span class="${tid === state.previewTheme ? 'on' : ''}">${state.unlocked.includes(tid) ? '' : icon('lock', 9)}${THEMES[tid].short}</span>`).join('');
 }
 function ensureSnaps() {
   if (snaps) return;
   Globe.whenReady(() => { if (snaps) return; snaps = Globe.snapshots(THEME_ORDER, 320); if (!picking) renderPocket(); });
 }
+function setPocket(open) {
+  if (pocketOpen === open) return;
+  pocketOpen = open; $('#pocket').classList.toggle('open', open); $('#pane-themes').classList.toggle('pk-open', open);
+  $('#pocket').setAttribute('aria-label', open ? 'Küre cebi açık: bir küre seç' : 'Küre cebi: açmak için dokun');
+  vibrate(open ? 8 : 4);
+}
+/** Cepten küre seç: sahnedeki küre cebe düşer, seçilen küre cepten sahneye uçar ve gerçek küreye dönüşür */
+function pickTheme(id, marbleEl) {
+  const oldId = state.previewTheme; if (id === oldId || picking) return;
+  picking = true; vibrate([6, 30, 10]);
+  const dir = THEME_ORDER.indexOf(id) > THEME_ORDER.indexOf(oldId) ? 1 : -1;
+  const stageR = $('#globeStage').getBoundingClientRect(), scr = $('#screen').getBoundingClientRect();
+  const target = themesLayout(stageR.width, stageR.height);
+  const oldMarble = $(`.marble[data-theme-id="${oldId}"]`), om = oldMarble.getBoundingClientRect();
+  const slot = { x: om.left - stageR.left + om.width / 2, y: om.top - stageR.top + om.height / 2 };
+  const L0 = { ...Globe.layout }, t0 = performance.now();
+  // 1) Sahnedeki küre kavis çizerek kendi oyuğuna düşer
+  const FALL = reduceMotion.matches ? 1 : 460;
+  const fc = { x: (L0.cx + slot.x) / 2 - dir * 30, y: Math.min(L0.cy, slot.y) - 30 };
+  Globe.drive(now => { const t = Math.min(1, (now - t0) / FALL); if (t >= 1) return { cx: slot.x, cy: slot.y, r: 0.001 }; const e = t * t * t, q = quad({ x: L0.cx, y: L0.cy }, fc, slot, e); return { cx: q.x, cy: q.y, r: lerp(L0.r, 32, e) }; });
+  setTimeout(() => { oldMarble.classList.remove('out'); oldMarble.classList.add('land'); setTimeout(() => oldMarble.classList.remove('land'), 600); }, FALL);
+  // 2) Zemin ve yazılar yeni temaya geçer
+  state.previewTheme = id; Globe.setBackground(id); renderThemes(dir, 760);
+  $('#pkLabels').querySelectorAll('span').forEach((sp, k) => sp.classList.toggle('on', THEME_ORDER[k] === id));
+  // 3) Seçilen küre cepten sahneye uçar
+  const img = marbleEl.querySelector('.mb-img'), r0 = img.getBoundingClientRect();
+  marbleEl.classList.add('out');
+  const fly = img.cloneNode(true); fly.classList.add('flying'); fly.style.width = r0.width + 'px'; fly.style.height = r0.height + 'px'; fly.style.animation = 'none';
+  $('#screen').appendChild(fly);
+  const a = { x: r0.left - scr.left + r0.width / 2, y: r0.top - scr.top + r0.height / 2 };
+  const b = { x: target.cx + stageR.left - scr.left, y: target.cy + stageR.top - scr.top };
+  const c = { x: (a.x + b.x) / 2 + dir * 60, y: Math.min(a.y, b.y) - 90 };
+  const sEnd = (target.r / 0.4) / r0.width;
+  const kf = []; for (let k = 0; k <= 30; k++) { const tt = k / 30, e = easeInOutCubic(tt), q = quad(a, c, b, e), sc = lerp(1, sEnd, e); kf.push({ offset: tt, transform: `translate(${q.x - r0.width / 2}px, ${q.y - r0.height / 2}px) scale(${sc}) rotate(${dir * 8 * Math.sin(Math.PI * tt)}deg)` }); }
+  const flight = fly.animate(kf, { duration: reduceMotion.matches ? 1 : 780, delay: reduceMotion.matches ? 0 : 140, easing: 'linear', fill: 'both' });
+  flight.onfinish = () => {
+    // 4) Devir teslim: uçan fotoğrafın yerine gerçek 3D küre, aynı açı ve boyutta
+    Globe.setThemeInstant(id); if (snaps) Globe.setRotation(snaps.rot);
+    const T = themesLayout(stageR.width, stageR.height);
+    Globe.drive(() => ({ cx: T.cx, cy: T.cy, r: T.r }));
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      Globe.drive(null); themeSettle = performance.now();
+      fly.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 200, fill: 'forwards' }).onfinish = () => fly.remove();
+      renderPocket();
+      setTimeout(() => { setPocket(false); picking = false; }, 320);
+    }));
+  };
+}
 function changeTheme(id) {
   if (!THEMES[id] || id === state.previewTheme || picking) return;
   const dir = THEME_ORDER.indexOf(id) > THEME_ORDER.indexOf(state.previewTheme) ? 1 : -1;
   state.previewTheme = id; vibrate(6);
-  Globe.update({ theme: id });
+  themeSquash = performance.now(); Globe.impulse(0.07 * dir); Globe.update({ theme: id });
   renderThemes(dir); renderPocket();
 }
 async function themeAction() {
@@ -3695,13 +3793,20 @@ async function themeAction() {
   state.theme = id; save(); MapGlobe.setTheme(id); vibrate([8, 40, 8]); renderThemes(0); renderPocket(); updateInk();
   toast(unlocked ? `${THEMES[id].name} küreye uygulandı` : `${THEMES[id].name} koleksiyonuna eklendi`);
 }
-$('#tcRow').addEventListener('click', e => { const b = e.target.closest('[data-theme-id]'); if (b) changeTheme(b.dataset.themeId); });
+$('#pocket').addEventListener('click', e => {
+  if (picking) return;
+  const m = e.target.closest('.marble');
+  if (!pocketOpen) { setPocket(true); return; }
+  if (!m || m.classList.contains('out')) { setPocket(false); return; }
+  pickTheme(m.dataset.themeId, m);
+});
+$('#pkDim').addEventListener('click', () => { if (!picking) setPocket(false); });
 $('#themeAction').addEventListener('click', themeAction);
 (() => { // Sahnede kaydırarak hızlı geçiş
   const el = $('#thStage'); let pid = null, x0 = 0, t0 = 0;
   el.addEventListener('pointerdown', e => { pid = e.pointerId; x0 = e.clientX; t0 = performance.now(); el.setPointerCapture(pid); });
   const end = e => { if (e.pointerId !== pid) return; pid = null; const dx = e.clientX - x0, i = THEME_ORDER.indexOf(state.previewTheme);
-    if (Math.abs(dx) > 48 || (Math.abs(dx) > 20 && performance.now() - t0 < 220)) { const n = clamp(i + (dx < 0 ? 1 : -1), 0, THEME_ORDER.length - 1); if (n !== i) changeTheme(THEME_ORDER[n]); } };
+    if (Math.abs(dx) > 48 || (Math.abs(dx) > 20 && performance.now() - t0 < 220)) { const n = clamp(i + (dx < 0 ? 1 : -1), 0, THEME_ORDER.length - 1); if (n !== i) changeTheme(THEME_ORDER[n]); else { themeSquash = performance.now(); vibrate(3); } } };
   el.addEventListener('pointerup', end); el.addEventListener('pointercancel', end);
 })();
 
@@ -3709,88 +3814,196 @@ $('#themeAction').addEventListener('click', themeAction);
 //  PROFİL
 // ═════════════════════════════════════════════════════════
 // ═════════════════════════════════════════════════════════
-//  AYARLAR + ANAHTAR
+//  AURORA HAREKET MOTORU — dok damlası, sekme yönü, süzülme, anahtarlar
 // ═════════════════════════════════════════════════════════
-const PREF_DEFAULTS = { haptics: true, autoplay: true, badge: false };
+const TAB_ORDER = ['globe', 'explore', 'themes', 'profile'];
+const PREF_DEFAULTS = { haptics: true, autoplay: true, badge: false, aurora: true };
 function pref(k) { const p = state.prefs || {}; return k in p ? p[k] : PREF_DEFAULTS[k]; }
 function setPref(k, v) { state.prefs = Object.assign({}, PREF_DEFAULTS, state.prefs, { [k]: v }); save(); applyPrefs(); }
-function applyPrefs() { $('#screen').classList.toggle('no-debug', !pref('badge')); }
-function toggleHTML(key, on, title, sub) {
-  return `<div class="sp-row"><span class="tx"><b>${esc(title)}</b><span class="small">${esc(sub)}</span></span>
+function applyPrefs() {
+  const sc = $('#screen');
+  sc.classList.toggle('no-debug', !pref('badge'));
+  updateAurora();
+}
+/** Kutup ışığı: karşılama seçicisi, giriş/üye ekranları, Profil ve koyu temalı Koleksiyon'da görünür.
+ *  Küre sekmesinde (uydu haritası) ve açılış koreografisinde gizlidir: renkler haritayı boyamasın. */
+function updateAurora() {
+  const sc = $('#screen'); if (!sc) return;
+  const v = state.view, t = state.tab;
+  const on = pref('aurora') && !introRunning && (v === 'login' || v === 'register' || (v === 'welcome' && $('#welcome').classList.contains('choose')) || (v === 'app' && (t === 'profile' || t === 'themes')));
+  sc.classList.toggle('no-aurora', !on);
+}
+
+/** Süzülme ritmi: her kapsül kendi fazında (6–9 sn, 3–5 px) nefes alır; aynı anda iki kapsül aynı yerde olmaz. */
+function seedFly(root = document) {
+  root.querySelectorAll('.fly').forEach(el => {
+    if (el.dataset.flySeeded) return; el.dataset.flySeeded = '1';
+    el.style.setProperty('--fd', (6 + Math.random() * 3).toFixed(2) + 's');
+    el.style.setProperty('--fp', (-Math.random() * 9).toFixed(2) + 's');
+    el.style.setProperty('--fa', (3 + Math.random() * 2).toFixed(1) + 'px');
+    el.style.setProperty('--fx', ((Math.random() - 0.5) * 3).toFixed(1) + 'px');
+  });
+}
+
+/** Dok damlası: etkin sekmeye akar. Yolda esner (scaleX ≤ 1.6, scaleY 0.84), varışta hafifçe taşar ve oturur. 560 ms. */
+let dockX = null;
+function placeDock(animate) {
+  const blob = $('#dockBlob'), bar = blob && blob.parentElement, tab = bar && bar.querySelector(`.tab[data-tab="${state.tab}"]`);
+  if (!tab || !bar.offsetWidth) return;
+  const w = tab.offsetWidth, x = tab.offsetLeft;
+  blob.style.width = w + 'px';
+  blob.getAnimations().forEach(a => a.cancel());
+  const to = `translateX(${x}px)`;
+  if (animate && dockX !== null && Math.abs(dockX - x) > 1 && !reduceMotion.matches) {
+    const d = x - dockX, mid = dockX + d * 0.55, k = Math.min(1, Math.abs(d) / (w * 2));
+    blob.animate([
+      { transform: `translateX(${dockX}px) scale(1, 1)` },
+      { transform: `translateX(${mid}px) scale(${1 + 0.6 * k}, ${1 - 0.16 * k})`, offset: 0.45 },
+      { transform: `translateX(${x + Math.sign(d) * 5}px) scale(0.96, 1.05)`, offset: 0.78 },
+      { transform: `${to} scale(1, 1)` },
+    ], { duration: 560, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' });
+  }
+  blob.style.transform = to; dockX = x;
+  requestAnimationFrame(() => blob.classList.add('ready'));
+}
+addEventListener('resize', () => { dockX = null; placeDock(false); });
+
+/** Sekme yönü: yeni sekme sıradaki yönünden gelir, eskisi ters yöne çekilir. */
+function paneDirection(from, to) {
+  const a = TAB_ORDER.indexOf(from), b = TAB_ORDER.indexOf(to); if (a < 0 || b < 0 || a === b) return;
+  const dir = b > a ? 1 : -1;
+  const out = document.getElementById('pane-' + from), inn = document.getElementById('pane-' + to);
+  if (out) out.style.setProperty('--pdir', String(-dir));
+  if (inn) { inn.style.setProperty('--pdir', String(dir)); void inn.offsetWidth; }   // başlangıç konumunu sabitle
+}
+
+/** Anahtar: topuz yaylı kayar, yolda esner; açılınca 8 kıvılcım kutup ışığı renklerinde saçılır (520 ms). */
+const SPARK_COLORS = ['#EEEDF4', '#D9D8E4', '#C8C5D9', '#E2D2DB'];
+function toggleHTML(key, on, title, sub, ic) {
+  return `<div class="px-set"><span class="ico">${icon(ic, 19)}</span><span class="tx"><b>${esc(title)}</b><span class="small">${esc(sub)}</span></span>
     <button class="tg" role="switch" aria-checked="${on}" data-tg="${key}" aria-label="${esc(title)}"><span class="knob"></span></button></div>`;
+}
+function sparkle(el) {
+  if (reduceMotion.matches) return;
+  const knob = el.querySelector('.knob'), on = el.getAttribute('aria-checked') === 'true';
+  knob.animate([{ scale: '1 1' }, { scale: '1.45 0.82', offset: 0.35 }, { scale: '0.94 1.06', offset: 0.7 }, { scale: '1 1' }], { duration: 460, easing: 'cubic-bezier(0.22,1,0.36,1)' });
+  if (!on) return;
+  const cx = 22 + 4 + 13, cy = 17;
+  for (let k = 0; k < 8; k++) {
+    const sp = document.createElement('span'), a = (k / 8) * Math.PI * 2 + Math.random() * 0.5, dist = 18 + Math.random() * 14;
+    sp.className = 'spark'; sp.style.left = (cx - 2.5) + 'px'; sp.style.top = (cy - 2.5) + 'px'; sp.style.background = SPARK_COLORS[k % 4];
+    el.appendChild(sp);
+    sp.animate([{ transform: 'translate(0,0) scale(1)', opacity: 1 }, { transform: `translate(${Math.cos(a) * dist}px, ${Math.sin(a) * dist}px) scale(0.2)`, opacity: 0 }],
+      { duration: 520 + Math.random() * 160, easing: 'cubic-bezier(0.2,0.8,0.2,1)', delay: 60 }).onfinish = () => sp.remove();
+  }
 }
 document.addEventListener('click', e => {
   const t = e.target.closest('[data-tg]'); if (!t) return;
   const on = t.getAttribute('aria-checked') !== 'true';
   t.setAttribute('aria-checked', String(on));
-  setPref(t.dataset.tg, on); vibrate(6);
+  if (on) { try { navigator.vibrate && navigator.vibrate(6); } catch (err) {} }
+  sparkle(t);
+  setPref(t.dataset.tg, on);
+  if (t.dataset.tg === 'haptics' && on) vibrate([6, 30, 6]);
 });
 
-// Profil (sade): kim olduğun → ne yaşadığın (tek cümle + üç sayı) → favoriler → son şehirler → ayarlar → hesap.
-// Hareket yok denecek kadar az: içerik 180 ms'de belirir, satır silinirken 180 ms'de söner.
-function visitInfo(v) { const c = CITY[v.cityId] || {}; return { cc: v.cc || c.countryCode || '', country: c.country || '' }; }
-function profileStats() {
-  const ccs = new Set(), cities = new Set();
-  state.visits.forEach(v => { const x = visitInfo(v); if (x.cc) ccs.add(x.cc); cities.add(v.cityId); });
-  return { countries: ccs.size, cities: cities.size, listenMs: listenTotal() };
+// Profil · Yörünge: kişinin küresi ortada döner, sayılar kapsüller hâlinde etrafında süzülür.
+// Sıra: selam + ad (0) → küre & yörünge kapsülleri (70 ms) → kıtalar takımyıldızı → duraklar → favoriler → ayarlar → hesap.
+const CONTINENTS = [['EU', 'Avrupa'], ['AS', 'Asya'], ['AF', 'Afrika'], ['NA', 'K. Amerika'], ['SA', 'G. Amerika'], ['OC', 'Okyanusya']];
+function continentOf(lat, lng, tz) {
+  const z = String(tz || '').split('/')[0];
+  if (z === 'Europe' || z === 'Atlantic') return 'EU';
+  if (z === 'Asia' || z === 'Indian') return 'AS';
+  if (z === 'Africa') return 'AF';
+  if (z === 'Australia' || z === 'Pacific' || z === 'Antarctica') return 'OC';
+  if (z === 'America') return lat >= 10 ? 'NA' : 'SA';
+  if (!Number.isFinite(lat)) return null;
+  if (lng < -25) return lat >= 10 ? 'NA' : 'SA';
+  if (lat < -10 && lng > 110) return 'OC';
+  if (lng < 60 && lat > 36) return 'EU';
+  if (lng < 52 && lat <= 36) return 'AF';
+  return 'AS';
 }
-function listenText(ms) { const m = Math.floor(ms / 60000); return m >= 60 ? `${Math.floor(m / 60)} sa ${m % 60} dk` : `${m} dk`; }
+function visitInfo(v) {
+  const c = CITY[v.cityId] || {};
+  const lat = Number.isFinite(v.lat) ? v.lat : c.lat, lng = Number.isFinite(v.lng) ? v.lng : c.lng;
+  return { cc: v.cc || c.countryCode || '', lat, lng, tz: v.tz || c.timezone || '' };
+}
+function profileStats() {
+  const ccs = new Set(), cities = new Set(), conts = new Map();
+  state.visits.forEach(v => { const x = visitInfo(v); if (x.cc) ccs.add(x.cc); cities.add(v.cityId); const k = continentOf(x.lat, x.lng, x.tz); if (k) conts.set(k, (conts.get(k) || 0) + 1); });
+  return { countries: ccs.size, cities: cities.size, conts, listenMs: listenTotal() };
+}
+function listenParts(ms) { const m = Math.floor(ms / 60000); return m >= 60 ? { n: Math.floor(m / 60), u: 'sa', sub: m % 60 } : { n: m, u: 'dk', sub: null }; }
+function countUp(root) {
+  root.querySelectorAll('[data-count]').forEach(el => {
+    const to = Number(el.dataset.count) || 0;
+    if (reduceMotion.matches || to === 0 || root.classList.contains('static')) { el.textContent = String(to); return; }
+    const t0 = performance.now() + 320, D = 800;
+    el.textContent = '0';
+    const step = now => { const k = clamp((now - t0) / D, 0, 1); el.textContent = String(Math.round(to * easeOutCubic(k))); if (k < 1 && el.isConnected) requestAnimationFrame(step); };
+    requestAnimationFrame(step);
+  });
+}
 function displayName() {
-  if (state.auth === 'guest') return 'Misafir';
+  if (state.auth === 'guest') return 'Gezgin';
   return (state.email || 'Gezgin').split('@')[0].split(/[._\-+]+/).filter(Boolean).map(w => w[0].toLocaleUpperCase('tr-TR') + w.slice(1)).join(' ') || 'Gezgin';
 }
-function relDay(iso) {
-  const d = new Date(iso), n = new Date(), day = 86400000;
-  const diff = Math.floor((new Date(n.getFullYear(), n.getMonth(), n.getDate()) - new Date(d.getFullYear(), d.getMonth(), d.getDate())) / day);
-  return diff <= 0 ? 'bugün' : diff === 1 ? 'dün' : diff < 7 ? `${diff} gün önce` : stampShort(iso);
-}
+function greeting() { const h = new Date().getHours(); return h < 5 ? 'İyi geceler' : h < 12 ? 'Günaydın' : h < 18 ? 'İyi günler' : 'İyi akşamlar'; }
 function favRow(f, st) {
   const cur = !!(st && st.uuid === f.stationUuid && state.activeCityId === f.cityId);
-  return `<div class="sp-item ${cur ? 'current' : ''} ${cur && state.status !== 'playing' ? 'paused' : ''}" data-fav-uuid="${esc(f.stationUuid)}">
-    <button class="main press" data-play-fav="${f.id}" aria-label="${esc(f.stationName)} dinle"><span class="sp-ic">${icon('radio', 18)}</span><span class="tx"><b>${esc(f.stationName)}</b><span class="small">${esc(f.cityName)}${f.countryCode ? ' · ' + esc(f.countryCode) : ''}<span class="sp-now"> · çalıyor</span></span></span></button>
-    <button class="round press" data-rm-fav="${f.id}" aria-label="${esc(f.stationName)} favorilerden çıkar">${icon('heart', 19, 'filled')}</button></div>`;
+  return `<div class="px-row ${cur ? 'current' : ''} ${cur && state.status !== 'playing' ? 'paused' : ''}" data-fav-uuid="${esc(f.stationUuid)}"><button class="main press" data-play-fav="${f.id}" aria-label="${esc(f.stationName)} dinle"><span class="disc"><span class="pf-ico">${icon('radio', 18)}</span><span class="pf-eq"><i style="--t:300ms"></i><i style="--t:230ms"></i><i style="--t:350ms"></i></span></span><span class="tx"><b>${esc(f.stationName)}</b><span class="label">${esc(f.countryCode || '')} · ${esc(f.cityName)}</span></span></button><button class="round heartbtn press tight" data-rm-fav="${f.id}" aria-label="${esc(f.stationName)} favorilerden çıkar">${icon('heart', 20, 'filled')}</button></div>`;
+}
+/** Profil kürenin yerleşimi: kahraman alanındaki daire neredeyse küre orada (kaydırınca birlikte kayar). */
+function profileLayout(W, H) {
+  const el = $('#pxGlobe'), host = $('#globeStage');
+  if (!el || !host) return { cx: W / 2, cy: -400, r: 10 };
+  const h = host.getBoundingClientRect(), r = el.getBoundingClientRect();
+  return { cx: r.left - h.left + r.width / 2, cy: r.top - h.top + r.height / 2, r: r.width * 0.5 };
 }
 function renderProfile(animate = true) {
-  const guest = state.auth === 'guest', st = currentStation(), sc = profileStats();
-  const seen = new Set(), recent = state.visits.filter(v => !seen.has(v.cityId) && seen.add(v.cityId)).slice(0, 8);
+  const guest = state.auth === 'guest', st = currentStation(), sc = profileStats(), L = listenParts(sc.listenMs);
+  const seen = new Set(), stamps = state.visits.filter(v => !seen.has(v.cityId) && seen.add(v.cityId)).slice(0, 24);
+  let i = 0; const nx = () => `class="px-in" style="--i:${i++}"`;
   const root = $('#profileScroll');
   root.classList.toggle('static', !animate);
-  const summary = sc.cities
-    ? `Şimdiye kadar <b>${sc.countries} ülkeden ${sc.cities} şehrin</b> radyosunu dinledin. Toplam <b>${listenText(sc.listenMs)}</b>.`
-    : 'Henüz bir şehir dinlemedin. Küreye dön, herhangi bir yere dokun; oranın radyosu çalsın.';
   root.innerHTML = `
-    <section class="sp-sec sp-in">
-      <div class="sp-head"><span class="sp-ava">${guest ? icon('user', 22) : esc(displayName()[0])}</span>
-        <div class="tx"><h2 class="sp-name">${esc(displayName())}</h2><span class="small">${guest ? 'Misafir · veriler bu cihazda' : esc(state.email || '')}</span></div></div>
-      <p class="sp-summary">${summary}</p>
-      ${sc.cities ? `<div class="sp-stats"><div><b>${sc.countries}</b><span>ülke</span></div><div><b>${sc.cities}</b><span>şehir</span></div><div><b>${listenText(sc.listenMs)}</b><span>dinleme</span></div></div>`
-        : `<button class="btn solid press" data-tab-go="globe"><span class="lbl">Küreye dön</span></button>`}
-    </section>
-    ${guest ? `<section class="sp-sec sp-in"><div class="sp-card"><b>Hesap oluştur</b><span class="small">Favorilerin ve dinlediğin şehirler her cihazında seninle olsun.</span>
-      <div class="sp-btns"><button class="btn solid press" data-go="register"><span class="lbl">Üye ol</span></button><button class="btn line press" data-go="login"><span class="lbl">Giriş yap</span></button></div></div></section>` : ''}
-    <section class="sp-sec sp-in"><h3 class="sp-title">Favoriler</h3>
-      ${state.favorites.length ? `<div class="sp-list">${state.favorites.map(f => favRow(f, st)).join('')}</div>`
-      : `<p class="small sp-empty">Dinlerken kalbe dokunduğun istasyonlar burada durur.</p>`}</section>
-    <section class="sp-sec sp-in"><h3 class="sp-title">Son dinlediğin şehirler</h3>
-      ${recent.length ? `<div class="sp-list">${recent.map(v => `<div class="sp-item"><button class="main press" data-stamp="${esc(v.cityId)}" aria-label="${esc(v.cityName)}: kürede aç"><span class="sp-ic">${icon('globe', 18)}</span><span class="tx"><b>${esc(v.cityName)}</b><span class="small">${esc(visitInfo(v).country || visitInfo(v).cc)}</span></span><span class="small sp-when">${relDay(v.visitedAt)}</span></button></div>`).join('')}</div>`
-      : `<p class="small sp-empty">Dinlediğin her şehir buraya eklenir.</p>`}</section>
-    <section class="sp-sec sp-in"><h3 class="sp-title">Ayarlar</h3><div class="sp-list">
-      ${toggleHTML('autoplay', pref('autoplay'), 'Keşfet\'te otomatik çal', 'Kaydırdığın yayın kendiliğinden başlar')}
-      ${toggleHTML('haptics', pref('haptics'), 'Titreşim', 'Dokunuşlarda hafif geri bildirim')}
-      ${toggleHTML('badge', pref('badge'), 'Teknik bilgi', 'Küre ekranında görüntü ayrıntılarını göster')}
-      <div class="sp-sleep" id="sleepCard"></div></div></section>
-    <section class="sp-sec sp-in"><div class="sp-list">
-      <div class="sp-item"><button class="main press" id="signOut"><span class="sp-ic">${icon('log-out', 18)}</span><span class="tx"><b>${guest ? 'Misafir modundan çık' : 'Çıkış yap'}</b></span></button></div>
-      ${guest ? '' : `<div class="sp-item"><button class="main press del" id="deleteAcct"><span class="sp-ic">${icon('trash', 18)}</span><span class="tx"><b>Hesabı sil</b></span></button></div>`}
-    </div></section>`;
+    <div ${nx()}><div class="px-hero">
+      <div class="px-hi"><span class="label">${greeting()}</span><h2 class="px-name grad-text">${esc(displayName())}</h2></div>
+      <div class="px-globe" id="pxGlobe" aria-hidden="true"></div>
+      <div class="px-orb o1 fly"><b><span data-count="${sc.countries}">${sc.countries}</span></b><span class="label">ülke</span></div>
+      <div class="px-orb o2 fly"><b><span data-count="${sc.cities}">${sc.cities}</span></b><span class="label">şehir</span></div>
+      <div class="px-orb o3 fly"><b><span data-count="${L.n}">${L.n}</span><small>${L.u}</small>${L.sub !== null ? `<small>${pad(L.sub)}</small>` : ''}</b><span class="label">dinleme</span></div>
+      <span class="px-tag ${guest ? 'guest' : ''} fly">${guest ? 'MİSAFİR' : 'ÜYE'}</span>
+    </div></div>
+    ${guest ? `<div ${nx()}><div class="px-call"><b>Yolculuğunu kaybetme</b><span class="small">Damgaların ve favorilerin şu an yalnızca bu cihazda. Bir hesapla her yerde seninle.</span>
+      <div class="btns"><button class="btn solid press" data-go="register"><span class="lbl">Üye ol</span></button><button class="btn line press" data-go="login"><span class="lbl">Giriş yap</span></button></div></div></div>` : ''}
+    <div ${nx()}><div class="px-sec"><div class="px-head"><h3 class="h2">Kıtalar</h3><span class="label">${sc.conts.size === 6 ? 'dünya turu tamam' : `${sc.conts.size} / 6`}</span></div>
+      <div class="px-stars">${CONTINENTS.map(([k, n]) => `<div class="px-star ${sc.conts.has(k) ? 'on' : ''} fly"><b>${sc.conts.get(k) || 0}</b>${n}</div>`).join('')}</div></div></div>
+    <div ${nx()}><div class="px-sec"><div class="px-head"><h3 class="h2">Duraklar</h3>${stamps.length ? `<span class="label">${stamps.length} şehir</span>` : ''}</div>
+      ${stamps.length ? `<div class="px-stamps">${stamps.map((v, k) => `<button class="px-stamp press" data-stamp="${esc(v.cityId)}" aria-label="${esc(v.cityName)}: kürede aç">${stampSvg(v, k)}</button>`).join('')}</div>`
+      : `<div class="px-empty">${icon('stamp', 22)}<span><b>Henüz durak yok</b>Bir şehrin radyosu çalınca damgası buraya basılır.</span></div>`}</div></div>
+    <div ${nx()}><div class="px-sec"><div class="px-head"><h3 class="h2">Favoriler</h3>${state.favorites.length ? `<span class="label">${state.favorites.length}</span>` : ''}</div>
+      ${state.favorites.length ? `<div class="px-list">${state.favorites.map(f => favRow(f, st)).join('')}</div>`
+      : `<div class="px-empty">${icon('heart', 22)}<span><b>Henüz favorin yok</b>Dinlerken kalbe dokun ya da Keşfet'te karta çift dokun.</span></div>`}</div></div>
+    <div ${nx()}><div class="px-sec"><div class="px-head"><h3 class="h2">Ayarlar</h3></div><div class="px-card">
+      ${toggleHTML('autoplay', pref('autoplay'), 'Keşfet\'te kendiliğinden çal', 'Kart yerine oturunca yayın başlar', 'compass')}
+      ${toggleHTML('haptics', pref('haptics'), 'Titreşim', 'Dokunuşlarda hafif geri bildirim', 'sparkles')}
+      ${toggleHTML('aurora', pref('aurora'), 'Kutup ışığı', 'Arka planda süzülen renkler', 'moon')}
+      ${toggleHTML('badge', pref('badge'), 'Teknik rozet', 'Küre ekranında görüntü ayrıntıları', 'eye')}
+      <div class="px-sleep" id="sleepCard"></div>
+    </div></div></div>
+    <div ${nx()}><div class="px-acct"><button class="btn line press" id="signOut"><span class="lbl">${icon('log-out', 18)}${guest ? 'Misafirden çık' : 'Çıkış yap'}</span></button>${guest ? '' : `<button class="btn danger press" id="deleteAcct"><span class="lbl">${icon('trash', 18)}Hesabı sil</span></button>`}</div></div>`;
+  seedFly(root);
   renderSleep(true);
+  countUp(root);
   $('#signOut').addEventListener('click', async () => {
-    const ok = await confirmDialog(guest ? 'Misafir modundan çık' : 'Çıkış yap', guest ? 'Favorilerin ve dinlediğin şehirler bu cihazda kalır.' : 'Bu cihazdaki oturumun kapatılacak. Verilerin hesabında güvende.', guest ? 'Çık' : 'Çıkış yap');
+    const ok = await confirmDialog(guest ? 'Misafir modundan çık' : 'Çıkış yap', guest ? 'Favorilerin ve damgaların bu cihazda saklanmaya devam eder.' : 'Bu cihazdaki oturumun kapatılacak. Verilerin hesabında güvende.', guest ? 'Çık' : 'Çıkış yap');
     if (!ok) return; pause(); openSheet(false); state.auth = null; state.email = null; save(); history = []; go('welcome', { replace: true });
   });
   const del = $('#deleteAcct');
   if (del) del.addEventListener('click', async () => {
-    const ok = await confirmDialog('Hesabı kalıcı olarak sil', 'Favorilerin, dinlediğin şehirler ve açtığın küreler dahil tüm verilerin silinecek. Bu işlem geri alınamaz.', 'Hesabı sil');
+    const ok = await confirmDialog('Hesabı kalıcı olarak sil', 'Favorilerin, damgaların ve açtığın küreler dahil tüm verilerin silinecek. Bu işlem geri alınamaz.', 'Hesabı sil');
     if (!ok) return; pause(); openSheet(false); Object.assign(state, { auth: null, email: null, favorites: [], visits: [], theme: 'classic', unlocked: ['classic'], listenMs: 0, joinedAt: null }); save(); history = []; go('welcome', { replace: true }); toast('Hesabın silindi');
   });
 }
@@ -3805,10 +4018,9 @@ function profileSync() {
 }
 $('#profileScroll').addEventListener('click', e => {
   const g = e.target.closest('[data-go]'); if (g) { go(g.dataset.go); return; }
-  const tg = e.target.closest('[data-tab-go]'); if (tg) { setTab(tg.dataset.tabGo); return; }
   const sp = e.target.closest('[data-stamp]'); if (sp) { vibrate(6); openCity(sp.dataset.stamp); return; }
   const p = e.target.closest('[data-play-fav]'); if (p) { const f = state.favorites.find(x => x.id === p.dataset.playFav); if (f) playFavorite(f); return; }
-  const r = e.target.closest('[data-rm-fav]'); if (r) { r.closest('.sp-item').classList.add('leaving'); vibrate(6); setTimeout(() => { state.favorites = state.favorites.filter(x => x.id !== r.dataset.rmFav); save(); renderProfile(false); }, 180); }
+  const r = e.target.closest('[data-rm-fav]'); if (r) { r.closest('.px-row').classList.add('leaving'); vibrate(6); setTimeout(() => { state.favorites = state.favorites.filter(x => x.id !== r.dataset.rmFav); save(); renderProfile(false); }, 260); }
 });
 function playFavorite(f) {
   const city = CITY[f.cityId]; if (!city) return; setTab('globe');
@@ -3901,7 +4113,7 @@ $('#registerForm').addEventListener('submit', async e => {
 //  BAŞLAT
 // ═════════════════════════════════════════════════════════
 hydrateIcons();
-applyPrefs();
+seedFly(); applyPrefs();
 document.querySelectorAll('[data-go]').forEach(b => b.addEventListener('click', () => go(b.dataset.go)));
 document.querySelectorAll('[data-back]').forEach(b => b.addEventListener('click', back));
 $('#btnGuest').addEventListener('click', async () => { const b = $('#btnGuest'); setLoading(b, true); state.auth = 'guest'; save(); await sleep(250); setLoading(b, false); enterApp(); });
