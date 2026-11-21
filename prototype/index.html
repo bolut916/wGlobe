@@ -6,22 +6,22 @@
 /* Düzen: masaüstünde ortalanmış telefon + not sütunu; telefonda tam ekran uygulama.
    Uygulama tek bir dünyaya ait: gece boşluğu, sıcak fildişi yazı, pirinç yalnızca vurgu. Tek tema bilinçli. */
 :root {
-  --bg: #070716;
-  --raise: #11112C;
-  --glass: rgba(22, 20, 52, 0.52);
+  --bg: #050B18;
+  --raise: #0D1A33;
+  --glass: rgba(16, 28, 54, 0.52);
   --glass-strong: rgba(14, 13, 36, 0.86);
-  --fg: #F3F1FF;
-  --fg-2: rgba(236,234,255, 0.64);
-  --fg-3: rgba(236,234,255, 0.42);
-  --fg-4: rgba(236,234,255, 0.2);
-  --hair: rgba(236,234,255, 0.09);
-  --hair-2: rgba(236,234,255, 0.18);
-  --accent: #C9C6DE;
-  --accent-2: #E8E6F0;
-  --accent-ink: #0B0820;
+  --fg: #F2F7FF;
+  --fg-2: rgba(232,240,255, 0.64);
+  --fg-3: rgba(232,240,255, 0.42);
+  --fg-4: rgba(232,240,255, 0.2);
+  --hair: rgba(232,240,255, 0.09);
+  --hair-2: rgba(232,240,255, 0.18);
+  --accent: #9CCBFF;
+  --accent-2: #DCEEFF;
+  --accent-ink: #061226;
   --ivory-ink: #07090D;
-  --live: #E6A9B6;
-  --ok: #EEEDF4;
+  --live: #8FD0FF;
+  --ok: #EAF4FF;
   --warn: #F0C766;
   --err: #F2726A;
   --stage: #03030C;
@@ -42,9 +42,9 @@
   --sat: env(safe-area-inset-top, 0px);
   --sab: env(safe-area-inset-bottom, 0px);
   /* Aurora · Sıfır Yerçekimi */
-  --a1: #EEEDF4; --a2: #D9D8E4; --a3: #C8C5D9; --a4: #E2D2DB;
-  --grad: linear-gradient(100deg, #EEEDF4 0%, #D9D8E4 38%, #C8C5D9 68%, #E2D2DB 100%);
-  --grad-soft: linear-gradient(120deg, rgba(220,220,235,0.07), rgba(150,150,180,0.06) 45%, rgba(165,160,195,0.07) 75%, rgba(200,190,205,0.06));
+  --a1: #EAF4FF; --a2: #CFE5FF; --a3: #A9D3FF; --a4: #BFDDFF;
+  --grad: linear-gradient(100deg, #EAF4FF 0%, #CFE5FF 38%, #A9D3FF 68%, #BFDDFF 100%);
+  --grad-soft: linear-gradient(120deg, rgba(205,230,255,0.07), rgba(110,170,235,0.06) 45%, rgba(130,185,240,0.07) 75%, rgba(170,205,245,0.06));
   --display: "Bricolage Grotesque", var(--font);
   --e-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
   --e-float: cubic-bezier(0.45, 0, 0.55, 1);
@@ -92,7 +92,7 @@ svg.i.filled { fill: currentColor; }
 /* ── Katmanlar ────────────────────────────────────────── */
 .globe-stage { position: absolute; inset: 0; z-index: 1; }
 /* MapLibre vektör küre (Küre sekmesi). 400 ms ease-out ile belirir/kaybolur. */
-.map-stage { position: absolute; inset: 0; z-index: 1; opacity: 0; visibility: hidden; transition: opacity 400ms cubic-bezier(.2,.8,.2,1), visibility 0s linear 400ms; background: #060614; }
+.map-stage { position: absolute; inset: 0; z-index: 1; opacity: 0; visibility: hidden; transition: opacity 400ms cubic-bezier(.2,.8,.2,1), visibility 0s linear 400ms; background: #050B18; }
 .map-stage.on { opacity: 1; visibility: visible; transition: opacity 400ms cubic-bezier(.2,.8,.2,1), visibility 0s; }
 .map-stage .maplibregl-map { position: absolute; inset: 0; overflow: hidden; }
 .map-stage .maplibregl-canvas-container, .map-stage .maplibregl-canvas { position: absolute; left: 0; top: 0; }
@@ -154,7 +154,7 @@ svg.i.filled { fill: currentColor; }
 .skip { z-index: 5; }
 #welcome:not(.intro) .skip { opacity: 0; pointer-events: none; transition-delay: 0ms; }
 .scrim { position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity 700ms var(--e-standard);
-  background: linear-gradient(180deg, rgba(7,7,22,0.92) 0%, rgba(7,7,22,0.35) 30%, rgba(7,7,22,0) 48%, rgba(7,7,22,0.2) 62%, rgba(7,7,22,0.88) 82%, var(--bg) 100%); }
+  background: linear-gradient(180deg, rgba(5,11,24,0.92) 0%, rgba(5,11,24,0.35) 30%, rgba(5,11,24,0) 48%, rgba(5,11,24,0.2) 62%, rgba(5,11,24,0.88) 82%, var(--bg) 100%); }
 #welcome.choose .scrim { opacity: 1; }
 .chooser { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: space-between; padding: calc(var(--sat) + 17px) 24px calc(20px + var(--sab)); }
 .brand-row { min-height: 26px; }
@@ -204,7 +204,7 @@ svg.i.filled { fill: currentColor; }
 .pane.active { opacity: 1; visibility: inherit; transition: opacity 260ms var(--e-standard), visibility 0s; }
 .view:not(.active) .pane, .view:not(.active) .tabbar { pointer-events: none !important; }
 .pane.solid { background: var(--bg); }
-.pane.solid::after { content: ""; position: absolute; left: 0; right: 0; top: 0; height: calc(var(--sat) + 64px); background: linear-gradient(180deg, var(--bg) 58%, rgba(7,7,22,0)); pointer-events: none; z-index: 2; }
+.pane.solid::after { content: ""; position: absolute; left: 0; right: 0; top: 0; height: calc(var(--sat) + 64px); background: linear-gradient(180deg, var(--bg) 58%, rgba(5,11,24,0)); pointer-events: none; z-index: 2; }
 .pane:not(.active) .enter { animation: none; }
 .scroll { position: absolute; inset: 0; overflow-y: auto; padding: calc(var(--sat) + 70px) 20px calc(110px + var(--sab)); display: flex; flex-direction: column; gap: 40px; scrollbar-width: none; }
 .scroll::-webkit-scrollbar { display: none; }
@@ -221,16 +221,16 @@ svg.i.filled { fill: currentColor; }
 /* Küre sekmesi */
 /* Arama: düz yüzey, ince çizgi; bulanıklık, gölge, geçiş animasyonu yok. */
 .search { position: absolute; top: calc(var(--sat) + 64px); left: 16px; right: 16px; z-index: 11; }
-.search-field { display: flex; align-items: center; gap: 10px; height: 46px; padding: 0 6px 0 14px; background: #0E1218; border: 1px solid rgba(236,234,255,0.14); border-radius: 14px; color: var(--fg-3); }
-.search-field:focus-within { border-color: rgba(236,234,255,0.34); }
+.search-field { display: flex; align-items: center; gap: 10px; height: 46px; padding: 0 6px 0 14px; background: #0E1218; border: 1px solid rgba(232,240,255,0.14); border-radius: 14px; color: var(--fg-3); }
+.search-field:focus-within { border-color: rgba(232,240,255,0.34); }
 .search-field input { flex: 1; min-width: 0; height: 100%; background: transparent; border: 0; outline: none; color: var(--fg); font: 400 15px/1 var(--font); -webkit-appearance: none; appearance: none; }
 .search-field input::placeholder { color: var(--fg-3); }
 .search-field input::-webkit-search-cancel-button { display: none; }
 .s-clear { width: 34px; height: 34px; border: 0; background: transparent; color: var(--fg-2); font-size: 20px; line-height: 1; border-radius: 10px; cursor: pointer; }
-.search-results { margin-top: 6px; background: #0E1218; border: 1px solid rgba(236,234,255,0.14); border-radius: 14px; max-height: min(58vh, 460px); overflow-y: auto; overscroll-behavior: contain; }
+.search-results { margin-top: 6px; background: #0E1218; border: 1px solid rgba(232,240,255,0.14); border-radius: 14px; max-height: min(58vh, 460px); overflow-y: auto; overscroll-behavior: contain; }
 .sr-label { padding: 12px 14px 6px; font: 600 10px/1 var(--mono); letter-spacing: 0.12em; color: var(--fg-3); text-transform: uppercase; }
 .sr-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; padding: 11px 14px; border: 0; background: transparent; color: var(--fg); text-align: left; font: 400 15px/1.25 var(--font); cursor: pointer; }
-.sr-row:active, .sr-row:focus-visible { background: rgba(236,234,255,0.06); outline: none; }
+.sr-row:active, .sr-row:focus-visible { background: rgba(232,240,255,0.06); outline: none; }
 .sr-row .m { font-size: 12px; color: var(--fg-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 48%; text-align: right; }
 .sr-row .t { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .sr-head { display: flex; align-items: center; gap: 8px; padding: 10px 10px 4px; color: var(--fg); font: 600 15px/1.2 var(--font); }
@@ -320,80 +320,71 @@ svg.i.filled { fill: currentColor; }
 .play.active .ic-pause { opacity: 1; transform: none; }
 .play .ring { position: absolute; inset: -6px; border-radius: 50%; border: 1.5px solid var(--accent); border-top-color: transparent; border-right-color: transparent; opacity: 0; transition: opacity var(--d-toggle); animation: rot 900ms linear infinite; }
 .play.busy .ring { opacity: 1; }
-.city-tag { position: absolute; left: 0; top: 0; z-index: 9; display: flex; align-items: center; gap: 7px; padding: 6px 11px; border-radius: 16px; background: var(--glass-strong); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); box-shadow: inset 0 0 0 1px rgba(200,198,222,0.4); font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; color: var(--fg); white-space: nowrap; pointer-events: none !important; opacity: 0; will-change: transform, opacity; transition: opacity 240ms var(--e-exit); }
+.city-tag { position: absolute; left: 0; top: 0; z-index: 9; display: flex; align-items: center; gap: 7px; padding: 6px 11px; border-radius: 16px; background: var(--glass-strong); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); box-shadow: inset 0 0 0 1px rgba(160,200,245,0.4); font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; color: var(--fg); white-space: nowrap; pointer-events: none !important; opacity: 0; will-change: transform, opacity; transition: opacity 240ms var(--e-exit); }
 .city-tag.show { opacity: 1; transition: opacity 360ms var(--e-enter); }
 .city-tag b { color: var(--accent-2); font-weight: 500; }
-.city-tag::after { content: ""; position: absolute; left: 50%; bottom: -12px; width: 1px; height: 12px; background: linear-gradient(rgba(200,198,222,0.7), rgba(200,198,222,0)); }
+.city-tag::after { content: ""; position: absolute; left: 50%; bottom: -12px; width: 1px; height: 12px; background: linear-gradient(rgba(160,200,245,0.7), rgba(160,200,245,0)); }
 
-/* Keşfet — Dalga: dikey canlı yayın akışı. Kaydır → yeni bir yer, yeni bir yayın. */
+/* Keşfet — Saat Kadranı: dünya bir saat. Kadranı çevir, o anda saati o olan şehirleri dinle. */
 #pane-explore.solid::after { display: none; }
-.wave { position: absolute; inset: 0; overflow: hidden; background: #070716; }
-.wv-feed { position: absolute; inset: 0; overflow-y: auto; overflow-x: hidden; scroll-snap-type: y mandatory; overscroll-behavior: contain; scrollbar-width: none; -webkit-overflow-scrolling: touch; transition: opacity 320ms var(--e-enter); }
-.wv-feed::-webkit-scrollbar { display: none; }
-.wv-feed.dragging { scroll-snap-type: none; cursor: grabbing; }
-.wv-feed.fading { opacity: 0; transition: opacity 160ms var(--e-exit); }
-.wv-card { position: relative; display: block; width: 100%; height: 100%; margin: 0; scroll-snap-align: start; scroll-snap-stop: always; overflow: hidden; contain: layout paint; cursor: pointer; -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none; }
-.wv-img { position: absolute; inset: 0; background: radial-gradient(circle at 50% 34%, #16202e, #070716 72%); background-size: 100% 100%; opacity: 1; transform: scale(1.06); transition: transform 1400ms var(--e-enter); will-change: transform; }
-.wv-img::after { content: ""; position: absolute; inset: 0; background-image: var(--img); background-size: 100% 100%; opacity: 0; transition: opacity 600ms var(--e-standard); }
-.wv-card.wv-ready .wv-img::after { opacity: 1; }
-.wv-card.on .wv-img { transform: none; }
-.wv-shade { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(180deg, rgba(7,7,22,0.72) 0%, rgba(7,7,22,0) 20%, rgba(7,7,22,0) 44%, rgba(7,7,22,0.6) 64%, rgba(7,7,22,0.97) 88%); }
-.wv-pin { position: absolute; left: 50%; top: 34%; width: 10px; height: 10px; margin: -5px 0 0 -5px; border-radius: 50%; background: var(--accent-2); box-shadow: 0 0 0 2px rgba(7,7,22,0.6); opacity: 0; transform: scale(0.4); transition: opacity 300ms var(--e-enter), transform 420ms var(--spring-button); }
-.wv-card.wv-ready.on .wv-pin { opacity: 1; transform: none; transition-delay: 380ms; }
-.wv-pin::before, .wv-pin::after { content: ""; position: absolute; inset: -1px; border-radius: 50%; border: 1.5px solid var(--accent-2); opacity: 0; }
-.wv-card.on.wv-live .wv-pin::before, .wv-card.on.wv-live .wv-pin::after { animation: wvSonar 2400ms var(--e-standard) infinite; }
-.wv-card.on.wv-live .wv-pin::after { animation-delay: 1200ms; }
-@keyframes wvSonar { 0% { transform: scale(1); opacity: 0.9; } 100% { transform: scale(5.5); opacity: 0; } }
-.wv-info { position: absolute; left: 22px; right: 84px; bottom: calc(100px + var(--sab)); display: flex; flex-direction: column; align-items: flex-start; gap: 8px; pointer-events: none; }
-.wv-info > * { opacity: 0; transform: translateY(14px); }
-.wv-card.on .wv-info > * { animation: wvIn 380ms var(--e-enter) forwards; }
-.wv-card.on .wv-info > :nth-child(2) { animation-delay: 60ms; }
-.wv-card.on .wv-info > :nth-child(3) { animation-delay: 120ms; }
-.wv-card.on .wv-info > :nth-child(4) { animation-delay: 180ms; }
-.wv-card.on .wv-info > :nth-child(5) { animation-delay: 240ms; }
-@keyframes wvIn { to { opacity: 1; transform: none; } }
-.wv-meta { font-size: 11px; letter-spacing: 0.14em; color: rgba(236,234,255,0.72); }
-.wv-name { margin: 0; font-size: 44px; line-height: 1.02; font-weight: 650; letter-spacing: -0.045em; color: var(--fg); max-width: 100%; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow-wrap: anywhere; }
-.wv-name.m { font-size: 36px; } .wv-name.s { font-size: 29px; }
-.wv-place { font-size: 15px; color: var(--fg-2); }
-.wv-tags { display: flex; flex-wrap: wrap; gap: 6px; }
-.wv-tags span { padding: 4px 10px; border-radius: 999px; font-size: 12px; color: var(--fg-2); box-shadow: inset 0 0 0 1px rgba(236,234,255,0.18); }
-.wv-tags:empty { display: none; }
-.wv-state { display: flex; align-items: center; gap: 8px; min-height: 22px; font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; color: var(--fg-2); }
-.wv-state .ld { width: 7px; height: 7px; border-radius: 50%; background: var(--fg-4); flex: none; transition: background 160ms var(--e-standard); }
-.wv-state.wv-busy .ld { background: transparent; border: 1.5px solid var(--accent-2); border-top-color: transparent; width: 10px; height: 10px; animation: rot 800ms linear infinite; }
-.wv-state.wv-live { color: var(--accent-2); }
-.wv-state.wv-live .ld { background: var(--ok); }
-.wv-state.wv-err .ld { background: var(--err); }
-.wv-state .eq { display: none; align-items: flex-end; gap: 2px; height: 12px; }
-.wv-state.wv-live .eq { display: flex; }
-.wv-state .eq i { background: var(--accent-2); }
-.wv-top { position: absolute; left: 0; right: 0; top: calc(var(--sat) + 54px); z-index: 3; pointer-events: none; }
-.wv-chips { display: flex; gap: 8px; overflow-x: auto; padding: 0 20px 4px; scrollbar-width: none; pointer-events: auto; -webkit-mask-image: linear-gradient(90deg, #000 88%, transparent); mask-image: linear-gradient(90deg, #000 88%, transparent); }
-.wv-chips::-webkit-scrollbar { display: none; }
-.wv-chip { flex: none; min-height: 36px; padding: 0 15px; border-radius: 999px; font-size: 14px; font-weight: 550; color: var(--fg); background: rgba(7,7,22,0.55); box-shadow: inset 0 0 0 1px rgba(236,234,255,0.16); opacity: 0; transform: translateY(8px); transition: background 180ms var(--e-standard), color 180ms var(--e-standard), box-shadow 180ms var(--e-standard); }
-.wave.wv-enter .wv-chip { animation: wvIn 260ms var(--e-enter) forwards; animation-delay: calc(var(--i) * 40ms); }
-.wave.wv-shown .wv-chip { opacity: 1; transform: none; }
-.wv-chip.on { background: var(--fg); color: var(--ivory-ink); box-shadow: none; }
-.wv-chip:active { transform: scale(0.96); transition-duration: 100ms; }
-.wv-rail { position: absolute; right: 14px; bottom: calc(104px + var(--sab)); z-index: 3; display: flex; flex-direction: column; align-items: center; gap: 14px; }
-.wv-rail .round { background: rgba(7,7,22,0.5); box-shadow: inset 0 0 0 1px rgba(236,234,255,0.16); transition: opacity 180ms var(--e-standard), color 180ms var(--e-standard); }
-.wv-rail .round:active { transform: scale(0.92); }
-.wv-rail .round[disabled] { opacity: 0.35; }
-.wv-rail .round.on { color: var(--accent); }
-.wv-rail .heart { display: grid; }
-.wv-hint { position: absolute; left: 0; right: 0; bottom: calc(80px + var(--sab)); z-index: 3; display: flex; justify-content: center; pointer-events: none; font-family: var(--mono); font-size: 10px; letter-spacing: 0.2em; color: rgba(236,234,255,0.55); transition: opacity 300ms var(--e-standard); animation: wvBob 1400ms var(--e-inout) infinite alternate; }
-.wv-hint.gone { opacity: 0; }
-@keyframes wvBob { from { transform: translateY(0); } to { transform: translateY(-5px); } }
-.wv-burst { position: absolute; z-index: 4; width: 96px; height: 96px; margin: -48px 0 0 -48px; color: var(--accent); pointer-events: none; display: grid; place-items: center; }
-.wv-burst svg { width: 96px; height: 96px; fill: currentColor; stroke: none; filter: drop-shadow(0 6px 18px rgba(0,0,0,0.5)); }
-.wv-skel .wv-img::before { content: ""; position: absolute; inset: 0; background: linear-gradient(100deg, rgba(255,255,255,0) 30%, rgba(255,255,255,0.05) 50%, rgba(255,255,255,0) 70%); animation: wvShimmer 1300ms linear infinite; }
-@keyframes wvShimmer { from { transform: translateX(-100%); } to { transform: translateX(100%); } }
-.wv-skel .wv-info > * { opacity: 1; transform: none; animation: none; }
+.dk { position: absolute; inset: 0; overflow: hidden; display: flex; flex-direction: column; padding: calc(var(--sat) + 58px) 0 calc(var(--sab) + 222px); background: var(--bg); }
+.dk-sky { position: absolute; inset: 0; pointer-events: none; }
+.dk-sky i { position: absolute; inset: 0; opacity: 0; will-change: opacity; }
+.dk-orbit { position: absolute; left: 0; right: 0; top: calc(var(--sat) + 40px); height: 260px; pointer-events: none; }
+.dk-body { position: absolute; left: 0; top: 0; width: 64px; height: 64px; margin: -32px 0 0 -32px; border-radius: 50%; will-change: transform; transition: transform 900ms cubic-bezier(0.22, 1, 0.36, 1), opacity 600ms var(--e-standard); }
+.dk-body.sun { background: radial-gradient(circle, #F2F8FF 0%, #CFE5FF 42%, rgba(169,211,255,0.25) 62%, rgba(169,211,255,0) 72%); }
+.dk-body.moon { width: 40px; height: 40px; margin: -20px 0 0 -20px; background: radial-gradient(circle at 38% 38%, #EAF4FF 0%, #BFDDFF 55%, rgba(191,221,255,0) 72%); box-shadow: inset -9px -5px 0 rgba(5,11,24,0.55); }
+.dk-head { position: relative; z-index: 2; display: flex; flex-direction: column; gap: 4px; padding: 0 22px; }
+.dk-time { display: flex; align-items: baseline; font-family: var(--display); font-size: 76px; line-height: 0.95; font-weight: 750; letter-spacing: -0.05em; height: 76px; overflow: hidden; }
+.dk-time .d { display: inline-block; will-change: transform, opacity; }
+.dk-time .col { margin: 0 2px; opacity: 0.6; animation: dkBlink 2s steps(1) infinite; }
+@keyframes dkBlink { 50% { opacity: 0.15; } }
+.dk-sub { margin: 4px 0 0; font-size: 16px; line-height: 22px; color: var(--fg-2); min-height: 22px; }
+.dk-sub b { color: var(--fg); font-weight: 600; }
+.dk-cards { position: relative; z-index: 2; flex: 1; min-height: 0; display: flex; align-items: center; gap: 14px; overflow-x: auto; overflow-y: hidden; padding: 6px 22px; scroll-snap-type: x mandatory; scrollbar-width: none; overscroll-behavior-x: contain; transition: opacity 160ms var(--e-exit); }
+.dk-cards::-webkit-scrollbar { display: none; }
+.dk-cards.out { opacity: 0; }
+.dk-card { position: relative; flex: none; width: min(66%, 250px); max-height: 100%; display: flex; flex-direction: column; align-items: flex-start; gap: 4px; padding: 16px 16px 14px; border-radius: 28px; scroll-snap-align: center; background: rgba(12,22,44,0.72); box-shadow: inset 0 0 0 1px rgba(232,240,255,0.1), 0 18px 40px rgba(2,6,16,0.45); opacity: 0; animation: dkIn 520ms var(--e-spring) forwards; animation-delay: calc(min(var(--i), 6) * 60ms); }
+@keyframes dkIn { from { opacity: 0; transform: translateY(28px) scale(0.95); } to { opacity: 1; transform: none; } }
+.dk-card.static { animation: none; opacity: 1; }
+.dk-orb { position: relative; align-self: center; width: 118px; height: 118px; flex: none; margin-bottom: 8px; border-radius: 50%; background: radial-gradient(circle at 40% 35%, #183766, #08142A 70%); box-shadow: 0 0 0 1px rgba(232,240,255,0.08), 0 10px 30px rgba(110,170,235,0.18); overflow: hidden; }
+.dk-orb img { position: absolute; inset: 0; width: 100%; height: 100%; border-radius: 50%; opacity: 0; transform: scale(1.08) rotate(-6deg); transition: opacity 500ms var(--e-standard), transform 900ms var(--e-enter); }
+.dk-orb.ready img { opacity: 1; transform: none; }
+.dk-pin { position: absolute; width: 8px; height: 8px; margin: -4px 0 0 -4px; border-radius: 50%; background: var(--a1); box-shadow: 0 0 0 2px rgba(5,11,24,0.6); left: 50%; top: 50%; opacity: 0; transition: opacity 300ms var(--e-standard) 400ms; }
+.dk-orb.ready .dk-pin { opacity: 1; }
+.dk-card.is-on .dk-pin::after { content: ""; position: absolute; inset: -1px; border-radius: 50%; border: 1.5px solid var(--a1); animation: dkSonar 2000ms var(--e-standard) infinite; }
+@keyframes dkSonar { from { transform: scale(1); opacity: 0.9; } to { transform: scale(5); opacity: 0; } }
+.dk-ct { font-size: 13px; letter-spacing: 0.08em; color: var(--fg-3); }
+.dk-cn { font-family: var(--display); font-size: 26px; line-height: 30px; font-weight: 700; letter-spacing: -0.035em; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dk-cc { font-size: 13px; line-height: 18px; color: var(--fg-2); max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dk-act { display: flex; align-items: center; gap: 8px; margin-top: 10px; width: 100%; }
+.dk-play { flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; border-radius: 22px; font-size: 15px; font-weight: 600; background: var(--grad); color: var(--accent-ink); box-shadow: 0 8px 22px rgba(110,170,235,0.3); }
+.dk-play .ic-pause { display: none; }
+.dk-card.is-on.is-live .dk-play .ic-play { display: none; }
+.dk-card.is-on.is-live .dk-play .ic-pause { display: grid; }
+.dk-go { width: 44px; height: 44px; border-radius: 22px; flex: none; background: rgba(232,240,255,0.06); box-shadow: inset 0 0 0 1px rgba(232,240,255,0.12); }
+.dk-st { display: flex; align-items: center; gap: 7px; min-height: 18px; margin-top: 6px; font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.1em; color: var(--fg-3); }
+.dk-st .ld { width: 6px; height: 6px; border-radius: 50%; background: var(--fg-4); flex: none; }
+.dk-card.is-on .dk-st { color: var(--a1); }
+.dk-card.is-on.is-live .dk-st .ld { background: var(--a1); animation: pingA 1600ms var(--e-standard) infinite; }
+.dk-card.is-on.is-busy .dk-st .ld { background: var(--a2); animation: breathe 600ms var(--e-inout) infinite alternate; }
+.dk-empty { position: relative; z-index: 2; margin: auto 22px; color: var(--fg-2); font-size: 15px; line-height: 22px; }
+/* Kadran */
+.dk-dial { position: absolute; left: 0; right: 0; bottom: calc(86px + var(--sab)); height: 136px; z-index: 3; overflow: hidden; touch-action: none; cursor: grab; user-select: none; -webkit-user-select: none; outline: none;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 16%, #000 84%, transparent); mask-image: linear-gradient(90deg, transparent, #000 16%, #000 84%, transparent); }
+.dk-dial.dragging { cursor: grabbing; }
+.dk-wheel { position: absolute; left: 50%; top: 30px; width: 880px; height: 880px; margin-left: -440px; will-change: transform; }
+.dk-wheel svg { display: block; width: 880px; height: 880px; overflow: visible; }
+.dk-needle { position: absolute; left: 50%; top: 4px; width: 2px; height: 46px; margin-left: -1px; border-radius: 1px; background: var(--a1); z-index: 2; box-shadow: 0 0 12px rgba(205,230,255,0.6); }
+.dk-needle::before { content: ""; position: absolute; left: 50%; top: -2px; width: 10px; height: 10px; margin-left: -5px; border-radius: 50%; background: var(--a1); }
+.dk-hint { position: absolute; left: 0; right: 0; bottom: 10px; text-align: center; font-family: var(--mono); font-size: 10px; letter-spacing: 0.2em; color: rgba(232,240,255,0.5); pointer-events: none; transition: opacity 400ms var(--e-standard); animation: hintSway 1600ms var(--e-inout) infinite alternate; }
+.dk-hint.gone { opacity: 0; }
+@keyframes hintSway { from { transform: translateX(-6px); } to { transform: translateX(6px); } }
+.dk-dial:focus-visible .dk-needle { box-shadow: 0 0 0 3px rgba(205,230,255,0.4); }
 @media (prefers-reduced-motion: reduce) {
-  .wv-img, .wv-card.on .wv-img { transform: none; transition: none; }
-  .wv-card.on .wv-info > *, .wave.wv-enter .wv-chip { animation-duration: 1ms; animation-delay: 0ms; }
-  .wv-hint, .wv-card.on.wv-live .wv-pin::before, .wv-card.on.wv-live .wv-pin::after { animation: none; }
+  .dk-card { animation: none; opacity: 1; }
+  .dk-body, .dk-orb img { transition: none; }
+  .dk-hint, .dk-time .col { animation: none; }
 }
 
 /* Koleksiyon — Küre Cebi */
@@ -423,17 +414,17 @@ svg.i.filled { fill: currentColor; }
 @keyframes bob { from { transform: translateY(0); } to { transform: translateY(-4px); } }
 .pocket.open .marble:not(.out):hover .mb-img { transform: scale(1.06); }
 .marble.out .mb-img { opacity: 0; }
-.mb-hollow { position: absolute; width: 60px; height: 60px; border-radius: 50%; border: 1.5px dashed rgba(200,198,222,0.6); background: radial-gradient(circle, rgba(0,0,0,0.5), rgba(0,0,0,0)); opacity: 0; transform: scale(0.8); transition: opacity 240ms var(--e-standard), transform 320ms var(--spring-button); }
+.mb-hollow { position: absolute; width: 60px; height: 60px; border-radius: 50%; border: 1.5px dashed rgba(160,200,245,0.6); background: radial-gradient(circle, rgba(0,0,0,0.5), rgba(0,0,0,0)); opacity: 0; transform: scale(0.8); transition: opacity 240ms var(--e-standard), transform 320ms var(--spring-button); }
 .marble.out .mb-hollow { opacity: 1; transform: none; }
 .marble.land .mb-img { animation: land 560ms var(--spring-button) both; }
 @keyframes land { from { transform: translateY(-16px) scale(0.55); opacity: 0.2; } to { transform: none; opacity: 1; } }
 .pk-front { position: absolute; left: 0; right: 0; bottom: 0; height: 80px; filter: drop-shadow(0 -6px 14px rgba(0,0,0,0.35)) drop-shadow(0 10px 20px rgba(0,0,0,0.45)); }
 .pk-front svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 .pk-labels { position: absolute; left: 0; right: 0; bottom: 14px; display: grid; grid-template-columns: repeat(4, 1fr); justify-items: center; }
-.pk-labels span { display: flex; align-items: center; gap: 4px; font-family: var(--mono); font-size: 9px; letter-spacing: 0.1em; color: rgba(200,198,222,0.62); white-space: nowrap; transition: color var(--d-toggle); }
-.pk-labels span.on { color: #E8E6F0; }
+.pk-labels span { display: flex; align-items: center; gap: 4px; font-family: var(--mono); font-size: 9px; letter-spacing: 0.1em; color: rgba(160,200,245,0.62); white-space: nowrap; transition: color var(--d-toggle); }
+.pk-labels span.on { color: #DCEEFF; }
 .pk-labels .i { --s: 9px; }
-.pk-hint { position: absolute; left: 50%; bottom: 38px; transform: translateX(-50%); font-family: var(--mono); font-size: 9px; letter-spacing: 0.16em; color: rgba(232,230,240,0.75); white-space: nowrap; opacity: 0; transition: opacity 240ms var(--e-standard); pointer-events: none; }
+.pk-hint { position: absolute; left: 50%; bottom: 38px; transform: translateX(-50%); font-family: var(--mono); font-size: 9px; letter-spacing: 0.16em; color: rgba(220,238,255,0.75); white-space: nowrap; opacity: 0; transition: opacity 240ms var(--e-standard); pointer-events: none; }
 .pocket.open .pk-hint { opacity: 1; transition-delay: 200ms; }
 .flying { position: absolute; left: 0; top: 0; z-index: 45; pointer-events: none; transform-origin: 50% 50%; will-change: transform, opacity; }
 .screen.ink-dark .statusbar { color: #141414; }
@@ -443,7 +434,7 @@ svg.i.filled { fill: currentColor; }
 
 /* Profil */
 .identity { display: flex; align-items: center; gap: 14px; }
-.avatar { width: 54px; height: 54px; border-radius: 50%; display: grid; place-items: center; color: var(--accent-2); font-size: 21px; font-weight: 600; flex: none; background: radial-gradient(circle at 35% 30%, #2a2418, #0d0b08 70%); box-shadow: inset 0 0 0 1px rgba(200,198,222,0.35); }
+.avatar { width: 54px; height: 54px; border-radius: 50%; display: grid; place-items: center; color: var(--accent-2); font-size: 21px; font-weight: 600; flex: none; background: radial-gradient(circle at 35% 30%, #2a2418, #0d0b08 70%); box-shadow: inset 0 0 0 1px rgba(160,200,245,0.35); }
 .identity .t { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
 .identity .t b { font-size: 20px; font-weight: 600; letter-spacing: -0.02em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .callout { display: flex; flex-direction: column; gap: 16px; padding: 22px 0; border-top: 1px solid var(--hair); border-bottom: 1px solid var(--hair); }
@@ -462,7 +453,7 @@ svg.i.filled { fill: currentColor; }
 .list-row .tx { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
 .list-row .tx b { font-size: 15.5px; font-weight: 550; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .list-row .heartbtn { color: var(--accent); }
-.segmented { position: relative; display: grid; grid-template-columns: repeat(4, 1fr); height: 44px; border-radius: 22px; background: rgba(236,234,255,0.06); padding: 4px; }
+.segmented { position: relative; display: grid; grid-template-columns: repeat(4, 1fr); height: 44px; border-radius: 22px; background: rgba(232,240,255,0.06); padding: 4px; }
 .segmented .ind { position: absolute; top: 4px; bottom: 4px; left: 4px; width: calc((100% - 8px) / 4); border-radius: 18px; background: var(--fg); transition: transform 420ms var(--spring-button); }
 .segmented button { position: relative; z-index: 1; font-size: 14px; font-weight: 550; color: var(--fg-2); transition: color var(--d-toggle) var(--e-standard); }
 .segmented button.on { color: var(--ivory-ink); }
@@ -489,7 +480,7 @@ svg.i.filled { fill: currentColor; }
 .toast.show { opacity: 1; transform: translate(-50%, 0); }
 
 /* ════════════════════════════════════════════════════════════════════
-   AURORA · SIFIR YERÇEKİMİ — tasarım dili (ay ışığı paleti: inci, gri-leylak; renk patlaması yok)
+   AURORA · SIFIR YERÇEKİMİ — tasarım dili (açık mavi paleti: buz mavisi → gök mavisi; renk patlaması yok)
    Felsefe: arayüz uzayda süzülen kapsüllerden oluşur. Hiçbir şey yere
    çakılı değil; her kapsül kendi ritminde nefes alır (6–9 sn, ±4 px).
    Dokununca yay gibi esner (100 ms basış → 520 ms yaylı bırakış).
@@ -500,14 +491,14 @@ svg.i.filled { fill: currentColor; }
 /* Kutup ışığı katmanı: kürenin üstünde, arayüzün altında; yalnızca transform ile hareket eder */
 .aurora { position: absolute; inset: 0; z-index: 1; pointer-events: none; overflow: hidden; opacity: 0.5; transition: opacity 700ms var(--e-standard); }
 .aurora i { position: absolute; width: 130%; height: 70%; border-radius: 50%; will-change: transform; }
-.aurora i:nth-child(1) { left: -45%; top: -22%; background: radial-gradient(closest-side, rgba(220,220,235,0.20), rgba(220,220,235,0)); animation: auA 23s var(--e-float) infinite alternate; }
-.aurora i:nth-child(2) { right: -50%; top: 8%; background: radial-gradient(closest-side, rgba(165,160,195,0.22), rgba(165,160,195,0)); animation: auB 29s var(--e-float) infinite alternate; }
-.aurora i:nth-child(3) { left: -20%; bottom: -30%; background: radial-gradient(closest-side, rgba(200,190,205,0.14), rgba(150,150,180,0.10) 55%, rgba(150,150,180,0)); animation: auC 31s var(--e-float) infinite alternate; }
+.aurora i:nth-child(1) { left: -45%; top: -22%; background: radial-gradient(closest-side, rgba(205,230,255,0.20), rgba(205,230,255,0)); animation: auA 23s var(--e-float) infinite alternate; }
+.aurora i:nth-child(2) { right: -50%; top: 8%; background: radial-gradient(closest-side, rgba(130,185,240,0.22), rgba(130,185,240,0)); animation: auB 29s var(--e-float) infinite alternate; }
+.aurora i:nth-child(3) { left: -20%; bottom: -30%; background: radial-gradient(closest-side, rgba(170,205,245,0.14), rgba(110,170,235,0.10) 55%, rgba(110,170,235,0)); animation: auC 31s var(--e-float) infinite alternate; }
 @keyframes auA { to { transform: translate3d(18%, 14%, 0) rotate(14deg) scale(1.1); } }
 @keyframes auB { to { transform: translate3d(-22%, 18%, 0) rotate(-10deg) scale(0.92); } }
 @keyframes auC { to { transform: translate3d(16%, -16%, 0) rotate(8deg) scale(1.12); } }
 .screen.no-aurora .aurora, .screen.ink-dark .aurora { opacity: 0; }
-.screen { background: radial-gradient(120% 80% at 50% 0%, #0E0C2A 0%, var(--bg) 60%); }
+.screen { background: radial-gradient(120% 80% at 50% 0%, #0A1A33 0%, var(--bg) 60%); }
 
 /* Süzülme: transform'dan bağımsız 'translate' özelliği — basış ve giriş animasyonlarıyla çakışmaz */
 .fly { animation: drift var(--fd, 7s) var(--e-float) var(--fp, 0s) infinite alternate; }
@@ -519,35 +510,35 @@ svg.i.filled { fill: currentColor; }
 .press.tight:active { transform: scale(0.86); }
 
 /* Tipografi */
-.display, .h2, .s-city, .th-name, .wv-name, .brand-mark, .app-logo, .wordmark, .px-name, .modal-card h3, .countdown { font-family: var(--display); }
+.display, .h2, .s-city, .th-name, .brand-mark, .app-logo, .wordmark, .px-name, .modal-card h3, .countdown { font-family: var(--display); }
 .display { font-weight: 700; letter-spacing: -0.04em; }
 .h2 { font-weight: 650; letter-spacing: -0.03em; }
 .label.accent { color: var(--a1); }
 .grad-text, .app-logo span, .brand-mark span, .wordmark .ch.g { background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
 
 /* Kapsül (pod): cam + kutup ışığı kenarı */
-.pod { position: relative; background: var(--glass-strong); border-radius: var(--pod-r); box-shadow: 0 18px 50px rgba(3,2,18,0.45); -webkit-backdrop-filter: blur(22px) saturate(1.5); backdrop-filter: blur(22px) saturate(1.5); }
+.pod { position: relative; background: var(--glass-strong); border-radius: var(--pod-r); box-shadow: 0 18px 50px rgba(2,6,16,0.45); -webkit-backdrop-filter: blur(22px) saturate(1.5); backdrop-filter: blur(22px) saturate(1.5); }
 .rim::before { content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1px; background: var(--grad); opacity: 0.55; pointer-events: none;
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0); }
 
 /* Düğmeler */
 .btn { border-radius: 22px; font-weight: 600; }
-.btn.solid, .btn.brass { background: var(--grad); color: var(--accent-ink); box-shadow: 0 10px 30px rgba(150,150,180,0.28), inset 0 1px 0 rgba(255,255,255,0.45); background-size: 160% 100%; background-position: 0% 50%; transition: transform 520ms var(--e-spring), background-position 900ms var(--e-standard), opacity var(--d-toggle); }
+.btn.solid, .btn.brass { background: var(--grad); color: var(--accent-ink); box-shadow: 0 10px 30px rgba(110,170,235,0.28), inset 0 1px 0 rgba(255,255,255,0.45); background-size: 160% 100%; background-position: 0% 50%; transition: transform 520ms var(--e-spring), background-position 900ms var(--e-standard), opacity var(--d-toggle); }
 .btn.solid:hover, .btn.brass:hover { background-position: 100% 50%; }
-.btn.line { background: rgba(236,234,255,0.05); box-shadow: inset 0 0 0 1px rgba(236,234,255,0.16); }
+.btn.line { background: rgba(232,240,255,0.05); box-shadow: inset 0 0 0 1px rgba(232,240,255,0.16); }
 .btn.danger { background: rgba(242,114,106,0.08); }
-.round.glass { background: var(--glass); box-shadow: inset 0 0 0 1px rgba(236,234,255,0.12), 0 10px 28px rgba(3,2,18,0.35); }
+.round.glass { background: var(--glass); box-shadow: inset 0 0 0 1px rgba(232,240,255,0.12), 0 10px 28px rgba(2,6,16,0.35); }
 
 /* Sekme geçişi: sekme sırasına göre yandan gelir, yay gibi oturur */
 .pane { transform: translate3d(calc(var(--pdir, 0) * 36px), 0, 0) scale(0.985); transition: opacity 200ms var(--e-exit), transform 240ms var(--e-exit), visibility 0s linear 240ms; }
 .pane.active { transform: none; transition: opacity 360ms var(--e-enter), transform 640ms var(--e-spring), visibility 0s; }
 .pane.solid { background: transparent; }
 #pane-explore.solid { background: var(--bg); }
-.pane.solid::after { background: linear-gradient(180deg, rgba(7,7,22,0.85) 40%, rgba(7,7,22,0)); }
+.pane.solid::after { background: linear-gradient(180deg, rgba(5,11,24,0.85) 40%, rgba(5,11,24,0)); }
 
 /* Dok: süzülen sıvı kapsül, etkin sekmeyi kutup ışığı damlası işaretler */
-.tabbar { left: 14px; right: 14px; bottom: calc(12px + var(--sab)); height: 66px; border-radius: 33px; padding: 7px; gap: 0; background: rgba(14,13,36,0.78); box-shadow: 0 20px 50px rgba(3,2,18,0.55), inset 0 0 0 1px rgba(236,234,255,0.1); overflow: visible; }
-.dock-blob { position: absolute; left: 0; top: 7px; height: 52px; border-radius: 26px; background: var(--grad); box-shadow: 0 8px 26px rgba(150,150,180,0.45), inset 0 1px 0 rgba(255,255,255,0.5); transform-origin: 50% 50%; will-change: transform, width; pointer-events: none; z-index: 0; opacity: 0; }
+.tabbar { left: 14px; right: 14px; bottom: calc(12px + var(--sab)); height: 66px; border-radius: 33px; padding: 7px; gap: 0; background: rgba(10,19,40,0.78); box-shadow: 0 20px 50px rgba(2,6,16,0.55), inset 0 0 0 1px rgba(232,240,255,0.1); overflow: visible; }
+.dock-blob { position: absolute; left: 0; top: 7px; height: 52px; border-radius: 26px; background: var(--grad); box-shadow: 0 8px 26px rgba(110,170,235,0.45), inset 0 1px 0 rgba(255,255,255,0.5); transform-origin: 50% 50%; will-change: transform, width; pointer-events: none; z-index: 0; opacity: 0; }
 .dock-blob.ready { opacity: 1; transition: opacity 300ms var(--e-enter); }
 .tab { position: relative; z-index: 1; border-radius: 26px; gap: 3px; color: var(--fg-3); font-size: 10.5px; font-weight: 600; transition: color 260ms var(--e-standard); }
 .tab .dot { display: none; }
@@ -560,85 +551,71 @@ svg.i.filled { fill: currentColor; }
 .app-logo { font-weight: 800; letter-spacing: -0.05em; }
 
 /* Küre sekmesi */
-.search-field { height: 50px; border-radius: 25px; padding: 0 8px 0 18px; background: rgba(16,14,40,0.78); border: 1px solid rgba(236,234,255,0.12); box-shadow: 0 14px 34px rgba(3,2,18,0.35); transition: border-color 180ms var(--e-standard), box-shadow 280ms var(--e-standard); }
-.search-field:focus-within { border-color: rgba(150,150,180,0.6); box-shadow: 0 0 0 4px rgba(150,150,180,0.12), 0 14px 34px rgba(3,2,18,0.35); }
+.search-field { height: 50px; border-radius: 25px; padding: 0 8px 0 18px; background: rgba(12,22,44,0.78); border: 1px solid rgba(232,240,255,0.12); box-shadow: 0 14px 34px rgba(2,6,16,0.35); transition: border-color 180ms var(--e-standard), box-shadow 280ms var(--e-standard); }
+.search-field:focus-within { border-color: rgba(110,170,235,0.6); box-shadow: 0 0 0 4px rgba(110,170,235,0.12), 0 14px 34px rgba(2,6,16,0.35); }
 .s-clear { border-radius: 17px; }
-.search-results { border-radius: 24px; background: rgba(16,14,40,0.96); border: 1px solid rgba(236,234,255,0.12); margin-top: 8px; }
+.search-results { border-radius: 24px; background: rgba(12,22,44,0.96); border: 1px solid rgba(232,240,255,0.12); margin-top: 8px; }
 .sr-row { border-radius: 14px; }
-.sr-row:active, .sr-row:focus-visible { background: rgba(150,150,180,0.12); }
+.sr-row:active, .sr-row:focus-visible { background: rgba(110,170,235,0.12); }
 .topbar .round { width: 48px; height: 48px; border-radius: 24px; }
-.live { border-radius: 26px; background: rgba(16,14,40,0.78); box-shadow: 0 14px 34px rgba(3,2,18,0.4), inset 0 0 0 1px rgba(236,234,255,0.12); }
+.live { border-radius: 26px; background: rgba(12,22,44,0.78); box-shadow: 0 14px 34px rgba(2,6,16,0.4), inset 0 0 0 1px rgba(232,240,255,0.12); }
 .live.playing .dot { background: var(--a1); animation: pingA 1600ms var(--e-standard) infinite; }
 .live.playing .lab { color: var(--a1); }
 .eq i { background: var(--a1); }
-@keyframes pingA { 0% { box-shadow: 0 0 0 0 rgba(220,220,235,0.55); } 100% { box-shadow: 0 0 0 10px rgba(220,220,235,0); } }
-.sheet { left: 12px; right: 12px; bottom: calc(92px + var(--sab)); border-radius: 34px; background: rgba(14,13,36,0.9); box-shadow: 0 30px 70px rgba(3,2,18,0.6); }
+@keyframes pingA { 0% { box-shadow: 0 0 0 0 rgba(205,230,255,0.55); } 100% { box-shadow: 0 0 0 10px rgba(205,230,255,0); } }
+.sheet { left: 12px; right: 12px; bottom: calc(92px + var(--sab)); border-radius: 34px; background: rgba(10,19,40,0.9); box-shadow: 0 30px 70px rgba(2,6,16,0.6); }
 .sheet::before { content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1px; background: var(--grad); opacity: 0.45; pointer-events: none; -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0); }
 .s-city { font-weight: 750; letter-spacing: -0.045em; }
 .viz i { background: linear-gradient(180deg, var(--a1), var(--a2) 50%, var(--a3)); border-radius: 3px; }
-.play { background: var(--grad); color: var(--accent-ink); box-shadow: 0 10px 28px rgba(150,150,180,0.4), inset 0 1px 0 rgba(255,255,255,0.5); }
+.play { background: var(--grad); color: var(--accent-ink); box-shadow: 0 10px 28px rgba(110,170,235,0.4), inset 0 1px 0 rgba(255,255,255,0.5); }
 .play.active:not(.busy) { animation: playGlow 2400ms var(--e-float) infinite alternate; }
-@keyframes playGlow { from { box-shadow: 0 10px 28px rgba(150,150,180,0.35), inset 0 1px 0 rgba(255,255,255,0.5); } to { box-shadow: 0 10px 40px rgba(165,160,195,0.65), inset 0 1px 0 rgba(255,255,255,0.5); } }
+@keyframes playGlow { from { box-shadow: 0 10px 28px rgba(110,170,235,0.35), inset 0 1px 0 rgba(255,255,255,0.5); } to { box-shadow: 0 10px 40px rgba(130,185,240,0.65), inset 0 1px 0 rgba(255,255,255,0.5); } }
 .play .ring { border-color: var(--a1); border-top-color: transparent; border-right-color: transparent; }
 .st-status.on-air .ld { background: var(--a1); animation: pingA 1600ms var(--e-standard) infinite; }
 .ctl.fav.on { color: var(--a4); }
-.city-tag { border-radius: 18px; background: rgba(16,14,40,0.86); box-shadow: inset 0 0 0 1px rgba(150,150,180,0.45); }
-.city-tag::after { background: linear-gradient(rgba(150,150,180,0.8), rgba(150,150,180,0)); }
+.city-tag { border-radius: 18px; background: rgba(12,22,44,0.86); box-shadow: inset 0 0 0 1px rgba(110,170,235,0.45); }
+.city-tag::after { background: linear-gradient(rgba(110,170,235,0.8), rgba(110,170,235,0)); }
 
-/* Keşfet */
-#pane-explore .wave { background: var(--bg); }
-.wv-chip { min-height: 38px; border-radius: 19px; background: rgba(16,14,40,0.62); box-shadow: inset 0 0 0 1px rgba(236,234,255,0.14); }
-.wv-chip.on { background: var(--grad); color: var(--accent-ink); box-shadow: 0 8px 22px rgba(150,150,180,0.35); }
-.wv-rail .round { width: 50px; height: 50px; border-radius: 25px; background: rgba(16,14,40,0.6); box-shadow: inset 0 0 0 1px rgba(236,234,255,0.14), 0 10px 24px rgba(3,2,18,0.4); }
-.wv-rail .round.on { color: var(--a4); }
-.wv-pin { background: var(--a1); box-shadow: 0 0 0 3px rgba(7,7,22,0.55), 0 0 18px rgba(220,220,235,0.8); }
-.wv-pin::before, .wv-pin::after { border-color: var(--a1); }
-.wv-name { font-weight: 750; letter-spacing: -0.05em; }
-.wv-tags span { border-radius: 12px; background: rgba(236,234,255,0.06); box-shadow: none; }
-.wv-state.wv-live { color: var(--a1); }
-.wv-state.wv-live .ld { background: var(--a1); }
-.wv-state .eq i { background: var(--a1); }
-.wv-burst { color: var(--a4); }
 
 /* Koleksiyon: cep yerine yörüngede süzülen cam tepsi */
-.pk-front { filter: drop-shadow(0 16px 30px rgba(3,2,18,0.55)); }
-.pk-mouth { background: radial-gradient(ellipse at 50% 62%, rgba(150,150,180,0.35) 0%, rgba(20,16,60,0.6) 45%, rgba(7,7,22,0) 72%); }
-.pk-labels span { color: rgba(236,234,255,0.5); }
+.pk-front { filter: drop-shadow(0 16px 30px rgba(2,6,16,0.55)); }
+.pk-mouth { background: radial-gradient(ellipse at 50% 62%, rgba(110,170,235,0.35) 0%, rgba(14,30,62,0.6) 45%, rgba(5,11,24,0) 72%); }
+.pk-labels span { color: rgba(232,240,255,0.5); }
 .pk-labels span.on { color: var(--a1); }
-.pk-hint { color: rgba(232,230,240,0.85); }
-.mb-hollow { border-color: rgba(150,150,180,0.7); }
+.pk-hint { color: rgba(220,238,255,0.85); }
+.mb-hollow { border-color: rgba(110,170,235,0.7); }
 .th-name { font-weight: 750; letter-spacing: -0.045em; font-size: 38px; line-height: 42px; }
 .th-action { border-radius: 22px; }
 
 /* Kimlik ekranları */
-.field { border-bottom: 0; border-radius: 18px; padding: 0 6px 0 16px; background: rgba(236,234,255,0.05); box-shadow: inset 0 0 0 1px rgba(236,234,255,0.12); transition: box-shadow 220ms var(--e-standard), background 220ms var(--e-standard); }
+.field { border-bottom: 0; border-radius: 18px; padding: 0 6px 0 16px; background: rgba(232,240,255,0.05); box-shadow: inset 0 0 0 1px rgba(232,240,255,0.12); transition: box-shadow 220ms var(--e-standard), background 220ms var(--e-standard); }
 .field::after { display: none; }
-.field:focus-within { background: rgba(150,150,180,0.08); box-shadow: inset 0 0 0 1.5px rgba(150,150,180,0.75), 0 0 0 4px rgba(150,150,180,0.1); color: var(--a2); }
+.field:focus-within { background: rgba(110,170,235,0.08); box-shadow: inset 0 0 0 1.5px rgba(110,170,235,0.75), 0 0 0 4px rgba(110,170,235,0.1); color: var(--a2); }
 .field.err { box-shadow: inset 0 0 0 1.5px rgba(242,114,106,0.8); }
 .field input { padding: 15px 0 14px; caret-color: var(--a1); }
 .field-wrap .label { margin-bottom: 6px; display: block; }
-.notice { border: 0; border-radius: 18px; padding: 14px 16px; background: rgba(236,234,255,0.05); }
+.notice { border: 0; border-radius: 18px; padding: 14px 16px; background: rgba(232,240,255,0.05); }
 .notice .i { color: var(--a1); }
 .seg { height: 4px; border-radius: 2px; }
-.scrim { background: linear-gradient(180deg, rgba(7,7,22,0.9) 0%, rgba(7,7,22,0.3) 30%, rgba(7,7,22,0) 48%, rgba(7,7,22,0.2) 62%, rgba(7,7,22,0.9) 82%, var(--bg) 100%); }
+.scrim { background: linear-gradient(180deg, rgba(5,11,24,0.9) 0%, rgba(5,11,24,0.3) 30%, rgba(5,11,24,0) 48%, rgba(5,11,24,0.2) 62%, rgba(5,11,24,0.9) 82%, var(--bg) 100%); }
 .ch-top .display { font-size: 44px; line-height: 46px; }
 
 /* Onay & bildirim */
-.modal-card { border-radius: 34px; background: rgba(14,13,36,0.94); }
-.toast { border-radius: 20px; background: rgba(16,14,40,0.92); box-shadow: 0 14px 34px rgba(3,2,18,0.45), inset 0 0 0 1px rgba(150,150,180,0.35); }
+.modal-card { border-radius: 34px; background: rgba(10,19,40,0.94); }
+.toast { border-radius: 20px; background: rgba(12,22,44,0.92); box-shadow: 0 14px 34px rgba(2,6,16,0.45), inset 0 0 0 1px rgba(110,170,235,0.35); }
 
 /* Anahtar (toggle): sıvı topuz esner, açılınca kıvılcım saçar */
-.tg { position: relative; width: 56px; height: 34px; flex: none; border-radius: 17px; background: rgba(236,234,255,0.1); box-shadow: inset 0 0 0 1px rgba(236,234,255,0.12); transition: background 260ms var(--e-standard), box-shadow 260ms var(--e-standard); overflow: visible; }
+.tg { position: relative; width: 56px; height: 34px; flex: none; border-radius: 17px; background: rgba(232,240,255,0.1); box-shadow: inset 0 0 0 1px rgba(232,240,255,0.12); transition: background 260ms var(--e-standard), box-shadow 260ms var(--e-standard); overflow: visible; }
 .tg::before { content: ""; position: absolute; inset: 0; border-radius: inherit; background: var(--grad); opacity: 0; transition: opacity 260ms var(--e-standard); }
 .tg[aria-checked="true"]::before { opacity: 1; }
-.tg[aria-checked="true"] { box-shadow: 0 6px 18px rgba(150,150,180,0.4); }
-.tg .knob { position: absolute; left: 4px; top: 4px; width: 26px; height: 26px; border-radius: 13px; background: #F3F1FF; box-shadow: 0 3px 8px rgba(3,2,18,0.35); transform: translateX(0); transition: transform 520ms var(--e-spring); }
+.tg[aria-checked="true"] { box-shadow: 0 6px 18px rgba(110,170,235,0.4); }
+.tg .knob { position: absolute; left: 4px; top: 4px; width: 26px; height: 26px; border-radius: 13px; background: #F2F7FF; box-shadow: 0 3px 8px rgba(2,6,16,0.35); transform: translateX(0); transition: transform 520ms var(--e-spring); }
 .tg[aria-checked="true"] .knob { transform: translateX(22px); }
 .spark { position: absolute; width: 5px; height: 5px; border-radius: 50%; pointer-events: none; z-index: 5; }
 
 /* Segment (uyku): damla yaylı kayar */
-.segmented { height: 48px; border-radius: 24px; background: rgba(236,234,255,0.06); padding: 5px; }
-.segmented .ind { top: 5px; bottom: 5px; left: 5px; width: calc((100% - 10px) / 4); border-radius: 19px; background: var(--grad); box-shadow: 0 6px 18px rgba(150,150,180,0.35); transition: transform 560ms var(--e-spring); }
+.segmented { height: 48px; border-radius: 24px; background: rgba(232,240,255,0.06); padding: 5px; }
+.segmented .ind { top: 5px; bottom: 5px; left: 5px; width: calc((100% - 10px) / 4); border-radius: 19px; background: var(--grad); box-shadow: 0 6px 18px rgba(110,170,235,0.35); transition: transform 560ms var(--e-spring); }
 .segmented button { text-align: center; }
 .segmented button.on { color: var(--accent-ink); }
 .track i { background: var(--grad); }
@@ -651,7 +628,7 @@ svg.i.filled { fill: currentColor; }
 .px-hi { position: absolute; left: 20px; top: 0; right: 20px; display: flex; flex-direction: column; gap: 2px; }
 .px-hi .label { color: var(--fg-2); }
 .px-name { margin: 0; font-size: 40px; line-height: 44px; font-weight: 800; letter-spacing: -0.05em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.px-orb { position: absolute; z-index: 2; display: flex; flex-direction: column; align-items: flex-start; gap: 1px; padding: 12px 16px; border-radius: 24px; background: rgba(16,14,40,0.7); box-shadow: inset 0 0 0 1px rgba(236,234,255,0.12), 0 16px 34px rgba(3,2,18,0.45); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); }
+.px-orb { position: absolute; z-index: 2; display: flex; flex-direction: column; align-items: flex-start; gap: 1px; padding: 12px 16px; border-radius: 24px; background: rgba(12,22,44,0.7); box-shadow: inset 0 0 0 1px rgba(232,240,255,0.12), 0 16px 34px rgba(2,6,16,0.45); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); }
 .px-orb b { font-family: var(--display); font-size: 30px; line-height: 32px; font-weight: 750; letter-spacing: -0.04em; font-variant-numeric: tabular-nums; }
 .px-orb b small { font-size: 14px; font-weight: 600; color: var(--fg-2); margin-left: 2px; letter-spacing: 0; }
 .px-orb .label { font-size: 10px; }
@@ -659,24 +636,24 @@ svg.i.filled { fill: currentColor; }
 .px-orb.o2 { right: 16px; top: 156px; }
 .px-orb.o3 { left: 30px; bottom: 6px; }
 .px-tag { position: absolute; right: 18px; bottom: 26px; z-index: 2; padding: 7px 12px; border-radius: 14px; font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em; color: var(--accent-ink); background: var(--grad); }
-.px-tag.guest { color: var(--fg); background: rgba(16,14,40,0.75); box-shadow: inset 0 0 0 1px rgba(236,234,255,0.16); }
+.px-tag.guest { color: var(--fg); background: rgba(12,22,44,0.75); box-shadow: inset 0 0 0 1px rgba(232,240,255,0.16); }
 .px-sec { display: flex; flex-direction: column; gap: 14px; }
 .px-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
 .px-stars { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px 10px; justify-items: center; }
-.px-star { width: 92px; height: 92px; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; text-align: center; font-size: 12px; color: var(--fg-3); background: rgba(236,234,255,0.04); box-shadow: inset 0 0 0 1px rgba(236,234,255,0.1); }
+.px-star { width: 92px; height: 92px; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; text-align: center; font-size: 12px; color: var(--fg-3); background: rgba(232,240,255,0.04); box-shadow: inset 0 0 0 1px rgba(232,240,255,0.1); }
 .px-star b { font-family: var(--display); font-size: 22px; font-weight: 750; letter-spacing: -0.03em; color: var(--fg-4); }
-.px-star.on { color: var(--accent-ink); background: var(--grad); box-shadow: 0 12px 30px rgba(150,150,180,0.35), inset 0 1px 0 rgba(255,255,255,0.5); }
+.px-star.on { color: var(--accent-ink); background: var(--grad); box-shadow: 0 12px 30px rgba(110,170,235,0.35), inset 0 1px 0 rgba(255,255,255,0.5); }
 .px-star.on b { color: var(--accent-ink); }
 .px-star:nth-child(3n+2) { margin-top: 26px; }
 .px-stamps { display: flex; gap: 8px; overflow-x: auto; margin: 0 -20px; padding: 6px 20px 10px; scrollbar-width: none; scroll-snap-type: x proximity; }
 .px-stamps::-webkit-scrollbar { display: none; }
-.px-stamp { flex: none; width: 100px; height: 100px; display: grid; place-items: center; scroll-snap-align: start; border-radius: 50%; background: rgba(236,234,255,0.03); }
+.px-stamp { flex: none; width: 100px; height: 100px; display: grid; place-items: center; scroll-snap-align: start; border-radius: 50%; background: rgba(232,240,255,0.03); }
 .px-stamp svg { width: 92px; height: 92px; }
 .px-list { display: flex; flex-direction: column; gap: 8px; }
-.px-row { position: relative; display: flex; align-items: center; gap: 10px; padding: 6px 6px 6px 8px; border-radius: 22px; background: rgba(16,14,40,0.6); box-shadow: inset 0 0 0 1px rgba(236,234,255,0.08); transition: opacity 200ms var(--e-exit), transform 260ms var(--e-exit); }
+.px-row { position: relative; display: flex; align-items: center; gap: 10px; padding: 6px 6px 6px 8px; border-radius: 22px; background: rgba(12,22,44,0.6); box-shadow: inset 0 0 0 1px rgba(232,240,255,0.08); transition: opacity 200ms var(--e-exit), transform 260ms var(--e-exit); }
 .px-row.leaving { opacity: 0; transform: translateX(40px) scale(0.96); }
 .px-row .main { flex: 1; min-width: 0; display: flex; align-items: center; gap: 12px; min-height: 52px; text-align: left; }
-.px-row .disc { width: 42px; height: 42px; border-radius: 21px; flex: none; display: grid; place-items: center; color: var(--fg-2); background: rgba(236,234,255,0.06); }
+.px-row .disc { width: 42px; height: 42px; border-radius: 21px; flex: none; display: grid; place-items: center; color: var(--fg-2); background: rgba(232,240,255,0.06); }
 .px-row.current .disc { background: var(--grad); color: var(--accent-ink); }
 .px-row .tx { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
 .px-row .tx b { font-size: 15.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -686,19 +663,19 @@ svg.i.filled { fill: currentColor; }
 .px-row.current .pf-ico { display: none; }
 .px-row .pf-eq i { width: 3px; height: 14px; border-radius: 1.5px; background: var(--accent-ink); transform-origin: bottom; animation: eq var(--t) var(--e-inout) infinite alternate; }
 .px-row.current.paused .pf-eq i { animation-play-state: paused; }
-.px-card { padding: 8px 18px; border-radius: 28px; background: rgba(16,14,40,0.6); box-shadow: inset 0 0 0 1px rgba(236,234,255,0.08); display: flex; flex-direction: column; }
-.px-set { display: flex; align-items: center; gap: 14px; min-height: 66px; border-bottom: 1px solid rgba(236,234,255,0.07); }
+.px-card { padding: 8px 18px; border-radius: 28px; background: rgba(12,22,44,0.6); box-shadow: inset 0 0 0 1px rgba(232,240,255,0.08); display: flex; flex-direction: column; }
+.px-set { display: flex; align-items: center; gap: 14px; min-height: 66px; border-bottom: 1px solid rgba(232,240,255,0.07); }
 .px-set:last-child { border-bottom: 0; }
-.px-set .ico { width: 40px; height: 40px; border-radius: 20px; flex: none; display: grid; place-items: center; color: var(--a2); background: rgba(150,150,180,0.1); }
+.px-set .ico { width: 40px; height: 40px; border-radius: 20px; flex: none; display: grid; place-items: center; color: var(--a2); background: rgba(110,170,235,0.1); }
 .px-set .tx { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
 .px-set .tx b { font-size: 15.5px; font-weight: 600; }
 .px-sleep { padding: 16px 0 14px; display: flex; flex-direction: column; gap: 12px; }
 .px-sleep .sec-head { display: flex; align-items: baseline; justify-content: space-between; }
 .px-sleep .h2 { font-size: 17px; line-height: 22px; }
-.px-empty { display: flex; align-items: center; gap: 14px; padding: 18px; border-radius: 24px; background: rgba(16,14,40,0.5); box-shadow: inset 0 0 0 1px rgba(236,234,255,0.08); color: var(--fg-2); font-size: 14px; line-height: 20px; }
+.px-empty { display: flex; align-items: center; gap: 14px; padding: 18px; border-radius: 24px; background: rgba(12,22,44,0.5); box-shadow: inset 0 0 0 1px rgba(232,240,255,0.08); color: var(--fg-2); font-size: 14px; line-height: 20px; }
 .px-empty .i { color: var(--a3); flex: none; }
 .px-empty b { display: block; color: var(--fg); font-weight: 600; margin-bottom: 2px; }
-.px-call { padding: 20px; border-radius: 28px; background: var(--grad-soft), rgba(16,14,40,0.7); box-shadow: inset 0 0 0 1px rgba(150,150,180,0.3); display: flex; flex-direction: column; gap: 14px; }
+.px-call { padding: 20px; border-radius: 28px; background: var(--grad-soft), rgba(12,22,44,0.7); box-shadow: inset 0 0 0 1px rgba(110,170,235,0.3); display: flex; flex-direction: column; gap: 14px; }
 .px-call b { font-family: var(--display); font-size: 21px; font-weight: 700; letter-spacing: -0.03em; }
 .px-call .btns { display: flex; gap: 10px; }
 .px-call .btn { min-height: 48px; font-size: 15px; }
@@ -716,7 +693,7 @@ svg.i.filled { fill: currentColor; }
 
 .screen.no-debug .lod-badge { display: none !important; }
 [hidden] { display: none !important; }
-#pane-profile::after { content: ""; position: absolute; left: 0; right: 0; top: 0; height: calc(var(--sat) + 78px); background: linear-gradient(180deg, rgba(8,7,24,0.97) 0%, rgba(8,7,24,0.9) 55%, rgba(8,7,24,0)); pointer-events: none; z-index: 2; }
+#pane-profile::after { content: ""; position: absolute; left: 0; right: 0; top: 0; height: calc(var(--sat) + 78px); background: linear-gradient(180deg, rgba(6,12,26,0.97) 0%, rgba(6,12,26,0.9) 55%, rgba(6,12,26,0)); pointer-events: none; z-index: 2; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 1ms !important; animation-iteration-count: 1 !important; transition-duration: 1ms !important; transition-delay: 0ms !important; }
 }
@@ -825,15 +802,20 @@ svg.i.filled { fill: currentColor; }
           </div>
         </div>
         <div class="pane solid" id="pane-explore">
-          <div class="wave" id="wave">
-            <div class="wv-feed" id="wvFeed" role="feed" aria-label="Canlı yayın akışı: yukarı kaydırarak yeni bir yer keşfet" tabindex="0"></div>
-            <div class="wv-top"><div class="wv-chips" id="wvChips" role="tablist" aria-label="Tür"></div></div>
-            <div class="wv-rail">
-              <button class="round press fly" id="wvFav" aria-label="Favorilere ekle"><span class="heart" id="wvHeart"></span></button>
-              <button class="round press fly" id="wvGlobe" aria-label="Kürede aç"><span data-icon="globe" data-size="20"></span></button>
-              <button class="round press fly" id="wvNext" aria-label="Sonraki yayın"><span data-icon="skip-forward" data-size="18"></span></button>
+          <div class="dk" id="dk">
+            <div class="dk-sky" aria-hidden="true"><i id="dkSkyA"></i><i id="dkSkyB"></i></div>
+            <div class="dk-orbit" aria-hidden="true"><span class="dk-body sun" id="dkSun"></span><span class="dk-body moon" id="dkMoon"></span></div>
+            <div class="dk-head">
+              <span class="label" id="dkKicker">ŞU AN DÜNYADA</span>
+              <div class="dk-time num" id="dkTime" aria-live="polite"></div>
+              <p class="dk-sub" id="dkSub"></p>
             </div>
-            <div class="wv-hint" id="wvHint">↑ KAYDIR · YENİ BİR YER</div>
+            <div class="dk-cards" id="dkCards" role="list" aria-label="Bu saatteki şehirler"></div>
+            <div class="dk-dial" id="dkDial" role="slider" tabindex="0" aria-label="Saat kadranı: çevirerek saat seç" aria-valuemin="0" aria-valuemax="23" aria-valuenow="0">
+              <div class="dk-wheel" id="dkWheel"></div>
+              <span class="dk-needle"></span>
+              <span class="dk-hint" id="dkHint">← SAATİ ÇEVİR →</span>
+            </div>
           </div>
         </div>
         <div class="pane" id="pane-themes">
@@ -854,8 +836,8 @@ svg.i.filled { fill: currentColor; }
             <div class="pk-front">
               <svg viewBox="0 0 362 80" preserveAspectRatio="none" aria-hidden="true">
                 <defs>
-                  <linearGradient id="trayGlass" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1C1A48" stop-opacity="0.92"/><stop offset="1" stop-color="#0D0C26" stop-opacity="0.96"/></linearGradient>
-                  <linearGradient id="trayRim" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#EEEDF4"/><stop offset="0.38" stop-color="#D9D8E4"/><stop offset="0.68" stop-color="#C8C5D9"/><stop offset="1" stop-color="#E2D2DB"/></linearGradient>
+                  <linearGradient id="trayGlass" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#142A4E" stop-opacity="0.92"/><stop offset="1" stop-color="#0A1630" stop-opacity="0.96"/></linearGradient>
+                  <linearGradient id="trayRim" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#EAF4FF"/><stop offset="0.38" stop-color="#CFE5FF"/><stop offset="0.68" stop-color="#A9D3FF"/><stop offset="1" stop-color="#BFDDFF"/></linearGradient>
                 </defs>
                 <path d="M0 24 Q181 -4 362 24 L362 52 Q362 80 334 80 L28 80 Q0 80 0 52 Z" fill="url(#trayGlass)"/>
                 <path d="M1 24 Q181 -3 361 24" fill="none" stroke="url(#trayRim)" stroke-width="1.6" stroke-opacity="0.9"/>
@@ -1660,7 +1642,7 @@ const Globe = (() => {
 
     const coreG = new THREE.SphereGeometry(0.013, 14, 14), haloG = new THREE.SphereGeometry(0.024, 16, 16), hitG = new THREE.SphereGeometry(0.013 * 6, 8, 8);
     const hitM = new THREE.MeshBasicMaterial({ visible: false });
-    const brass = sceneFromDisplay(new THREE.Color('#C9C6DE')), brass2 = sceneFromDisplay(new THREE.Color('#E8E6F0'));
+    const brass = sceneFromDisplay(new THREE.Color('#9CCBFF')), brass2 = sceneFromDisplay(new THREE.Color('#DCEEFF'));
     coreM.color.setRGB(brass[0], brass[1], brass[2]); haloM.color.setRGB(brass2[0] * 0.5, brass2[1] * 0.5, brass2[2] * 0.5);
     CITIES.forEach((c, i) => {
       const p = latLngToVec3(c.lat, c.lng, 1.007); vectors.push(p);
@@ -2245,7 +2227,7 @@ function flushListen(keep) { if (!listenSince) return; state.listenMs = (state.l
 function trackListen(s) { if (s === 'playing') { if (!listenSince) listenSince = Date.now(); } else flushListen(false); }
 addEventListener('pagehide', () => flushListen(true));
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') flushListen(true); });
-function setStatus(s) { trackListen(s); state.status = s; renderLive(); renderSheetDynamic(); waveSync(); profileSync(); }
+function setStatus(s) { trackListen(s); state.status = s; renderLive(); renderSheetDynamic(); dkSync(); profileSync(); }
 async function startAttempt(i, isFailover) {
   const city = CITY[state.activeCityId]; if (!city) { setStatus('error'); return; }
   const token = ++attemptToken; clearTimeout(startTimer);
@@ -2424,7 +2406,7 @@ function mountGlobe() {
   if (state.view === 'welcome') Globe.mount($('#globeStage'), { interactive: false, autoRotate: true, markers: false, theme: state.theme, layout: chooserLayout, stars: false, bg: '#000000' });
   else if (state.view === 'app' && state.tab === 'globe') {
     if (MapGlobe.revealed && MapGlobe.show({ theme: state.theme, onSelect: handleSelect })) { Globe.unmount(); MapGlobe.setActive(state.activeCityId); updateInk(); return; }
-    Globe.mount($('#globeStage'), { interactive: true, autoRotate: !state.sheetOpen, markers: !MapGlobe.available(), theme: state.theme, layout: appLayout, onSelect: handleSelect, onCity: placeCityTag, zoomable: true, bg: '#060614' });   // arka plan ana küreyle aynı
+    Globe.mount($('#globeStage'), { interactive: true, autoRotate: !state.sheetOpen, markers: !MapGlobe.available(), theme: state.theme, layout: appLayout, onSelect: handleSelect, onCity: placeCityTag, zoomable: true, bg: '#050B18' });   // arka plan ana küreyle aynı
     MapGlobe.setActive(state.activeCityId);
     MapGlobe.reveal({ theme: state.theme, onSelect: handleSelect }, () => { if (state.view === 'app' && state.tab === 'globe') Globe.unmount(); });
   }
@@ -2487,7 +2469,7 @@ const SatMosaic = (() => {
 })();
 
 /** Sürüm etiketi: sitede hangi sürümün açık olduğunu rozetten görmek için (önbellek kontrolü). */
-const BUILD = 'v24';
+const BUILD = 'v25';
 const MapGlobe = (() => {
   const host = document.getElementById('mapStage');
   const badge = document.getElementById('lodBadge');
@@ -2751,9 +2733,9 @@ const MapGlobe = (() => {
             { id: 'satellite', type: 'raster', source: 'satellite', paint: Object.assign({ 'raster-opacity': 0, 'raster-opacity-transition': { duration: 400, delay: 0 }, 'raster-fade-duration': 200, 'raster-resampling': 'linear' }, RASTER[themeId] || RASTER.classic) },
             { id: 'borders', type: 'line', source: 'borders', paint: { 'line-color': c.border, 'line-width': ['interpolate', ['linear'], ['zoom'], 1, 0.4, 6, 1, 10, 1.4] } },
             { id: 'coast', type: 'line', source: 'coastline', layout: { 'line-join': 'round', 'line-cap': 'round' }, paint: { 'line-color': c.coast, 'line-opacity': 0.85, 'line-width': ['interpolate', ['exponential', 1.6], ['zoom'], 1, 0.5, 6, 1.1, 12, 2.2] } },
-            { id: 'city-pulse', type: 'circle', source: 'cities', filter: ['==', ['get', 'id'], ''], paint: { 'circle-radius': 10, 'circle-color': 'rgba(0,0,0,0)', 'circle-stroke-width': 2, 'circle-stroke-color': '#E8E6F0', 'circle-stroke-opacity': 0.5, 'circle-pitch-alignment': 'map' } },
-            { id: 'city-pulse2', type: 'circle', source: 'cities', filter: ['==', ['get', 'id'], ''], paint: { 'circle-radius': 10, 'circle-color': 'rgba(0,0,0,0)', 'circle-stroke-width': 2, 'circle-stroke-color': '#E8E6F0', 'circle-stroke-opacity': 0, 'circle-pitch-alignment': 'map' } },
-            { id: 'city-core', type: 'circle', source: 'cities', filter: ['==', ['get', 'id'], ''], paint: { 'circle-radius': 6, 'circle-color': '#E8E6F0', 'circle-stroke-width': 1.5, 'circle-stroke-color': '#ffffff', 'circle-stroke-opacity': 0.9, 'circle-pitch-alignment': 'map' } },
+            { id: 'city-pulse', type: 'circle', source: 'cities', filter: ['==', ['get', 'id'], ''], paint: { 'circle-radius': 10, 'circle-color': 'rgba(0,0,0,0)', 'circle-stroke-width': 2, 'circle-stroke-color': '#DCEEFF', 'circle-stroke-opacity': 0.5, 'circle-pitch-alignment': 'map' } },
+            { id: 'city-pulse2', type: 'circle', source: 'cities', filter: ['==', ['get', 'id'], ''], paint: { 'circle-radius': 10, 'circle-color': 'rgba(0,0,0,0)', 'circle-stroke-width': 2, 'circle-stroke-color': '#DCEEFF', 'circle-stroke-opacity': 0, 'circle-pitch-alignment': 'map' } },
+            { id: 'city-core', type: 'circle', source: 'cities', filter: ['==', ['get', 'id'], ''], paint: { 'circle-radius': 6, 'circle-color': '#DCEEFF', 'circle-stroke-width': 1.5, 'circle-stroke-color': '#ffffff', 'circle-stroke-opacity': 0.9, 'circle-pitch-alignment': 'map' } },
             { id: 'tap-ring', type: 'circle', source: 'tap', paint: { 'circle-radius': 4, 'circle-color': 'rgba(0,0,0,0)', 'circle-stroke-width': 1.6, 'circle-stroke-color': '#ffffff', 'circle-stroke-opacity': 0, 'circle-pitch-alignment': 'map' } },
           ],
         },
@@ -3328,363 +3310,241 @@ function stampSvg(v, i) {
   const fs = name.length > 11 ? 7.2 : name.length > 8 ? 8.2 : 9.2;
   return `<svg viewBox="0 0 100 100" style="transform:rotate(${tilt}deg)" role="img" aria-label="${name} damgası ${stampShort(v.visitedAt)}">
     <defs><path id="${id}" d="M 17 52 A 33 33 0 0 1 83 52"/><path id="${id}b" d="M 22 54 A 28 28 0 0 0 78 54"/></defs>
-    <circle cx="50" cy="50" r="46" fill="none" stroke="#C9C6DE" stroke-width="1.3"/>
-    <circle cx="50" cy="50" r="41" fill="none" stroke="#C9C6DE" stroke-width="0.7" stroke-dasharray="1.6 2.2" opacity="0.8"/>
-    <text font-family="Geist Mono, monospace" font-size="${fs}" letter-spacing="1.4" fill="#E8E6F0"><textPath href="#${id}" startOffset="50%" text-anchor="middle">${name}</textPath></text>
-    <text x="50" y="58" text-anchor="middle" font-family="Geist, sans-serif" font-weight="600" font-size="17" fill="#F3F1FF">${c ? c.countryCode : '—'}</text>
-    <text font-family="Geist Mono, monospace" font-size="6.6" letter-spacing="1" fill="#C9C6DE"><textPath href="#${id}b" startOffset="50%" text-anchor="middle">${stampShort(v.visitedAt)} · ${stampTime(v.visitedAt)}</textPath></text>
+    <circle cx="50" cy="50" r="46" fill="none" stroke="#9CCBFF" stroke-width="1.3"/>
+    <circle cx="50" cy="50" r="41" fill="none" stroke="#9CCBFF" stroke-width="0.7" stroke-dasharray="1.6 2.2" opacity="0.8"/>
+    <text font-family="Geist Mono, monospace" font-size="${fs}" letter-spacing="1.4" fill="#DCEEFF"><textPath href="#${id}" startOffset="50%" text-anchor="middle">${name}</textPath></text>
+    <text x="50" y="58" text-anchor="middle" font-family="Geist, sans-serif" font-weight="600" font-size="17" fill="#F2F7FF">${c ? c.countryCode : '—'}</text>
+    <text font-family="Geist Mono, monospace" font-size="6.6" letter-spacing="1" fill="#9CCBFF"><textPath href="#${id}b" startOffset="50%" text-anchor="middle">${stampShort(v.visitedAt)} · ${stampTime(v.visitedAt)}</textPath></text>
   </svg>`;
 }
-// ── Dalga: dikey canlı yayın akışı ──
-// Her kart = dünyanın bir yerinden gerçek bir istasyon. Kart yerine oturunca (kaydırma durduktan ~300 ms sonra)
-// o istasyon çalar. Tek dokunuş: duraklat/sürdür · çift dokunuş: favori · küre düğmesi: o yere kürede git.
-// Koreografi: kaydırma durur → görsel 1.06→1 (1400 ms, yavaş iniş) · yazılar alttan sırayla (380 ms, 60 ms arayla)
-// → iğne düşer (380 ms gecikmeli) → yayın açılınca sonar halkaları.
-const WAVE_GENRES = [
-  { id: 'all', label: 'Senin için', tag: '' },
-  { id: 'jazz', label: 'Caz', tag: 'jazz' },
-  { id: 'pop', label: 'Pop', tag: 'pop' },
-  { id: 'news', label: 'Haber', tag: 'news' },
-  { id: 'classical', label: 'Klasik', tag: 'classical' },
-  { id: 'electronic', label: 'Elektronik', tag: 'electronic' },
-  { id: 'rock', label: 'Rock', tag: 'rock' },
-  { id: 'chill', label: 'Sakin', tag: 'chillout' },
-  { id: 'folk', label: 'Folk', tag: 'folk' },
-];
-const WAVE_PAGE = 60, WAVE_SETTLE_MS = 120, WAVE_TUNE_MS = 180, WAVE_FETCH_MS = 9000;
-var wv = null;
-let waveDN = null;
-try { waveDN = new Intl.DisplayNames(['tr'], { type: 'region' }); } catch (e) {}
-const waveCountry = (cc, fb) => { try { return (cc && waveDN && waveDN.of(cc)) || fb || cc || ''; } catch (e) { return fb || cc || ''; } };
-const waveBusy = () => ['playing', 'loading', 'failover'].includes(state.status);
-
-function waveNearest(lat, lng) {
-  let best = CITIES[0], bd = Infinity;
-  CITIES.forEach(c => { const d = kmBetween([lat, lng], [c.lat, c.lng]); if (d < bd) { bd = d; best = c; } });
-  return { city: best, km: bd };
+// ── Saat Kadranı: dünya bir saat ──
+// Kadranı çevir → o anda saati o olan şehirler gelir → karta dokun, oranın radyosu çalsın.
+// Koreografi: sürükleme eylemsizlikle döner, en yakın saate yumuşak oturur (her saat geçişinde 3 ms titreşim)
+// · saat rakamları kayar (240 ms) · gökyüzü 700 ms'de yeni saatin tonuna geçer, güneş/ay yayında yer değiştirir (900 ms)
+// · kadran durduktan 160 ms sonra kartlar 60 ms arayla alttan yaylanarak gelir (520 ms).
+const DK_R = 440, DK_PX_PER_HOUR = DK_R * 15 * D2R;   // bir saatlik yay ≈ 115 px
+var dk = null;
+const dkHourOf = pos => ((Math.round(pos) % 24) + 24) % 24;
+function dkPhase(h) {
+  if (h < 5) return 'Gece yarısı yayınları';
+  if (h < 8) return 'Şehirler uyanıyor';
+  if (h < 12) return 'Sabah';
+  if (h < 14) return 'Öğle arası';
+  if (h < 17) return 'İkindi';
+  if (h < 20) return 'Akşam üstü';
+  return 'Gece';
 }
-/** Saat dilimi: aynı ülkedeki en yakın kayıtlı şehrinki; yoksa boylamdan (Etc/GMT±N, işaret ters). */
-function waveZone(lat, lng, cc) {
-  const n = waveNearest(lat, lng);
-  if (n.city.countryCode === cc && n.km < 1500) return n.city.timezone;
-  const h = clamp(Math.round(lng / 15), -12, 12);
-  return h === 0 ? 'UTC' : `Etc/GMT${h > 0 ? '-' : '+'}${Math.abs(h)}`;
+/** Gökyüzü tonu (yalnızca maviler): gece lacivert → şafak → gündüz açık mavi → akşam → gece */
+function dkSky(h) {
+  const T = h < 5 ? ['#0A1B38', '#050B18'] : h < 8 ? ['#24548F', '#0A1A33'] : h < 17 ? ['#3B82CC', '#0C2245'] : h < 20 ? ['#1F4C86', '#0A1A33'] : ['#0D2247', '#050B18'];
+  return `linear-gradient(180deg, ${T[0]} 0%, ${T[1]} 58%, #050B18 100%)`;
 }
-function waveTime(tz) { try { return cityTime(tz).slice(0, 5); } catch (e) { return ''; } }
-
-function waveCardFromRaw(raw) {
-  const st = toStation(raw); if (!st || !st.geo) return null;
-  const cc = st.cc, [lat, lng] = st.geo;
-  const region = (raw.state || '').replace(/\s+/g, ' ').trim();
-  const country = waveCountry(cc, raw.country);
-  const tags = (raw.tags || '').split(',').map(t => t.trim().toLocaleLowerCase('tr-TR')).filter(t => t && t.length <= 16).slice(0, 3);
-  const tz = waveZone(lat, lng, cc);
-  const place = { id: 's' + String(raw.stationuuid || st.uuid).slice(0, 12), name: region && region.length <= 32 ? region : country || 'Bilinmeyen yer', country, lat, lng, timezone: tz, countryCode: cc,
-    vibeTag: Math.abs(lat) < 23.5 ? 'Tropikal Ritimler' : Math.abs(lat) > 55 ? 'Yağmurlu Sokaklar' : 'Sabah Kahvesi' };
-  return { key: st.uuid, st, place, tags, lat, lng, title: st.name, where: [region && region !== country ? region : '', country].filter(Boolean).join(', ') };
+function dkCities(h) {
+  const withH = CITIES.map(c => { let z; try { z = zoned(c.timezone); } catch (e) { z = null; } return { c, h: z ? z.h : -1 }; });
+  let list = withH.filter(x => x.h === h), near = false;
+  if (list.length < 3) { list = withH.filter(x => x.h >= 0 && Math.min(Math.abs(x.h - h), 24 - Math.abs(x.h - h)) <= 1); near = true; }
+  return { cities: list.map(x => x.c), near };
 }
-function waveCardFromCity(c, st) {
-  return { key: (st ? st.uuid : 'city') + ':' + c.id, st: st && !st.fallback ? st : null, place: c, tags: [], lat: c.lat, lng: c.lng,
-    title: st && !st.demo ? st.name : c.name, where: st && !st.demo ? `${c.name}, ${c.country}` : `${c.country} · ${c.vibeTag}` };
+function dkWheelSVG() {
+  const C = DK_R; let g = '';
+  for (let q = 0; q < 96; q++) {
+    const major = q % 4 === 0, a = q * 3.75, len = major ? 16 : 7;
+    g += `<line x1="${C}" y1="${4}" x2="${C}" y2="${4 + len}" stroke="rgba(232,240,255,${major ? 0.6 : 0.22})" stroke-width="${major ? 1.6 : 1}" stroke-linecap="round" transform="rotate(${a} ${C} ${C})"/>`;
+  }
+  for (let h = 0; h < 24; h++) {
+    const day = h >= 6 && h < 18;
+    g += `<g transform="rotate(${h * 15} ${C} ${C})"><text x="${C}" y="44" text-anchor="middle" font-family="Geist Mono, monospace" font-size="15" font-weight="500" fill="rgba(232,240,255,${day ? 0.92 : 0.5})">${pad(h)}</text>
+      ${h === 12 ? `<circle cx="${C}" cy="64" r="5" fill="#DCEEFF"/>` : h === 0 ? `<path d="M ${C - 4} 59 a 6 6 0 1 0 8 9 a 5 5 0 1 1 -8 -9 z" fill="#BFDDFF"/>` : h % 6 === 0 ? `<circle cx="${C}" cy="64" r="2.5" fill="rgba(232,240,255,0.55)"/>` : ''}</g>`;
+  }
+  return `<svg viewBox="0 0 ${C * 2} ${C * 2}" aria-hidden="true"><circle cx="${C}" cy="${C}" r="${C - 1}" fill="rgba(12,22,44,0.55)" stroke="rgba(232,240,255,0.14)"/>${g}</svg>`;
 }
-/** Aynı ülkeden iki yayın art arda gelmesin: ülkelere göre sırayla dağıt. */
-function waveInterleave(cards) {
-  const by = new Map(); cards.forEach(c => { const k = c.place.countryCode || '?'; if (!by.has(k)) by.set(k, []); by.get(k).push(c); });
-  const lanes = [...by.values()].sort((a, b) => b.length - a.length), out = [];
-  while (lanes.some(l => l.length)) lanes.forEach(l => { if (l.length) out.push(l.shift()); });
-  return out;
+function dkInit() {
+  if (dk) return;
+  const now = new Date().getHours();
+  dk = { pos: now, vel: 0, dragging: false, pid: null, lx: 0, samples: [], raf: null, last: 0, hour: -1, shownHour: -1, settleTimer: 0, autoTimer: 0, userMoved: false, sky: 0,
+    imgs: new Map(), imgQueue: [], imgBusy: false, clock: 0, cards: [] };
+  $('#dkWheel').innerHTML = dkWheelSVG();
+  bindDial();
 }
-function waveOfflineCards() {
-  const pool = [...CITIES]; for (let i = pool.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [pool[i], pool[j]] = [pool[j], pool[i]]; }
-  return waveInterleave(pool.slice(0, 60).map(c => waveCardFromCity(c, null)));
+function dkSetTime(h, animate) {
+  const el = $('#dkTime'), first = dk.cards[0];
+  let mm = '00';
+  if (first) { try { mm = pad(zoned(first.timezone).mi); } catch (e) {} }
+  const hh = pad(h), html = `<span class="d">${hh[0]}</span><span class="d">${hh[1]}</span><span class="col">:</span><span class="d">${mm[0]}</span><span class="d">${mm[1]}</span>`;
+  const prev = el.dataset.v || '';
+  el.dataset.v = hh + mm;
+  if (!animate || reduceMotion.matches || !prev) { el.innerHTML = html; return; }
+  const next = hh + mm, digits = el.querySelectorAll('.d');
+  if (digits.length !== 4) { el.innerHTML = html; return; }
+  const dir = dk.lastDir || 1;
+  [...next].forEach((ch, k) => {
+    const d = digits[k]; if (d.textContent === ch) return;
+    d.animate([{ transform: 'none', opacity: 1 }, { transform: `translateY(${-28 * dir}px)`, opacity: 0 }], { duration: 110, easing: 'cubic-bezier(0.3,0,0.8,0.15)' }).onfinish = () => {
+      d.textContent = ch;
+      d.animate([{ transform: `translateY(${28 * dir}px)`, opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 200, easing: 'cubic-bezier(0.05,0.7,0.1,1)' });
+    };
+  });
 }
-
-async function waveFetch(genre, offset) {
-  const g = WAVE_GENRES.find(x => x.id === genre) || WAVE_GENRES[0];
-  const q = `/json/stations/search?${g.tag ? 'tag=' + encodeURIComponent(g.tag) + '&' : ''}has_geo_info=true&is_https=true&hidebroken=true&order=clickcount&reverse=true&limit=${WAVE_PAGE}&offset=${offset}`;
-  const raw = await Promise.race([rbFetch(q), sleep(WAVE_FETCH_MS).then(() => { throw new Error('timeout'); })]);
-  return (Array.isArray(raw) ? raw : []).map(waveCardFromRaw).filter(Boolean);
+function dkSetSky(h) {
+  const A = $('#dkSkyA'), B = $('#dkSkyB'), next = dk.sky ? A : B, prev = dk.sky ? B : A; dk.sky = 1 - dk.sky;
+  next.style.background = dkSky(h);
+  next.getAnimations().forEach(a => a.cancel()); prev.getAnimations().forEach(a => a.cancel());
+  const d = reduceMotion.matches ? 1 : 700;
+  next.animate([{ opacity: parseFloat(getComputedStyle(next).opacity) || 0 }, { opacity: 1 }], { duration: d, easing: 'cubic-bezier(0.2,0,0,1)', fill: 'forwards' });
+  prev.animate([{ opacity: parseFloat(getComputedStyle(prev).opacity) || 0 }, { opacity: 0 }], { duration: d, easing: 'cubic-bezier(0.2,0,0,1)', fill: 'forwards' });
+  // Güneş 06–18 arasında, ay geri kalanında; gökte bir yay çizer
+  // Başlığın sağ köşesinde: saat ilerledikçe ufuktan yükselip alçalır (yazıyla çakışmaz)
+  const W = $('#dk').clientWidth || 390, day = h >= 6 && h < 18;
+  const t = day ? (h - 6 + 0.5) / 12 : ((h + 6) % 24 + 0.5) / 12;
+  const x = W - 74 + (t - 0.5) * 36, y = 74 - Math.sin(Math.PI * t) * 44;
+  $('#dkSun').style.transform = `translate(${x}px, ${day ? y : 260}px)`; $('#dkSun').style.opacity = day ? 1 : 0;
+  $('#dkMoon').style.transform = `translate(${x}px, ${day ? 260 : y}px)`; $('#dkMoon').style.opacity = day ? 0 : 1;
 }
-
-function waveInit() {
-  if (wv) return;
-  wv = { genre: 'all', deck: [], seen: new Set(), offset: 0, loading: false, end: false, offline: false, active: -1, seq: 0,
-    settleTimer: 0, tuneTimer: 0, errTimer: 0, tapTimer: 0, lastTap: 0, userPaused: false, swiped: false, imgs: new Map(), imgQueue: [], imgBusy: false, scrolling: false, drag: null };
-  $('#wvChips').innerHTML = WAVE_GENRES.map((g, i) => `<button class="wv-chip press" role="tab" data-genre="${g.id}" style="--i:${i}" aria-selected="${g.id === wv.genre}">${esc(g.label)}</button>`).join('');
-  $('#wvChips').querySelectorAll('.wv-chip').forEach(b => b.classList.toggle('on', b.dataset.genre === wv.genre));
-  bindWave();
-}
-
-function waveCardHTML(c, i) {
-  const len = c.title.length, size = len > 24 ? 's' : len > 14 ? 'm' : '';
-  const meta = [c.place.countryCode, waveTime(c.place.timezone), c.st && c.st.bitrate ? c.st.bitrate + ' KBPS' : c.st ? c.st.codec : 'ÖNİZLEME'].filter(Boolean).join(' · ');
-  return `<article class="wv-card" data-i="${i}" aria-label="${esc(c.title)}, ${esc(c.where)}">
-    <div class="wv-img"></div><div class="wv-shade"></div><span class="wv-pin"></span>
-    <div class="wv-info"><span class="wv-meta num">${esc(meta)}</span><h2 class="wv-name ${size}">${esc(c.title)}</h2><span class="wv-place">${esc(c.where)}</span>
-      <div class="wv-tags">${c.tags.map(t => `<span>${esc(t)}</span>`).join('')}</div>
-      <div class="wv-state"><span class="ld"></span><span class="eq"><i style="--t:300ms"></i><i style="--t:230ms"></i><i style="--t:350ms"></i></span><span class="tx"></span></div></div>
+function dkCardHTML(c, i, near) {
+  let t = ''; try { t = cityTime(c.timezone).slice(0, 5); } catch (e) {}
+  return `<article class="dk-card" role="listitem" style="--i:${i}" data-city="${esc(c.id)}" aria-label="${esc(c.name)}, ${esc(c.country)}, yerel saat ${t}">
+    <div class="dk-orb"><span class="dk-pin"></span></div>
+    <span class="dk-ct num" data-tz="${esc(c.timezone)}">${t}${near ? ' · YAKIN SAAT' : ''}</span>
+    <b class="dk-cn">${esc(c.name)}</b><span class="dk-cc">${esc(c.country)} · ${esc(c.vibeTag)}</span>
+    <div class="dk-act"><button class="dk-play press" data-dk-play="${esc(c.id)}" aria-label="${esc(c.name)} radyosunu dinle"><span class="ic-play">${icon('play', 16, 'filled')}</span><span class="ic-pause">${icon('pause', 16, 'filled')}</span><span class="t">Dinle</span></button>
+      <button class="round dk-go press" data-dk-go="${esc(c.id)}" aria-label="${esc(c.name)}: kürede aç">${icon('globe', 18)}</button></div>
+    <span class="dk-st"><span class="ld"></span><span class="tx"></span></span>
   </article>`;
 }
-function waveAppend(cards) {
-  const fresh = cards.filter(c => !wv.seen.has(c.key)); if (!fresh.length) return 0;
-  fresh.forEach(c => wv.seen.add(c.key));
-  const start = wv.deck.length; wv.deck.push(...fresh);
-  $('#wvFeed').insertAdjacentHTML('beforeend', fresh.map((c, k) => waveCardHTML(c, start + k)).join(''));
-  return fresh.length;
-}
-function waveSkeleton() {
-  $('#wvFeed').innerHTML = `<article class="wv-card wv-skel on" aria-busy="true"><div class="wv-img"></div><div class="wv-shade"></div>
-    <div class="wv-info"><span class="wv-meta num">DÜNYA TARANIYOR</span><h2 class="wv-name m">Yayınlar aranıyor…</h2><span class="wv-place">Canlı istasyonlar toplanıyor</span></div></article>`;
-}
-
-/** Akışı (yeniden) kurar. Ağ yoksa kayıtlı şehirlerden çevrimdışı bir akış kurulur; akış hiçbir zaman boş kalmaz. */
-async function waveLoad(genre) {
-  const my = ++wv.seq;
-  wv.genre = genre; wv.deck = []; wv.seen = new Set(); wv.end = false; wv.offline = false; wv.active = -1; wv.loading = true;
-  wv.offset = genre === 'all' ? Math.floor(Math.random() * 5) * 40 : 0;
-  clearTimeout(wv.tuneTimer); clearTimeout(wv.errTimer);
-  const feed = $('#wvFeed');
-  waveSkeleton(); feed.scrollTop = 0;
-  // Şu an bir yayın çalıyorsa akış onunla başlar (kopukluk olmasın)
-  const nowCity = CITY[state.activeCityId], nowSt = currentStation();
-  const lead = genre === 'all' && nowCity && waveBusy() ? [waveCardFromCity(nowCity, nowSt)] : [];
-  let cards = [];
-  try { cards = await waveFetch(genre, wv.offset); } catch (e) { cards = []; }
-  if (my !== wv.seq) return;
-  wv.offset += WAVE_PAGE; wv.loading = false;
-  if (!cards.length) { wv.offline = true; wv.end = true; cards = waveOfflineCards(); }
-  feed.innerHTML = ''; waveAppend(lead.concat(waveInterleave(cards)));
-  feed.scrollTop = 0;
-  if (lead.length) wv.active = -1;
-  waveActivate(0, !!lead.length);
-}
-async function waveMore() {
-  if (wv.loading || wv.end) return;
-  const my = wv.seq; wv.loading = true;
-  let cards = [];
-  try { cards = await waveFetch(wv.genre, wv.offset); } catch (e) { cards = []; }
-  if (my !== wv.seq) return;
-  wv.loading = false; wv.offset += WAVE_PAGE;
-  if (!cards.length || !waveAppend(waveInterleave(cards))) wv.end = true;
-}
-
-// ── Görseller: kürenin yörüngeden görünümü, yalnızca aktif kart ve komşuları için, kaydırma dururken ──
-function waveImgKey(c, w, h) { return `${state.theme}|${c.lat.toFixed(2)},${c.lng.toFixed(2)}|${w}x${h}`; }
-function waveImgSize() {
-  const f = $('#wvFeed'), W = f.clientWidth || 390, H = f.clientHeight || 844, k = Math.min(1, 760 / Math.max(W, H));
-  return { w: Math.max(120, Math.round(W * k)), h: Math.max(120, Math.round(H * k)) };
-}
-function waveApplyImg(i) {
-  const el = $('#wvFeed').children[i], c = wv.deck[i]; if (!el || !c) return false;
-  const { w, h } = waveImgSize(), im = wv.imgs.get(waveImgKey(c, w, h));
-  if (!im) return false;
-  const img = el.querySelector('.wv-img'); img.style.setProperty('--img', `url(${im.url})`);
-  const pin = el.querySelector('.wv-pin'); pin.style.left = (clamp(im.pin.x, 0.05, 0.95) * 100).toFixed(2) + '%'; pin.style.top = (clamp(im.pin.y, 0.05, 0.6) * 100).toFixed(2) + '%';
-  requestAnimationFrame(() => el.classList.add('wv-ready'));
-  return true;
-}
-function waveQueueImages(center) {
-  wv.imgQueue = [center, center + 1, center - 1, center + 2].filter(i => i >= 0 && i < wv.deck.length);
-  // Uzaktaki kartların görsellerini bırak (bellek)
-  [...$('#wvFeed').children].forEach((el, i) => { if (Math.abs(i - center) > 3 && el.classList.contains('wv-ready')) { el.classList.remove('wv-ready'); el.querySelector('.wv-img').style.removeProperty('--img'); } });
-  wavePumpImages();
-}
-function wavePumpImages() {
-  if (wv.imgBusy || wv.scrolling || state.tab !== 'explore') return;
-  const i = wv.imgQueue.shift(); if (i === undefined) return;
-  const c = wv.deck[i]; if (!c) { wavePumpImages(); return; }
-  const { w, h } = waveImgSize(), key = waveImgKey(c, w, h);
-  if (wv.imgs.has(key)) { waveApplyImg(i); wavePumpImages(); return; }
-  wv.imgBusy = true;
-  Globe.whenReady(() => {
-    const r = Math.max(w, h) * 0.584, pitch = 0.78;
-    const url = Globe.snapshotView({ w, h, lat: c.lat, lng: c.lng, r, cy: h * 0.34 + r * Math.sin(pitch), pitch, theme: state.theme });
-    wv.imgBusy = false;
-    if (url) { wv.imgs.set(key, { url, pin: Globe.snapshotView.pin || { x: 0.5, y: 0.34 } }); if (wv.imgs.size > 24) wv.imgs.delete(wv.imgs.keys().next().value); waveApplyImg(i); }
-    setTimeout(wavePumpImages, 140);   // kare başına bir görsel: kaydırma akıcı kalır
-  });
-}
-
-// ── Etkin kart ──
-function waveActivate(i, keepAudio) {
-  const feed = $('#wvFeed'), cards = feed.children; if (!cards[i] || !wv.deck[i]) return;
-  if (wv.active === i) { waveSync(); return; }
-  if (wv.active >= 0 && cards[wv.active]) cards[wv.active].classList.remove('on', 'wv-live');
-  if (wv.active >= 0 && i !== wv.active) { wv.swiped = true; $('#wvHint').classList.add('gone'); vibrate(5); }
-  wv.active = i; cards[i].classList.add('on');
-  clearTimeout(wv.tuneTimer); clearTimeout(wv.errTimer); clearTimeout(wv.imgTimer);
-  wv.tunePending = !keepAudio && !wv.userPaused && pref('autoplay');
-  if (wv.tunePending) wv.tuneTimer = setTimeout(() => { wv.tunePending = false; waveTune(i); }, WAVE_TUNE_MS);
-  waveSync();
-  // Görseller yayın başladıktan sonra çizilir: ses hiçbir zaman görsel yüzünden gecikmez
-  wv.imgTimer = setTimeout(() => waveQueueImages(i), wv.tunePending ? WAVE_TUNE_MS + 60 : 0);
-  if (i >= wv.deck.length - 6) waveMore();
-}
-function waveIsOn(c) {
-  if (!c || state.activeCityId !== c.place.id) return false;
-  if (!c.st) return true;
-  const cur = currentStation();
-  return !state.queue.stations || !cur || cur.uuid === c.st.uuid || waveBusy();
-}
-/** Kartın istasyonunu çal (aynı yer zaten çalıyorsa dokunma). */
-function waveTune(i) {
-  const c = wv.deck[i]; if (!c || state.tab !== 'explore' || i !== wv.active) return;
-  if (waveIsOn(c) && waveBusy()) { waveSync(); return; }
-  const place = CITY[c.place.id] || registerPlace(c.place);
-  state.pinned = c.st ? { cityId: place.id, stations: [c.st] } : null;
-  if (state.activeCityId === place.id) state.activeCityId = null;   // yeni sırayla yeniden başlat
-  state.interacted = true; Ambient.unlock();
-  selectCity(place);
-}
-/** Yayın durumu → kart üzerindeki satır, iğne ve favori düğmesi. setStatus her değişimde çağırır. */
-function waveSync() {
-  if (!wv || wv.active < 0 || state.tab !== 'explore') return;
-  const el = $('#wvFeed').children[wv.active], c = wv.deck[wv.active]; if (!el || !c) return;
-  const line = el.querySelector('.wv-state'), tx = line.querySelector('.tx');
-  const mine = waveIsOn(c), s = mine ? state.status : 'idle', cur = currentStation();
-  let cls = '', text;
-  if (s === 'playing') {
-    cls = 'wv-live';
-    text = cur && c.st && cur.uuid !== c.st.uuid ? `YAYIN KAPALI · YERİNE ${cur.name.toLocaleUpperCase('tr-TR')}` : cur && cur.demo ? 'ÖNİZLEME SESİ' : 'CANLI';
-  } else if (s === 'loading' || s === 'failover') { cls = 'wv-busy'; text = s === 'failover' ? 'BAŞKA YAYIN DENENİYOR' : 'BAĞLANIYOR'; }
-  else if (s === 'error') { cls = 'wv-err'; text = 'YAYIN AÇILAMADI · SIRADAKİNE GEÇİLİYOR'; }
-  else if (wv.tunePending) { cls = 'wv-busy'; text = 'AYARLANIYOR'; }
-  else if (s === 'paused' || wv.userPaused) text = 'DURAKLATILDI · DİNLEMEK İÇİN DOKUN';
-  else text = 'DİNLEMEK İÇİN DOKUN';
-  line.className = 'wv-state ' + cls; if (tx.textContent !== text) tx.textContent = text;
-  el.classList.toggle('wv-live', s === 'playing');
-  // Ölü yayında sessiz kalma: 1,5 sn sonra sıradaki karta geç
-  clearTimeout(wv.errTimer);
-  if (s === 'error' && !wv.userPaused) { const at = wv.active; wv.errTimer = setTimeout(() => { if (wv.active === at && state.tab === 'explore') waveGo(at + 1); }, 1500); }
-  waveRail();
-}
-function waveFavUuid(c) { if (c.st) return c.st.uuid; const cur = currentStation(); return waveIsOn(c) && cur && !cur.demo ? cur.uuid : null; }
-function waveRail() {
-  const c = wv.deck[wv.active], fav = $('#wvFav'); if (!c) return;
-  const uuid = waveFavUuid(c), on = !!(uuid && state.favorites.some(f => f.stationUuid === uuid));
-  fav.disabled = !uuid; fav.classList.toggle('on', on);
-  fav.setAttribute('aria-label', on ? 'Favorilerden çıkar' : 'Favorilere ekle');
-  $('#wvHeart').innerHTML = icon('heart', 20, on ? 'filled' : '');
-  $('#wvNext').disabled = wv.active >= wv.deck.length - 1 && wv.end;
-}
-function waveFavorite(forceOn) {
-  const c = wv.deck[wv.active]; if (!c) return false;
-  const uuid = waveFavUuid(c); if (!uuid) return false;
-  const i = state.favorites.findIndex(f => f.stationUuid === uuid);
-  if (i >= 0 && forceOn) return true;
-  if (i >= 0) { state.favorites.splice(i, 1); vibrate(6); }
-  else {
-    const place = CITY[c.place.id] || registerPlace(c.place), st = c.st || currentStation();
-    state.favorites.unshift({ id: 'f' + Date.now(), stationUuid: uuid, stationName: st.name, cityId: place.id, cityName: place.name, countryCode: place.countryCode, index: 0,
-      station: { uuid: st.uuid, name: st.name, url: st.url, codec: st.codec, bitrate: st.bitrate, cc: st.cc, geo: st.geo, fallback: false } });
-    vibrate([8, 40, 8]);
-  }
-  save(); waveRail();
-  const h = $('#wvHeart'); h.classList.remove('pop'); void h.offsetWidth; h.classList.add('pop');
-  return true;
-}
-function waveToggle() {
-  const c = wv.deck[wv.active]; if (!c) return;
-  if (waveIsOn(c) && waveBusy() || wv.tunePending) { wv.userPaused = true; wv.tunePending = false; clearTimeout(wv.tuneTimer); pause(); }
-  else { wv.userPaused = false; Ambient.unlock(); if (waveIsOn(c) && state.status === 'paused') play(); else waveTune(wv.active); }
-  vibrate(6); waveSync();
-}
-function waveGo(i) {
-  const feed = $('#wvFeed'); if (!wv.deck.length) return;
-  i = clamp(i, 0, wv.deck.length - 1);
-  feed.scrollTo({ top: i * feed.clientHeight, behavior: reduceMotion.matches ? 'auto' : 'smooth' });
-}
-function waveBurst(x, y) {
-  const w = $('#wave'), r = w.getBoundingClientRect(), b = document.createElement('span');
-  b.className = 'wv-burst'; b.style.left = (x - r.left) + 'px'; b.style.top = (y - r.top) + 'px'; b.innerHTML = icon('heart', 96, 'filled');
-  w.appendChild(b);
-  const a = b.animate([{ transform: 'scale(0.3) rotate(-12deg)', opacity: 0 }, { transform: 'scale(1.15) rotate(4deg)', opacity: 1, offset: 0.35 }, { transform: 'scale(1) rotate(0)', opacity: 1, offset: 0.6 }, { transform: 'scale(1.05) translateY(-24px)', opacity: 0 }],
-    { duration: reduceMotion.matches ? 300 : 760, easing: 'cubic-bezier(0.2,0,0,1)' });
-  a.onfinish = () => b.remove();
-}
-function waveSettle() {
-  const feed = $('#wvFeed'); if (feed.classList.contains('dragging')) return; wv.scrolling = false;
-  const H = feed.clientHeight || 1, i = clamp(Math.round(feed.scrollTop / H), 0, Math.max(0, wv.deck.length - 1));
-  if (wv.deck.length) { if (wv.active === i) wavePumpImages(); else { wv.userPaused = false; waveActivate(i); } }
-}
-
-function bindWave() {
-  const feed = $('#wvFeed');
-  feed.addEventListener('scroll', () => { wv.scrolling = true; clearTimeout(wv.settleTimer); wv.settleTimer = setTimeout(waveSettle, WAVE_SETTLE_MS); }, { passive: true });
-  // Dokunma: tek → duraklat/sürdür (çift dokunuşla karışmasın diye 240 ms beklenir) · çift → favori
-  let down = null;
-  feed.addEventListener('pointerdown', e => {
-    if (!wv.deck.length) return;
-    down = { x: e.clientX, y: e.clientY, t: performance.now(), id: e.pointerId, top: feed.scrollTop, mouse: e.pointerType === 'mouse', moved: false };
-  });
-  feed.addEventListener('pointermove', e => {
-    if (!down || e.pointerId !== down.id) return;
-    const dy = e.clientY - down.y;
-    if (Math.abs(dy) > 8 || Math.abs(e.clientX - down.x) > 8) down.moved = true;
-    // Fare ile sürükleme (dokunmatikte tarayıcının kendi kaydırması çalışır)
-    if (down.mouse && down.moved && e.buttons === 1) {
-      if (!feed.classList.contains('dragging')) { feed.classList.add('dragging'); try { feed.setPointerCapture(down.id); } catch (err) {} }
-      feed.scrollTop = down.top - dy;
-    }
-  });
-  const up = e => {
-    if (!down || e.pointerId !== down.id) return;
-    const d = down; down = null;
-    if (feed.classList.contains('dragging')) {
-      const H = feed.clientHeight, dy = e.clientY - d.y, base = Math.round(d.top / H);
-      const target = Math.abs(dy) > H * 0.15 ? base + (dy < 0 ? 1 : -1) : base;
-      feed.classList.remove('dragging'); waveGo(target); return;
-    }
-    if (e.type === 'pointercancel' || d.moved || performance.now() - d.t > 450) return;
-    const now = performance.now();
-    if (now - wv.lastTap < 300) {
-      clearTimeout(wv.tapTimer); wv.lastTap = 0;
-      const c = wv.deck[wv.active];
-      if (c && !waveFavUuid(c)) { wv.userPaused = false; waveTune(wv.active); toast('Önce yayın açılsın, sonra favorilere eklenir'); return; }
-      if (waveFavorite(true)) waveBurst(e.clientX, e.clientY);
-      return;
-    }
-    wv.lastTap = now;
-    wv.tapTimer = setTimeout(() => { wv.lastTap = 0; waveToggle(); }, 240);
+/** Kadran oturdu: bu saatin şehirlerini getir */
+function dkShowHour(h, animate) {
+  if (!dk) return;
+  const { cities, near } = dkCities(h);
+  dk.cards = cities.slice(0, 12); dk.shownHour = h;
+  const box = $('#dkCards');
+  const fill = () => {
+    box.innerHTML = dk.cards.length ? dk.cards.map((c, i) => dkCardHTML(c, i, near)).join('') : '';
+    if (!animate) box.querySelectorAll('.dk-card').forEach(el => el.classList.add('static'));
+    box.scrollLeft = 0; box.classList.remove('out');
+    dkQueueImages(); dkSync();
   };
-  feed.addEventListener('pointerup', up); feed.addEventListener('pointercancel', up);
-  feed.addEventListener('keydown', e => {
-    if (e.key === 'ArrowDown' || e.key === 'PageDown' || e.key === 'j') { e.preventDefault(); waveGo(wv.active + 1); }
-    else if (e.key === 'ArrowUp' || e.key === 'PageUp' || e.key === 'k') { e.preventDefault(); waveGo(wv.active - 1); }
-    else if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); waveToggle(); }
-  });
-  $('#wvChips').addEventListener('click', e => {
-    const b = e.target.closest('.wv-chip'); if (!b || b.dataset.genre === wv.genre && !wv.loading) return;
-    $('#wvChips').querySelectorAll('.wv-chip').forEach(x => { const on = x === b; x.classList.toggle('on', on); x.setAttribute('aria-selected', on); });
-    b.scrollIntoView({ inline: 'center', block: 'nearest', behavior: reduceMotion.matches ? 'auto' : 'smooth' });
-    vibrate(5); wv.userPaused = false; Ambient.unlock();
-    feed.classList.add('fading');
-    setTimeout(() => { feed.classList.remove('fading'); waveLoad(b.dataset.genre); }, 160);
-  });
-  $('#wvFav').addEventListener('click', () => { waveFavorite(false); });
-  $('#wvNext').addEventListener('click', () => { Ambient.unlock(); wv.userPaused = false; waveGo(wv.active + 1); });
-  $('#wvGlobe').addEventListener('click', () => {
-    const c = wv.deck[wv.active]; if (!c) return;
-    const place = CITY[c.place.id] || registerPlace(c.place);
-    if (!(waveIsOn(c) && waveBusy())) { state.pinned = c.st ? { cityId: place.id, stations: [c.st] } : null; if (state.activeCityId === place.id) state.activeCityId = null; }
-    vibrate(8); MapGlobe.takeControl(); setTab('globe'); handleSelect(place);
-  });
-  addEventListener('resize', () => { if (!wv || state.tab !== 'explore' || wv.active < 0) return; clearTimeout(wv.resizeTimer); wv.resizeTimer = setTimeout(() => { $('#wvFeed').scrollTop = wv.active * $('#wvFeed').clientHeight; waveQueueImages(wv.active); }, 200); });
+  $('#dkSub').innerHTML = dk.cards.length ? `${dkPhase(h)} · <b>${cities.length} şehirde</b> saat şu an ${pad(h)}${near ? ' civarı' : ''}` : 'Bu saatte kayıtlı bir şehir yok';
+  dkSetTime(h, false);
+  if (animate && !reduceMotion.matches && box.children.length) { box.classList.add('out'); setTimeout(() => { if (dk.shownHour === h) fill(); }, 160); }
+  else fill();
 }
-
-/** Sekmeye giriş (sekme dokunuşu kullanıcı jestidir: ses burada açılır). */
+function dkImgKey(c) { return state.theme + '|' + c.id; }
+function dkQueueImages() { dk.imgQueue = dk.cards.slice(); dkPumpImages(); }
+function dkPumpImages() {
+  if (!dk || dk.imgBusy || dk.dragging || state.tab !== 'explore') return;
+  const c = dk.imgQueue.shift(); if (!c) return;
+  const key = dkImgKey(c);
+  if (dk.imgs.has(key)) { dkApplyImg(c); dkPumpImages(); return; }
+  dk.imgBusy = true;
+  Globe.whenReady(() => {
+    const S = 220, url = Globe.snapshotView({ w: S, h: S, lat: c.lat, lng: c.lng, r: S * 0.47, cy: S / 2, pitch: 0, theme: state.theme });
+    dk.imgBusy = false;
+    if (url) { dk.imgs.set(key, { url, pin: Globe.snapshotView.pin || { x: 0.5, y: 0.5 } }); if (dk.imgs.size > 60) dk.imgs.delete(dk.imgs.keys().next().value); dkApplyImg(c); }
+    setTimeout(dkPumpImages, 90);
+  });
+}
+function dkApplyImg(c) {
+  const card = $(`#dkCards .dk-card[data-city="${CSS.escape(c.id)}"]`), im = dk.imgs.get(dkImgKey(c)); if (!card || !im) return;
+  const orb = card.querySelector('.dk-orb');
+  if (!orb.querySelector('img')) { const img = document.createElement('img'); img.alt = ''; img.draggable = false; img.src = im.url; orb.prepend(img); }
+  const pin = orb.querySelector('.dk-pin'); pin.style.left = (clamp(im.pin.x, 0.1, 0.9) * 100) + '%'; pin.style.top = (clamp(im.pin.y, 0.1, 0.9) * 100) + '%';
+  requestAnimationFrame(() => orb.classList.add('ready'));
+}
+/** Yayın durumu → kart (setStatus her değişimde çağırır) */
+function dkSync() {
+  if (!dk || state.tab !== 'explore') return;
+  const s = state.status, busy = s === 'loading' || s === 'failover';
+  $('#dkCards').querySelectorAll('.dk-card').forEach(card => {
+    const on = card.dataset.city === state.activeCityId && s !== 'idle';
+    card.classList.toggle('is-on', on); card.classList.toggle('is-live', on && s === 'playing'); card.classList.toggle('is-busy', on && busy);
+    const st = card.querySelector('.dk-st .tx'), btn = card.querySelector('.dk-play .t');
+    const text = !on ? '' : s === 'playing' ? 'ÇALIYOR' : busy ? 'BAĞLANIYOR' : s === 'error' ? 'YAYIN AÇILAMADI' : s === 'paused' ? 'DURAKLATILDI' : '';
+    if (st.textContent !== text) st.textContent = text;
+    const bt = on && s === 'playing' ? 'Duraklat' : on && busy ? 'Bağlanıyor' : 'Dinle';
+    if (btn.textContent !== bt) btn.textContent = bt;
+  });
+}
+function dkPlay(id) {
+  const c = CITY[id]; if (!c) return;
+  Ambient.unlock(); vibrate(8);
+  if (state.activeCityId === id && ['playing', 'loading', 'failover'].includes(state.status)) { pause(); return; }
+  if (state.activeCityId === id && state.status === 'paused') { play(); return; }
+  state.interacted = true; selectCity(c);
+}
+function dkFrame(time) {
+  dk.raf = null; if (state.view !== 'app' || state.tab !== 'explore') return;
+  const dt = dk.last ? Math.min(0.05, (time - dk.last) / 1000) : 1 / 60, f = dt * 60; dk.last = time;
+  if (!dk.dragging) {
+    if (Math.abs(dk.vel) > 0.012) { dk.pos += dk.vel * f; dk.vel *= Math.pow(0.92, f); }
+    else { dk.vel = 0; const target = Math.round(dk.pos); dk.pos += (target - dk.pos) * (1 - Math.pow(0.82, f)); if (Math.abs(target - dk.pos) < 0.002) dk.pos = target; }
+  }
+  $('#dkWheel').style.transform = `rotate(${(-dk.pos * 15).toFixed(3)}deg)`;
+  const h = dkHourOf(dk.pos);
+  if (h !== dk.hour) {
+    const first = dk.hour === -1; dk.lastDir = dk.vel >= 0 ? 1 : -1;
+    dk.hour = h; $('#dkDial').setAttribute('aria-valuenow', String(h)); $('#dkDial').setAttribute('aria-valuetext', `${pad(h)}:00`);
+    if (!first) vibrate(3);
+    dkSetSky(h);
+    const prevH = dk.shownHour; if (prevH !== h) dkSetTime(h, !first);
+  }
+  const settled = !dk.dragging && dk.vel === 0 && dk.pos === Math.round(dk.pos);
+  if (settled && dk.shownHour !== h && !dk.settleTimer) {
+    dk.settleTimer = setTimeout(() => {
+      dk.settleTimer = 0; if (dk.hour !== h || dk.dragging) return;
+      dkShowHour(h, true);
+      // Ayarlar → otomatik çal: kullanıcı kadranı çevirip bıraktıysa ilk şehir çalar
+      clearTimeout(dk.autoTimer);
+      if (dk.userMoved && pref('autoplay') && dk.cards[0]) dk.autoTimer = setTimeout(() => { if (state.tab === 'explore' && dk.shownHour === h && dk.cards[0] && state.activeCityId !== dk.cards[0].id) { state.interacted = true; Ambient.unlock(); selectCity(dk.cards[0]); } }, 600);
+    }, 160);
+  }
+  if (!settled && dk.settleTimer) { clearTimeout(dk.settleTimer); dk.settleTimer = 0; }
+  dk.raf = requestAnimationFrame(dkFrame);
+}
+function dkTick() {
+  if (!dk || state.tab !== 'explore' || state.view !== 'app') return;
+  $('#dkCards').querySelectorAll('.dk-ct').forEach(el => { try { const t = cityTime(el.dataset.tz).slice(0, 5); if (!el.textContent.startsWith(t)) el.textContent = t + el.textContent.slice(5); } catch (e) {} });
+  if (dk.shownHour === dk.hour && dk.cards[0]) { let mm = '00'; try { mm = pad(zoned(dk.cards[0].timezone).mi); } catch (e) {} const el = $('#dkTime'); if (el.dataset.v && el.dataset.v.slice(2) !== mm) dkSetTime(dk.hour, true); }
+}
+function bindDial() {
+  const el = $('#dkDial');
+  el.addEventListener('pointerdown', e => {
+    if (dk.pid !== null) return;
+    dk.pid = e.pointerId; try { el.setPointerCapture(dk.pid); } catch (err) {}
+    dk.dragging = true; dk.vel = 0; dk.lx = e.clientX; dk.samples = [[performance.now(), e.clientX]];
+    el.classList.add('dragging'); $('#dkHint').classList.add('gone'); dk.userMoved = true; clearTimeout(dk.autoTimer);
+    Ambient.unlock();
+  });
+  el.addEventListener('pointermove', e => {
+    if (e.pointerId !== dk.pid) return;
+    const dx = e.clientX - dk.lx; dk.lx = e.clientX; dk.pos -= dx / DK_PX_PER_HOUR;
+    const now = performance.now(); dk.samples.push([now, e.clientX]); while (dk.samples.length > 2 && now - dk.samples[0][0] > 90) dk.samples.shift();
+  });
+  const end = e => {
+    if (e.pointerId !== dk.pid) return; dk.pid = null; dk.dragging = false; el.classList.remove('dragging');
+    const a = dk.samples[0], b = dk.samples[dk.samples.length - 1];
+    if (performance.now() - b[0] < 80 && b[0] > a[0]) dk.vel = clamp(-(b[1] - a[1]) / (b[0] - a[0]) * 16.67 / DK_PX_PER_HOUR, -0.6, 0.6);
+    dkPumpImages();
+  };
+  el.addEventListener('pointerup', end); el.addEventListener('pointercancel', end);
+  el.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowUp') { e.preventDefault(); dk.userMoved = true; dk.pos = Math.round(dk.pos) + 1; dk.vel = 0; }
+    else if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') { e.preventDefault(); dk.userMoved = true; dk.pos = Math.round(dk.pos) - 1; dk.vel = 0; }
+  });
+  el.addEventListener('wheel', e => { e.preventDefault(); dk.userMoved = true; dk.vel = clamp(dk.vel + (e.deltaX || e.deltaY) / DK_PX_PER_HOUR * 0.12, -0.6, 0.6); }, { passive: false });
+  $('#dkCards').addEventListener('click', e => {
+    const p = e.target.closest('[data-dk-play]'); if (p) { dkPlay(p.dataset.dkPlay); return; }
+    const g = e.target.closest('[data-dk-go]'); if (g) { const c = CITY[g.dataset.dkGo]; if (c) { vibrate(8); MapGlobe.takeControl(); openCity(c.id); } return; }
+  });
+}
+/** Sekmeye giriş */
 function renderExplore() {
-  const first = !wv; waveInit(); Ambient.unlock();
-  const w = $('#wave'); w.classList.remove('wv-enter', 'wv-shown'); void w.offsetWidth; w.classList.add(first || reduceMotion.matches ? 'wv-enter' : 'wv-shown');
-  if (first) setTimeout(() => { w.classList.remove('wv-enter'); w.classList.add('wv-shown'); }, 800);
-  $('#wvHint').classList.toggle('gone', wv.swiped);
-  if (first || !wv.deck.length) { waveLoad(wv.genre); return; }
-  // Geri dönüş: başka bir yerde çalan yayına dokunma; kart görsellerini tazele
-  const feed = $('#wvFeed'); feed.scrollTop = Math.max(0, wv.active) * feed.clientHeight;
-  wv.scrolling = false; waveQueueImages(Math.max(0, wv.active)); waveSync();
+  const first = !dk; dkInit();
+  if (first) { dk.hour = -1; dkShowHour(dkHourOf(dk.pos), true); }
+  else { dkSync(); dkQueueImages(); }
+  clearInterval(dk.clock); dk.clock = setInterval(dkTick, 1000);
+  if (!dk.raf) { dk.last = 0; dk.raf = requestAnimationFrame(dkFrame); }
 }
-function leaveTuner() { if (!wv) return; wv.tunePending = false; clearTimeout(wv.imgTimer); clearTimeout(wv.tuneTimer); clearTimeout(wv.errTimer); clearTimeout(wv.tapTimer); wv.imgQueue = []; }
-
+function leaveTuner() { if (!dk) return; clearInterval(dk.clock); clearTimeout(dk.autoTimer); clearTimeout(dk.settleTimer); dk.settleTimer = 0; dk.imgQueue = []; if (dk.raf) { cancelAnimationFrame(dk.raf); dk.raf = null; } }
 
 // ═════════════════════════════════════════════════════════
 //  KOLEKSİYON
@@ -3878,7 +3738,7 @@ function paneDirection(from, to) {
 }
 
 /** Anahtar: topuz yaylı kayar, yolda esner; açılınca 8 kıvılcım kutup ışığı renklerinde saçılır (520 ms). */
-const SPARK_COLORS = ['#EEEDF4', '#D9D8E4', '#C8C5D9', '#E2D2DB'];
+const SPARK_COLORS = ['#EAF4FF', '#CFE5FF', '#A9D3FF', '#BFDDFF'];
 function toggleHTML(key, on, title, sub, ic) {
   return `<div class="px-set"><span class="ico">${icon(ic, 19)}</span><span class="tx"><b>${esc(title)}</b><span class="small">${esc(sub)}</span></span>
     <button class="tg" role="switch" aria-checked="${on}" data-tg="${key}" aria-label="${esc(title)}"><span class="knob"></span></button></div>`;
@@ -3985,9 +3845,9 @@ function renderProfile(animate = true) {
       : `<div class="px-empty">${icon('stamp', 22)}<span><b>Henüz durak yok</b>Bir şehrin radyosu çalınca damgası buraya basılır.</span></div>`}</div></div>
     <div ${nx()}><div class="px-sec"><div class="px-head"><h3 class="h2">Favoriler</h3>${state.favorites.length ? `<span class="label">${state.favorites.length}</span>` : ''}</div>
       ${state.favorites.length ? `<div class="px-list">${state.favorites.map(f => favRow(f, st)).join('')}</div>`
-      : `<div class="px-empty">${icon('heart', 22)}<span><b>Henüz favorin yok</b>Dinlerken kalbe dokun ya da Keşfet'te karta çift dokun.</span></div>`}</div></div>
+      : `<div class="px-empty">${icon('heart', 22)}<span><b>Henüz favorin yok</b>Dinlerken kalbe dokun; istasyon buraya gelsin.</span></div>`}</div></div>
     <div ${nx()}><div class="px-sec"><div class="px-head"><h3 class="h2">Ayarlar</h3></div><div class="px-card">
-      ${toggleHTML('autoplay', pref('autoplay'), 'Keşfet\'te kendiliğinden çal', 'Kart yerine oturunca yayın başlar', 'compass')}
+      ${toggleHTML('autoplay', pref('autoplay'), 'Keşfet\'te kendiliğinden çal', 'Kadranı bırakınca ilk şehir çalar', 'compass')}
       ${toggleHTML('haptics', pref('haptics'), 'Titreşim', 'Dokunuşlarda hafif geri bildirim', 'sparkles')}
       ${toggleHTML('aurora', pref('aurora'), 'Kutup ışığı', 'Arka planda süzülen renkler', 'moon')}
       ${toggleHTML('badge', pref('badge'), 'Teknik rozet', 'Küre ekranında görüntü ayrıntıları', 'eye')}
