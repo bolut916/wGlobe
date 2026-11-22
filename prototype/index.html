@@ -1581,7 +1581,7 @@ const SURFACE_FRAG = `precision highp float;
 uniform sampler2D uDay; uniform sampler2D uLights; uniform sampler2D uClouds; uniform sampler2D uHeight; uniform sampler2D uWater; uniform sampler2D uLand;
 uniform float uHasLights; uniform float uHasClouds; uniform float uUnlit; uniform vec2 uDaySize;
 uniform vec3 uSunObj; uniform vec3 uCamObj;
-uniform float uReal; uniform float uSun; uniform float uLightsGain; uniform float uCloudGain; uniform float uMoon; uniform float uRelief;
+uniform float uReal; uniform float uSun; uniform float uLightsGain; uniform float uCloudGain; uniform float uMoon; uniform float uRelief; uniform float uStyleRelief;
 uniform vec3 uOceanDeep; uniform vec3 uOceanShallow; uniform vec3 uShelf; uniform vec3 uLandLow; uniform vec3 uLandHigh; uniform vec3 uIce; uniform vec3 uCoast; uniform vec3 uGrid; uniform vec3 uEquator; uniform vec3 uNight;
 uniform float uGridOpacity; uniform float uGridSpacing; uniform float uNightStrength; uniform float uTerminatorSoftness; uniform float uCoastStrength; uniform float uHatch; uniform float uFlat;
 varying vec3 vObj; varying vec3 vWorldPos;
@@ -1670,7 +1670,19 @@ void main() {
       float hl = 1.0 - smoothstep(0.1, 0.1 + hw * 1.2, abs(fract(hc) - 0.5));
       lc = mix(lc, uCoast, hl * smoothstep(0.25, 0.75, land.b) * uHatch * 0.55);
     }
-    lc = mix(lc, uIce, smoothstep(62.0, 70.0, degrees(abs(lat))) * step(uFlat, 0.5));
+    // Buz: kutuplara doğru geniş ve yumuşak bir geçişle (keskin bir enlem şeridi yerine)
+    lc = mix(lc, uIce, smoothstep(63.0, 76.0, degrees(abs(lat))) * step(uFlat, 0.5));
+    // Kabartma gölgesi (stilize temalar): gerçek yükseklik alanından eğim, temanın 'relief' ayarıyla
+    if (uStyleRelief > 0.001 && uFlat < 0.5) {
+      const vec2 HS = vec2(1.0 / 2048.0, 1.0 / 1024.0);
+      float sE2 = (sampleSmart(uHeight, uv + vec2(HS.x, 0.0), vec2(2048.0, 1024.0), gx, gy).r - sampleSmart(uHeight, uv - vec2(HS.x, 0.0), vec2(2048.0, 1024.0), gx, gy).r) / (2.0 * HS.x * TAU * max(cos(lat), 0.05));
+      float sN2 = (sampleSmart(uHeight, uv + vec2(0.0, HS.y), vec2(2048.0, 1024.0), gx, gy).r - sampleSmart(uHeight, uv - vec2(0.0, HS.y), vec2(2048.0, 1024.0), gx, gy).r) / (2.0 * HS.y * PI);
+      vec3 hE = vec3(n.z, 0.0, -n.x); float hEl = length(hE); hE = hEl > 1e-4 ? hE / hEl : vec3(1.0, 0.0, 0.0); vec3 hN = cross(n, hE);
+      vec3 Nh = normalize(n - (sE2 * hE + sN2 * hN) * uRelief * 2.2 * uStyleRelief);
+      float base = max(dot(n, L), 0.2);
+      float hs = clamp(max(dot(Nh, L), 0.0) / base, 0.5, 1.4);
+      lc *= mix(1.0, hs, clamp(uStyleRelief, 0.0, 1.0) * 0.85);
+    }
     vec3 surf = mix(ocean, lc, lm);
     surf = mix(surf, uCoast, (1.0 - smoothstep(0.0, 1.0, abs(land.r - 0.5) / (edge * 2.6))) * uCoastStrength);
     float dayS = smoothstep(-uTerminatorSoftness, uTerminatorSoftness, mu);
@@ -1840,7 +1852,7 @@ const Globe = (() => {
     globe = new THREE.Group(); rig.add(globe);
     const blank = new THREE.DataTexture(new Uint8Array([0, 0, 0, 255]), 1, 1); blank.needsUpdate = true;
     const uniforms = { uDay: { value: blank }, uLights: { value: blank }, uClouds: { value: blank }, uHeight: { value: blank }, uWater: { value: blank }, uLand: { value: blank },
-      uHasLights: { value: 0 }, uHasClouds: { value: 0 }, uUnlit: { value: 1 }, uDaySize: { value: new THREE.Vector2(4096, 2048) }, uSunObj: { value: sunObj }, uCamObj: { value: camObj }, uRelief: { value: RELIEF }, uGridSpacing: { value: 15 * D2R } };
+      uHasLights: { value: 0 }, uHasClouds: { value: 0 }, uUnlit: { value: 1 }, uDaySize: { value: new THREE.Vector2(4096, 2048) }, uSunObj: { value: sunObj }, uCamObj: { value: camObj }, uStyleRelief: { value: 0 }, uRelief: { value: RELIEF }, uGridSpacing: { value: 15 * D2R } };
     STYLE_COLORS.forEach(k => uniforms[U(k)] = { value: new THREE.Vector3() });
     STYLE_FLOATS.concat(['real', 'sun', 'lightsGain', 'cloudGain', 'moon']).forEach(k => uniforms[U(k)] = { value: 0 });
     const ext = { derivatives: true, shaderTextureLOD: true };
@@ -1891,7 +1903,7 @@ const Globe = (() => {
     u.uGridSpacing.value = p.f.gridSpacingDeg * D2R;
     // Klasik tema (gerçek + güneşli) düz çizilir: ana küredeki uydu görüntüsüyle aynı renkler.
     u.uUnlit.value = p.f.real > 0.999 && p.f.sun > 0.999 ? 1 : 0;
-    u.uReal.value = p.f.real; u.uSun.value = p.f.sun; u.uLightsGain.value = p.f.lightsGain; u.uCloudGain.value = p.f.cloudGain; u.uMoon.value = p.f.moon;
+    u.uStyleRelief.value = p.f.relief; u.uReal.value = p.f.real; u.uSun.value = p.f.sun; u.uLightsGain.value = p.f.lightsGain; u.uCloudGain.value = p.f.cloudGain; u.uMoon.value = p.f.moon;
     cMat.uniforms.uCloudGain.value = p.f.cloudGain * p.f.real; cMat.uniforms.uSun.value = p.f.sun; cMat.uniforms.uMoon.value = p.f.moon;
     clouds.visible = p.f.cloudGain * p.f.real > 0.003 && u.uUnlit.value < 0.5;   // düz modda bulutlar yüzeyde
     aMat.uniforms.uAtmoGain.value = p.f.atmoGain * p.f.real; atmoMesh.visible = aMat.uniforms.uAtmoGain.value > 0.003;
@@ -1977,6 +1989,50 @@ const Globe = (() => {
       });
       return { images, rot: fr };
     } catch (e) { return null; }
+  }
+  // ── Tema haritası: aynı yüzey gölgelendiricisi, küre yerine doğrudan Mercator karesinde ──
+  // Her piksel bir enlem/boylama çevrilir; ışık her yerde gündüz ve kuzeybatıdan gelir (kartografik kabartma gölgesi).
+  // Böylece ana ekrandaki harita koleksiyondaki kürenin birebir aynısı olur. Karo karo, kare başına bir karo çizilir.
+  const EQ_VERT = 'varying vec3 vObj; varying vec3 vWorldPos; void main() { vObj = vec3(0.0); vWorldPos = vec3(0.0); gl_Position = vec4(position.xy, 0.0, 1.0); }';
+  const EQ_FRAG = SURFACE_FRAG
+    .replace('varying vec3 vObj; varying vec3 vWorldPos;', 'varying vec3 vObj; varying vec3 vWorldPos;\nuniform vec4 uEqRect;')
+    .replace('  vec3 n = normalize(vObj);', '  vec2 fp = (gl_FragCoord.xy + uEqRect.xy) / uEqRect.zw;\n  float eLng = fp.x * TAU; float eLat = atan(sinh(PI * (2.0 * fp.y - 1.0)));\n  vec3 n = vec3(-cos(eLng) * cos(eLat), sin(eLat), sin(eLng) * cos(eLat));')
+    .replace('  vec3 L = normalize(uSunObj);', '  vec3 eE = vec3(n.z, 0.0, -n.x); float eEl = length(eE); eE = eEl > 1e-4 ? eE / eEl : vec3(1.0, 0.0, 0.0); vec3 eN = cross(n, eE);\n  vec3 L = normalize(n + eN * 0.45 - eE * 0.35);')
+    .replace('  vec3 V = normalize(uCamObj - n);', '  vec3 V = n;');
+  let eqR = null;
+  function eqRenderer(T) {
+    if (!eqR) {
+      const c = document.createElement('canvas');
+      const r2 = new THREE.WebGLRenderer({ canvas: c, antialias: false, alpha: false, preserveDrawingBuffer: true });
+      r2.setPixelRatio(1); r2.autoClear = false;
+      const mat = new THREE.ShaderMaterial({ vertexShader: EQ_VERT, fragmentShader: EQ_FRAG, uniforms: Object.assign({}, gMat.uniforms, { uEqRect: { value: new THREE.Vector4() } }), extensions: { derivatives: true, shaderTextureLOD: true }, depthTest: false, depthWrite: false });
+      const q = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), mat); q.frustumCulled = false;
+      const sc = new THREE.Scene(); sc.add(q);
+      eqR = { r2, mat, sc, cam: new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1), pipe: makePipe(r2, 0) };
+    }
+    eqR.r2.setSize(T, T, false);
+    return eqR;
+  }
+  function renderThemeMap(id, FULL = 3072, T = 1024) {
+    return new Promise(res => whenReady(async () => {
+      try {
+        if (!THEMES[id]) { res(null); return; }
+        const e = eqRenderer(T), out = document.createElement('canvas'); out.width = out.height = FULL;
+        const g = out.getContext('2d'), tp = toNum(THEMES[id].p), bypass = tp.f.real > 0.999 && tp.f.sun > 0.999 ? 1 : 0;
+        for (let ty = 0; ty < FULL; ty += T) for (let tx = 0; tx < FULL; tx += T) {
+          withSnapshotState(() => {
+            applyPal(tp);
+            e.mat.uniforms.uEqRect.value.set(tx, ty, FULL, FULL);
+            const pp = e.pipe; if (pp.rt.width !== T || pp.rt.height !== T) pp.rt.setSize(T, T);
+            e.r2.setRenderTarget(pp.rt); e.r2.setClearColor(0x000000, 1); e.r2.clear(); e.r2.render(e.sc, e.cam);
+            e.r2.setRenderTarget(null); pp.mat.uniforms.uBypass.value = bypass; pp.mat.uniforms.uFrame.value = 0; e.r2.render(pp.qs, pp.qc);
+          });
+          g.drawImage(e.r2.domElement, tx, FULL - ty - T);
+          await new Promise(r => requestAnimationFrame(() => r()));
+        }
+        res(out);
+      } catch (err) { res(null); }
+    }));
   }
   function setTheme(id) {
     const target = toNum(THEMES[id].p);
@@ -2204,7 +2260,7 @@ const Globe = (() => {
       const { W, H } = hostSize(), T = targetLayout(W, H);
       return Math.abs(lay.cx - T.cx) < 0.5 && Math.abs(lay.cy - T.cy) < 0.5 && Math.abs(lay.r - T.r) < 0.5;
     },
-    setDayImage, mount, update, unmount, setActive, drive, impulse, faceSun, transition, whenReady, setBackground, setThemeInstant, setRotation, snapshots, snapshotView, resetZoom, get layout() { return lay; }, get zoom() { return zoom.z; },
+    setDayImage, mount, update, unmount, setActive, drive, impulse, faceSun, transition, whenReady, setBackground, setThemeInstant, setRotation, snapshots, snapshotView, renderThemeMap, resetZoom, get layout() { return lay; }, get zoom() { return zoom.z; },
     /** Ekrandaki kürenin merkez enlem/boylamı ve piksel yerleşimi (MapLibre devir teslimi için). */
     get view() { let lng = (-rot.y - Math.PI / 2) / D2R; lng = ((lng + 180) % 360 + 360) % 360 - 180; return { lat: rot.x / D2R, lng, cx: lay.cx, cy: lay.cy, r: lay.r * zoom.z }; },
     _debug: { setSun(lat, lng) { sunObj.copy(latLngToVec3(lat, lng)); lastSun = performance.now() + 1e9; }, rot } };
@@ -2619,7 +2675,7 @@ function mountGlobe() {
     if (MapGlobe.revealed && MapGlobe.show({ theme: state.theme, onSelect: handleSelect })) { Globe.unmount(); MapGlobe.setActive(state.activeCityId); updateInk(); return; }
     Globe.mount($('#globeStage'), { interactive: true, autoRotate: !state.sheetOpen, markers: !MapGlobe.available(), theme: state.theme, layout: appLayout, onSelect: handleSelect, onCity: placeCityTag, zoomable: true, bg: '#050B18' });   // arka plan ana küreyle aynı
     MapGlobe.setActive(state.activeCityId);
-    MapGlobe.reveal({ theme: state.theme, onSelect: handleSelect }, () => { if (state.view === 'app' && state.tab === 'globe') Globe.unmount(); });
+    MapGlobe.reveal({ theme: state.theme, onSelect: handleSelect }, () => { if (state.view === 'app' && state.tab === 'globe') Globe.unmount(); updateInk(); });
   }
   else if (state.view === 'app' && state.tab === 'themes') Globe.mount($('#globeStage'), { interactive: false, autoRotate: true, markers: false, theme: state.previewTheme, layout: themesLayout, lerp: 0.7 });
   else if (state.view === 'app' && state.tab === 'profile') Globe.mount($('#globeStage'), { interactive: false, autoRotate: true, markers: false, theme: state.theme, layout: profileLayout, lerp: 0.6 });
@@ -2680,7 +2736,7 @@ const SatMosaic = (() => {
 })();
 
 /** Sürüm etiketi: sitede hangi sürümün açık olduğunu rozetten görmek için (önbellek kontrolü). */
-const BUILD = 'v26';
+const BUILD = 'v27';
 const MapGlobe = (() => {
   const host = document.getElementById('mapStage');
   const badge = document.getElementById('lodBadge');
@@ -2812,12 +2868,88 @@ const MapGlobe = (() => {
     return prepared;
   }
   const L85 = 85.051129, WORLD = [[-180, L85], [180, L85], [180, -L85], [-180, -L85]];
+  // ── Koleksiyon küresi haritada: seçilen kürenin kendi gölgelendiricisiyle çizilmiş Mercator katmanı ──
+  // Küre ölçeğinde tam görünür, şehre yaklaşırken (z 4,5 → 6,5) temanın tonuna boyanmış uyduya yumuşakça devreder.
+  let themeUrl = null, themeFor = null, themeJob = 0, themeReady = true, themeTimer = 0, themeShown = null;
+  const themeLayerWanted = id => !!(id && id !== 'classic' && THEMES[id]);
+  const themeOpacity = () => ['interpolate', ['linear'], ['zoom'], 4, 1, 5.5, 0];
+  // Yeterli bellekte 4096 px (şehir ölçeğine yakın netlik), düşük bellekli cihazlarda 3072 px
+  const THEME_MAP_PX = (navigator.deviceMemory || 4) >= 4 ? 4096 : 3072;
+  function setThemeReady() { if (!themeReady) { themeReady = true; clearTimeout(themeTimer); checkReady(); } }
+  // Üretilen tema haritaları cihazda saklanır (IndexedDB, son 6): sonraki açılışlarda çizim yok, anında yüklenir.
+  const THEME_CACHE_VER = 'v1';
+  const ThemeCache = (() => {
+    let dbp = null;
+    const db = () => dbp || (dbp = new Promise(res => { try { const r = indexedDB.open('wglobe-themes', 1); r.onupgradeneeded = () => r.result.createObjectStore('maps'); r.onsuccess = () => res(r.result); r.onerror = () => res(null); r.onblocked = () => res(null); } catch (e) { res(null); } }));
+    async function get(k) { const d = await db(); if (!d) return null; return new Promise(res => { try { const q = d.transaction('maps').objectStore('maps').get(k); q.onsuccess = () => res(q.result instanceof Blob ? q.result : null); q.onerror = () => res(null); } catch (e) { res(null); } }); }
+    async function put(k, blob) {
+      const d = await db(); if (!d) return;
+      try {
+        let keys = []; try { keys = JSON.parse(localStorage.getItem('wglobe-theme-cache') || '[]') || []; } catch (e) {}
+        keys = keys.filter(x => x !== k); keys.push(k);
+        const st = d.transaction('maps', 'readwrite').objectStore('maps'); st.put(blob, k);
+        while (keys.length > 6) st.delete(keys.shift());
+        try { localStorage.setItem('wglobe-theme-cache', JSON.stringify(keys)); } catch (e) {}
+      } catch (e) {}
+    }
+    return { get, put };
+  })();
+  const themeKey = id => `${id}|${THEME_MAP_PX}|${THEME_CACHE_VER}`;
+  function prepareTheme(id) {
+    if (!themeLayerWanted(id)) { themeJob++; removeThemeLayer(); setThemeReady(); return; }
+    if (themeFor === id && themeUrl) { attachTheme(); return; }
+    if (themeShown === id && !themeReady) return;   // aynı tema zaten hazırlanıyor
+    const job = ++themeJob; themeShown = id; themeReady = false;
+    // Eski tema yeni harita hazırlanırken bir an bile görünmesin: katman söner, yenisi hazır olunca belirir
+    if (map && map.getLayer('theme')) { map.setPaintProperty('theme', 'raster-opacity-transition', { duration: 300, delay: 0 }); map.setPaintProperty('theme', 'raster-opacity', 0); }
+    clearTimeout(themeTimer); themeTimer = setTimeout(setThemeReady, 9000);   // emniyet: harita hiçbir koşulda kilitlenmez
+    const useBlob = blob => {
+      if (job !== themeJob) return;
+      if (!blob) { setThemeReady(); return; }
+      const old = themeUrl; themeUrl = URL.createObjectURL(blob); themeFor = id;
+      attachTheme();
+      if (old) setTimeout(() => URL.revokeObjectURL(old), 4000);
+    };
+    ThemeCache.get(themeKey(id)).then(hit => {
+      if (job !== themeJob) return;
+      if (hit) { useBlob(hit); return; }
+      Globe.renderThemeMap(id, THEME_MAP_PX).then(cv => {
+        if (job !== themeJob) return;
+        if (!cv) { setThemeReady(); return; }
+        cv.toBlob(blob => { if (blob) ThemeCache.put(themeKey(id), blob); useBlob(blob); }, 'image/jpeg', 0.93);
+      });
+    });
+  }
+  function attachTheme() {
+    if (!ready || !map || !themeUrl || !themeLayerWanted(themeId) || themeFor !== themeId) return;
+    const src = map.getSource('theme');
+    if (src) { src.updateImage({ url: themeUrl, coordinates: WORLD }); map.setPaintProperty('theme', 'raster-opacity-transition', { duration: 500, delay: 80 }); map.setPaintProperty('theme', 'raster-opacity', themeOpacity()); }
+    else {
+      map.addSource('theme', { type: 'image', url: themeUrl, coordinates: WORLD });
+      map.addLayer({ id: 'theme', type: 'raster', source: 'theme', paint: { 'raster-opacity': themeOpacity(), 'raster-fade-duration': 0, 'raster-resampling': 'linear' } }, map.getLayer('clouds') ? 'clouds' : 'borders');
+    }
+    const done = () => setThemeReady();
+    const onData = e => { if (e.sourceId === 'theme' && e.isSourceLoaded) { map.off('sourcedata', onData); done(); } };
+    map.on('sourcedata', onData); setTimeout(() => { map.off('sourcedata', onData); done(); }, 2500);
+    map.triggerRepaint();
+  }
+  function removeThemeLayer() {
+    if (!map) return;
+    if (map.getLayer('theme')) map.removeLayer('theme');
+    if (map.getSource('theme')) map.removeSource('theme');
+  }
+  /** Tema değişince: harita boyası + tema katmanı + bulutlar (yalnız gerçek görüntülü temalarda) */
+  function useTheme(id) {
+    themeId = id || themeId;
+    if (ready) { paint(themeId); if (!themeLayerWanted(themeId)) removeThemeLayer(); else if (themeFor === themeId) attachTheme(); }
+    prepareTheme(themeId);
+  }
   /** Hazırlanan katmanları stil hazır olduğunda ekler (hangisi önce biterse). */
   function attachImagery() {
     if (!ready || !map) return;
     if (bmUrl && !map.getSource('bluemarble')) {
       map.addSource('bluemarble', { type: 'image', url: bmUrl, coordinates: WORLD });
-      map.addLayer({ id: 'bluemarble', type: 'raster', source: 'bluemarble', paint: { 'raster-opacity': bmOpacity(), 'raster-fade-duration': 0, 'raster-resampling': 'linear' } }, 'borders');
+      map.addLayer({ id: 'bluemarble', type: 'raster', source: 'bluemarble', paint: { 'raster-opacity': bmOpacity(), 'raster-fade-duration': 0, 'raster-resampling': 'linear' } }, map.getLayer('theme') ? 'theme' : 'borders');
       map.setLayoutProperty('land', 'visibility', 'none');
       const done = () => { if (!bmReady) { bmReady = true; checkReady(); } };
       map.on('sourcedata', e => { if (e.sourceId === 'bluemarble' && e.isSourceLoaded) done(); }); setTimeout(done, 3000);
@@ -2826,6 +2958,7 @@ const MapGlobe = (() => {
       map.addSource('clouds', { type: 'image', url: cloudUrl, coordinates: WORLD });
       // Bulutlar küre ölçeğinde görünür, şehre yaklaştıkça (zoom 3 → 5,5) tamamen kaybolur.
       map.addLayer({ id: 'clouds', type: 'raster', source: 'clouds', paint: { 'raster-opacity': ['interpolate', ['linear'], ['zoom'], 3, 1, 5.5, 0], 'raster-fade-duration': 0, 'raster-resampling': 'linear' } }, 'borders');
+      paint(themeId);
       const done = () => { if (!cloudsReady) { cloudsReady = true; checkReady(); } };
       map.on('sourcedata', e => { if (e.sourceId === 'clouds' && e.isSourceLoaded) done(); }); setTimeout(done, 3000);
     }
@@ -2857,7 +2990,7 @@ const MapGlobe = (() => {
       .catch(() => { dataStatus = 'veri hatası'; updateBadge(); });
   }
   function checkReady() {
-    if (firstReady || !ready || imagery === 'probing' || !cloudsReady) return;
+    if (firstReady || !ready || imagery === 'probing' || !cloudsReady || !themeReady) return;
     if (imagery === 'vector' && !bmReady && dataStatus !== 'veri hazır') return;
     if (!map.areTilesLoaded()) return;
     firstReady = true;
@@ -2891,6 +3024,9 @@ const MapGlobe = (() => {
     map.setPaintProperty('coast', 'line-color', c.coast);
     map.setPaintProperty('borders', 'line-color', c.border);
     if (map.getLayer('satellite')) { const t = THEMES[id], rc = t && t.recipe; const r = RASTER[id] || (rc === 'flat' ? RASTER.swiss_minimal : rc === 'atlas' ? RASTER.parchment : rc === 'glow' || rc === 'night' ? RASTER.night_lights : rc === 'soft' ? { 'raster-saturation': -0.35, 'raster-contrast': 0.08, 'raster-brightness-min': 0.02, 'raster-brightness-max': 0.95, 'raster-hue-rotate': 0 } : RASTER.classic); Object.keys(r).forEach(k => map.setPaintProperty('satellite', k, r[k])); }
+    if (map.getLayer('clouds')) {   // bulut yoğunluğu temanın kendi değeri; gece temalarında (güneş yok) haritada bulut yok
+      const tp = THEMES[id] && THEMES[id].p, k = !tp || id === 'classic' ? 1 : tp.sun < 0.5 ? 0 : clamp(tp.cloudGain * tp.real, 0, 1);
+      map.setPaintProperty('clouds', 'raster-opacity', k > 0.05 ? ['interpolate', ['linear'], ['zoom'], 3, k, 5.5, 0] : 0); }
     map.setSky({ 'sky-color': c.sky, 'horizon-color': c.horizon, 'sky-horizon-blend': 0.6, 'horizon-fog-blend': 0.5, 'fog-color': c.horizon, 'fog-ground-blend': 0, 'atmosphere-blend': ['interpolate', ['linear'], ['zoom'], 0, 0.55, 5, 0.55, 7, 0] });   // hale açılış küresininkiyle aynı yumuşaklıkta
   }
 
@@ -2965,7 +3101,7 @@ const MapGlobe = (() => {
     map.once('style.load', () => {
       clearTimeout(bootTimer); ready = true;
       paint(themeId); applyActive(); map.setPadding(padding());
-      attachImagery();
+      attachImagery(); attachTheme();
       rafId = requestAnimationFrame(animate);
     });
     map.on('error', e => {
@@ -3122,7 +3258,7 @@ const MapGlobe = (() => {
     /** Intro başlarken çağrılır: harita görünmezken yüklenir (karolar önceden iner). */
     preload(theme, view) {
       if (!available() || map) return;
-      themeId = theme || themeId; create(); if (failed) return;
+      themeId = theme || themeId; create(); if (failed) return; prepareTheme(themeId);
       map.once('style.load', () => { if (!revealed && view) matchView(view()); });
     },
     /** İlk gösterim: harita hazır olunca three.js küresinin yerini aynı açı/boyutta alır. */
@@ -3130,6 +3266,7 @@ const MapGlobe = (() => {
       if (!available()) return false;
       themeId = opts.theme || themeId; onSelect = opts.onSelect || null;
       if (!map) create(); if (failed) return false;
+      prepareTheme(themeId);
       if (revealStarted) return true;   // mountGlobe birden çok kez çağrılabilir: devir teslim tek sefer
       revealStarted = true;
       const go = () => {
@@ -3155,11 +3292,12 @@ const MapGlobe = (() => {
       themeId = opts.theme || themeId; onSelect = opts.onSelect || null;
       if (!map) create(); if (failed) return false;
       visible = true; host.classList.add('on'); updateBadge();
-      if (ready) { map.resize(); paint(themeId); }
+      if (ready) map.resize();
+      useTheme(themeId);
       return true;
     },
     hide() { visible = false; host.classList.remove('on'); badge.classList.remove('on'); },
-    setTheme(id) { themeId = id; if (ready) paint(id); },
+    setTheme(id) { useTheme(id); },
     setActive(id) {
       activeId = id;
       if (ready && id && PLACES[id]) map.getSource('cities').setData(cityFeatures());   // aramayla gelen yer
@@ -3769,7 +3907,8 @@ function leaveTuner() { if (!dk) return; clearInterval(dk.clock); clearTimeout(d
 let themeBusy = false, themeAnims = [], pocketOpen = false, picking = false, snaps = null, themeSettle = 0;
 /** Açık zeminli tema ekrandayken durum çubuğu, logo ve ipucu koyulaşır */
 function updateInk() {
-  const b = state.view === 'app' ? (state.tab === 'themes' ? state.previewTheme : state.tab === 'globe' ? state.theme : null) : null;
+  // Küre sekmesinde harita açıksa kürenin çevresi her zaman koyu uzaydır: yazılar açık renk kalır
+  const b = state.view === 'app' ? (state.tab === 'themes' ? state.previewTheme : state.tab === 'globe' && !MapGlobe.revealed ? state.theme : null) : null;
   $('#screen').classList.toggle('ink-dark', !!b && isLightTheme(b));
 }
 const isLightTheme = id => { const c = new THREE.Color(THEMES[id].p.background); return (0.2126 * c.r + 0.7152 * c.g + 0.0722 * c.b) > 0.5; };
