@@ -1291,6 +1291,17 @@ function nearestPlace(lat, lng) {
   CITIES.forEach(test); ATLAS.forEach(test);
   return best;
 }
+/** Haritada dokunulan nokta bir yer olur: adı/saati/ülkesi en yakın şehirden, konumu parmağın değdiği yerden.
+ *  Çok uzaksa (açık deniz, çöl) en yakın şehrin kendisine gidilir. */
+function spotPlace(lat, lng) {
+  const c = nearestPlace(lat, lng); if (!c) return null;
+  const base = asPlace(c), d = kmBetween([lat, lng], [base.lat, base.lng]);
+  if (d <= 4 || d > 300) return base;
+  const id = 'p' + Math.round(lat * 100) + '_' + Math.round(lng * 100);
+  if (CITY[id]) return asPlace(CITY[id]);
+  return registerPlace({ id, name: d <= 35 ? base.name : base.name + ' yakınları', country: base.country, lat: +lat.toFixed(4), lng: +lng.toFixed(4),
+    timezone: base.timezone, countryCode: base.countryCode, vibeTag: base.vibeTag, spot: true });
+}
 /** Rastgele bir yer: çoğunlukla atlastan (bilinmedik şehirler), bazen küratörlü listeden */
 function randomPlace(exclude) {
   for (let k = 0; k < 20; k++) {
@@ -2527,14 +2538,19 @@ function dedupe(list) {
 }
 const LOCAL_RADIUS_KM = 150;
 /** Konumun 150 km çevresindeki istasyonlar (en yakından popülere). Sonuçlar mesafeyle yeniden süzülür. */
+const WIDE_RADIUS_KM = 600;
+async function nearbyRaw(city, km) {
+  const raw = await rbFetch(`/json/stations/search?geo_lat=${city.lat}&geo_long=${city.lng}&geo_distance=${km * 1000}&has_geo_info=true&order=clickcount&reverse=true&hidebroken=true&limit=100`);
+  return dedupe((Array.isArray(raw) ? raw : []).map(toStation).filter(st => st && st.geo)).map(st => ({ st, d: kmBetween(st.geo, [city.lat, city.lng]) })).filter(x => x.d <= km);
+}
 async function fetchNearbyStations(city) {
   const key = 'geo:' + city.id, hit = stationCache.get(key);
   if (hit && hit.expires > Date.now()) return hit.stations;
   try {
-    const raw = await rbFetch(`/json/stations/search?geo_lat=${city.lat}&geo_long=${city.lng}&geo_distance=${LOCAL_RADIUS_KM * 1000}&has_geo_info=true&order=clickcount&reverse=true&hidebroken=true&limit=100`);
-    // Önce şehrin kendi yayınları (≤ 30 km), sonra çevrenin popülerleri: komşu şehirler aynı sırayı paylaşmaz.
-    const all = dedupe((Array.isArray(raw) ? raw : []).map(toStation).filter(st => st && st.geo)).map(st => ({ st, d: kmBetween(st.geo, [city.lat, city.lng]) })).filter(x => x.d <= LOCAL_RADIUS_KM);
-    const out = all.filter(x => x.d <= 30).concat(all.filter(x => x.d > 30)).map(x => x.st).slice(0, 30);
+    let all = await nearbyRaw(city, LOCAL_RADIUS_KM);
+    if (all.length < 4) { try { all = dedupe(all.map(x => x.st).concat((await nearbyRaw(city, WIDE_RADIUS_KM)).map(x => x.st))).map(st => ({ st, d: kmBetween(st.geo, [city.lat, city.lng]) })); } catch (e) {} }
+    // Dokunulan nokta: en yakın yayından uzağa. Şehir: önce kendi yayınları (≤ 30 km), sonra çevrenin popülerleri.
+    const out = (city.spot ? all.slice().sort((a, b) => a.d - b.d) : all.filter(x => x.d <= 30).concat(all.filter(x => x.d > 30))).map(x => x.st).slice(0, 30);
     out.forEach(st => { st.local = true; });
     stationCache.set(key, { stations: out, expires: Date.now() + RB_CACHE_MS });
     return out;
@@ -2695,7 +2711,21 @@ function onStarted(token) {
 function play() { const city = CITY[state.activeCityId]; if (!city) return; Ambient.unlock(); failedAttempts = 0; startAttempt(Math.max(0, state.index), false); }
 function pause() { attemptToken++; clearTimeout(startTimer); Sound.fadeOut(); if (state.status !== 'idle') setStatus('paused'); }
 function toggle() { ['playing', 'loading', 'failover'].includes(state.status) ? pause() : play(); }
-async function next() {
+// ── İleri: dünyanın başka bir yerine; geri: bir önceki yere ──
+const travelBack = [];
+function travel(dir) {
+  const cur = CITY[state.activeCityId];
+  let to = null;
+  if (dir < 0) { while (travelBack.length && !to) { const id = travelBack.pop(); if (id !== state.activeCityId && CITY[id]) to = CITY[id]; } if (!to) return false; }
+  else {
+    to = asPlace(randomPlace(c => c.id === state.activeCityId || (cur && kmBetween([cur.lat, cur.lng], [c.lat, c.lng]) < 2500)));
+    if (cur) { travelBack.push(cur.id); if (travelBack.length > 30) travelBack.shift(); }
+  }
+  MapGlobe.takeControl(); handleSelect(to); return true;
+}
+async function next() { if (!state.activeCityId || !travel(1)) return nextStation(); }
+/** Aynı yerde sıradaki istasyon (ileri tuşu artık dünyayı gezdirir; bu yalnız iç kullanım için) */
+async function nextStation() {
   if (!state.queue.stations) return play(); Ambient.unlock(); failedAttempts = 0; const token = ++attemptToken; clearTimeout(startTimer);
   const wasPlaying = state.status === 'playing'; setStatus('loading'); if (wasPlaying && !NATIVE) { Sound.fadeOut(); await sleep(DUR.audioOut); }
   if (token === attemptToken) startAttempt((state.index + 1) % state.queue.stations.length, false);
@@ -2894,7 +2924,7 @@ const SatMosaic = (() => {
 })();
 
 /** Sürüm etiketi: sitede hangi sürümün açık olduğunu rozetten görmek için (önbellek kontrolü). */
-const BUILD = 'v34';
+const BUILD = 'v35';
 const MapGlobe = (() => {
   const host = document.getElementById('mapStage');
   const badge = document.getElementById('lodBadge');
@@ -3368,7 +3398,8 @@ const MapGlobe = (() => {
       const { lng, lat } = ev.lngLat;
       map.getSource('tap').setData({ type: 'Feature', properties: {}, geometry: { type: 'Point', coordinates: [lng, lat] } });
       tap = performance.now();
-      const city = nearestCity(lat, lng);
+      const city = spotPlace(lat, lng);
+      if (city && state.activeCityId && city.id !== state.activeCityId) travelBack.push(state.activeCityId);
       if (city && onSelect) onSelect(city);
     });
     map.on('idle', checkReady);
@@ -3673,7 +3704,7 @@ function renderSheet() {
       <button class="play press tight" id="playBtn" aria-label="Oynat"><span class="ring"></span><span class="ic ic-play">${icon('play', 22, 'filled')}</span><span class="ic ic-pause">${icon('pause', 22, 'filled')}</span></button>
       <div class="st-texts" id="stTexts"></div>
       <button class="ctl fav press tight" id="favBtn" aria-label="Favorilere ekle"><span class="heart">${icon('heart', 22)}</span></button>
-      <button class="ctl press tight" id="nextBtn" aria-label="Sonraki istasyon">${icon('skip-forward', 22)}</button>
+      <button class="ctl press tight" id="nextBtn" aria-label="Dünyada başka bir yer">${icon('skip-forward', 22)}</button>
     </div>`;
   $('#sheetClose').addEventListener('click', () => openSheet(false));
   $('#sheetShare').addEventListener('click', () => openShare());
@@ -3722,7 +3753,7 @@ $('#drag').addEventListener('pointerdown', startSheetDrag);
 sheetEl.addEventListener('pointermove', moveSheetDrag); sheetEl.addEventListener('pointerup', endSheetDrag); sheetEl.addEventListener('pointercancel', endSheetDrag);
 $('#live').addEventListener('click', () => { if (!state.activeCityId) return; if (!$('#sheetContent').children.length) renderSheet(); openSheet(true); });
 let shuffleDeg = 0;
-$('#shuffle').addEventListener('click', () => { shuffleDeg += 180; $('#shuffleRot').style.transform = `rotate(${shuffleDeg}deg)`; vibrate(12); handleSelect(asPlace(randomPlace(c => c.id === state.activeCityId))); });
+$('#shuffle').addEventListener('click', () => { shuffleDeg += 180; $('#shuffleRot').style.transform = `rotate(${shuffleDeg}deg)`; vibrate(12); if (state.activeCityId) travelBack.push(state.activeCityId); handleSelect(asPlace(randomPlace(c => c.id === state.activeCityId))); });
 
 // ═════════════════════════════════════════════════════════
 //  ARAMA: şehir / ülke / istasyon → yerel radyo
@@ -4951,7 +4982,8 @@ function onNativeMessage(raw) {
 window.wglobeNative = onNativeMessage;   // yerel taraf injectJavaScript ile çağırır
 
 /** Önceki istasyon (kilit ekranı/kulaklık 'önceki' tuşu) */
-async function prev() {
+async function prev() { if (!travel(-1)) return prevStation(); }
+async function prevStation() {
   if (!state.queue.stations) return play(); Ambient.unlock(); failedAttempts = 0; const token = ++attemptToken; clearTimeout(startTimer);
   const n = state.queue.stations.length, wasPlaying = state.status === 'playing'; setStatus('loading'); if (wasPlaying && !NATIVE) { Sound.fadeOut(); await sleep(DUR.audioOut); }
   if (token === attemptToken) startAttempt((state.index - 1 + n) % n, false);
