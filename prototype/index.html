@@ -677,6 +677,15 @@ svg.i.filled { fill: currentColor; }
 .px-tag { position: absolute; right: 18px; bottom: 26px; z-index: 2; padding: 7px 12px; border-radius: 14px; font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em; color: var(--accent-ink); background: var(--grad); }
 .px-tag.guest { color: var(--fg); background: rgba(12,22,44,0.75); box-shadow: inset 0 0 0 1px rgba(232,240,255,0.16); }
 .px-sec { display: flex; flex-direction: column; gap: 14px; }
+.px-route { position: relative; border-radius: 24px; padding: 14px 12px 12px; background: rgba(12,22,44,0.62); box-shadow: inset 0 0 0 1px rgba(232,240,255,0.1); overflow: hidden; }
+.px-route canvas { display: block; width: 100%; }
+.pr-ends { display: flex; justify-content: space-between; gap: 12px; margin-top: 10px; font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.12em; color: var(--fg-3); text-transform: uppercase; }
+.pr-ends span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pr-ends span:last-child { color: var(--a1); text-align: right; }
+.pr-ends .mid { flex: none; color: var(--fg-3) !important; }
+.pr-ends span:only-child { color: var(--fg-3); }
+.pr-empty { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; gap: 4px; padding: 0 22px; background: linear-gradient(90deg, rgba(8,16,34,0.92) 30%, rgba(8,16,34,0.3)); font-size: 13px; line-height: 18px; color: var(--fg-2); }
+.pr-empty b { font-size: 15px; color: var(--fg); font-weight: 600; }
 .px-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
 .px-stars { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px 10px; justify-items: center; }
 .px-star { width: 92px; height: 92px; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; text-align: center; font-size: 12px; color: var(--fg-3); background: rgba(232,240,255,0.04); box-shadow: inset 0 0 0 1px rgba(232,240,255,0.1); }
@@ -755,6 +764,97 @@ svg.i.filled { fill: currentColor; }
 .fl-bar i { display: block; height: 100%; background: var(--grad); transform-origin: left; transform: scaleX(0); }
 .fl-act { display: flex; gap: 8px; margin-top: 6px; }
 .fl-act .btn { min-height: 44px; font-size: 14px; }
+/* ── Günün şehri: perde 420 ms, harfler 40 ms arayla yaylanarak düşer, ardından bilgi · halka · düğmeler 80 ms arayla ── */
+.cotd { position: absolute; inset: 0; z-index: 14; pointer-events: none; }
+.cotd[hidden] { display: none !important; }
+.cotd-scrim { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(5,11,24,0) 28%, rgba(5,11,24,0.5) 52%, rgba(5,11,24,0.93) 78%); opacity: 0; transition: opacity 420ms var(--e-standard); }
+.cotd.in .cotd-scrim { opacity: 1; }
+.cotd.out .cotd-scrim { opacity: 0; transition-duration: 260ms; }
+.cotd-body { position: absolute; left: 0; right: 0; bottom: calc(100px + var(--sab)); padding: 0 24px; display: flex; flex-direction: column; gap: 12px; pointer-events: auto; --nd: 900ms; }
+.cotd-kick { display: flex; align-items: center; gap: 8px; font-family: var(--mono); font-size: 11px; letter-spacing: 0.18em; color: var(--a2); }
+.cotd-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--a1); animation: pingA 1800ms var(--e-standard) infinite; }
+.cotd-name { margin: 0; font-family: var(--display); font-size: clamp(44px, 15vw, 70px); line-height: 1; font-weight: 750; letter-spacing: -0.05em; color: #F4F9FF; white-space: nowrap; overflow: hidden; padding: 0.06em 0 0.08em; }
+.cotd-name.long { font-size: clamp(34px, 11vw, 54px); }
+.cotd-name.xlong { font-size: clamp(28px, 8.6vw, 42px); }
+.cotd-name span { display: inline-block; opacity: 0; transform: translateY(-0.55em) rotate(-5deg); transform-origin: 50% 100%; }
+.cotd.in .cotd-name span { animation: cotdLetter 640ms var(--e-spring) forwards; animation-delay: calc(380ms + min(var(--i), 16) * 40ms); }
+@keyframes cotdLetter { 55% { opacity: 1; } to { opacity: 1; transform: none; } }
+.cotd-kick, .cotd-meta, .cotd-row, .cotd-act { opacity: 0; transform: translateY(12px); }
+.cotd.in .cotd-kick { animation: cotdUp 420ms var(--e-enter) 220ms forwards; }
+.cotd.in .cotd-meta { animation: cotdUp 420ms var(--e-enter) calc(var(--nd) + 0ms) forwards; }
+.cotd.in .cotd-row { animation: cotdUp 420ms var(--e-enter) calc(var(--nd) + 80ms) forwards; }
+.cotd.in .cotd-act { animation: cotdUp 520ms var(--e-spring) calc(var(--nd) + 160ms) forwards; }
+@keyframes cotdUp { to { opacity: 1; transform: none; } }
+.cotd.out .cotd-body { animation: cotdOut 220ms var(--e-exit) forwards; }
+@keyframes cotdOut { from { opacity: 1; transform: none; } to { opacity: 0; transform: translateY(18px); } }
+.cotd-meta { display: flex; align-items: center; gap: 8px; font-size: 15px; line-height: 20px; color: var(--fg-2); min-width: 0; white-space: nowrap; }
+.cotd-meta .sep { width: 3px; height: 3px; border-radius: 50%; background: var(--fg-4); flex: none; }
+.cotd-meta b { color: var(--fg); font-weight: 600; overflow: hidden; text-overflow: ellipsis; }
+@media (max-width: 420px) { .cotd-meta .vb { display: none; } }
+.cotd-row { display: flex; align-items: center; gap: 12px; }
+.cotd-ring { width: 44px; height: 44px; flex: none; }
+.cotd-ring svg { width: 44px; height: 44px; transform: rotate(-90deg); }
+.cotd-ring circle { fill: none; stroke-width: 3; }
+.cotd-ring .bg { stroke: rgba(232,240,255,0.12); }
+.cotd-ring .fg { stroke: var(--a2); stroke-linecap: round; stroke-dasharray: 119.38; stroke-dashoffset: 119.38; transition: stroke-dashoffset 900ms var(--e-standard); }
+.cotd-next { display: flex; flex-direction: column; gap: 1px; font-size: 12px; color: var(--fg-3); }
+.cotd-next b { font-size: 17px; color: var(--fg); font-weight: 600; letter-spacing: 0.02em; }
+.cotd-streak { margin-left: auto; padding: 7px 12px; border-radius: 16px; font-size: 12.5px; font-weight: 600; color: var(--accent-ink); background: var(--grad); white-space: nowrap; }
+.cotd-act { display: flex; gap: 10px; }
+.cotd-act .btn { flex: 1; min-height: 52px; }
+#pane-globe.cotd-mode .search, #pane-globe.cotd-mode .hint, #pane-globe.cotd-mode .live-dock, #pane-globe.cotd-mode .topbar, #pane-globe.cotd-mode .pulse-bar { opacity: 0 !important; pointer-events: none !important; transition: opacity 240ms var(--e-standard); }
+/* ── Canlı nabız şeridi: arama kutusunun yerine iner (yay), kapanırken 220 ms'de çekilir ── */
+.pulse-bar { position: absolute; top: calc(var(--sat) + 64px); left: 16px; right: 16px; z-index: 12; display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 6px 7px 6px 16px; border-radius: 26px; background: rgba(12,22,44,0.88); box-shadow: inset 0 0 0 1px rgba(110,170,235,0.38), 0 14px 34px rgba(2,6,16,0.42); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); opacity: 0; transform: translateY(-12px) scale(0.97); pointer-events: none; transition: opacity 220ms var(--e-exit), transform 220ms var(--e-exit); }
+.pulse-bar[hidden] { display: none !important; }
+.pulse-bar.in { opacity: 1; transform: none; pointer-events: auto; transition: opacity 320ms var(--e-enter), transform 560ms var(--e-spring); }
+.pb-dot { width: 9px; height: 9px; border-radius: 50%; flex: none; background: var(--a1); animation: pingA 1400ms var(--e-standard) infinite; }
+.pulse-bar.loading .pb-dot { animation: breathe 700ms var(--e-inout) infinite alternate; }
+.pb-tx { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.pb-tx b { font-size: 14px; line-height: 18px; font-weight: 600; }
+.pb-tx span { font-size: 12.5px; line-height: 16px; color: var(--fg-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#pbClose { width: 40px; height: 40px; border-radius: 20px; flex: none; background: rgba(232,240,255,0.06); }
+#pane-globe.pulse-mode .search { opacity: 0 !important; pointer-events: none !important; transform: translateY(-8px); transition: opacity 200ms var(--e-exit), transform 200ms var(--e-exit); }
+/* ── Kart: an etiketi ve gün doğumu ışığı ── */
+.label .mo-ic { display: inline-flex; vertical-align: -2px; margin-right: 6px; }
+.label.mo-dawn { color: #FFDDB8; }
+.sheet-content { position: relative; z-index: 1; }
+.sheet-glow { position: absolute; inset: 0; border-radius: inherit; pointer-events: none; opacity: 0; background: radial-gradient(120% 85% at 50% 0%, rgba(255,206,152,0.3), rgba(255,206,152,0) 62%); }
+.sheet.dawn .sheet-glow { animation: dawnGlow 2600ms var(--e-standard) forwards; }
+@keyframes dawnGlow { 0% { opacity: 0; } 22% { opacity: 1; } 100% { opacity: 0; } }
+.st-name-wrap { position: relative; overflow: hidden; }
+.st-name-wrap .ghost { position: absolute; left: 0; right: 0; top: 0; pointer-events: none; }
+/* ── Keşfet: anlar şeridi ── */
+.dk-moments { display: flex; gap: 8px; margin: 12px -22px 0; padding: 2px 56px 2px 22px; overflow-x: auto; scrollbar-width: none; overscroll-behavior-x: contain; -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 34px), transparent); mask-image: linear-gradient(90deg, #000 calc(100% - 34px), transparent); }
+.dk-moments::-webkit-scrollbar { display: none; }
+.dk-mo { flex: none; display: flex; align-items: center; gap: 9px; min-height: 46px; padding: 0 15px 0 7px; border-radius: 23px; background: rgba(12,22,44,0.66); box-shadow: inset 0 0 0 1px rgba(232,240,255,0.12); color: var(--fg); text-align: left; -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
+.dk-mo .ic { width: 32px; height: 32px; border-radius: 16px; display: grid; place-items: center; flex: none; background: rgba(169,211,255,0.14); color: var(--a2); }
+.dk-mo.dawn .ic { background: rgba(255,214,170,0.15); color: #FFDDB8; }
+.dk-mo .tx { display: flex; flex-direction: column; min-width: 0; }
+.dk-mo b { font-size: 13px; line-height: 16px; font-weight: 600; }
+.dk-mo small { font-size: 11.5px; line-height: 14px; color: var(--fg-3); max-width: 118px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+@media (max-height: 780px) {
+  .dk-time { font-size: 62px; height: 62px; }
+  .dk-orb { width: 92px; height: 92px; margin-bottom: 4px; }
+  .dk-card { padding: 13px 14px 11px; gap: 2px; }
+  .dk-cn { font-size: 23px; line-height: 27px; }
+  .dk-act { margin-top: 6px; }
+  .dk-st { margin-top: 3px; }
+  .dk-moments { margin-top: 10px; }
+}
+@media (max-height: 700px) {
+  .dk { padding-bottom: calc(var(--sab) + 206px); }
+  .dk-dial { height: 122px; }
+  .dk-time { font-size: 52px; height: 52px; }
+  .dk-sub { font-size: 14px; line-height: 19px; min-height: 19px; }
+  .dk-orb { width: 62px; height: 62px; }
+  .dk-cc, .dk-st { display: none; }
+  .dk-act .dk-play, .dk-go { min-height: 40px; height: 40px; }
+  .dk-go { width: 40px; }
+}
+@media (max-height: 600px) {
+  .dk-orb { display: none; }
+  .dk-time { font-size: 44px; height: 44px; }
+}
 /* Paylaşım: kart alttan yaylanarak gelir, önizleme hazır olunca belirir */
 .share { position: absolute; inset: 0; z-index: 85; display: flex; align-items: flex-end; justify-content: center; padding: 10px; background: rgba(2,6,16,0); visibility: hidden; transition: background 320ms var(--e-standard), visibility 0s linear 320ms; }
 .share.open { background: rgba(2,6,16,0.66); visibility: visible; transition: background 320ms var(--e-standard), visibility 0s; }
@@ -916,6 +1016,25 @@ svg.i.filled { fill: currentColor; }
             <div class="search-results" id="searchResults" role="listbox" aria-label="Arama sonuçları" hidden></div>
           </div>
           <div class="hint" id="hint">KÜREYİ ÇEVİR · BİR ŞEHRE DOKUN</div>
+          <div class="pulse-bar" id="pulseBar" hidden role="status" aria-live="polite">
+            <span class="pb-dot" aria-hidden="true"></span>
+            <span class="pb-tx"><b id="pbTitle">Canlı nabız</b><span id="pbSub">Dünya dinleniyor…</span></span>
+            <button class="round press tight" id="pbClose" aria-label="Canlı nabzı kapat" data-icon="x" data-size="18"></button>
+          </div>
+          <div class="cotd" id="cotd" hidden role="dialog" aria-labelledby="cotdName">
+            <div class="cotd-scrim"></div>
+            <div class="cotd-body" id="cotdBody">
+              <span class="cotd-kick"><span class="cotd-dot" aria-hidden="true"></span>BUGÜNÜN ŞEHRİ · <span id="cotdDate"></span></span>
+              <h2 class="cotd-name" id="cotdName"></h2>
+              <div class="cotd-meta" id="cotdMeta"></div>
+              <div class="cotd-row">
+                <span class="cotd-ring" aria-hidden="true"><svg viewBox="0 0 44 44"><circle class="bg" cx="22" cy="22" r="19"/><circle class="fg" id="cotdArc" cx="22" cy="22" r="19"/></svg></span>
+                <span class="cotd-next"><span>Yeni şehre</span><b class="num" id="cotdLeft"></b></span>
+                <span class="cotd-streak" id="cotdStreak" hidden></span>
+              </div>
+              <div class="cotd-act"><button class="btn solid press" id="cotdPlay"><span class="lbl"><span data-icon="play" data-size="18"></span><span id="cotdPlayT">Dinle</span></span></button><button class="btn line press" id="cotdLater"><span class="lbl">Sonra</span></button></div>
+            </div>
+          </div>
           <div class="live-dock hidden" id="liveDock"><button class="live press fly" id="live" aria-label="Radyo durumu"><span class="dot"></span><span class="txt"><span class="lab" id="liveLab">RADYO KAPALI</span><span class="sub" id="liveSub" hidden></span></span><span class="eq"><i style="--t:310ms"></i><i style="--t:240ms"></i><i style="--t:360ms"></i></span></button></div>
           <div class="flight" id="flight" hidden>
             <div class="fl-top"><span class="fl-badge">UÇUŞ MODU</span><span class="fl-leg num" id="flLeg"></span></div>
@@ -929,6 +1048,7 @@ svg.i.filled { fill: currentColor; }
           </div>
           <div class="city-tag" id="cityTag" aria-hidden="true"><b id="ctName"></b><span id="ctTime"></span></div>
           <div class="sheet" id="sheet" aria-live="polite">
+            <div class="sheet-glow" aria-hidden="true"></div>
             <div class="drag" id="drag"><i></i></div>
             <div class="sheet-content" id="sheetContent"></div>
           </div>
@@ -941,6 +1061,11 @@ svg.i.filled { fill: currentColor; }
               <span class="label" id="dkKicker">ŞU AN DÜNYADA</span>
               <div class="dk-time num" id="dkTime" aria-live="polite"></div>
               <p class="dk-sub" id="dkSub"></p>
+              <div class="dk-moments" id="dkMoments" role="group" aria-label="Anlar">
+                <button class="dk-mo press" data-mo="cotd"><span class="ic" data-icon="sparkles" data-size="16"></span><span class="tx"><b>Günün şehri</b><small id="moCotd">—</small></span></button>
+                <button class="dk-mo dawn press" data-mo="dawn"><span class="ic" data-icon="sunrise" data-size="16"></span><span class="tx"><b>Gün doğumu</b><small id="moDawn">güneşi kovala</small></span></button>
+                <button class="dk-mo press" data-mo="pulse"><span class="ic" data-icon="activity" data-size="16"></span><span class="tx"><b>Canlı nabız</b><small>şu an dinlenenler</small></span></button>
+              </div>
             </div>
             <div class="dk-cards" id="dkCards" role="list" aria-label="Bu saatteki şehirler"></div>
             <div class="dk-dial" id="dkDial" role="slider" tabindex="0" aria-label="Saat kadranı: çevirerek saat seç" aria-valuemin="0" aria-valuemax="23" aria-valuenow="0">
@@ -1379,6 +1504,9 @@ const ICONS = {
   'eye-off':'<path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49"/><path d="M14.084 14.158a3 3 0 0 1-4.242-4.242"/><path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143"/><path d="m2 2 20 20"/>',
   stamp:'<path d="M5 22h14"/><path d="M19.27 13.73A2.5 2.5 0 0 0 17.5 13h-11A2.5 2.5 0 0 0 4 15.5V17a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-1.5c0-.66-.26-1.3-.73-1.77Z"/><path d="M14 13V8.5C14 7 15 7 15 5a3 3 0 0 0-3-3c-1.69 0-3 1-3 3s1 2 1 3.5V13"/>',
   sparkles:'<path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/>',
+  sunrise:'<path d="M12 2v8"/><path d="m4.93 10.93 1.41 1.41"/><path d="M2 18h2"/><path d="M20 18h2"/><path d="m19.07 10.93-1.41 1.41"/><path d="M22 22H2"/><path d="m8 6 4-4 4 4"/><path d="M16 18a4 4 0 0 0-8 0"/>',
+  activity:'<path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"/>',
+  route:'<circle cx="6" cy="19" r="3"/><path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15"/><circle cx="18" cy="5" r="3"/>',
   sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>',
   cloud:'<path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/>',
   'cloud-rain':'<path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M16 14v6"/><path d="M8 14v6"/><path d="M12 16v6"/>',
@@ -1477,8 +1605,10 @@ const state = {
 try { const saved = JSON.parse(localStorage.getItem(STORE_KEY) || 'null'); if (saved) Object.assign(state, saved); } catch (e) {}
 if (!state.uid) state.uid = Math.random().toString(36).slice(2, 10);
 if (!Number.isFinite(state.listenMs)) state.listenMs = 0;
+if (!state.cotd || typeof state.cotd !== 'object') state.cotd = {};
+state.moment = null;
 function save() {
-  try { const { auth, email, theme, unlocked, favorites, visits, lastCityId, listenMs, joinedAt, uid, prefs, stats } = state; localStorage.setItem(STORE_KEY, JSON.stringify({ auth, email, theme, unlocked, favorites, visits, lastCityId, listenMs, joinedAt, uid, prefs, stats })); } catch (e) {}
+  try { const { auth, email, theme, unlocked, favorites, visits, lastCityId, listenMs, joinedAt, uid, prefs, stats, cotd } = state; localStorage.setItem(STORE_KEY, JSON.stringify({ auth, email, theme, unlocked, favorites, visits, lastCityId, listenMs, joinedAt, uid, prefs, stats, cotd })); } catch (e) {}
 }
 
 // ═════════════════════════════════════════════════════════
@@ -2664,7 +2794,7 @@ function flushListen(keep) { if (!listenSince) return; state.listenMs = (state.l
 function trackListen(s) { if (s === 'playing') { if (!listenSince) listenSince = Date.now(); } else flushListen(false); }
 addEventListener('pagehide', () => flushListen(true));
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') flushListen(true); });
-function setStatus(s) { trackListen(s); state.status = s; renderLive(); renderSheetDynamic(); dkSync(); profileSync(); mediaSync(); flightSync(); }
+function setStatus(s) { trackListen(s); state.status = s; renderLive(); renderSheetDynamic(); dkSync(); profileSync(); mediaSync(); flightSync(); if (s === 'playing') cotdCheck(); }
 async function startAttempt(i, isFailover) {
   const city = CITY[state.activeCityId]; if (!city) { setStatus('error'); return; }
   const token = ++attemptToken; clearTimeout(startTimer);
@@ -2731,6 +2861,7 @@ async function nextStation() {
   if (token === attemptToken) startAttempt((state.index + 1) % state.queue.stations.length, false);
 }
 function selectCity(city) {
+  if (state.moment && state.moment.cityId !== city.id) state.moment = null;
   const same = state.activeCityId === city.id;
   state.activeCityId = city.id; state.lastCityId = city.id; save();
   Globe.setActive(city.id); MapGlobe.setActive(city.id);
@@ -2842,6 +2973,7 @@ const back = () => go(history.pop() || 'welcome', { replace: true });
 function restartEnter(root) { root.querySelectorAll('.enter').forEach(el => { el.style.animation = 'none'; void el.offsetWidth; el.style.animation = ''; }); }
 function setTab(tab) {
   if (tab !== 'globe' && flight.on) stopFlight(false);
+  if (tab !== 'globe') { stopPulse(); if (cotdUI.open) closeCotd(false); }
   const prevTab = state.tab; paneDirection(prevTab, tab);
   state.tab = tab;
   document.querySelectorAll('.tab').forEach(t => { const on = t.dataset.tab === tab; t.classList.toggle('active', on); t.setAttribute('aria-current', on ? 'page' : 'false'); });
@@ -2924,7 +3056,7 @@ const SatMosaic = (() => {
 })();
 
 /** Sürüm etiketi: sitede hangi sürümün açık olduğunu rozetten görmek için (önbellek kontrolü). */
-const BUILD = 'v35';
+const BUILD = 'v36';
 const MapGlobe = (() => {
   const host = document.getElementById('mapStage');
   const badge = document.getElementById('lodBadge');
@@ -3283,6 +3415,7 @@ const MapGlobe = (() => {
     map.setPaintProperty('land', 'fill-color', ['interpolate', ['linear'], ['zoom'], 1, c.land, 7, c.landHi]);
     map.setPaintProperty('coast', 'line-color', c.coast);
     if (map.getLayer('atlas-dot')) map.setPaintProperty('atlas-dot', 'circle-color', c.coast);
+    paintInk(id);
     map.setPaintProperty('borders', 'line-color', c.border);
     if (map.getLayer('satellite')) { const t = THEMES[id], rc = t && t.recipe; const r = RASTER[id] || (rc === 'flat' ? RASTER.swiss_minimal : rc === 'atlas' ? RASTER.parchment : rc === 'glow' || rc === 'night' ? RASTER.night_lights : rc === 'soft' ? { 'raster-saturation': -0.35, 'raster-contrast': 0.08, 'raster-brightness-min': 0.02, 'raster-brightness-max': 0.95, 'raster-hue-rotate': 0 } : RASTER.classic); Object.keys(r).forEach(k => map.setPaintProperty('satellite', k, r[k])); }
     if (map.getLayer('clouds')) {   // bulut yoğunluğu temanın kendi değeri; gece temalarında (güneş yok) haritada bulut yok
@@ -3297,6 +3430,7 @@ const MapGlobe = (() => {
     // Küre üzerinde nokta yok: yalnızca seçili konum nabız atar.
     map.setFilter('city-pulse', ['==', ['get', 'id'], id]);
     map.setFilter('city-pulse2', ['==', ['get', 'id'], id]);
+    map.setFilter('city-wave3', ['==', ['get', 'id'], id]);
     map.setFilter('city-core', ['==', ['get', 'id'], id]);
   }
 
@@ -3340,6 +3474,11 @@ const MapGlobe = (() => {
             cities: { type: 'geojson', data: cityFeatures() },
             atlas: { type: 'geojson', data: { type: 'FeatureCollection', features: CITIES.concat(ATLAS).map(c => ({ type: 'Feature', properties: {}, geometry: { type: 'Point', coordinates: [c.lng, c.lat] } })) }, maxzoom: 8 },
             tap: { type: 'geojson', data: { type: 'FeatureCollection', features: [] } },
+            dawn: { type: 'geojson', data: { type: 'FeatureCollection', features: [] } },
+            trail: { type: 'geojson', data: { type: 'FeatureCollection', features: [] } },
+            'trail-live': { type: 'geojson', data: { type: 'FeatureCollection', features: [] } },
+            'trail-head': { type: 'geojson', data: { type: 'FeatureCollection', features: [] } },
+            pulse: { type: 'geojson', data: { type: 'FeatureCollection', features: [] } },
             satellite: { type: 'raster', tiles: [ESRI_URL], tileSize: SAT_TILE_SIZE, maxzoom: SAT_MAX_ZOOM, attribution: 'Imagery © Esri, Maxar, Earthstar Geographics' },
           },
           layers: [
@@ -3349,8 +3488,18 @@ const MapGlobe = (() => {
             { id: 'borders', type: 'line', source: 'borders', paint: { 'line-color': c.border, 'line-width': ['interpolate', ['linear'], ['zoom'], 1, 0.4, 6, 1, 10, 1.4] } },
             { id: 'coast', type: 'line', source: 'coastline', layout: { 'line-join': 'round', 'line-cap': 'round' }, paint: { 'line-color': c.coast, 'line-opacity': 0.85, 'line-width': ['interpolate', ['exponential', 1.6], ['zoom'], 1, 0.5, 6, 1.1, 12, 2.2] } },
             { id: 'atlas-dot', type: 'circle', source: 'atlas', minzoom: 2.4, paint: { 'circle-radius': ['interpolate', ['linear'], ['zoom'], 2.4, 1, 5, 1.8, 9, 2.6], 'circle-color': c.coast, 'circle-opacity': ['interpolate', ['linear'], ['zoom'], 2.4, 0, 3.2, 0.42, 7, 0.6], 'circle-stroke-width': 0, 'circle-pitch-alignment': 'map' } },
+            { id: 'dawn-glow', type: 'line', source: 'dawn', layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': '#FFD9AE', 'line-width': 16, 'line-blur': 14, 'line-opacity': 0 } },
+            { id: 'dawn-line', type: 'line', source: 'dawn', layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': '#FFEBD2', 'line-width': 1.6, 'line-opacity': 0 } },
+            { id: 'trail-glow', type: 'line', source: 'trail', layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': '#A9D3FF', 'line-width': 7, 'line-blur': 6, 'line-opacity': ['*', 0.32, ['get', 'a']] } },
+            { id: 'trail', type: 'line', source: 'trail', layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': '#EAF4FF', 'line-width': 1.7, 'line-opacity': ['get', 'a'] } },
+            { id: 'trail-live-glow', type: 'line', source: 'trail-live', layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': '#A9D3FF', 'line-width': 9, 'line-blur': 7, 'line-opacity': 0.4 } },
+            { id: 'trail-live', type: 'line', source: 'trail-live', layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': '#F2F8FF', 'line-width': 2.2, 'line-opacity': 0.95 } },
+            { id: 'trail-head', type: 'circle', source: 'trail-head', paint: { 'circle-radius': 4.5, 'circle-color': '#F2F8FF', 'circle-opacity': ['get', 'o'], 'circle-stroke-width': 6, 'circle-stroke-color': '#A9D3FF', 'circle-stroke-opacity': ['*', 0.3, ['get', 'o']], 'circle-pitch-alignment': 'map' } },
+            { id: 'pulse-glow', type: 'circle', source: 'pulse', paint: { 'circle-radius': ['get', 'r'], 'circle-color': '#A9D3FF', 'circle-blur': 0.75, 'circle-opacity': ['get', 'o'], 'circle-pitch-alignment': 'map' } },
+            { id: 'pulse-core', type: 'circle', source: 'pulse', paint: { 'circle-radius': ['get', 'c'], 'circle-color': '#F2F8FF', 'circle-opacity': ['get', 'co'], 'circle-stroke-width': 1, 'circle-stroke-color': '#FFFFFF', 'circle-stroke-opacity': ['*', 0.6, ['get', 'co']], 'circle-pitch-alignment': 'map' } },
             { id: 'city-pulse', type: 'circle', source: 'cities', filter: ['==', ['get', 'id'], ''], paint: { 'circle-radius': 10, 'circle-color': 'rgba(0,0,0,0)', 'circle-stroke-width': 2, 'circle-stroke-color': '#DCEEFF', 'circle-stroke-opacity': 0.5, 'circle-pitch-alignment': 'map' } },
             { id: 'city-pulse2', type: 'circle', source: 'cities', filter: ['==', ['get', 'id'], ''], paint: { 'circle-radius': 10, 'circle-color': 'rgba(0,0,0,0)', 'circle-stroke-width': 2, 'circle-stroke-color': '#DCEEFF', 'circle-stroke-opacity': 0, 'circle-pitch-alignment': 'map' } },
+            { id: 'city-wave3', type: 'circle', source: 'cities', filter: ['==', ['get', 'id'], ''], paint: { 'circle-radius': 10, 'circle-color': 'rgba(0,0,0,0)', 'circle-stroke-width': 2, 'circle-stroke-color': '#DCEEFF', 'circle-stroke-opacity': 0, 'circle-pitch-alignment': 'map' } },
             { id: 'city-core', type: 'circle', source: 'cities', filter: ['==', ['get', 'id'], ''], paint: { 'circle-radius': 6, 'circle-color': '#DCEEFF', 'circle-stroke-width': 1.5, 'circle-stroke-color': '#ffffff', 'circle-stroke-opacity': 0.9, 'circle-pitch-alignment': 'map' } },
             { id: 'tap-ring', type: 'circle', source: 'tap', paint: { 'circle-radius': 4, 'circle-color': 'rgba(0,0,0,0)', 'circle-stroke-width': 1.6, 'circle-stroke-color': '#ffffff', 'circle-stroke-opacity': 0, 'circle-pitch-alignment': 'map' } },
           ],
@@ -3393,6 +3542,14 @@ const MapGlobe = (() => {
     });
     // Haritada herhangi bir yere dokun → en yakın konumun yerel radyosu.
     map.on('click', ev => {
+      if (pulse && !pulse.off && pulse.onPick) {
+        const p = ev.point, hit = map.queryRenderedFeatures([[p.x - 16, p.y - 16], [p.x + 16, p.y + 16]], { layers: ['pulse-glow'] });
+        if (hit.length) {
+          const best = hit.map(f => pulse.items[f.properties.i]).filter(Boolean).sort((a, b) => b.w - a.w)[0];
+          if (best) { lastTouch = Date.now(); userControl = true; tap = performance.now(); map.getSource('tap').setData({ type: 'Feature', properties: {}, geometry: { type: 'Point', coordinates: [best.lng, best.lat] } }); pulse.onPick(best); return; }
+        }
+        if (pulse.onMiss) pulse.onMiss();
+      }
       if (userMoveCb) userMoveCb();
       lastTouch = Date.now(); userControl = true; selectFromMap = true;
       const { lng, lat } = ev.lngLat;
@@ -3491,15 +3648,7 @@ const MapGlobe = (() => {
       map.setPaintProperty('tap-ring', 'circle-stroke-opacity', 0.85 * (1 - t));
       if (t >= 1) tap = null;
     }
-    if (activeId) {
-      const ph = (now % DUR.pulse) / DUR.pulse, e = 1 - Math.pow(1 - ph, 3);
-      map.setPaintProperty('city-pulse', 'circle-radius', 10 + 16 * e);
-      map.setPaintProperty('city-pulse', 'circle-stroke-opacity', 0.55 * (1 - ph));
-      // İkinci halka yarım tur geride: sürekli yayılan bir sonar
-      const ph2 = (ph + 0.5) % 1, e2 = 1 - Math.pow(1 - ph2, 3);
-      map.setPaintProperty('city-pulse2', 'circle-radius', 10 + 16 * e2);
-      map.setPaintProperty('city-pulse2', 'circle-stroke-opacity', 0.55 * (1 - ph2));
-    }
+    tickWaves(now); tickTrail(now); tickDawn(now); tickPulse(now);
 
     // Kendiliğinden dönüş: açılıştan itibaren (1,2 sn'de yumuşak hızlanma), ilk dokunuşa kadar.
     if (!userControl && !userMoving && !flight && !map.isMoving() && map.getZoom() < 3.5) {
@@ -3507,6 +3656,153 @@ const MapGlobe = (() => {
       const k = Math.min(1, (3.5 - map.getZoom()) / 1.5) * ramp * ramp * (3 - 2 * ramp), c = map.getCenter();
       map.setCenter([c.lng - 4 * k * dt, c.lat]);
     }
+  }
+
+  // ═══ Hareket katmanları: radyo dalgaları · uçuş izi · gün doğumu çizgisi · canlı nabız ═══
+  const FC = features => ({ type: 'FeatureCollection', features });
+  const lumHex = h => { const n = parseInt(String(h).slice(1, 7), 16); if (!Number.isFinite(n)) return 0; return (0.2126 * (n >> 16 & 255) + 0.7152 * (n >> 8 & 255) + 0.0722 * (n & 255)) / 255; };
+  let ink = { line: '#EAF4FF', soft: '#DCEEFF', glow: '#A9D3FF' };
+  /** Açık zeminli kürelerde çizgiler koyu mürekkeple çizilir (açık mavi çizgi beyaz okyanusta kaybolur) */
+  function paintInk(id) {
+    const t = THEMES[id], p = t && t.p;
+    const light = id !== 'classic' && p && (lumHex(p.oceanShallow) + lumHex(p.landLow)) / 2 > 0.55;
+    ink = light ? { line: '#0B1B33', soft: '#16345E', glow: '#3E6AA6' } : { line: '#EAF4FF', soft: '#DCEEFF', glow: '#A9D3FF' };
+    const set = (l, k, v) => { if (map.getLayer(l)) map.setPaintProperty(l, k, v); };
+    ['city-pulse', 'city-pulse2', 'city-wave3'].forEach(l => set(l, 'circle-stroke-color', ink.soft));
+    set('city-core', 'circle-color', ink.soft); set('city-core', 'circle-stroke-color', light ? '#FFFFFF' : '#FFFFFF');
+    set('trail', 'line-color', ink.line); set('trail-glow', 'line-color', ink.glow);
+    set('trail-live', 'line-color', ink.line); set('trail-live-glow', 'line-color', ink.glow);
+    set('trail-head', 'circle-color', ink.line); set('trail-head', 'circle-stroke-color', ink.glow);
+    set('pulse-glow', 'circle-color', ink.glow); set('pulse-core', 'circle-color', ink.line);
+    set('tap-ring', 'circle-stroke-color', light ? '#0B1B33' : '#ffffff');
+  }
+  const setP = (() => { const last = new Map(); return (l, k, v) => { const key = l + k, r = typeof v === 'number' ? Math.round(v * 1000) / 1000 : v; if (last.get(key) === r) return; last.set(key, r); map.setPaintProperty(l, k, r); }; })();
+
+  // ── Radyo dalgaları: çalarken ritimle yayılan halkalar; bağlanırken nefes; duraklayınca 200 ms'de sönüş ──
+  const WAVE_LAYERS = ['city-pulse', 'city-pulse2', 'city-wave3'], waves = [null, null, null];
+  let waveNext = 0, waveSlot = 0, waveMode = 'off', waveOffAt = 0;
+  function tickWaves(now) {
+    const s = state.status, mine = !!activeId && state.activeCityId === activeId;
+    const mode = !mine ? 'off' : s === 'playing' ? 'play' : (s === 'loading' || s === 'failover') ? 'busy' : 'off';
+    if (mode !== waveMode) { if (mode === 'off') waveOffAt = now; waveMode = mode; if (mode === 'play') waveNext = now + 120; }
+    if (mode === 'play' && now >= waveNext) {
+      const st = currentStation(), beat = 640 + (hash(st && st.uuid ? st.uuid : String(activeId)) % 280);   // istasyona özgü tempo
+      waves[waveSlot] = { t0: now, amp: 0.62 + Math.random() * 0.38 }; waveSlot = (waveSlot + 1) % 3;
+      waveNext = now + beat * (0.82 + Math.random() * 0.36);
+    }
+    const fade = mode === 'off' ? Math.max(0, 1 - (now - waveOffAt) / 200) : 1;
+    WAVE_LAYERS.forEach((l, i) => {
+      const w = waves[i]; let r = 8, o = 0;
+      if (w) {
+        const t = (now - w.t0) / 1500;
+        if (t >= 1 || fade === 0) waves[i] = null;
+        else { const e = 1 - Math.pow(1 - t, 3); r = 8 + (12 + 26 * w.amp) * e; o = 0.66 * w.amp * Math.pow(1 - t, 1.4) * fade; }
+      } else if (mode === 'busy' && i === 0) {
+        const k = 0.5 - 0.5 * Math.cos((now % 1600) / 1600 * TAU); r = 10 + 7 * k; o = 0.18 + 0.34 * k;   // bağlanırken yavaş nefes
+      }
+      setP(l, 'circle-radius', r); setP(l, 'circle-stroke-opacity', o);
+    });
+    setP('city-core', 'circle-opacity', mode === 'play' ? 1 : mode === 'busy' ? 0.9 : 0.72);
+  }
+
+  // ── Uçuş izi: iki yer arasına büyük daire yayı; kamerayla eşzamanlı çizilir, eski izler solar ──
+  let legs = [], live = null, headFade = null;
+  const unit = (lat, lng) => { const a = lat * D2R, b = lng * D2R; return [Math.cos(a) * Math.cos(b), Math.cos(a) * Math.sin(b), Math.sin(a)]; };
+  function gcLine(a, b, n) {
+    const A = unit(a.lat, a.lng), B = unit(b.lat, b.lng), dot = clamp(A[0] * B[0] + A[1] * B[1] + A[2] * B[2], -1, 1), om = Math.acos(dot), so = Math.sin(om) || 1, out = [];
+    for (let i = 0; i <= n; i++) {
+      const t = i / n, k1 = Math.sin((1 - t) * om) / so, k2 = Math.sin(t * om) / so;
+      const x = k1 * A[0] + k2 * B[0], y = k1 * A[1] + k2 * B[1], z = k1 * A[2] + k2 * B[2];
+      out.push([Math.atan2(y, x) * R2D, Math.asin(clamp(z, -1, 1)) * R2D]);
+    }
+    return unwrap(out);
+  }
+  function slicePath(coords, p) {
+    const n = coords.length - 1, f = clamp(p, 0, 1) * n, i = Math.floor(f), k = f - i, out = coords.slice(0, i + 1);
+    if (i < n && k > 0) { const a = coords[i], b = coords[i + 1]; out.push([a[0] + (b[0] - a[0]) * k, a[1] + (b[1] - a[1]) * k]); }
+    if (out.length < 2) out.push(out[0].slice());
+    return out;
+  }
+  function renderLegs() {
+    if (!ready) return;
+    const now = Date.now();
+    map.getSource('trail').setData(FC(legs.map((l, i) => {
+      const age = Math.max(0, (now - l.at) / 60000 - 20), decay = Math.max(0, 1 - age / 40);   // 20 dk sonra 40 dk'da solar
+      return { type: 'Feature', properties: { a: +(0.78 * Math.pow(0.62, i) * decay).toFixed(3) }, geometry: { type: 'LineString', coordinates: l.coords } };
+    }).filter(f => f.properties.a > 0.02)));
+  }
+  function finishLive() {
+    if (!live) return;
+    legs.unshift({ coords: live.coords, at: Date.now() }); legs = legs.slice(0, 7);
+    const end = live.coords[live.coords.length - 1]; headFade = { t0: performance.now(), at: end }; live = null;
+    if (ready) map.getSource('trail-live').setData(FC([]));
+    renderLegs();
+  }
+  function addLeg(a, b) {
+    if (!a || !b || !Number.isFinite(a.lat) || !Number.isFinite(b.lat)) return;
+    const d = kmBetween([a.lat, a.lng], [b.lat, b.lng]); if (d < 300) return;
+    if (live) finishLive();
+    const coords = gcLine(a, b, clamp(Math.round(d / 110), 24, 180));
+    if (!visible || !ready || reduceMotion.matches) { live = { coords }; finishLive(); return; }
+    live = { coords, to: b, d, t0: performance.now(), prog: 0, startD: 0 };
+  }
+  function tickTrail(now) {
+    if (live) {
+      const flying = flight && map.isMoving() && Math.abs(flight.lng - live.to.lng) < 1e-6 && Math.abs(flight.lat - live.to.lat) < 1e-6;
+      let p;
+      if (flying) {   // kamera uçarken iz, kameranın kalan yoluna göre çizilir (aynı anda varırlar)
+        const c = map.getCenter(), rem = kmBetween([c.lat, c.lng], [live.to.lat, live.to.lng]);
+        if (!live.startD) live.startD = Math.max(rem, 1);
+        p = 1 - rem / live.startD; live.t0 = now - 1800 * live.prog;
+      } else p = easeInOutCubic(Math.min(1, (now - live.t0) / 1800));
+      live.prog = Math.max(live.prog, clamp(p, 0, 1));
+      const path = slicePath(live.coords, live.prog);
+      map.getSource('trail-live').setData(FC([{ type: 'Feature', properties: {}, geometry: { type: 'LineString', coordinates: path } }]));
+      map.getSource('trail-head').setData(FC([{ type: 'Feature', properties: { o: 1 }, geometry: { type: 'Point', coordinates: path[path.length - 1] } }]));
+      if (live.prog >= 0.999 && !flying) finishLive();
+    } else if (headFade) {
+      const t = (now - headFade.t0) / 420;
+      map.getSource('trail-head').setData(FC(t >= 1 ? [] : [{ type: 'Feature', properties: { o: +(1 - easeOutCubic(t)).toFixed(3) }, geometry: { type: 'Point', coordinates: headFade.at } }]));
+      if (t >= 1) headFade = null;
+    }
+  }
+
+  // ── Gün doğumu çizgisi: terminatörün sabah yarısı; 500 ms'de yanar, bekler, 900 ms'de söner ──
+  let dawn = null;
+  function dawnLine() {
+    const s = subsolar(new Date()), S = unit(s.lat, s.lng);
+    let u = [-S[1], S[0], 0]; const ul = Math.hypot(u[0], u[1]) || 1; u = [u[0] / ul, u[1] / ul, 0];
+    const v = [S[1] * u[2] - S[2] * u[1], S[2] * u[0] - S[0] * u[2], S[0] * u[1] - S[1] * u[0]];
+    const pts = [];
+    for (let d = 0; d < 360; d += 1.5) {
+      const t = d * D2R, x = Math.cos(t) * u[0] + Math.sin(t) * v[0], y = Math.cos(t) * u[1] + Math.sin(t) * v[1], z = Math.cos(t) * u[2] + Math.sin(t) * v[2];
+      const lat = Math.asin(clamp(z, -1, 1)) * R2D, lng = Math.atan2(y, x) * R2D, ahead = ((s.lng - lng + 540) % 360) - 180;
+      pts.push({ c: [lng, lat], m: ahead > 0 });
+    }
+    const start = pts.findIndex((p, i) => !p.m && pts[(i + 1) % pts.length].m); if (start < 0) return [];
+    const seg = []; for (let k = 1; k <= pts.length; k++) { const p = pts[(start + k) % pts.length]; if (!p.m) break; seg.push(p.c); }
+    return seg.length > 1 ? unwrap(seg) : [];
+  }
+  function tickDawn(now) {
+    if (!dawn) return;
+    const t = now - dawn.t0, inK = Math.min(1, t / 500), out = t > dawn.hold ? Math.min(1, (t - dawn.hold) / 900) : 0, k = easeOutCubic(inK) * (1 - easeInOutCubic(out));
+    setP('dawn-glow', 'line-opacity', 0.55 * k); setP('dawn-line', 'line-opacity', 0.95 * k);
+    if (out >= 1) { dawn = null; map.getSource('dawn').setData(FC([])); }
+  }
+
+  // ── Canlı nabız: en yoğun dinlenen bölgeler; sırayla yaylanarak belirir, her biri kendi ritminde nefes alır ──
+  let pulse = null;
+  function tickPulse(now) {
+    if (!pulse) return;
+    const T = now - pulse.t0, gone = pulse.off ? Math.min(1, (now - pulse.off) / 300) : 0;
+    // Her karede yalnızca ≤16 nokta: özellikler doğrudan güncellenir (feature-state yarıçapı küre izdüşümünde uygulanmıyor)
+    map.getSource('pulse').setData(FC(pulse.items.map((it, i) => {
+      const x = clamp((T - i * 70) / 620, 0, 1), c1 = 1.5, c3 = c1 + 1, enter = x <= 0 ? 0 : 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2);
+      const br = 0.5 - 0.5 * Math.cos(((now / 1000) / it.sp + it.ph) * TAU), k = Math.max(0, enter) * (1 - gone);
+      const R = (14 + 34 * it.w) * (0.86 + 0.24 * br), r3 = v => Math.round(v * 1000) / 1000;
+      return { type: 'Feature', id: i, properties: { i, r: r3(R * k), o: r3((0.44 + 0.4 * it.w) * (0.7 + 0.3 * br) * Math.min(1, x * 1.6) * (1 - gone)), c: r3((2.6 + 2.4 * it.w) * k), co: r3(Math.min(1, x * 2) * (1 - gone)) }, geometry: { type: 'Point', coordinates: [it.lng, it.lat] } };
+    })));
+    if (gone >= 1) { pulse = null; map.getSource('pulse').setData(FC([])); }
   }
 
   function flyTo(lng, lat, zoom, speed, pitch = 0, bearing = 0) {
@@ -3568,6 +3864,7 @@ const MapGlobe = (() => {
     cruise(city) { if (!ready || !visible || !city) return false; userControl = true; flyTo(city.lng, city.lat, 2.35, 0.42, 0, 0); return true; },
     onUserMove(fn) { userMoveCb = fn; },
     setActive(id) {
+      if (id && activeId && id !== activeId && CITY[id] && CITY[activeId]) addLeg(CITY[activeId], CITY[id]);
       activeId = id;
       if (ready && id && PLACES[id]) map.getSource('cities').setData(cityFeatures());   // aramayla gelen yer
       applyActive();
@@ -3586,13 +3883,29 @@ const MapGlobe = (() => {
     },
     get ready() { return ready; },
     get map() { return map; },
+    /** Gün doğumu çizgisini göster (ms kadar), sonra söndür */
+    dawn(holdMs) { if (!ready) return false; const c = dawnLine(); if (!c.length) return false; map.getSource('dawn').setData(FC([{ type: 'Feature', properties: {}, geometry: { type: 'LineString', coordinates: c } }])); dawn = { t0: performance.now(), hold: holdMs || 4200 }; return true; },
+    /** Canlı nabız: items = [{ lng, lat, w (0–1), … }] (en yoğundan), onPick(item). null → 300 ms'de söner */
+    pulse(items, onPick, onMiss) {
+      if (!ready) return false;
+      if (!items) { if (pulse && !pulse.off) pulse.off = performance.now(); return true; }
+      pulse = { items: items.map((it, i) => Object.assign({ ph: (hash(String(i) + it.lat) % 100) / 100, sp: 2.2 + (i % 4) * 0.35 }, it)), t0: performance.now() + 260, off: 0, onPick, onMiss };
+      return true;
+    },
+    get pulsing() { return !!(pulse && !pulse.off); },
+    /** Dünyayı yukarıdan göster (nabız, gün doğumu): sheet kapalıyken yörüngeye çıkar */
+    overview(lng, lat, zoom = 1.35) { if (!ready || !visible) return; userControl = true; bottomPad = basePad.bottom; topPad = basePad.top; flyTo(lng, lat, zoom, 0.9, 0, 0); },
+    /** Günün şehri: şehri ekranın üst yarısında, yörüngeden gösterir */
+    showcase(city, bottom) { if (!ready || !visible || !city) return; userControl = true; bottomPad = Math.round(bottom); topPad = 0; map.flyTo({ center: [city.lng, city.lat], zoom: 3.1, padding: padding(), curve: 1.5, duration: reduceMotion.matches ? 0 : 1800, essential: true }, { wglobeFlight: true }); flight = { lng: city.lng, lat: city.lat, zoom: 3.1 }; },
+    restorePad() { bottomPad = state.sheetOpen ? bottomPad : basePad.bottom; topPad = state.sheetOpen ? 0 : basePad.top; },
+    _trail() { return { legs: legs.length, live: !!live }; },
   };
 })();
 
 // ═════════════════════════════════════════════════════════
 //  KÜRE SEKMESİ
 // ═════════════════════════════════════════════════════════
-function handleSelect(city) { state.interacted = true; $('#hint').classList.add('gone'); selectCity(city); openSheet(true); }
+function handleSelect(city) { if (cotdUI.open) closeCotd(false); state.interacted = true; $('#hint').classList.add('gone'); selectCity(city); openSheet(true); }
 let sheetDelay = null, zoomedCityId = null;
 function openSheet(open) {
   const city = CITY[state.activeCityId];
@@ -3689,10 +4002,11 @@ function refreshWeather(city) {
 function renderSheet() {
   const city = CITY[state.activeCityId]; if (!city) return;
   refreshWeather(city);
+  const prevName = state.sheetOpen && $('#sheetContent .s-city') ? $('#sheetContent .s-city').textContent : null;
   $('#sheetContent').innerHTML = `
     <div class="s-head enter" style="--i:0" id="sheetHead">
       <div class="t">
-        <span class="label accent">${city.countryCode} · ${esc(city.vibeTag)}</span>
+        ${momentLabel(city)}
         <div class="s-city" role="heading" aria-level="2">${esc(city.name)}</div>
         <div class="s-meta" id="sheetMeta">${wxMeta(city)}</div>
       </div>
@@ -3714,6 +4028,15 @@ function renderSheet() {
   $('#sheetHead').addEventListener('pointerdown', startSheetDrag);
   renderSheetDynamic();
   sheetH = $('#sheet').offsetHeight || sheetH;
+  if (prevName && prevName !== city.name && !reduceMotion.matches) {
+    const el = $('#sheetContent .s-city'), host = el.parentElement, g = el.cloneNode(false);
+    g.textContent = prevName; g.removeAttribute('role'); g.setAttribute('aria-hidden', 'true');
+    host.style.position = 'relative'; Object.assign(g.style, { position: 'absolute', left: '0', right: '0', top: el.offsetTop + 'px', pointerEvents: 'none' });
+    host.appendChild(g);
+    g.animate([{ transform: 'none', opacity: 1 }, { transform: 'translateY(-60%)', opacity: 0 }], { duration: 180, easing: 'cubic-bezier(0.3,0,0.8,0.15)', fill: 'forwards' }).onfinish = () => g.remove();
+    el.animate([{ transform: 'translateY(55%)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 420, delay: 70, easing: 'cubic-bezier(0.34,1.56,0.64,1)', fill: 'backwards' });
+    refillViz();
+  }
 }
 function renderSheetDynamic() {
   mediaSync();
@@ -3724,13 +4047,30 @@ function renderSheetDynamic() {
   if (texts.dataset.key !== key) {
     texts.dataset.key = key;
     const cls = s === 'playing' ? 'on-air' : busy ? 'busy' : s === 'error' ? 'err' : '';
-    texts.innerHTML = `<div class="st-name fade">${esc(st ? st.name : city.country + ' radyoları')}</div><div class="st-status fade ${cls}"><span class="ld"></span><span>${esc(statusLine())}</span></div>`;
+    const name = st ? st.name : city.country + ' radyoları', status = `<div class="st-status fade ${cls}"><span class="ld"></span><span>${esc(statusLine())}</span></div>`;
+    const wrap = texts.querySelector('.st-name-wrap'), cur = wrap && wrap.querySelector('.st-name:not(.ghost)');
+    if (cur && cur.textContent === name) { const old = texts.querySelector('.st-status'); if (old) old.outerHTML = status; }
+    else if (cur && texts.dataset.city === city.id && !reduceMotion.matches && state.sheetOpen) {
+      // Aynı yerde istasyon değişti: eski ad yukarı kayıp söner, yenisi alttan yaylanarak gelir
+      const ghost = cur; ghost.classList.add('ghost');
+      const fresh = document.createElement('div'); fresh.className = 'st-name'; fresh.textContent = name; wrap.appendChild(fresh);
+      ghost.animate([{ transform: 'none', opacity: 1 }, { transform: 'translateY(-100%)', opacity: 0 }], { duration: 160, easing: 'cubic-bezier(0.3,0,0.8,0.15)', fill: 'forwards' }).onfinish = () => ghost.remove();
+      fresh.animate([{ transform: 'translateY(100%)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 260, delay: 60, easing: 'cubic-bezier(0.34,1.56,0.64,1)', fill: 'backwards' });
+      const old = texts.querySelector('.st-status'); if (old) old.outerHTML = status;
+      if (s === 'playing' || busy) refillViz();
+    } else texts.innerHTML = `<div class="st-name-wrap"><div class="st-name fade">${esc(name)}</div></div>${status}`;
+    texts.dataset.city = city.id;
   }
   const pb = $('#playBtn');
   pb.classList.toggle('active', s === 'playing' || busy); pb.classList.toggle('busy', busy); pb.setAttribute('aria-label', s === 'playing' || busy ? 'Duraklat' : 'Oynat');
   const fav = $('#favBtn'), on = !!(st && state.favorites.some(f => f.stationUuid === st.uuid));
   fav.classList.toggle('on', on); fav.disabled = !st; fav.setAttribute('aria-label', on ? 'Favorilerden çıkar' : 'Favorilere ekle');
   fav.querySelector('svg').classList.toggle('filled', on);
+}
+/** Ses çubukları soldan sağa, 9 ms arayla yeniden dolar (yeni yayın geldi hissi) */
+function refillViz() {
+  const viz = $('#viz'); if (!viz || reduceMotion.matches) return;
+  viz.querySelectorAll('i').forEach((b, k) => { try { b.animate([{ scale: '1 0.05' }, { scale: '1 1' }], { duration: 360, delay: k * 9, easing: 'cubic-bezier(0.34,1.56,0.64,1)', fill: 'backwards' }); } catch (e) {} });
 }
 function toggleFavorite() {
   const st = currentStation(), city = CITY[state.activeCityId]; if (!st || !city) return;
@@ -4166,7 +4506,7 @@ function bindDial() {
 }
 /** Sekmeye giriş */
 function renderExplore() {
-  const first = !dk; dkInit();
+  const first = !dk; dkInit(); renderMoments();
   if (first) { dk.hour = -1; dkShowHour(dkHourOf(dk.pos), true); }
   else { dkSync(); dkQueueImages(); }
   clearInterval(dk.clock); dk.clock = setInterval(dkTick, 1000);
@@ -4557,6 +4897,7 @@ function renderProfile(animate = true) {
     </div></div>
     ${guest ? `<div ${nx()}><div class="px-call"><b>Yolculuğunu kaybetme</b><span class="small">Damgaların ve favorilerin şu an yalnızca bu cihazda. Bir hesapla her yerde seninle.</span>
       <div class="btns"><button class="btn solid press" data-go="register"><span class="lbl">Üye ol</span></button><button class="btn line press" data-go="login"><span class="lbl">Giriş yap</span></button></div></div></div>` : ''}
+    ${routeSection(nx())}
     <div ${nx()}><div class="px-sec"><div class="px-head"><h3 class="h2">Kıtalar</h3><span class="label">${sc.conts.size === 6 ? 'dünya turu tamam' : `${sc.conts.size} / 6`}</span></div>
       <div class="px-stars">${CONTINENTS.map(([k, n]) => `<div class="px-star ${sc.conts.has(k) ? 'on' : ''} fly"><b>${sc.conts.get(k) || 0}</b>${n}</div>`).join('')}</div></div></div>
     <div ${nx()}><div class="px-sec"><div class="px-head"><h3 class="h2">Duraklar</h3>${stamps.length ? `<span class="label">${stamps.length} şehir</span>` : ''}</div>
@@ -4577,6 +4918,7 @@ function renderProfile(animate = true) {
   seedFly(root);
   renderSleep(true);
   countUp(root);
+  mountRoute(animate);
   $('#signOut').addEventListener('click', async () => {
     const ok = await confirmDialog(guest ? 'Misafir modundan çık' : 'Çıkış yap', guest ? 'Favorilerin ve damgaların bu cihazda saklanmaya devam eder.' : 'Bu cihazdaki oturumun kapatılacak. Verilerin hesabında güvende.', guest ? 'Çık' : 'Çıkış yap');
     if (!ok) return; pause(); openSheet(false); state.auth = null; state.email = null; save(); history = []; go('welcome', { replace: true });
@@ -4586,6 +4928,102 @@ function renderProfile(animate = true) {
     const ok = await confirmDialog('Hesabı kalıcı olarak sil', 'Favorilerin, damgaların ve açtığın küreler dahil tüm verilerin silinecek. Bu işlem geri alınamaz.', 'Hesabı sil');
     if (!ok) return; pause(); openSheet(false); Object.assign(state, { auth: null, email: null, favorites: [], visits: [], theme: 'classic', unlocked: ['classic'], listenMs: 0, joinedAt: null }); save(); history = []; go('welcome', { replace: true }); toast('Hesabın silindi');
   });
+}
+// ── Bugünkü rotan: noktalı dünya haritası (2°'lik kara maskesi), duraklar arasında büyük daire yayları ──
+// Kart ekrana girince: noktalar soldan sağa 420 ms'de belirir → yaylar sırayla 1,3 sn'de çizilir → her durak varılınca yaylanır.
+const WORLD_BITS = 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAf/AAAAAAAAAAAAAAAAAAAAAAAA3/////+AAAAACAADAAAAAAAAAAAAAIf8P///wAA+AAAAAA8AAAAAAAAAAAwAj4f///wAAYAAAAAAGAAAAAAAAAAAHgvwAf//wAAAAADAAf/4AGAAAAAAAD4238AP//gAAAAAEAD///cDAAAABgAAfw3/gD/+gAAAgAEDe/////9gAAP/7/v5djwH/+AAAH/AA7f////////4P//////g8H/gAAAf/y//f////////Mf/////9F4D8AeAA++P///////////AP/////wA4B4AAAD5/////////////Af/////gHgA4AAAH5///////////LwAHgH///gHkAAAAAH4/////////+AIAABAB///4D+AAAAGCx/////////4A8AAAABf///n/gAAAKCD/////////wA4AAAAAf///n/wAAAbH///////////AwAAAAAP/////wAAADf//////////9AAAAAAAD////8YAAAB///////////9AAAAAAAD////8AAAAB///////////4AAAAAAAD////+AAAAB/f4f///////wAAAAAAAD////gAAAAPxnwP///////jAAAAAAAD////AAAAAPib3v//////+AAAAAAAAD///+AAAAAfALf//////+ECAAAAAAAB///8AAAAAGGAP///////mEAAAAAAAA///8AAAAAH+AA///////E8AAAAAAAAf//wAAAAAP/AA///////BAAAAAAAAAP//gAAAAAf/73///////gAAAAAAAAAH/AQAAAAAf////f/////gAAAAAAAAAF+AQAAAAB///+/n/////AAAAAAAAAAC+AAAAAAB///+fwH////AAAAAAAAAAAeAQAAAAD////f/D///8AAAAAAAAAAAeEEAAAAD////v+B/j/AAAAAAAAAAAAPMAgAAAD////n+A/B+gAAAAAAAAAAAD8AAAAAD////34AeB/AgAAAAAAAAAAAPAAAAAH////3gAcAfAgAAAAAAAAAAADAAAAAD////+AAcAXgAAAAAAAAAAAABBwAAAD////8wAMATAAAAAAAAAAAAAAj/AAAB/////gAIAQAIAAAAAAAAAAAAH/gAAA/////gACAAAIAAAAAAAAAAAAH/8AAAYH///AAAAsGAAAAAAAAAAAAAH/+AAAAB//+AAAAUOAAAAAAAAAAAAAP/+AAAAB//8AAAAc+AAAAAAAAAAAAAP//gAAAB//4AAAAMeAgAAAAAAAAAAAP//8AAAB//wAAAAGMguAAAAAAAAAAAf///AAAA//wAAAACAAHkAAAAAAAAAAP///gAAA//wAAAABwAHwAAAAAAAAAAH///AAAAf/wAAAAAAACQAAAAAAAAAAH///AAAAf/wAAAAAAAAAAAAAAAAAAAD//+AAAAf/wgAAAAABxAAAAAAAAAAAD//8AAAA//wgAAAAAPxgAAAAAAAAAAA//8AAAA//zgAAAAAf/gAAAAAAAAAAAf/8AAAA//DgAAAAAf/gAAAAAAAAAAAf/8AAAAf/DAAAAAD//4AAAAAAAAAAAf/4AAAAf/DAAAAAH//4AAAAAAAAAAAf/AAAAAf+CAAAAAH//8AAAAAAAAAAAf/AAAAAP8AAAAAAH//+AAAAAAAAAAA/+AAAAAP8AAAAAAH//+AAAAAAAAAAA/8AAAAAH4AAAAAAD//+AAAAAAAAAAA/8AAAAAHwAAAAAADwf8AAAAAAAAAAA/gAAAAAAAAAAAAAAAH4AAAAAAAAAAB/wAAAAAAAAAAAAAAAD4AEAAAAAAAAB/AAAAAAAAAAAAAAAAAAAGAAAAAAAAB+AAAAAAAAAAAAAAAAAQAIAAAAAAAAB8AAAAAAAAAAAAAAAAAQAYAAAAAAAAB4AAAAAAAAAAAAAAAAAAAwAAAAAAAAB4AAAAAAAAAAAAAAAAAAAAAAAAAAAADwAAAAAAAAAAAAAAAAAAAAAAAAAAAABgAAAAAAAAAAAAAAAAAAAAAAAAAAAABwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
+let worldMask = null;
+function worldLand() {
+  if (worldMask) return worldMask;
+  const bin = atob(WORLD_BITS), pts = [];
+  for (let r = 0; r < 90; r++) for (let c = 0; c < 180; c++) { const i = r * 180 + c; if (bin.charCodeAt(i >> 3) & (128 >> (i & 7))) pts.push([-180 + c * 2 + 1, 90 - r * 2 - 1]); }
+  return (worldMask = pts);
+}
+function todayRoute() {
+  const d = new Date(), key = d.toDateString(), out = [];
+  [...state.visits].reverse().forEach(v => {
+    if (new Date(v.visitedAt).toDateString() !== key) return;
+    const c = CITY[v.cityId], lat = Number.isFinite(v.lat) ? v.lat : c && c.lat, lng = Number.isFinite(v.lng) ? v.lng : c && c.lng;
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
+    const last = out[out.length - 1]; if (last && last.id === v.cityId) return;
+    out.push({ id: v.cityId, name: v.cityName, lat, lng, cc: v.cc || (c && c.countryCode) || '' });
+  });
+  return out.slice(-30);
+}
+function routeSection(attrs) {
+  const r = todayRoute(); let km = 0; for (let i = 1; i < r.length; i++) km += kmBetween([r[i - 1].lat, r[i - 1].lng], [r[i].lat, r[i].lng]);
+  const cc = new Set(r.map(x => x.cc).filter(Boolean)).size;
+  const cap = r.length ? `${r.length} durak${km >= 1 ? ` · ${Math.round(km).toLocaleString('tr-TR')} km` : ''}` : 'henüz yok';
+  return `<div ${attrs}><div class="px-sec"><div class="px-head"><h3 class="h2">Bugünkü rotan</h3><span class="label">${cap}</span></div>
+    <div class="px-route" id="pxRoute" role="img" aria-label="Bugünkü rota: ${r.length ? esc(r.map(x => x.name).join(', ')) : 'henüz durak yok'}"><canvas></canvas>
+    ${r.length ? `<div class="pr-ends"><span>${esc(r[0].name)}</span>${cc > 1 ? `<span class="mid">${cc} ülke</span>` : ''}${r.length > 1 ? `<span>${esc(r[r.length - 1].name)}</span>` : ''}</div>` : `<div class="pr-empty"><b>Bugün henüz yola çıkmadın</b><span>Bir şehre dokun ya da ileri tuşuna bas; rotan burada çizilsin.</span></div>`}</div></div></div>`;
+}
+let routeRaf = 0, routeIO = null;
+function mountRoute(animate = true) {
+  cancelAnimationFrame(routeRaf); if (routeIO) { routeIO.disconnect(); routeIO = null; }
+  const box = $('#pxRoute'); if (!box) return;
+  const cv = box.querySelector('canvas'), stops = todayRoute();
+  const W = box.clientWidth || 340, LAT0 = 78, LAT1 = -58, H = Math.round(W * (LAT0 - LAT1) / 360), dpr = Math.min(3, window.devicePixelRatio || 1);
+  cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); cv.style.width = W + 'px'; cv.style.height = H + 'px';
+  const ctx = cv.getContext('2d'); if (!ctx) return;
+  const X = lng => (lng + 180) / 360 * W, Y = lat => (LAT0 - lat) / (LAT0 - LAT1) * H;
+  const land = worldLand().filter(p => p[1] <= LAT0 + 1 && p[1] >= LAT1 - 1);
+  // Duraklar arası yaylar: büyük daire, ±180°'de bölünür
+  const legs = [];
+  for (let i = 1; i < stops.length; i++) {
+    const a = stops[i - 1], b = stops[i], d = kmBetween([a.lat, a.lng], [b.lat, b.lng]); if (d < 1) continue;
+    const n = clamp(Math.round(d / 150), 8, 90), A = [a.lat * D2R, a.lng * D2R], B = [b.lat * D2R, b.lng * D2R];
+    const va = [Math.cos(A[0]) * Math.cos(A[1]), Math.cos(A[0]) * Math.sin(A[1]), Math.sin(A[0])], vb = [Math.cos(B[0]) * Math.cos(B[1]), Math.cos(B[0]) * Math.sin(B[1]), Math.sin(B[0])];
+    const om = Math.acos(clamp(va[0] * vb[0] + va[1] * vb[1] + va[2] * vb[2], -1, 1)), so = Math.sin(om) || 1, pts = [];
+    for (let k = 0; k <= n; k++) { const t = k / n, k1 = Math.sin((1 - t) * om) / so, k2 = Math.sin(t * om) / so, x = k1 * va[0] + k2 * vb[0], y = k1 * va[1] + k2 * vb[1], z = k1 * va[2] + k2 * vb[2]; pts.push([Math.atan2(y, x) * R2D, Math.asin(clamp(z, -1, 1)) * R2D]); }
+    legs.push({ pts, d, to: i });
+  }
+  const total = legs.reduce((s, l) => s + l.d, 0) || 1;
+  const ink = getComputedStyle(document.documentElement).getPropertyValue('--a2').trim() || '#CFE5FF';
+  let t0 = 0, played = false, pulseT = 0, cache = null;
+  const END = 300 + 1300 + 360;
+  const draw = now => {
+    const t = now - t0;
+    if (cache) {   // çizim bitti: sabit katman önbellekten, üstüne yalnız son durağın nabzı
+      ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, cv.width, cv.height); ctx.drawImage(cache, 0, 0);
+      const s = stops[stops.length - 1];
+      if (s) { ctx.setTransform(dpr, 0, 0, dpr, 0, 0); const ph = ((now - pulseT) % 1800) / 1800; ctx.globalAlpha = 0.5 * (1 - ph); ctx.strokeStyle = ink; ctx.lineWidth = 1.4; ctx.beginPath(); ctx.arc(X(s.lng), Y(s.lat), 4 + 12 * easeOutCubic(ph), 0, TAU); ctx.stroke(); ctx.globalAlpha = 1; }
+      if (s && state.tab === 'profile' && document.body.contains(cv)) routeRaf = requestAnimationFrame(draw);
+      return;
+    }
+    const dotsK = Math.min(1, t / 420), lineK = clamp((t - 300) / 1300, 0, 1), eased = easeInOutCubic(lineK);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, W, H);
+    // noktalı dünya: soldan sağa süpürülerek belirir
+    const sweep = dotsK * (W + 60) - 30;
+    land.forEach(p => { const x = X(p[0]), y = Y(p[1]), k = clamp((sweep - x) / 60, 0, 1); if (k <= 0) return; ctx.globalAlpha = 0.22 * k; ctx.fillStyle = '#9CC4EE'; ctx.beginPath(); ctx.arc(x, y, Math.max(0.9, W / 360 * 0.62), 0, TAU); ctx.fill(); });
+    ctx.globalAlpha = 1;
+    // yaylar: toplam uzunluğa göre sırayla
+    let budget = eased * total; const reached = new Set([0]);
+    ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    legs.forEach(l => {
+      if (budget <= 0) return; const f = Math.min(1, budget / l.d); budget -= l.d; if (f >= 1) reached.add(l.to);
+      const m = Math.max(1, Math.round(f * (l.pts.length - 1)));
+      [[5, 0.16], [1.6, 0.95]].forEach(([w, a]) => {
+        ctx.globalAlpha = a; ctx.strokeStyle = w > 2 ? '#A9D3FF' : ink; ctx.lineWidth = w; ctx.beginPath();
+        for (let k = 0; k <= m; k++) { const p = l.pts[k], x = X(p[0]), y = Y(p[1]); if (k && Math.abs(p[0] - l.pts[k - 1][0]) > 180) ctx.moveTo(x, y); else if (k) ctx.lineTo(x, y); else ctx.moveTo(x, y); }
+        ctx.stroke();
+      });
+    });
+    ctx.globalAlpha = 1;
+    // duraklar: varılınca yaylanarak (easeOutBack) belirir; son durak nabız atar
+    stops.forEach((s, i) => {
+      if (!reached.has(i)) return;
+      const born = i === 0 ? 300 : 300 + 1300 * (legs.filter(l => l.to <= i).reduce((a, l) => a + l.d, 0) / total);
+      const k = clamp((t - born) / 320, 0, 1), sc = k ? easeOutBack(k, 1.8) : 0, x = X(s.lng), y = Y(s.lat), last = i === stops.length - 1;
+      ctx.fillStyle = last ? '#F2F8FF' : ink; ctx.beginPath(); ctx.arc(x, y, (last ? 4.2 : 3) * sc, 0, TAU); ctx.fill();
+      ctx.strokeStyle = 'rgba(5,11,24,0.8)'; ctx.lineWidth = 1.2; ctx.stroke();
+    });
+    if (t >= END) { cache = document.createElement('canvas'); cache.width = cv.width; cache.height = cv.height; cache.getContext('2d').drawImage(cv, 0, 0); pulseT = now; }
+    if (state.tab === 'profile' && document.body.contains(cv)) routeRaf = requestAnimationFrame(draw);
+  };
+  const start = () => { if (played) return; played = true; t0 = performance.now() - (reduceMotion.matches || !animate ? 5000 : 0); routeRaf = requestAnimationFrame(draw); };
+  if ('IntersectionObserver' in window) { routeIO = new IntersectionObserver(es => { if (es.some(e => e.isIntersecting)) { routeIO.disconnect(); routeIO = null; start(); } }, { root: $('#profileScroll'), threshold: 0.35 }); routeIO.observe(box); }
+  else start();
 }
 function profileSync() {
   if (state.view !== 'app' || state.tab !== 'profile') return;
@@ -4669,6 +5107,7 @@ function enterApp(msg) {
   // (Intro sürücüsü çalışıyorsa küre zaten ana sayfa konumuna uçuyor; ikinci bir geçiş sıçratırdı.)
   if (!MapGlobe.revealed && !Globe.driving) Globe.transition(700, easeInOutCubic);
   arrive();
+  setTimeout(() => maybeAutoCotd(0), 1400);
 }
 $('#loginForm').addEventListener('submit', async e => {
   e.preventDefault();
@@ -5177,6 +5616,7 @@ function flightLeg() {
 }
 function startFlight() {
   if (flight.on) return;
+  stopPulse(); if (cotdUI.open) closeCotd(false);
   flight.on = true; flight.leg = 0; vibrate([8, 40, 8]);
   $('#pane-globe').classList.add('flying-mode'); $('#flight').hidden = false; $('#flightBtn').classList.add('on'); $('#flightBtn').setAttribute('aria-pressed', 'true');
   $('#search') && Search.reset();
@@ -5196,6 +5636,232 @@ $('#flightBtn').addEventListener('click', () => { flight.on ? stopFlight(false) 
 $('#flStop').addEventListener('click', () => stopFlight(false));
 $('#flNext').addEventListener('click', () => { vibrate(6); flightLeg(); });
 $('#globeStage').addEventListener('pointerdown', () => { if (flight.on) stopFlight(true); });
+
+// ═════════════════════════════════════════════════════════
+//  ANLAR: Günün şehri · Gün doğumu · Canlı nabız
+// ═════════════════════════════════════════════════════════
+// Günün şehri herkes için aynıdır: UTC gününe göre, 198 şehirlik bir döngüden (döngü boyunca tekrar yok).
+const utcDay = (d = new Date()) => Math.floor(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()) / 86400000);
+function seeded(a) { return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+const cotdPerm = new Map();
+function cityOfDay(n = utcDay()) {
+  const N = CITIES.length, cycle = Math.floor(n / N);
+  let perm = cotdPerm.get(cycle);
+  if (!perm) { const rnd = seeded(cycle * 2654435761 + 97); perm = CITIES.map((_, i) => i); for (let i = N - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); const t = perm[i]; perm[i] = perm[j]; perm[j] = t; } cotdPerm.set(cycle, perm); }
+  return CITIES[perm[((n % N) + N) % N]];
+}
+const msToNextDay = () => (utcDay() + 1) * 86400000 - Date.now();
+var cotdUI = { open: false, timer: 0, city: null, auto: false };
+function momentLabel(city) {
+  const m = state.moment;
+  if (m && m.cityId === city.id) return `<span class="label accent mo-${m.kind}"><span class="mo-ic">${icon(m.kind === 'dawn' ? 'sunrise' : m.kind === 'pulse' ? 'activity' : 'sparkles', 13)}</span>${esc(m.label)}</span>`;
+  return `<span class="label accent">${city.countryCode} · ${esc(city.vibeTag)}</span>`;
+}
+function cotdTick() {
+  const c = cotdUI.city; if (!c) return;
+  const left = msToNextDay(), arc = $('#cotdArc');
+  $('#cotdLeft').textContent = countdown(left);
+  arc.style.strokeDashoffset = String((119.38 * (left / 86400000)).toFixed(2));   // halka: günün kalan kısmı
+  const ck = $('#cotdClock'); if (ck) { try { ck.textContent = cityTime(c.timezone).slice(0, 5); } catch (e) {} }
+  if (left < 1000) { setTimeout(() => { if (cotdUI.open) { closeCotd(false); } }, 1200); }
+}
+function openCotd(auto) {
+  if (cotdUI.open || state.view !== 'app') return;
+  if (state.tab !== 'globe') setTab('globe');
+  if (flight.on) stopFlight(false);
+  stopPulse();
+  Search.reset();
+  const c = cityOfDay(); cotdUI.city = c; cotdUI.open = true; cotdUI.auto = !!auto;
+  if (state.sheetOpen) openSheet(false);
+  const el = $('#cotd'), name = $('#cotdName'), len = [...c.name].length;
+  $('#cotdDate').textContent = new Intl.DateTimeFormat('tr-TR', { day: 'numeric', month: 'long', timeZone: 'UTC' }).format(new Date()).toLocaleUpperCase('tr-TR');
+  name.className = 'cotd-name' + (len > 13 ? ' xlong' : len > 9 ? ' long' : '');
+  name.innerHTML = [...c.name].map((ch, i) => `<span style="--i:${i}">${ch === ' ' ? '&nbsp;' : esc(ch)}</span>`).join('');
+  name.setAttribute('aria-label', c.name);
+  let t = ''; try { t = cityTime(c.timezone).slice(0, 5); } catch (e) {}
+  $('#cotdMeta').innerHTML = `<b>${esc(c.country)}</b><span class="sep"></span><span class="num" id="cotdClock">${t}</span><span>${utcLabel(c.timezone)}</span><span class="sep vb"></span><span class="vb">${esc(c.vibeTag)}</span>`;
+  const cd = state.cotd || {}, today = utcDay(), done = cd.day === today, alive = done || cd.day === today - 1;
+  const sk = $('#cotdStreak'); sk.hidden = !(alive && cd.streak); sk.textContent = done ? `Seri · ${cd.streak} gün` : `Seriyi sürdür · ${cd.streak || 0}`;
+  $('#cotdPlayT').textContent = done && state.activeCityId === c.id && state.status === 'playing' ? 'Kartı aç' : done ? 'Yeniden dinle' : 'Dinle';
+  $('#cotdBody').style.setProperty('--nd', (380 + Math.min(len, 16) * 40 + 260) + 'ms');
+  const arc = $('#cotdArc'); arc.style.transition = 'none'; arc.style.strokeDashoffset = '119.38'; void arc.getBoundingClientRect(); arc.style.transition = '';
+  el.hidden = false; el.classList.remove('in', 'out'); void el.offsetWidth; el.classList.add('in');
+  $('#pane-globe').classList.add('cotd-mode');
+  clearInterval(cotdUI.timer); setTimeout(() => { if (cotdUI.open) cotdTick(); }, 520); cotdUI.timer = setInterval(cotdTick, 1000);
+  $('#cotdLeft').textContent = countdown(msToNextDay());
+  // Kamera: şehir ekranın üst yarısına, yörüngeden 1,8 sn'de süzülür (perde ile aynı anda)
+  requestAnimationFrame(() => {
+    const H = $('#pane-globe').clientHeight || 800, body = $('#cotdBody'), top = body.getBoundingClientRect().top - $('#pane-globe').getBoundingClientRect().top;
+    if (MapGlobe.ready && MapGlobe.revealed) MapGlobe.showcase(c, Math.max(120, H - top + 24));
+    else Globe.setActive(c.id, true, 0, 1400);
+  });
+  state.cotd = Object.assign({}, state.cotd, { seen: today }); save();
+  vibrate([6, 30, 6]);
+}
+function closeCotd(play) {
+  if (!cotdUI.open) return;
+  cotdUI.open = false; clearInterval(cotdUI.timer);
+  const el = $('#cotd'); el.classList.remove('in'); el.classList.add('out');
+  $('#pane-globe').classList.remove('cotd-mode');
+  setTimeout(() => { if (!cotdUI.open) { el.hidden = true; el.classList.remove('out'); } }, 300);
+  MapGlobe.restorePad();
+  if (play) {
+    const c = cotdUI.city; if (!c) return;
+    state.moment = { cityId: c.id, label: 'GÜNÜN ŞEHRİ', kind: 'cotd' };
+    if (state.activeCityId && state.activeCityId !== c.id) travelBack.push(state.activeCityId);
+    MapGlobe.takeControl(); vibrate(10);
+    setTimeout(() => { handleSelect(c); if (state.activeCityId === c.id && !['playing', 'loading', 'failover'].includes(state.status)) play(); }, reduceMotion.matches ? 0 : 200);
+  }
+}
+/** Bugünün şehri dinlendiyse seri büyür (dün de dinlendiyse +1, değilse 1'den başlar) */
+function cotdCheck() {
+  const c = cityOfDay(); if (state.activeCityId !== c.id) return;
+  const today = utcDay(), cd = state.cotd || {}; if (cd.day === today) return;
+  const streak = cd.day === today - 1 ? (cd.streak || 0) + 1 : 1;
+  state.cotd = Object.assign({}, cd, { day: today, streak }); save();
+  setTimeout(() => toast(streak > 1 ? `Günün şehri serisi: ${streak} gün` : 'Bugünün şehrini dinledin'), 700);
+  renderMoments();
+}
+/** Günde bir kez, uygulama açılıp küre yerine oturunca (ve başka bir şey ekranda değilken) kendiliğinden gelir */
+function maybeAutoCotd(tries) {
+  if ((state.cotd || {}).seen === utcDay() || state.interacted || pendingLink) return;
+  const calm = state.view === 'app' && state.tab === 'globe' && !introRunning && (MapGlobe.revealed || !MapGlobe.available()) && !unlockShowing && $('#unlock').hidden
+    && !flight.on && !state.sheetOpen && !cotdUI.open && !pulseUI.on && !$('#share').classList.contains('open') && !$('#modal').classList.contains('open') && !document.activeElement.matches('input');
+  if (!calm) { if (tries < 30) setTimeout(() => maybeAutoCotd(tries + 1), 900); return; }
+  setTimeout(() => { if (!state.interacted && state.view === 'app' && state.tab === 'globe' && !state.sheetOpen && !cotdUI.open && !pulseUI.on && $('#unlock').hidden) openCotd(true); }, 600);
+}
+$('#cotdPlay').addEventListener('click', () => closeCotd(true));
+$('#cotdLater').addEventListener('click', () => { vibrate(4); closeCotd(false); });
+
+// ── Gün doğumu: güneşin şu an doğduğu bir şehir (sabah tarafında, ufkun 1,5° altı ile 7° üstü arası) ──
+function sunriseTarget() {
+  const s = subsolar(new Date()), a = s.lat * D2R, b = s.lng * D2R, S = [Math.cos(a) * Math.cos(b), Math.cos(a) * Math.sin(b), Math.sin(a)];
+  const elev = c => {
+    if (Math.abs(c.lat) > 62) return null;
+    const ahead = ((s.lng - c.lng + 540) % 360) - 180; if (ahead <= 0) return null;   // akşam tarafı değil, sabah tarafı
+    const la = c.lat * D2R, lo = c.lng * D2R, d = Math.cos(la) * Math.cos(lo) * S[0] + Math.cos(la) * Math.sin(lo) * S[1] + Math.sin(la) * S[2];
+    return Math.asin(clamp(d, -1, 1)) * R2D;
+  };
+  const pick = (list, lo, hi) => { let best = null, bs = Infinity; for (const c of list) { if (c.id === state.activeCityId) continue; const e = elev(c); if (e === null || e < lo || e > hi) continue; const sc = Math.abs(e - 2); if (sc < bs) { bs = sc; best = c; } } return best; };
+  return pick(CITIES, -1.5, 7) || pick(ATLAS.slice(0, 2500), -1.5, 7) || pick(ATLAS, -4, 12);
+}
+function chaseSunrise() {
+  const t = sunriseTarget(); if (!t) { toast('Şu an güneşin doğduğu bir şehir bulunamadı'); return; }
+  if (state.tab !== 'globe') setTab('globe');
+  if (cotdUI.open) closeCotd(false); if (flight.on) stopFlight(false); stopPulse();
+  const c = asPlace(t), lit = MapGlobe.dawn(5600);
+  state.moment = { cityId: c.id, label: 'GÜNEŞ ŞİMDİ DOĞUYOR', kind: 'dawn' };
+  if (state.activeCityId && state.activeCityId !== c.id) travelBack.push(state.activeCityId);
+  MapGlobe.takeControl(); vibrate([6, 30, 6]);
+  // Önce çizgi yanar (≈450 ms), sonra kamera onun üstündeki şehre süzülür ve kart sıcak bir ışıkla açılır
+  setTimeout(() => {
+    handleSelect(c);
+    const sh = $('#sheet'); sh.classList.remove('dawn'); void sh.offsetWidth; sh.classList.add('dawn');
+    clearTimeout(sh._dawn); sh._dawn = setTimeout(() => sh.classList.remove('dawn'), 2700);
+  }, lit && !reduceMotion.matches ? 450 : 0);
+}
+
+// ── Canlı nabız: Radio Browser'da şu an tıklanan istasyonlar bölgelere toplanır; veri yoksa akşam kuşağı ──
+var pulseUI = { on: false, seq: 0, items: [] };
+const countryAnchor = cc => CITIES.find(c => c.countryCode === cc) || (ATLAS.find(a => a.cc === cc) ? CITY[ATLAS.find(a => a.cc === cc).id] : null);
+/** Bölgenin adı: 90 km içindeki tanınmış şehir (küratörlü liste), yoksa 60 km içindeki en kalabalık şehir, yoksa en yakın yer */
+function pulseAnchor(lat, lng) {
+  let best = null, bd = 90;
+  CITIES.forEach(c => { const d = kmBetween([lat, lng], [c.lat, c.lng]); if (d < bd) { bd = d; best = c; } });
+  if (best) return best;
+  for (const a of ATLAS) { if (Math.abs(a.lat - lat) < 1 && kmBetween([lat, lng], [a.lat, a.lng]) < 60) return a; }   // atlas nüfusa göre sıralı
+  return nearestPlace(lat, lng);
+}
+async function fetchPulse() {
+  const raw = await rbFetch('/json/stations/lastclick/400');
+  if (!Array.isArray(raw) || !raw.length) return null;
+  const cells = new Map();
+  raw.forEach(r => {
+    let lat = Number(r.geo_lat), lng = Number(r.geo_long);
+    if (!(Number.isFinite(lat) && Number.isFinite(lng) && (lat || lng))) { const a = countryAnchor((r.countrycode || '').toUpperCase()); if (!a) return; lat = a.lat; lng = a.lng; }
+    const key = Math.round(lat / 5) + ':' + Math.round(lng / 5);
+    let c = cells.get(key); if (!c) { c = { n: 0, lat: 0, lng: 0, raws: [] }; cells.set(key, c); }
+    c.n++; c.lat += lat; c.lng += lng; c.raws.push(r);
+  });
+  const byPlace = new Map();
+  cells.forEach(c => {
+    const near = pulseAnchor(c.lat / c.n, c.lng / c.n); if (!near) return;
+    const pl = CITY[near.id] || near, cur = byPlace.get(pl.id);
+    if (cur) { cur.n += c.n; cur.raws.push(...c.raws); } else byPlace.set(pl.id, { place: pl, n: c.n, raws: c.raws.slice() });
+  });
+  const list = [...byPlace.values()].sort((a, b) => b.n - a.n).slice(0, 14);
+  if (list.length < 3) return null;
+  const max = list[0].n;
+  return list.map(x => ({ lng: x.place.lng, lat: x.place.lat, w: Math.sqrt(x.n / max), place: x.place, stations: dedupe(x.raws.map(toStation).filter(Boolean)).slice(0, 8), live: true }));
+}
+function eveningPulse() {
+  const out = [];
+  const take = (lo, hi) => { for (const c of CITIES) { let h; try { h = zoned(c.timezone).h; } catch (e) { continue; } if (h < lo || h > hi || out.some(o => o.place.id === c.id || kmBetween([o.lat, o.lng], [c.lat, c.lng]) < 900)) continue; out.push({ lng: c.lng, lat: c.lat, place: c, w: clamp(1 - Math.abs(h - 21) / 5, 0.3, 1), stations: [], live: false }); if (out.length >= 12) return; } };
+  take(18, 23); if (out.length < 4) take(7, 23);
+  return out.sort((a, b) => b.w - a.w);
+}
+function pulseBanner(title, sub, loading) {
+  const bar = $('#pulseBar'); $('#pbTitle').textContent = title; $('#pbSub').textContent = sub; bar.classList.toggle('loading', !!loading);
+  if (bar.hidden) { bar.hidden = false; void bar.offsetWidth; }
+  bar.classList.add('in');
+}
+async function startPulse() {
+  if (state.tab !== 'globe') setTab('globe');
+  if (cotdUI.open) closeCotd(false); if (flight.on) stopFlight(false);
+  if (!MapGlobe.ready || !MapGlobe.revealed) { toast('Canlı nabız için küre haritası gerekiyor'); return; }
+  Search.reset();
+  const my = ++pulseUI.seq; pulseUI.on = true;
+  if (state.sheetOpen) openSheet(false);
+  $('#pane-globe').classList.add('pulse-mode');
+  pulseBanner('Canlı nabız', 'Dünya dinleniyor…', true);
+  let items = null; try { items = await fetchPulse(); } catch (e) { items = null; }
+  if (my !== pulseUI.seq || !pulseUI.on) return;
+  const live = !!items; if (!items) items = eveningPulse();
+  if (!items.length) { stopPulse(); toast('Şu an nabız verisi alınamadı'); return; }
+  pulseUI.items = items;
+  const names = items.slice(0, 3).map(it => it.place.name).join(' · ');
+  pulseBanner(live ? 'Canlı nabız' : 'Akşam kuşağı', live ? `En yoğun: ${names}` : `Canlı veri yok · şu an akşam: ${names}`, false);
+  MapGlobe.overview(items[0].lng, clamp(items[0].lat * 0.6, -35, 45), 1.3);
+  MapGlobe.pulse(items, pickPulse, () => stopPulse());
+  vibrate(6);
+}
+function stopPulse() {
+  if (!pulseUI.on) return;
+  pulseUI.on = false; pulseUI.seq++;
+  MapGlobe.pulse(null);
+  const bar = $('#pulseBar'); bar.classList.remove('in');
+  setTimeout(() => { if (!pulseUI.on) bar.hidden = true; }, 240);
+  $('#pane-globe').classList.remove('pulse-mode');
+}
+function pickPulse(it) {
+  vibrate(8);
+  const place = asPlace(it.place);
+  state.moment = { cityId: place.id, label: it.live ? 'ŞU AN DİNLENİYOR' : 'AKŞAM KUŞAĞI', kind: 'pulse' };
+  if (state.activeCityId && state.activeCityId !== place.id) travelBack.push(state.activeCityId);
+  state.pinned = it.stations && it.stations.length ? { cityId: place.id, stations: it.stations } : null;   // şu an dinlenen yayınlar önce
+  if (state.activeCityId === place.id) state.activeCityId = null;
+  MapGlobe.takeControl(); handleSelect(place);
+}
+$('#pbClose').addEventListener('click', () => { vibrate(4); stopPulse(); });
+
+// ── Keşfet'teki anlar şeridi ──
+function renderMoments() {
+  const c = cityOfDay(), cd = state.cotd || {};
+  $('#dkMoments [data-mo="pulse"]').hidden = !MapGlobe.available();   // nabız haritası yoksa (yedek küre) düğme de yok
+  $('#moCotd').textContent = c.name + (cd.day === utcDay() && cd.streak > 1 ? ` · ${cd.streak} gün` : '');
+  const t = sunriseTarget(); $('#moDawn').textContent = t ? 'şimdi: ' + (CITY[t.id] || t).name : 'güneşi kovala';
+  if (!reduceMotion.matches) document.querySelectorAll('#dkMoments .dk-mo:not([hidden])').forEach((b, i) => {
+    b.getAnimations().forEach(a => a.cancel());
+    b.animate([{ opacity: 0, transform: 'translateY(10px) scale(0.96)' }, { opacity: 1, transform: 'none' }], { duration: 520, delay: 140 + i * 60, easing: 'cubic-bezier(0.34,1.56,0.64,1)', fill: 'backwards' });
+  });
+}
+$('#dkMoments').addEventListener('click', e => {
+  const b = e.target.closest('[data-mo]'); if (!b) return;
+  vibrate(6); const kind = b.dataset.mo;
+  const run = () => { if (kind === 'cotd') openCotd(false); else if (kind === 'dawn') chaseSunrise(); else startPulse(); };
+  if (state.tab !== 'globe') { setTab('globe'); setTimeout(run, reduceMotion.matches ? 0 : 320); } else run();
+});
+document.addEventListener('keydown', e => { if (e.key !== 'Escape') return; if (cotdUI.open) closeCotd(false); else if (pulseUI.on) stopPulse(); });
 
 // ═════════════════════════════════════════════════════════
 //  BAŞLAT
