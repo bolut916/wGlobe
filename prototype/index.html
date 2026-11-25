@@ -2855,7 +2855,7 @@ const SatMosaic = (() => {
 })();
 
 /** Sürüm etiketi: sitede hangi sürümün açık olduğunu rozetten görmek için (önbellek kontrolü). */
-const BUILD = 'v31';
+const BUILD = 'v32';
 const MapGlobe = (() => {
   const host = document.getElementById('mapStage');
   const badge = document.getElementById('lodBadge');
@@ -3514,10 +3514,9 @@ const MapGlobe = (() => {
       if (!ready || !visible) return;
       bottomPad = open ? Math.round(sheetHeight + 84) : basePad.bottom;
       topPad = open ? 0 : basePad.top;
-      // Haritaya dokunarak seçildiyse kamera yerinde kalır (kontrol kullanıcıda).
-      // Karıştır gibi açık komutlarda şehre düz açıyla uçulur; kart kapanınca kamera oynamaz.
-      const fromMap = selectFromMap; selectFromMap = false;
-      if (!open || fromMap || !city) return;
+      // Dokunulan yere (ya da aranan/karıştırılan şehre) yumuşak bir kavisle yakınlaşılır; kart kapanınca kamera oynamaz.
+      selectFromMap = false;
+      if (!open || !city) return;
       flyTo(city.lng, city.lat, imagery === 'satellite' ? 10.5 : 5.6, 1.1, 0, 0);
     },
     get ready() { return ready; },
