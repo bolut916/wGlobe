@@ -2600,7 +2600,7 @@ function failover(token, tried = 1) {
   startAttempt((state.index + tried) % state.queue.stations.length, true);
 }
 function onStarted(token) {
-  if (token !== attemptToken) return; failedAttempts = 0;
+  if (token !== attemptToken) return; failedAttempts = 0; msPlayCount++;
   const city = CITY[state.activeCityId]; setStatus('playing');
   const lastV = state.visits[0];
   if (!lastV || lastV.cityId !== city.id || Date.now() - new Date(lastV.visitedAt) > 30 * 60 * 1000) {
@@ -2808,7 +2808,7 @@ const SatMosaic = (() => {
 })();
 
 /** Sürüm etiketi: sitede hangi sürümün açık olduğunu rozetten görmek için (önbellek kontrolü). */
-const BUILD = 'v29';
+const BUILD = 'v30';
 const MapGlobe = (() => {
   const host = document.getElementById('mapStage');
   const badge = document.getElementById('lodBadge');
@@ -4622,6 +4622,10 @@ async function drawPocketScene(g, W, H, city, L) {
   g.beginPath(); g.moveTo(m, top); g.quadraticCurveTo(W / 2, lip - curve, W - m, top); g.strokeStyle = rim; g.lineWidth = 3 * W / 1080; g.stroke();
   const inset = 22 * W / 1080;   // dikiş çizgisi
   g.beginPath(); g.moveTo(m + inset, top + inset * 0.9); g.quadraticCurveTo(W / 2, lip - curve + inset, W - m - inset, top + inset * 0.9);
+  if (m === 0) {   // kenardan kenara (kilit ekranı): yalnız üst dikiş; cep ekranın sonuna kadar uzanır
+    g.setLineDash([10 * W / 1080, 8 * W / 1080]); g.strokeStyle = 'rgba(169,211,255,0.38)'; g.lineWidth = 1.6 * W / 1080; g.stroke(); g.setLineDash([]);
+    return top + inset;
+  }
   g.lineTo(W - m - inset, H - m - inset - rad * 0.6); g.quadraticCurveTo(W - m - inset, H - m - inset, W - m - inset - rad * 0.6, H - m - inset);
   g.lineTo(m + inset + rad * 0.6, H - m - inset); g.quadraticCurveTo(m + inset, H - m - inset, m + inset, H - m - inset - rad * 0.6); g.closePath();
   g.setLineDash([10 * W / 1080, 8 * W / 1080]); g.strokeStyle = 'rgba(169,211,255,0.38)'; g.lineWidth = 1.6 * W / 1080; g.stroke(); g.setLineDash([]);
@@ -4633,23 +4637,20 @@ function fitText(g, text, font, maxW, startPx, minPx) {
 function ellipsize(g, text, maxW) { if (g.measureText(text).width <= maxW) return text; let t = text; while (t.length > 1 && g.measureText(t + '…').width > maxW) t = t.slice(0, -1); return t + '…'; }
 function localTime(city) { try { return cityTime(cityZone(city)).slice(0, 5); } catch (e) { return ''; } }
 
-/** Kilit ekranı kapağı (1024²): cebe yarı girmiş dünya, cebin üstünde şehir adı ve yerel saat. Şehir/tema/saat başına önbellekli. */
+/**
+ * Kilit ekranı kapağı (1024²), tam ekran görünüm için: cep kenardan kenara, küre cepten iri yükselir, yazı yok
+ * (şehir/istasyon adını sistem zaten gösterir). iOS'ta kapağa dokununca çalar tam ekrana açılır ve kapağın alt
+ * kenarındaki cep rengini ekranın sonuna kadar uzatır → bütün ekran cep ve küre olur. Şehir/tema başına önbellekli.
+ */
 const artCache = new Map();
 async function cityArt(city) {
-  const key = `${state.theme}|${city.id}|${localTime(city).slice(0, 2)}`;
+  const key = `${state.theme}|${city.id}`;
   if (artCache.has(key)) return artCache.get(key);
   let url = null;
   try {
-    await loadCardFonts();
     const W = 1024, cv = document.createElement('canvas'); cv.width = cv.height = W; const g = cv.getContext('2d');
-    const y = await drawPocketScene(g, W, W, city, { globeR: 330, lipY: 560, margin: 34, radius: 46 });
-    const X = 86, maxW = W - 2 * X;
-    const px = fitText(g, city.name, '700 {px}px "Bricolage Grotesque", sans-serif', maxW, 118, 60);
-    g.fillStyle = '#F2F7FF'; g.font = `700 ${px}px "Bricolage Grotesque", sans-serif`; g.fillText(city.name, X, y + 30 + px * 0.86);
-    g.fillStyle = 'rgba(232,240,255,0.66)'; g.font = '500 38px Geist, sans-serif';
-    const t = localTime(city); g.fillText(ellipsize(g, `${city.country}${t ? ' · ' + t : ''}`, maxW), X, y + 30 + px * 0.86 + 60);
-    g.fillStyle = 'rgba(169,211,255,0.8)'; g.font = '500 24px "Geist Mono", monospace'; g.textAlign = 'right'; g.fillText('wGlobe', W - X, W - 70); g.textAlign = 'left';
-    url = cv.toDataURL('image/jpeg', 0.9);
+    await drawPocketScene(g, W, W, city, { globeR: 430, lipY: 690, margin: 0, radius: 0 });
+    url = cv.toDataURL('image/jpeg', 0.92);
   } catch (e) { url = null; }
   if (url) { artCache.set(key, url); if (artCache.size > 12) artCache.delete(artCache.keys().next().value); }
   return url;
@@ -4703,11 +4704,12 @@ async function prev() {
 
 // ── Kilit ekranı ve kulaklık (web sitesi): Media Session ──
 const MS = 'mediaSession' in navigator && !NATIVE;
-let msKey = '', msArtUrl = null;
+let msKey = '', msArtUrl = null, msHandlersFor = -1, msPlayCount = 0;
 function mediaSync() {
   if (!MS) return;
   const city = CITY[state.activeCityId], st = currentStation(), s = state.status;
   try { navigator.mediaSession.playbackState = s === 'playing' ? 'playing' : s === 'idle' ? 'none' : 'paused'; } catch (e) {}
+  if (s === 'playing' && msHandlersFor !== msPlayCount) { msHandlersFor = msPlayCount; mediaHandlers(); }
   if (!city) return;
   const key = `${city.id}|${st ? st.uuid : ''}|${state.theme}`;
   if (key === msKey) return; msKey = key;
@@ -4719,15 +4721,19 @@ function mediaSync() {
     if (msArtUrl) URL.revokeObjectURL(msArtUrl); msArtUrl = URL.createObjectURL(b); apply(msArtUrl);
   }).catch(() => {});
 }
-if (MS) {
+/** Kilit ekranı tuşları. iOS Safari bunları ancak ses çalmaya başladıktan sonra tanımlanırsa uygular; yoksa ±10 sn
+ *  atlama düğmeleri çıkar. Bu yüzden her çalma başlangıcında yeniden kurulur. Canlı yayında ileri/geri sarma yok. */
+function mediaHandlers() {
+  if (!MS) return;
   const on = (a, f) => { try { navigator.mediaSession.setActionHandler(a, f); } catch (e) {} };
+  on('seekbackward', null); on('seekforward', null); on('seekto', null);
   on('play', () => { Ambient.unlock(); play(); });
   on('pause', () => pause());
   on('stop', () => pause());
-  on('nexttrack', () => next());
   on('previoustrack', () => prev());
-  on('seekbackward', null); on('seekforward', null); on('seekto', null);
+  on('nexttrack', () => next());
 }
+mediaHandlers();
 
 // ── Kısa paylaşım bağlantısı: istasyon kimliği 22 karakterlik koda sıkışır (yayın adresi bağlantıda taşınmaz) ──
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
