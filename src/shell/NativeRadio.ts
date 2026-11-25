@@ -77,6 +77,15 @@ export class NativeRadio {
     this.disarm(); pl.pause(); this.pausedAt = Date.now();
   }
 
+  /** Kilit ekranı kapağı sonradan gelir (web onu küre görüntüsünden çizer) */
+  async setArtwork(loadId: number, dataUrl: string): Promise<void> {
+    if (loadId !== this.loadId || !this.pl) return;
+    const uri = await saveArtwork(dataUrl, loadId);
+    if (!uri || loadId !== this.loadId || !this.pl) return;
+    this.artworkUrl = uri;
+    try { this.pl.updateLockScreenMetadata(this.metadata(this.pl.currentIndex)); } catch { /* kilit ekranı kapalı */ }
+  }
+
   /** Uyku zamanlayıcısının sönüşü */
   setVolume(v: number): void { if (this.pl) this.pl.volume = Math.max(0, Math.min(1, v)); }
 

@@ -2023,7 +2023,7 @@ const Globe = (() => {
   }
   function snapshotView(o) {
     try {
-      const s = snapRenderer('view', o.w, o.h, false);
+      const s = snapRenderer(o.transparent ? 'viewA' : 'view', o.w, o.h, !!o.transparent);
       return withSnapshotState(() => {
         const pinScale = 3 / Math.max(1, o.r * 0.013);
         (o.pins || []).forEach(i => { cores[i].visible = true; cores[i].scale.setScalar(pinScale); });
@@ -2032,12 +2032,12 @@ const Globe = (() => {
         rig.position.set(0, -(o.cy - o.h / 2) * upp, 0); rig.scale.setScalar(o.r * upp); globe.rotation.set(fr.x, fr.y, 0, 'XYZ');
         const tp = toNum(THEMES[o.theme].p); applyPal(tp); syncUniforms(s.cam);
         const b = sceneFromDisplay(tp.c.background);
-        renderPipe(s.r2, s.pipe, s.cam, new THREE.Color(b[0], b[1], b[2]), 1);
+        renderPipe(s.r2, s.pipe, s.cam, new THREE.Color(b[0], b[1], b[2]), o.transparent ? 0 : 1);
         // Odak noktasının görüntüdeki yeri (0–1): kartlar iğneyi tam şehrin üstüne koyar
         rig.updateMatrixWorld(true);
         const pv = latLngToVec3(o.lat, o.lng, 1.0).applyMatrix4(globe.matrixWorld).project(s.cam);
         snapshotView.pin = { x: (pv.x + 1) / 2, y: (1 - pv.y) / 2 };
-        return s.r2.domElement.toDataURL('image/jpeg', 0.88);
+        return o.transparent ? s.r2.domElement.toDataURL('image/png') : s.r2.domElement.toDataURL('image/jpeg', 0.88);
       });
     } catch (e) { return null; }
   }
@@ -2345,6 +2345,8 @@ const Ambient = (() => {
     'Okyanus Esintisi': { notes: [87.31, 130.81, 174.61, 220, 261.63], type: 'sine', cutoff: 1100, lfo: 0.04, waves: true },
   };
   function ensure() { if (ctx) return ctx; const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return null; ctx = new AC(); master = ctx.createGain(); master.gain.value = 0; master.connect(ctx.destination); return ctx; }
+  /** Önizleme sesi çalmıyorsa ses bağlamını uyut (iOS: radyo kilitli ekranda sürsün) */
+  function sleepCtx(ms) { setTimeout(() => { if (ctx && !voice && !staticSrc && ctx.state === 'running') ctx.suspend().catch(() => {}); }, ms); }
   function noiseBuffer() { const b = ctx.createBuffer(1, ctx.sampleRate * 2, ctx.sampleRate), d = b.getChannelData(0); let l = 0; for (let i = 0; i < d.length; i++) { const w = Math.random() * 2 - 1; l = (l + 0.02 * w) / 1.02; d[i] = l * 3.5; } return b; }
   function build(vibe, variant) {
     const v = VIBES[vibe] || VIBES['Sabah Kahvesi']; const shift = Math.pow(2, ((variant % 4) * 2 - 2) / 12);
@@ -2364,8 +2366,8 @@ const Ambient = (() => {
   function ramp(target, ms) { const t = ctx.currentTime; master.gain.cancelScheduledValues(t); master.gain.setValueAtTime(master.gain.value, t); master.gain.linearRampToValueAtTime(target, t + ms / 1000); }
   function kill(vc, delay) { setTimeout(() => { try { vc.nodes.forEach(n => n.stop()); vc.out.disconnect(); } catch (e) {} }, delay); }
   return {
-    async play(vibe, variant) { if (!ensure()) return; if (ctx.state === 'suspended') { try { await ctx.resume(); } catch (e) {} } if (voice) kill(voice, 0); master.gain.value = 0; voice = build(vibe, variant); ramp(base * factor * tune, DUR.audioIn); },
-    fadeOut(ms = DUR.audioOut) { if (!ctx || !voice) return; ramp(0, ms); const v = voice; voice = null; kill(v, ms + 30); },
+    async play(vibe, variant) { if (!ensure()) return; if (ctx.state === 'suspended') { try { await ctx.resume(); } catch (e) {} } if (voice) kill(voice, 0); master.gain.value = 0; voice = build(vibe, variant); ramp(base * factor * tune, DUR.audioIn); if (ctx.state !== 'running') ctx.resume().catch(() => {}); },
+    fadeOut(ms = DUR.audioOut) { if (!ctx || !voice) return; ramp(0, ms); const v = voice; voice = null; kill(v, ms + 30); sleepCtx(ms + 80); },
     setFactor(fv) { factor = fv; if (ctx && voice) master.gain.setTargetAtTime(base * factor * tune, ctx.currentTime, 0.05); },
     /** Ayar: kilitli istasyonun sinyal gücü (0–1) */
     setTune(tv) { tune = clamp(tv, 0, 1); if (ctx && voice) master.gain.setTargetAtTime(base * factor * tune, ctx.currentTime, 0.04); },
@@ -2382,7 +2384,9 @@ const Ambient = (() => {
       }
       staticGain.gain.setTargetAtTime(clamp(level, 0, 1) * 0.16, ctx.currentTime, 0.03);
     },
-    unlock() { ensure(); if (ctx && ctx.state === 'suspended') ctx.resume().catch(() => {}); },
+    // iOS'ta ses bağlamı bir dokunuşla açılmalı; ama boşta çalışır bırakılırsa Safari sayfayı 'ortam sesi' sayar ve
+    // ekran kilitlenince radyoyu susturur. Bu yüzden açılır ve önizleme çalmıyorsa hemen uyutulur.
+    unlock() { ensure(); if (!ctx) return; const p = ctx.state === 'suspended' ? ctx.resume() : Promise.resolve(); p.then(() => sleepCtx(0)).catch(() => {}); },
   };
 })();
 
@@ -2804,7 +2808,7 @@ const SatMosaic = (() => {
 })();
 
 /** Sürüm etiketi: sitede hangi sürümün açık olduğunu rozetten görmek için (önbellek kontrolü). */
-const BUILD = 'v28';
+const BUILD = 'v29';
 const MapGlobe = (() => {
   const host = document.getElementById('mapStage');
   const badge = document.getElementById('lodBadge');
@@ -4564,15 +4568,90 @@ const SITE_URL = 'https://bolut916.github.io/wGlobe/';
 const NATIVE = !!(window.ReactNativeWebView && typeof window.ReactNativeWebView.postMessage === 'function');
 function nativePost(msg) { try { window.ReactNativeWebView.postMessage(JSON.stringify(msg)); } catch (e) {} }
 if (NATIVE) document.documentElement.classList.add('in-app');
+// iOS Safari: ses oturumu "çalma" türünde olsun → ekran kilitlenince ve sessiz anahtarında radyo susmaz
+try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (e) {}
 
-/** Bir şehrin küre görüntüsü (kilit ekranı kapağı, paylaşım kartı). Tema ve şehir başına önbellekli. */
+// ── Cep sahnesi: dünyanın yarısı görünür, yarısı cebin içinde. Paylaşım kartı ve kilit ekranı kapağı aynı dili konuşur. ──
+const cityZone = c => c.timezone || 'UTC';
+function seededStars(seed, n, W, H) { let x = seed >>> 0 || 1; const r = () => ((x = (x * 1664525 + 1013904223) >>> 0) / 4294967296); return Array.from({ length: n }, () => [r() * W, r() * H, 0.4 + r() * 1.6, 0.15 + r() * 0.6]); }
+function hashStr(s) { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
+async function loadCardFonts() { try { await Promise.race([Promise.all(['700 120px "Bricolage Grotesque"', '500 40px Geist', '600 40px Geist', '500 28px "Geist Mono"'].map(f => document.fonts.load(f))), sleep(1500)]); } catch (e) {} }
+/**
+ * W×H tuvale cep sahnesi çizer. L: düzen (globeR, lipY, margin, radius). Dönüş: cep ön yüzünün üst sınırı (metin buraya).
+ * Küre saydam arka planla çizilir (gerçekten cebin içine girer), şehir kürenin görünen tepesinde nabız atar.
+ */
+async function drawPocketScene(g, W, H, city, L) {
+  // Gece gökyüzü + yıldızlar + kürenin arkasında yumuşak bir ışık
+  const sky = g.createLinearGradient(0, 0, 0, H); sky.addColorStop(0, '#0B1D3A'); sky.addColorStop(0.55, '#060E22'); sky.addColorStop(1, '#040915');
+  g.fillStyle = sky; g.fillRect(0, 0, W, H);
+  seededStars(hashStr(city.id), Math.round(W * H / 9000), W, L.lipY).forEach(([x, y, r, a]) => { g.beginPath(); g.arc(x, y, r * (W / 1080), 0, TAU); g.fillStyle = `rgba(220,235,255,${a})`; g.fill(); });
+  const glow = g.createRadialGradient(W / 2, L.lipY - L.globeR * 0.2, L.globeR * 0.6, W / 2, L.lipY - L.globeR * 0.2, L.globeR * 1.5);
+  glow.addColorStop(0, 'rgba(120,180,255,0.20)'); glow.addColorStop(1, 'rgba(120,180,255,0)'); g.fillStyle = glow; g.fillRect(0, 0, W, H);
+  const m = L.margin, lip = L.lipY, curve = L.globeR * 0.13;
+  // Cebin ağzı (iç karanlık): küre bunun önünde, cep ön yüzünün arkasında
+  const mouth = g.createRadialGradient(W / 2, lip + curve * 0.4, 10, W / 2, lip + curve * 0.4, W / 2 - m);
+  mouth.addColorStop(0, 'rgba(1,4,12,0.95)'); mouth.addColorStop(0.7, 'rgba(2,6,16,0.85)'); mouth.addColorStop(1, 'rgba(2,6,16,0)');
+  g.save(); g.translate(W / 2, lip + curve * 0.35); g.scale(1, 0.16); g.beginPath(); g.arc(0, 0, W / 2 - m, 0, TAU); g.restore(); g.fillStyle = mouth; g.fill();
+  // Küre (saydam): şehir kürenin üst yarısında, cebin üstünde
+  const S = Math.round(L.globeR * 2 / 0.86), pitch = 0.5;
+  let pin = null;
+  try {
+    const url = Globe.snapshotView({ w: S, h: S, lat: city.lat, lng: city.lng, r: L.globeR, cy: S / 2, pitch, theme: state.theme, transparent: true });
+    pin = Globe.snapshotView.pin ? { ...Globe.snapshotView.pin } : null;
+    if (url) { const im = new Image(); im.src = url; await im.decode().catch(() => {}); g.drawImage(im, W / 2 - S / 2, lip - S / 2, S, S); }
+  } catch (e) {}
+  if (pin) {   // nabız halkaları + parlayan nokta
+    const px = W / 2 - S / 2 + pin.x * S, py = lip - S / 2 + pin.y * S, k = W / 1080;
+    if (py < lip - 8) {
+      const halo = g.createRadialGradient(px, py, 0, px, py, 46 * k); halo.addColorStop(0, 'rgba(234,244,255,0.55)'); halo.addColorStop(1, 'rgba(234,244,255,0)');
+      g.fillStyle = halo; g.beginPath(); g.arc(px, py, 46 * k, 0, TAU); g.fill();
+      [[40, 0.28], [25, 0.5]].forEach(([r, a]) => { g.beginPath(); g.arc(px, py, r * k, 0, TAU); g.strokeStyle = `rgba(234,244,255,${a})`; g.lineWidth = 3 * k; g.stroke(); });
+      g.beginPath(); g.arc(px, py, 9 * k, 0, TAU); g.fillStyle = '#F2F8FF'; g.fill();
+    }
+  }
+  // Cebin ön yüzü: üst kenarı hafif kavisli cam; kutup ışığı mavisi kenar ve dikiş
+  const top = lip + curve, rad = L.radius;
+  const front = new Path2D();
+  front.moveTo(m, top); front.quadraticCurveTo(W / 2, lip - curve, W - m, top);
+  front.lineTo(W - m, H - m - rad); front.quadraticCurveTo(W - m, H - m, W - m - rad, H - m);
+  front.lineTo(m + rad, H - m); front.quadraticCurveTo(m, H - m, m, H - m - rad); front.closePath();
+  const fg = g.createLinearGradient(0, lip - curve, 0, H); fg.addColorStop(0, 'rgba(26,52,96,0.97)'); fg.addColorStop(0.5, 'rgba(14,30,60,0.98)'); fg.addColorStop(1, 'rgba(9,20,42,0.99)');
+  g.save(); g.shadowColor = 'rgba(0,0,0,0.55)'; g.shadowBlur = 40 * W / 1080; g.shadowOffsetY = -6; g.fillStyle = fg; g.fill(front); g.restore();
+  const sheen = g.createLinearGradient(0, lip - curve, 0, lip + curve * 3); sheen.addColorStop(0, 'rgba(234,244,255,0.10)'); sheen.addColorStop(1, 'rgba(234,244,255,0)'); g.fillStyle = sheen; g.fill(front);
+  const rim = g.createLinearGradient(m, 0, W - m, 0); rim.addColorStop(0, '#EAF4FF'); rim.addColorStop(0.45, '#CFE5FF'); rim.addColorStop(1, '#A9D3FF');
+  g.beginPath(); g.moveTo(m, top); g.quadraticCurveTo(W / 2, lip - curve, W - m, top); g.strokeStyle = rim; g.lineWidth = 3 * W / 1080; g.stroke();
+  const inset = 22 * W / 1080;   // dikiş çizgisi
+  g.beginPath(); g.moveTo(m + inset, top + inset * 0.9); g.quadraticCurveTo(W / 2, lip - curve + inset, W - m - inset, top + inset * 0.9);
+  g.lineTo(W - m - inset, H - m - inset - rad * 0.6); g.quadraticCurveTo(W - m - inset, H - m - inset, W - m - inset - rad * 0.6, H - m - inset);
+  g.lineTo(m + inset + rad * 0.6, H - m - inset); g.quadraticCurveTo(m + inset, H - m - inset, m + inset, H - m - inset - rad * 0.6); g.closePath();
+  g.setLineDash([10 * W / 1080, 8 * W / 1080]); g.strokeStyle = 'rgba(169,211,255,0.38)'; g.lineWidth = 1.6 * W / 1080; g.stroke(); g.setLineDash([]);
+  return top + inset;
+}
+function fitText(g, text, font, maxW, startPx, minPx) {
+  let px = startPx; do { g.font = font.replace('{px}', px); if (g.measureText(text).width <= maxW) break; px -= 4; } while (px > minPx); return px;
+}
+function ellipsize(g, text, maxW) { if (g.measureText(text).width <= maxW) return text; let t = text; while (t.length > 1 && g.measureText(t + '…').width > maxW) t = t.slice(0, -1); return t + '…'; }
+function localTime(city) { try { return cityTime(cityZone(city)).slice(0, 5); } catch (e) { return ''; } }
+
+/** Kilit ekranı kapağı (1024²): cebe yarı girmiş dünya, cebin üstünde şehir adı ve yerel saat. Şehir/tema/saat başına önbellekli. */
 const artCache = new Map();
-function cityArt(city, size = 512) {
-  const key = `${state.theme}|${city.id}|${size}`;
+async function cityArt(city) {
+  const key = `${state.theme}|${city.id}|${localTime(city).slice(0, 2)}`;
   if (artCache.has(key)) return artCache.get(key);
   let url = null;
-  try { url = Globe.snapshotView({ w: size, h: size, lat: city.lat, lng: city.lng, r: size * 0.42, cy: size / 2, pitch: 0, theme: state.theme }); } catch (e) { url = null; }
-  if (url) { artCache.set(key, url); if (artCache.size > 24) artCache.delete(artCache.keys().next().value); }
+  try {
+    await loadCardFonts();
+    const W = 1024, cv = document.createElement('canvas'); cv.width = cv.height = W; const g = cv.getContext('2d');
+    const y = await drawPocketScene(g, W, W, city, { globeR: 330, lipY: 560, margin: 34, radius: 46 });
+    const X = 86, maxW = W - 2 * X;
+    const px = fitText(g, city.name, '700 {px}px "Bricolage Grotesque", sans-serif', maxW, 118, 60);
+    g.fillStyle = '#F2F7FF'; g.font = `700 ${px}px "Bricolage Grotesque", sans-serif`; g.fillText(city.name, X, y + 30 + px * 0.86);
+    g.fillStyle = 'rgba(232,240,255,0.66)'; g.font = '500 38px Geist, sans-serif';
+    const t = localTime(city); g.fillText(ellipsize(g, `${city.country}${t ? ' · ' + t : ''}`, maxW), X, y + 30 + px * 0.86 + 60);
+    g.fillStyle = 'rgba(169,211,255,0.8)'; g.font = '500 24px "Geist Mono", monospace'; g.textAlign = 'right'; g.fillText('wGlobe', W - X, W - 70); g.textAlign = 'left';
+    url = cv.toDataURL('image/jpeg', 0.9);
+  } catch (e) { url = null; }
+  if (url) { artCache.set(key, url); if (artCache.size > 12) artCache.delete(artCache.keys().next().value); }
   return url;
 }
 
@@ -4587,7 +4666,9 @@ const NativeAudio = (() => {
       startToken = token; cityId = city.id;
       if (key === loadKey) { nativePost({ type: 'audio:skipTo', loadId, index: i }); return; }
       loadKey = key; loadId++; everPlayed = false;
-      nativePost({ type: 'audio:load', loadId, index: i, tracks, meta: { artist: `${city.name} · ${city.country}`, album: 'wGlobe · canlı radyo', artwork: cityArt(city, 512) } });
+      const id = loadId;
+      nativePost({ type: 'audio:load', loadId: id, index: i, tracks, meta: { artist: `${city.name} · ${city.country}`, album: 'wGlobe · canlı radyo', artwork: null } });
+      cityArt(city).then(art => { if (art && id === loadId) nativePost({ type: 'audio:art', loadId: id, artwork: art }); });   // kapak hazır olunca
     },
     pause() { if (loadKey) nativePost({ type: 'audio:pause', loadId }); },
     volume(v) { v = Math.round(clamp(v, 0, 1) * 100) / 100; if (v !== lastVol) { lastVol = v; nativePost({ type: 'audio:volume', v }); } },
@@ -4631,10 +4712,12 @@ function mediaSync() {
   const key = `${city.id}|${st ? st.uuid : ''}|${state.theme}`;
   if (key === msKey) return; msKey = key;
   const meta = { title: st && !st.demo ? st.name : `${city.name} radyoları`, artist: `${city.name} · ${city.country}`, album: 'wGlobe · canlı radyo' };
-  const apply = art => { try { navigator.mediaSession.metadata = new MediaMetadata(Object.assign(meta, art ? { artwork: [{ src: art, sizes: '512x512', type: 'image/jpeg' }] } : {})); } catch (e) {} };
-  const data = cityArt(city, 512);
-  if (!data) { apply(null); return; }
-  fetch(data).then(r => r.blob()).then(b => { if (msKey !== key) return; if (msArtUrl) URL.revokeObjectURL(msArtUrl); msArtUrl = URL.createObjectURL(b); apply(msArtUrl); }).catch(() => apply(null));
+  const apply = art => { try { navigator.mediaSession.metadata = new MediaMetadata(Object.assign({}, meta, art ? { artwork: [{ src: art, sizes: '1024x1024', type: 'image/jpeg' }] } : {})); } catch (e) {} };
+  apply(msArtUrl && msKey === key ? msArtUrl : null);
+  cityArt(city).then(data => data ? fetch(data).then(r => r.blob()) : null).then(b => {
+    if (!b || msKey !== key) return;
+    if (msArtUrl) URL.revokeObjectURL(msArtUrl); msArtUrl = URL.createObjectURL(b); apply(msArtUrl);
+  }).catch(() => {});
 }
 if (MS) {
   const on = (a, f) => { try { navigator.mediaSession.setActionHandler(a, f); } catch (e) {} };
@@ -4646,50 +4729,42 @@ if (MS) {
   on('seekbackward', null); on('seekforward', null); on('seekto', null);
 }
 
-// ── Paylaşım kartı ──
+// ── Kısa paylaşım bağlantısı: istasyon kimliği 22 karakterlik koda sıkışır (yayın adresi bağlantıda taşınmaz) ──
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+function uuidToShort(u) { const hex = u.replace(/-/g, ''); let bin = ''; for (let i = 0; i < 32; i += 2) bin += String.fromCharCode(parseInt(hex.substr(i, 2), 16)); return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); }
+function shortToUuid(s) {
+  try { const b = atob(String(s).replace(/-/g, '+').replace(/_/g, '/') + '=='.slice(0, (4 - s.length % 4) % 4)); if (b.length !== 16) return null;
+    const h = [...b].map(c => c.charCodeAt(0).toString(16).padStart(2, '0')).join(''); return `${h.slice(0, 8)}-${h.slice(8, 12)}-${h.slice(12, 16)}-${h.slice(16, 20)}-${h.slice(20)}`; } catch (e) { return null; }
+}
 function shareLink(city, st) {
   const q = new URLSearchParams({ c: city.id });
-  if (!CITIES.includes(city)) { q.set('n', city.name); q.set('co', city.country || ''); q.set('cc', city.countryCode || ''); q.set('la', city.lat.toFixed(4)); q.set('lo', city.lng.toFixed(4)); q.set('tz', city.timezone || 'UTC'); }
-  if (st && !st.demo && !st.fallback && st.url) { q.set('su', st.url); q.set('sn', st.name); q.set('st', st.uuid); }
+  if (!CITIES.includes(city)) { q.set('n', city.name); q.set('la', city.lat.toFixed(2)); q.set('lo', city.lng.toFixed(2)); if (city.countryCode) q.set('cc', city.countryCode); }
+  if (st && !st.demo && !st.fallback) { if (UUID_RE.test(st.uuid || '')) q.set('s', uuidToShort(st.uuid)); else if (st.url) { q.set('su', st.url); q.set('sn', st.name); } }
   return SITE_URL + '?' + q.toString();
 }
-/** '#RRGGBB' + saydamlık → rgba() (kartın üst kısmındaki geçiş için) */
-function hexA(h, a) { const n = parseInt(String(h).replace('#', ''), 16) || 0; return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`; }
-function fitText(g, text, font, maxW, startPx, minPx) {
-  let px = startPx; do { g.font = font.replace('{px}', px); if (g.measureText(text).width <= maxW) break; px -= 4; } while (px > minPx); return px;
+function shareText(city, st) {
+  const t = localTime(city), stn = st && !st.demo && !st.fallback ? st.name : null;
+  return `🎧 ${city.name}, ${city.country}${t ? ' · saat ' + t : ''}\n${stn ? stn + ' şu an canlı.' : 'Şehrin radyosu şu an canlı.'} Dünyanın öbür ucundan birlikte dinleyelim:`;
 }
 async function buildShareCard(city, st) {
-  const W = 1080, H = 1350, cv = document.createElement('canvas'); cv.width = W; cv.height = H;
-  const g = cv.getContext('2d'), th = THEMES[state.theme] || THEMES.classic, light = isLightTheme(state.theme);
-  const bg = th.p.background || '#000000', ink = light ? '#141414' : '#F2F7FF', ink2 = light ? 'rgba(20,20,20,0.62)' : 'rgba(232,240,255,0.66)', acc = light ? '#2A4E7A' : '#A9D3FF';
-  try { await Promise.race([Promise.all(['700 120px "Bricolage Grotesque"', '500 40px Geist', '500 28px "Geist Mono"'].map(f => document.fonts.load(f))), sleep(1500)]); } catch (e) {}
-  g.fillStyle = bg; g.fillRect(0, 0, W, H);
-  const S = 880, art = (() => { try { return Globe.snapshotView({ w: S, h: S, lat: city.lat, lng: city.lng, r: 372, cy: S * 0.5, pitch: 0.18, theme: state.theme }); } catch (e) { return null; } })();
-  const pin = Globe.snapshotView.pin;
-  const TOP = 30; if (art) { const im = new Image(); im.src = art; await im.decode().catch(() => {}); g.drawImage(im, (W - S) / 2, TOP, S, S); }
-  if (art && pin) {   // şehrin üstünde nabız halkaları
-    const px = (W - S) / 2 + pin.x * S, py = TOP + pin.y * S;
-    [[34, 0.25], [20, 0.45]].forEach(([r, a]) => { g.beginPath(); g.arc(px, py, r, 0, TAU); g.strokeStyle = `rgba(234,244,255,${a})`; g.lineWidth = 3; g.stroke(); });
-    g.beginPath(); g.arc(px, py, 9, 0, TAU); g.fillStyle = '#EAF4FF'; g.fill();
-  }
-  const grd = g.createLinearGradient(0, 700, 0, 960); grd.addColorStop(0, hexA(bg, 0)); grd.addColorStop(1, hexA(bg, 1)); g.fillStyle = grd; g.fillRect(0, 700, W, 260); g.fillStyle = bg; g.fillRect(0, 960, W, H - 960);
-  const X = 84; g.textBaseline = 'alphabetic';
-  const Y0 = 950; g.fillStyle = acc; g.font = '500 28px "Geist Mono", monospace'; g.fillText('ŞU AN DİNLİYORUM', X, Y0);
-  const name = city.name; const px = fitText(g, name, '700 {px}px "Bricolage Grotesque", sans-serif', W - 2 * X, 124, 60);
-  const yCity = Y0 + 18 + px * 0.92;
-  g.fillStyle = ink; g.font = `700 ${px}px "Bricolage Grotesque", sans-serif`; g.fillText(name, X, yCity);
-  let t = ''; try { t = cityTime(city.timezone).slice(0, 5); } catch (e) {}
-  g.fillStyle = ink2; g.font = '500 36px Geist, sans-serif'; g.fillText(`${city.country}${t ? ' · yerel saat ' + t : ''}`, X, yCity + 64);
-  if (st && !st.demo) { const sn = st.name.length > 40 ? st.name.slice(0, 39) + '…' : st.name; g.fillStyle = ink; g.font = '600 40px Geist, sans-serif'; g.fillText(sn, X, yCity + 126); }
-  g.fillStyle = light ? 'rgba(20,20,20,0.14)' : 'rgba(232,240,255,0.14)'; g.fillRect(X, H - 112, W - 2 * X, 2);
-  g.fillStyle = ink2; g.font = '500 24px "Geist Mono", monospace'; g.fillText('wGlobe · dünyanın radyosu', X, H - 62);
-  g.textAlign = 'right'; g.fillText('bolut916.github.io/wGlobe', W - X, H - 62); g.textAlign = 'left';
+  await loadCardFonts();
+  const W = 1080, H = 1350, cv = document.createElement('canvas'); cv.width = W; cv.height = H; const g = cv.getContext('2d');
+  const y = await drawPocketScene(g, W, H, city, { globeR: 420, lipY: 770, margin: 40, radius: 54 });
+  const X = 96, maxW = W - 2 * X;
+  g.fillStyle = '#A9D3FF'; g.font = '500 26px "Geist Mono", monospace'; g.fillText('ŞU AN DİNLİYORUM', X, y + 64);
+  const px = fitText(g, city.name, '700 {px}px "Bricolage Grotesque", sans-serif', maxW, 120, 60), yCity = y + 76 + px * 0.88;
+  g.fillStyle = '#F2F7FF'; g.font = `700 ${px}px "Bricolage Grotesque", sans-serif`; g.fillText(city.name, X, yCity);
+  const t = localTime(city);
+  g.fillStyle = 'rgba(232,240,255,0.66)'; g.font = '500 36px Geist, sans-serif'; g.fillText(ellipsize(g, `${city.country}${t ? ' · yerel saat ' + t : ''}`, maxW), X, yCity + 62);
+  if (st && !st.demo) { g.fillStyle = '#F2F7FF'; g.font = '600 40px Geist, sans-serif'; g.fillText(ellipsize(g, st.name, maxW), X, yCity + 124); }
+  g.fillStyle = 'rgba(169,211,255,0.75)'; g.font = '500 24px "Geist Mono", monospace'; g.fillText('wGlobe · dünyanın radyosu', X, H - 92);
+  g.textAlign = 'right'; g.fillText('bolut916.github.io/wGlobe', W - X, H - 92); g.textAlign = 'left';
   return cv;
 }
 let shareState = null;
 async function openShare() {
   const city = CITY[state.activeCityId]; if (!city) return;
-  const st = currentStation(), url = shareLink(city, st), text = `${city.name} radyosunu wGlobe'da dinliyorum${st && !st.demo ? ' · ' + st.name : ''}`;
+  const st = currentStation(), url = shareLink(city, st), text = shareText(city, st);
   vibrate(8);
   const el = $('#share'); el.classList.add('open'); el.setAttribute('aria-hidden', 'false'); el.classList.add('busy');
   $('#shImg').removeAttribute('src');
@@ -4726,26 +4801,47 @@ $('#shSave').addEventListener('click', saveCard);
 $('#shClose').addEventListener('click', closeShare);
 $('#share').addEventListener('click', e => { if (e.target === $('#share')) closeShare(); });
 
-/** Paylaşılan bağlantı: ?c=şehir (+ yer bilgisi) (+ istasyon). Uygulama doğrudan o şehirde açılır. */
+/** Paylaşılan bağlantı: ?c=şehir (+ yer) (+ s=istasyon kodu). Uygulama doğrudan o şehirde, o istasyonda açılır. */
 function readLinkParams(search) {
   const q = new URLSearchParams(search || ''); const c = q.get('c'); if (!c) return null;
   const o = {}; q.forEach((v, k) => { o[k] = v; }); return o;
 }
 let pendingLink = readLinkParams(location.search);
-function openSharedLink(p) {
+function zoneFor(lat, lng, cc) {
+  let best = null, bd = Infinity; CITIES.forEach(c => { if (cc && c.countryCode !== cc) return; const d = kmBetween([lat, lng], [c.lat, c.lng]); if (d < bd) { bd = d; best = c; } });
+  if (best && bd < 1500) return best.timezone;
+  const h = clamp(Math.round(lng / 15), -12, 12); return h === 0 ? 'UTC' : `Etc/GMT${h > 0 ? '-' : '+'}${Math.abs(h)}`;
+}
+async function linkStation(p, city) {
+  const uuid = p.s ? shortToUuid(p.s) : (p.st && UUID_RE.test(p.st) ? p.st : null);
+  if (uuid) {
+    try {
+      const raw = await Promise.race([rbFetch(`/json/stations/byuuid/${uuid}`), sleep(5000).then(() => null)]);
+      const st = Array.isArray(raw) && raw[0] ? toStation(raw[0]) : null;
+      if (st) return st;
+    } catch (e) {}
+  }
+  const su = p.su && /^https:\/\//i.test(p.su) ? p.su : null;   // eski uzun bağlantılar
+  return su ? { uuid: p.st || ('link-' + city.id), name: (p.sn || 'Paylaşılan istasyon').slice(0, 80), url: su, codec: 'MP3', bitrate: 0, fallback: false } : null;
+}
+async function openSharedLink(p) {
   if (!p || !p.c) return;
   let city = CITY[p.c];
   const la = parseFloat(p.la), lo = parseFloat(p.lo);
-  if (!city && Number.isFinite(la) && Number.isFinite(lo)) city = registerPlace({ id: String(p.c).slice(0, 40), name: (p.n || 'Paylaşılan yer').slice(0, 60), country: (p.co || '').slice(0, 60), lat: la, lng: lo, timezone: p.tz || 'UTC', countryCode: (p.cc || '').slice(0, 3).toUpperCase(), vibeTag: Math.abs(la) < 23.5 ? 'Tropikal Ritimler' : Math.abs(la) > 55 ? 'Yağmurlu Sokaklar' : 'Sabah Kahvesi' });
+  if (!city && Number.isFinite(la) && Number.isFinite(lo)) {
+    const cc = (p.cc || '').slice(0, 3).toUpperCase();
+    city = registerPlace({ id: String(p.c).slice(0, 40), name: (p.n || 'Paylaşılan yer').slice(0, 60), country: (p.co || countryNameTR(cc) || '').slice(0, 60), lat: la, lng: lo, timezone: p.tz || zoneFor(la, lo, cc), countryCode: cc, vibeTag: Math.abs(la) < 23.5 ? 'Tropikal Ritimler' : Math.abs(la) > 55 ? 'Yağmurlu Sokaklar' : 'Sabah Kahvesi' });
+  }
   if (!city) { toast('Paylaşılan yer bulunamadı'); return; }
-  const su = p.su && /^https:\/\//i.test(p.su) ? p.su : null;
   if (state.view !== 'app') { if (!state.auth) { state.auth = 'guest'; save(); } enterApp(); }
   if (state.tab !== 'globe') setTab('globe');
-  state.pinned = su ? { cityId: city.id, stations: [{ uuid: p.st || ('link-' + city.id), name: (p.sn || 'Paylaşılan istasyon').slice(0, 80), url: su, codec: 'MP3', bitrate: 0, fallback: false }] } : null;
+  const st = await linkStation(p, city);
+  state.pinned = st ? { cityId: city.id, stations: [st] } : null;
   if (state.activeCityId === city.id) state.activeCityId = null;
   MapGlobe.takeControl(); handleSelect(city);
   toast(`${city.name} · paylaşılan radyo`);
 }
+function countryNameTR(cc) { try { return cc ? new Intl.DisplayNames(['tr'], { type: 'region' }).of(cc) : ''; } catch (e) { return ''; } }
 
 // ── Uçuş modu: küre her dakika uzak bir şehre süzülür, radyo değişir, şehir adı sinematik belirir ──
 const FLIGHT_LEG_MS = 60000;
