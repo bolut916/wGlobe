@@ -733,6 +733,45 @@ svg.i.filled { fill: currentColor; }
 .screen.no-debug .lod-badge { display: none !important; }
 [hidden] { display: none !important; }
 #pane-profile::after { content: ""; position: absolute; left: 0; right: 0; top: 0; height: calc(var(--sat) + 78px); background: linear-gradient(180deg, rgba(6,12,26,0.97) 0%, rgba(6,12,26,0.9) 55%, rgba(6,12,26,0)); pointer-events: none; z-index: 2; }
+/* Uçuş modu: arayüz çekilir, şehir adı harf harf yükselir, ilerleme çizgisi bacak boyunca dolar */
+#pane-globe.flying-mode .search, #pane-globe.flying-mode .hint, #pane-globe.flying-mode .live-dock, #pane-globe.flying-mode .sheet, #pane-globe.flying-mode #shuffle { opacity: 0 !important; pointer-events: none !important; transition: opacity 400ms var(--e-standard); }
+.topbar { gap: 8px; }
+#flightBtn.on { background: var(--grad); color: var(--accent-ink); }
+.flight { position: absolute; left: 0; right: 0; bottom: calc(92px + var(--sab)); z-index: 12; padding: 0 14px; pointer-events: none; }
+.flight[hidden] { display: none !important; }
+#pane-globe.active .fl-card { pointer-events: auto; }
+.fl-top { display: flex; justify-content: space-between; align-items: center; padding: 0 6px 10px; }
+.fl-badge { font-family: var(--mono); font-size: 10px; letter-spacing: 0.16em; padding: 6px 10px; border-radius: 12px; background: var(--grad); color: var(--accent-ink); }
+.fl-leg { font-size: 10px; letter-spacing: 0.14em; color: var(--fg-2); }
+.fl-card { display: flex; flex-direction: column; gap: 6px; padding: 18px 20px 16px; border-radius: 28px; background: rgba(10,19,40,0.84); box-shadow: inset 0 0 0 1px rgba(232,240,255,0.1), 0 24px 60px rgba(2,6,16,0.55); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); transition: opacity 300ms var(--e-exit), transform 300ms var(--e-exit); }
+.fl-card.out { opacity: 0; transform: translateY(14px); }
+.fl-card:not(.out) { transition: opacity 420ms var(--e-enter), transform 560ms var(--e-spring); }
+.fl-city { margin: 0; font-family: var(--display); font-size: 46px; line-height: 1.02; font-weight: 750; letter-spacing: -0.05em; white-space: nowrap; overflow: hidden; }
+.fl-city span { display: inline-block; opacity: 0; transform: translateY(0.55em); }
+.fl-card.in .fl-city span { animation: flIn 620ms var(--e-spring) forwards; animation-delay: calc(min(var(--i), 14) * 32ms + 80ms); }
+@keyframes flIn { to { opacity: 1; transform: none; } }
+.fl-st { font-size: 14px; line-height: 20px; color: var(--fg-2); min-height: 20px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.fl-bar { height: 2px; border-radius: 1px; background: rgba(232,240,255,0.12); overflow: hidden; margin: 8px 0 4px; }
+.fl-bar i { display: block; height: 100%; background: var(--grad); transform-origin: left; transform: scaleX(0); }
+.fl-act { display: flex; gap: 8px; margin-top: 6px; }
+.fl-act .btn { min-height: 44px; font-size: 14px; }
+/* Paylaşım: kart alttan yaylanarak gelir, önizleme hazır olunca belirir */
+.share { position: absolute; inset: 0; z-index: 85; display: flex; align-items: flex-end; justify-content: center; padding: 10px; background: rgba(2,6,16,0); visibility: hidden; transition: background 320ms var(--e-standard), visibility 0s linear 320ms; }
+.share.open { background: rgba(2,6,16,0.66); visibility: visible; transition: background 320ms var(--e-standard), visibility 0s; }
+.sh-card { position: relative; width: 100%; max-width: 440px; border-radius: 32px; padding: 18px 18px calc(16px + var(--sab)); background: rgba(10,19,40,0.96); box-shadow: inset 0 0 0 1px rgba(232,240,255,0.1); display: flex; flex-direction: column; gap: 14px; transform: translateY(calc(100% + 30px)); transition: transform 260ms var(--e-exit); }
+.share.open .sh-card { transform: none; transition: transform 560ms var(--e-spring); }
+.sh-title { font-family: var(--display); font-size: 20px; font-weight: 700; letter-spacing: -0.02em; padding: 4px 4px 0; }
+.sh-x { position: absolute; right: 10px; top: 8px; }
+.sh-prev { position: relative; align-self: center; width: min(58vw, 236px); aspect-ratio: 4 / 5; border-radius: 18px; overflow: hidden; background: rgba(232,240,255,0.05); box-shadow: 0 18px 40px rgba(2,6,16,0.5); }
+.sh-prev img { display: block; width: 100%; height: 100%; object-fit: cover; opacity: 0; transform: scale(0.96); transition: opacity 360ms var(--e-enter), transform 560ms var(--e-spring); }
+.share:not(.busy) .sh-prev img[src] { opacity: 1; transform: none; }
+.share.busy .sh-prev::after { content: ""; position: absolute; left: 50%; top: 50%; width: 24px; height: 24px; margin: -12px 0 0 -12px; border-radius: 50%; border: 2px solid var(--a1); border-top-color: transparent; animation: rot 800ms linear infinite; }
+.sh-act { display: flex; flex-direction: column; gap: 8px; }
+.sh-row { display: flex; gap: 8px; }
+.sh-row .btn { min-height: 48px; font-size: 15px; }
+.share.busy .sh-act { opacity: 0.45; pointer-events: none; }
+@media (prefers-reduced-motion: reduce) { .fl-card.in .fl-city span { animation-duration: 1ms; animation-delay: 0ms; } }
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 1ms !important; animation-iteration-count: 1 !important; transition-duration: 1ms !important; transition-delay: 0ms !important; }
 }
@@ -826,6 +865,7 @@ svg.i.filled { fill: currentColor; }
         <div class="pane" id="pane-globe">
           <div class="topbar">
             
+            <button class="round glass press tight fly" id="flightBtn" aria-label="Uçuş modu" aria-pressed="false"><span data-icon="plane" data-size="20"></span></button>
             <button class="round glass press tight shuffle fly" id="shuffle" aria-label="Rastgele şehir"><span class="rot" id="shuffleRot" data-icon="shuffle"></span></button>
           </div>
           <div class="search" id="search">
@@ -834,6 +874,16 @@ svg.i.filled { fill: currentColor; }
           </div>
           <div class="hint" id="hint">KÜREYİ ÇEVİR · BİR ŞEHRE DOKUN</div>
           <div class="live-dock hidden" id="liveDock"><button class="live press fly" id="live" aria-label="Radyo durumu"><span class="dot"></span><span class="txt"><span class="lab" id="liveLab">RADYO KAPALI</span><span class="sub" id="liveSub" hidden></span></span><span class="eq"><i style="--t:310ms"></i><i style="--t:240ms"></i><i style="--t:360ms"></i></span></button></div>
+          <div class="flight" id="flight" hidden>
+            <div class="fl-top"><span class="fl-badge">UÇUŞ MODU</span><span class="fl-leg num" id="flLeg"></span></div>
+            <div class="fl-card out" id="flCard">
+              <span class="label" id="flMeta"></span>
+              <h2 class="fl-city" id="flCity" aria-live="polite"></h2>
+              <span class="fl-st" id="flSt"></span>
+              <div class="fl-bar"><i id="flBar"></i></div>
+              <div class="fl-act"><button class="btn line press" id="flNext"><span class="lbl">Sonraki durak</span></button><button class="btn solid press" id="flStop"><span class="lbl">Uçuşu bitir</span></button></div>
+            </div>
+          </div>
           <div class="city-tag" id="cityTag" aria-hidden="true"><b id="ctName"></b><span id="ctTime"></span></div>
           <div class="sheet" id="sheet" aria-live="polite">
             <div class="drag" id="drag"><i></i></div>
@@ -907,6 +957,17 @@ svg.i.filled { fill: currentColor; }
         <div class="modal-card"><h3 id="modalTitle"></h3><p id="modalBody"></p>
           <button class="btn danger press" id="modalOk"><span class="lbl"></span></button>
           <button class="btn text press" id="modalCancel"><span class="lbl">Vazgeç</span></button>
+        </div>
+      </div>
+      <div class="share" id="share" role="dialog" aria-modal="true" aria-label="Paylaş" aria-hidden="true">
+        <div class="sh-card">
+          <span class="sh-title">Paylaş</span>
+          <button class="round press tight sh-x" id="shClose" aria-label="Kapat" data-icon="x" data-size="20"></button>
+          <div class="sh-prev"><img id="shImg" alt="Paylaşım kartı önizlemesi"></div>
+          <div class="sh-act">
+            <button class="btn solid press" id="shGo"><span class="lbl"><span data-icon="share" data-size="18"></span>Paylaş</span></button>
+            <div class="sh-row"><button class="btn line press" id="shCopy"><span class="lbl"><span data-icon="link" data-size="17"></span>Bağlantı</span></button><button class="btn line press" id="shSave"><span class="lbl"><span data-icon="download" data-size="17"></span>Kaydet</span></button></div>
+          </div>
         </div>
       </div>
       <div class="toast" id="toast" role="status"></div>
@@ -1218,6 +1279,10 @@ const ICONS = {
   trash:'<path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>',
   'cloud-upload':'<path d="M12 13v8"/><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="m8 17 4-4 4 4"/>',
   'chevron-left':'<path d="m15 18-6-6 6-6"/>',
+  plane:'<path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/>',
+  share:'<path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" x2="12" y1="2" y2="15"/>',
+  link:'<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>',
+  download:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/>',
   'arrow-right':'<path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>',
   eye:'<path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/>',
   'eye-off':'<path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49"/><path d="M14.084 14.158a3 3 0 0 1-4.242-4.242"/><path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143"/><path d="m2 2 20 20"/>',
@@ -1257,7 +1322,7 @@ const easeOutBack = (t, c = 1.25) => 1 + (c + 1) * Math.pow(t - 1, 3) + c * Math
 /** Anticipation: ilk %50'de hafifçe geri çekil (easeInBack), sonra yumuşakça yerleş (easeOutCubic) */
 const easeAnticipate = t => { const c = 1.15; return t < 0.5 ? (Math.pow(2 * t, 2) * ((c + 1) * 2 * t - c)) / 2 : 1 - Math.pow(2 - 2 * t, 3) / 2; };
 const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
-const vibrate = p => { try { if (state.prefs && state.prefs.haptics === false) return; navigator.vibrate && navigator.vibrate(p); } catch (e) {} };
+const vibrate = p => { try { if (state.prefs && state.prefs.haptics === false) return; if (window.ReactNativeWebView) { window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'haptic', p })); return; } navigator.vibrate && navigator.vibrate(p); } catch (e) {} };
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const hash = s => [...s].reduce((a, c) => (a * 31 + c.charCodeAt(0)) >>> 0, 7);
 
@@ -2481,8 +2546,8 @@ const Radio = (() => {
 { const ambientUnlock = Ambient.unlock; Ambient.unlock = () => { ambientUnlock(); Radio.unlock(); }; }
 // Uyku zamanlayıcısı ve Keşfet ayarı her iki ses kaynağına da uygulanır.
 const Sound = {
-  fadeOut(ms) { Radio.fadeOut(ms); Ambient.fadeOut(ms); },
-  setFactor(v) { Radio.setFactor(v); Ambient.setFactor(v); },
+  fadeOut(ms) { Radio.fadeOut(ms); Ambient.fadeOut(ms); if (NATIVE) NativeAudio.pause(); },
+  setFactor(v) { Radio.setFactor(v); Ambient.setFactor(v); if (NATIVE) NativeAudio.volume(v); },
   setTune(v) { Radio.setTune(v); Ambient.setTune(v); },
 };
 
@@ -2494,7 +2559,7 @@ function flushListen(keep) { if (!listenSince) return; state.listenMs = (state.l
 function trackListen(s) { if (s === 'playing') { if (!listenSince) listenSince = Date.now(); } else flushListen(false); }
 addEventListener('pagehide', () => flushListen(true));
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') flushListen(true); });
-function setStatus(s) { trackListen(s); state.status = s; renderLive(); renderSheetDynamic(); dkSync(); profileSync(); }
+function setStatus(s) { trackListen(s); state.status = s; renderLive(); renderSheetDynamic(); dkSync(); profileSync(); mediaSync(); flightSync(); }
 async function startAttempt(i, isFailover) {
   const city = CITY[state.activeCityId]; if (!city) { setStatus('error'); return; }
   const token = ++attemptToken; clearTimeout(startTimer);
@@ -2508,8 +2573,10 @@ async function startAttempt(i, isFailover) {
   }
   const list = state.queue.stations, st = list[i]; if (!st) { setStatus('error'); return; }
   state.index = i; renderSheetDynamic();
-  if (st.demo) { Radio.fadeOut(0); Ambient.play(city.vibeTag, 0); onStarted(token); return; }
+  if (st.demo) { Radio.fadeOut(0); if (NATIVE) NativeAudio.pause(); Ambient.play(city.vibeTag, 0); onStarted(token); return; }
   Ambient.fadeOut(0);
+  // Uygulamada ses yerel çalma listesinde çalar (kilit ekranı, kulaklık, arka plan); yedekleme de orada yapılır
+  if (NATIVE) { NativeAudio.start(token, i, list, city); startTimer = setTimeout(() => { if (token === attemptToken && state.status !== 'playing') setStatus('error'); }, 45000); return; }
   // Bu istasyon + sıradaki en fazla 2 gerçek istasyon birlikte denenir.
   const batch = []; for (let k = i; k < list.length && batch.length < 3 && !list[k].demo; k++) batch.push(k);
   Radio.race(batch.map(k => list[k].url), DUR.startTimeout).then(won => {
@@ -2541,7 +2608,7 @@ function pause() { attemptToken++; clearTimeout(startTimer); Sound.fadeOut(); if
 function toggle() { ['playing', 'loading', 'failover'].includes(state.status) ? pause() : play(); }
 async function next() {
   if (!state.queue.stations) return play(); Ambient.unlock(); failedAttempts = 0; const token = ++attemptToken; clearTimeout(startTimer);
-  const wasPlaying = state.status === 'playing'; setStatus('loading'); if (wasPlaying) { Sound.fadeOut(); await sleep(DUR.audioOut); }
+  const wasPlaying = state.status === 'playing'; setStatus('loading'); if (wasPlaying && !NATIVE) { Sound.fadeOut(); await sleep(DUR.audioOut); }
   if (token === attemptToken) startAttempt((state.index + 1) % state.queue.stations.length, false);
 }
 function selectCity(city) {
@@ -2654,6 +2721,7 @@ function go(view, { replace = false } = {}) {
 const back = () => go(history.pop() || 'welcome', { replace: true });
 function restartEnter(root) { root.querySelectorAll('.enter').forEach(el => { el.style.animation = 'none'; void el.offsetWidth; el.style.animation = ''; }); }
 function setTab(tab) {
+  if (tab !== 'globe' && flight.on) stopFlight(false);
   const prevTab = state.tab; paneDirection(prevTab, tab);
   state.tab = tab;
   document.querySelectorAll('.tab').forEach(t => { const on = t.dataset.tab === tab; t.classList.toggle('active', on); t.setAttribute('aria-current', on ? 'page' : 'false'); });
@@ -2736,7 +2804,7 @@ const SatMosaic = (() => {
 })();
 
 /** Sürüm etiketi: sitede hangi sürümün açık olduğunu rozetten görmek için (önbellek kontrolü). */
-const BUILD = 'v27';
+const BUILD = 'v28';
 const MapGlobe = (() => {
   const host = document.getElementById('mapStage');
   const badge = document.getElementById('lodBadge');
@@ -2747,7 +2815,7 @@ const MapGlobe = (() => {
   let firstReady = false, revealed = false, revealStarted = false, pendingReveal = null, tap = null;
   // Kullanıcı küreye bir kez dokunduğunda kamera tamamen onun: otomatik dönüş, yörünge ve
   // haritadan yapılan seçimlerde otomatik uçuş kapanır. Yalnızca açık komutlar (karıştır) uçar.
-  let userControl = false, selectFromMap = false;
+  let userControl = false, selectFromMap = false, userMoveCb = null;
   let cloudsReady = false;   // bulut katmanı yüklenene kadar devir teslim beklenir (iki küre aynı görünsün)
   let dataStatus = 'yükleniyor';
   // Uydu modu: 'probing' → ilk karolar bekleniyor, 'satellite' → karo akıyor, 'vector' → engelli
@@ -2926,7 +2994,7 @@ const MapGlobe = (() => {
     if (src) { src.updateImage({ url: themeUrl, coordinates: WORLD }); map.setPaintProperty('theme', 'raster-opacity-transition', { duration: 500, delay: 80 }); map.setPaintProperty('theme', 'raster-opacity', themeOpacity()); }
     else {
       map.addSource('theme', { type: 'image', url: themeUrl, coordinates: WORLD });
-      map.addLayer({ id: 'theme', type: 'raster', source: 'theme', paint: { 'raster-opacity': themeOpacity(), 'raster-fade-duration': 0, 'raster-resampling': 'linear' } }, map.getLayer('clouds') ? 'clouds' : 'borders');
+      map.addLayer({ id: 'theme', type: 'raster', source: 'theme', paint: { 'raster-opacity': themeOpacity(), 'raster-fade-duration': 0, 'raster-resampling': 'linear' } }, below('clouds', 'night'));
     }
     const done = () => setThemeReady();
     const onData = e => { if (e.sourceId === 'theme' && e.isSourceLoaded) { map.off('sourcedata', onData); done(); } };
@@ -2943,13 +3011,93 @@ const MapGlobe = (() => {
     themeId = id || themeId;
     if (ready) { paint(themeId); if (!themeLayerWanted(themeId)) removeThemeLayer(); else if (themeFor === themeId) attachTheme(); }
     prepareTheme(themeId);
+    refreshNight();
+  }
+  /** Katman sırası her zaman: uydu → NASA → tema → bulutlar → gece → sınırlar (hangisi önce hazır olursa olsun). */
+  const below = (...ids) => ids.find(id => map.getLayer(id)) || 'borders';
+  // ── Gece ve gündüz: güneşin gerçek konumu; gece tarafı kararır, şehir ışıkları yanar. 3 dakikada bir tazelenir. ──
+  let nightOn = true, nightUrl = null, nightTimer = 0, nightBusy = false, nightFadeRaf = 0, lightsImg = null;
+  const nightWanted = () => nightOn && !(THEMES[themeId] && (THEMES[themeId].recipe === 'night' || THEMES[themeId].recipe === 'glow'));
+  const nightOpacity = () => ['interpolate', ['linear'], ['zoom'], 4, 1, 6, 0];
+  function nightMain(M, sun) {
+    return new Promise(res => {
+      const draw = () => {
+        try {
+          let lp = null, lw = 0, lh = 0;
+          if (lightsImg && lightsImg.naturalWidth) { lw = 1024; lh = 512; const c = document.createElement('canvas'); c.width = lw; c.height = lh; const g = c.getContext('2d', { willReadFrequently: true }); g.drawImage(lightsImg, 0, 0, lw, lh); lp = g.getImageData(0, 0, lw, lh).data; }
+          const out = document.createElement('canvas'); out.width = out.height = M;
+          const oc = out.getContext('2d'), img = oc.createImageData(M, M), d = img.data;
+          const sd = Math.sin(sun.lat * D2R), cd = Math.cos(sun.lat * D2R);
+          for (let y = 0; y < M; y++) {
+            const lat = Math.atan(Math.sinh(Math.PI * (1 - 2 * (y + 0.5) / M))), sl = Math.sin(lat), cl = Math.cos(lat);
+            const lRow = lp ? Math.min(lh - 1, Math.max(0, Math.floor((90 - lat * R2D) / 180 * lh))) * lw * 4 : -1;
+            for (let x = 0, o = y * M * 4; x < M; x++, o += 4) {
+              const lng = (x + 0.5) / M * 360 - 180;
+              const alt = Math.asin(clamp(sl * sd + cl * cd * Math.cos((lng - sun.lng) * D2R), -1, 1)) * R2D;
+              const t = clamp((alt - 4) / (-10 - 4), 0, 1), night = t * t * (3 - 2 * t);
+              if (night <= 0.002) continue;
+              let li = 0; if (lRow >= 0) { li = lp[lRow + Math.min(lw - 1, Math.floor((x + 0.5) / M * lw)) * 4] / 255; li = li * li * (0.35 + 0.65 * li); }
+              const k = Math.min(1, li * 1.5) * night;
+              d[o] = 6 + 249 * k; d[o + 1] = 12 + 194 * k; d[o + 2] = 30 + 110 * k; d[o + 3] = Math.min(255, night * (0.64 + 0.36 * Math.min(1, li * 1.7)) * 255);
+            }
+          }
+          oc.putImageData(img, 0, 0);
+          out.toBlob(b => res(b ? URL.createObjectURL(b) : null), 'image/png');
+        } catch (e) { res(null); }
+      };
+      if (lightsImg) { draw(); return; }
+      lightsImg = new Image(); lightsImg.onload = draw; lightsImg.onerror = draw; lightsImg.src = 'earth-lights.jpg';
+    });
+  }
+  function nightBlob(M) {
+    const sun = subsolar(new Date()), w = getWorker();
+    if (!w) return nightMain(512, sun);
+    return new Promise(res => {
+      const id = ++workerSeq;
+      workerJobs.set(id, r => r.blob ? res(URL.createObjectURL(r.blob)) : nightMain(512, sun).then(res));
+      w.postMessage({ id, type: 'night', size: M, lightsUrl: new URL('earth-lights.jpg', document.baseURI).href, sun });
+    });
+  }
+  /** Gece katmanı ilk kez belirirken 1,4 sn'de yavaşça çöker (dünya kendi gecesine bürünür). */
+  function fadeNightIn() {
+    cancelAnimationFrame(nightFadeRaf);
+    const t0 = performance.now(), D = reduceMotion.matches ? 1 : 1400;
+    const step = now => {
+      if (!map || !map.getLayer('night')) return;
+      const k = Math.min(1, (now - t0) / D), e = k * k * (3 - 2 * k), z = map.getZoom(), target = clamp((6 - z) / 2, 0, 1);
+      if (k < 1) { map.setPaintProperty('night', 'raster-opacity', target * e); nightFadeRaf = requestAnimationFrame(step); }
+      else map.setPaintProperty('night', 'raster-opacity', nightOpacity());
+    };
+    nightFadeRaf = requestAnimationFrame(step);
+  }
+  function removeNight() { cancelAnimationFrame(nightFadeRaf); if (map && map.getLayer('night')) map.removeLayer('night'); if (map && map.getSource('night')) map.removeSource('night'); }
+  function refreshNight() {
+    clearTimeout(nightTimer);
+    if (!map || !ready || !revealed) return;
+    if (!nightWanted()) { removeNight(); return; }
+    nightTimer = setTimeout(refreshNight, 3 * 60 * 1000);
+    if (nightBusy) return; nightBusy = true;
+    nightBlob(1024).then(url => {
+      nightBusy = false;
+      if (!url || !map) return;
+      if (!nightWanted()) { URL.revokeObjectURL(url); return; }
+      const old = nightUrl; nightUrl = url;
+      const src = map.getSource('night');
+      if (src) src.updateImage({ url, coordinates: WORLD });
+      else {
+        map.addSource('night', { type: 'image', url, coordinates: WORLD });
+        map.addLayer({ id: 'night', type: 'raster', source: 'night', paint: { 'raster-opacity': 0, 'raster-fade-duration': 0, 'raster-resampling': 'linear' } }, 'borders');
+        fadeNightIn();
+      }
+      if (old) setTimeout(() => URL.revokeObjectURL(old), 4000);
+    });
   }
   /** Hazırlanan katmanları stil hazır olduğunda ekler (hangisi önce biterse). */
   function attachImagery() {
     if (!ready || !map) return;
     if (bmUrl && !map.getSource('bluemarble')) {
       map.addSource('bluemarble', { type: 'image', url: bmUrl, coordinates: WORLD });
-      map.addLayer({ id: 'bluemarble', type: 'raster', source: 'bluemarble', paint: { 'raster-opacity': bmOpacity(), 'raster-fade-duration': 0, 'raster-resampling': 'linear' } }, map.getLayer('theme') ? 'theme' : 'borders');
+      map.addLayer({ id: 'bluemarble', type: 'raster', source: 'bluemarble', paint: { 'raster-opacity': bmOpacity(), 'raster-fade-duration': 0, 'raster-resampling': 'linear' } }, below('theme', 'clouds', 'night'));
       map.setLayoutProperty('land', 'visibility', 'none');
       const done = () => { if (!bmReady) { bmReady = true; checkReady(); } };
       map.on('sourcedata', e => { if (e.sourceId === 'bluemarble' && e.isSourceLoaded) done(); }); setTimeout(done, 3000);
@@ -2957,7 +3105,7 @@ const MapGlobe = (() => {
     if (cloudUrl && !map.getSource('clouds')) {
       map.addSource('clouds', { type: 'image', url: cloudUrl, coordinates: WORLD });
       // Bulutlar küre ölçeğinde görünür, şehre yaklaştıkça (zoom 3 → 5,5) tamamen kaybolur.
-      map.addLayer({ id: 'clouds', type: 'raster', source: 'clouds', paint: { 'raster-opacity': ['interpolate', ['linear'], ['zoom'], 3, 1, 5.5, 0], 'raster-fade-duration': 0, 'raster-resampling': 'linear' } }, 'borders');
+      map.addLayer({ id: 'clouds', type: 'raster', source: 'clouds', paint: { 'raster-opacity': ['interpolate', ['linear'], ['zoom'], 3, 1, 5.5, 0], 'raster-fade-duration': 0, 'raster-resampling': 'linear' } }, below('night'));
       paint(themeId);
       const done = () => { if (!cloudsReady) { cloudsReady = true; checkReady(); } };
       map.on('sourcedata', e => { if (e.sourceId === 'clouds' && e.isSourceLoaded) done(); }); setTimeout(done, 3000);
@@ -3120,7 +3268,7 @@ const MapGlobe = (() => {
     });
     // Ağ sessizce düşürürse (CSP bazen hata olayı üretmez): 6 sn'de karo yoksa vektöre geç.
     setTimeout(() => { if (imagery === 'probing' && satTiles === 0) setImagery('vector'); }, 6000);
-    ['dragstart', 'zoomstart', 'rotatestart', 'pitchstart'].forEach(n => map.on(n, ev => { if (ev.originalEvent) { userMoving = true; userControl = true; flight = null; lastTouch = Date.now(); state.interacted = true; $('#hint').classList.add('gone'); hideCityTag(); } }));
+    ['dragstart', 'zoomstart', 'rotatestart', 'pitchstart'].forEach(n => map.on(n, ev => { if (ev.originalEvent) { if (userMoveCb) userMoveCb(); userMoving = true; userControl = true; flight = null; lastTouch = Date.now(); state.interacted = true; $('#hint').classList.add('gone'); hideCityTag(); } }));
     map.on('moveend', ev => { if (ev && ev.wglobeFlight) flight = null; if (userMoving) lastTouch = Date.now(); userMoving = false; });
     map.on('move', ev => {
       updateBadge(); placeTag();
@@ -3130,6 +3278,7 @@ const MapGlobe = (() => {
     });
     // Haritada herhangi bir yere dokun → en yakın konumun yerel radyosu.
     map.on('click', ev => {
+      if (userMoveCb) userMoveCb();
       lastTouch = Date.now(); userControl = true; selectFromMap = true;
       const { lng, lat } = ev.lngLat;
       map.getSource('tap').setData({ type: 'Feature', properties: {}, geometry: { type: 'Point', coordinates: [lng, lat] } });
@@ -3275,7 +3424,7 @@ const MapGlobe = (() => {
         matchView(Globe.view);
         Globe.update({ autoRotate: false }); Globe.setRotation({ x: Globe._debug.rot.x, y: Globe._debug.rot.y });
         paint(themeId); applyActive(); lastTouch = Date.now();
-        const show = () => { matchView(Globe.view); visible = true; revealed = true; host.classList.add('on'); updateBadge(); setTimeout(done, 420);
+        const show = () => { matchView(Globe.view); visible = true; revealed = true; host.classList.add('on'); updateBadge(); setTimeout(done, 420); setTimeout(refreshNight, 700);
           // Kıyı/sınır verisi geçiş bittikten sonra, boşta işlenir (uydu modunda yalnız sınırlar için).
           setTimeout(loadVectorData, 1600); };
         // Görünmeden önce bu açıdaki karoların tamamı inmeli: 'idle' = çizim bitti ve bekleyen karo yok.
@@ -3298,6 +3447,10 @@ const MapGlobe = (() => {
     },
     hide() { visible = false; host.classList.remove('on'); badge.classList.remove('on'); },
     setTheme(id) { useTheme(id); },
+    setNight(on) { nightOn = !!on; refreshNight(); },
+    /** Uçuş modu: şehre yavaş, sinematik bir yörünge uçuşu (kart açmadan) */
+    cruise(city) { if (!ready || !visible || !city) return false; userControl = true; flyTo(city.lng, city.lat, 2.35, 0.42, 0, 0); return true; },
+    onUserMove(fn) { userMoveCb = fn; },
     setActive(id) {
       activeId = id;
       if (ready && id && PLACES[id]) map.getSource('cities').setData(cityFeatures());   // aramayla gelen yer
@@ -3428,6 +3581,7 @@ function renderSheet() {
         <div class="s-city" role="heading" aria-level="2">${esc(city.name)}</div>
         <div class="s-meta" id="sheetMeta">${wxMeta(city)}</div>
       </div>
+      <button class="round press tight" id="sheetShare" aria-label="Paylaş">${icon('share', 19)}</button>
       <button class="round press tight" id="sheetClose" aria-label="Kartı kapat">${icon('x', 20)}</button>
     </div>
     <div class="viz enter" style="--i:1" id="viz" aria-hidden="true">${vizBars()}</div>
@@ -3438,6 +3592,7 @@ function renderSheet() {
       <button class="ctl press tight" id="nextBtn" aria-label="Sonraki istasyon">${icon('skip-forward', 22)}</button>
     </div>`;
   $('#sheetClose').addEventListener('click', () => openSheet(false));
+  $('#sheetShare').addEventListener('click', () => openShare());
   $('#playBtn').addEventListener('click', () => { vibrate(10); toggle(); });
   $('#nextBtn').addEventListener('click', () => { vibrate(5); next(); });
   $('#favBtn').addEventListener('click', toggleFavorite);
@@ -3446,6 +3601,7 @@ function renderSheet() {
   sheetH = $('#sheet').offsetHeight || sheetH;
 }
 function renderSheetDynamic() {
+  mediaSync();
   const city = CITY[state.activeCityId], texts = $('#stTexts'); if (!city || !texts) return;
   const st = currentStation(), s = state.status, busy = s === 'loading' || s === 'failover';
   const viz = $('#viz'); viz.classList.toggle('playing', s === 'playing'); viz.classList.toggle('busy', busy);
@@ -4106,12 +4262,13 @@ $('#themeAction').addEventListener('click', themeAction);
 //  AURORA HAREKET MOTORU — dok damlası, sekme yönü, süzülme, anahtarlar
 // ═════════════════════════════════════════════════════════
 const TAB_ORDER = ['globe', 'explore', 'themes', 'profile'];
-const PREF_DEFAULTS = { haptics: true, autoplay: true, badge: false, aurora: true };
+const PREF_DEFAULTS = { haptics: true, autoplay: true, badge: false, aurora: true, night: true };
 function pref(k) { const p = state.prefs || {}; return k in p ? p[k] : PREF_DEFAULTS[k]; }
 function setPref(k, v) { state.prefs = Object.assign({}, PREF_DEFAULTS, state.prefs, { [k]: v }); save(); applyPrefs(); }
 function applyPrefs() {
   const sc = $('#screen');
   sc.classList.toggle('no-debug', !pref('badge'));
+  MapGlobe.setNight(pref('night'));
   updateAurora();
 }
 /** Kutup ışığı: karşılama seçicisi, giriş/üye ekranları, Profil ve koyu temalı Koleksiyon'da görünür.
@@ -4279,6 +4436,7 @@ function renderProfile(animate = true) {
       ${toggleHTML('autoplay', pref('autoplay'), 'Keşfet\'te kendiliğinden çal', 'Kadranı bırakınca ilk şehir çalar', 'compass')}
       ${toggleHTML('haptics', pref('haptics'), 'Titreşim', 'Dokunuşlarda hafif geri bildirim', 'sparkles')}
       ${toggleHTML('aurora', pref('aurora'), 'Kutup ışığı', 'Arka planda süzülen renkler', 'moon')}
+      ${toggleHTML('night', pref('night'), 'Gece ve gündüz', 'Ana kürede güneşin gerçek konumu ve şehir ışıkları', 'moon')}
       ${toggleHTML('badge', pref('badge'), 'Teknik rozet', 'Küre ekranında görüntü ayrıntıları', 'eye')}
       <div class="px-sleep" id="sleepCard"></div>
     </div></div></div>
@@ -4399,6 +4557,256 @@ $('#registerForm').addEventListener('submit', async e => {
 });
 
 // ═════════════════════════════════════════════════════════
+//  UYGULAMA KÖPRÜSÜ (Expo) · KİLİT EKRANI · PAYLAŞIM · UÇUŞ MODU
+// ═════════════════════════════════════════════════════════
+const SITE_URL = 'https://bolut916.github.io/wGlobe/';
+/** Expo uygulamasının içinde mi çalışıyoruz? (WebView köprüsü) Uygulamada ses, titreşim ve paylaşım yereldir. */
+const NATIVE = !!(window.ReactNativeWebView && typeof window.ReactNativeWebView.postMessage === 'function');
+function nativePost(msg) { try { window.ReactNativeWebView.postMessage(JSON.stringify(msg)); } catch (e) {} }
+if (NATIVE) document.documentElement.classList.add('in-app');
+
+/** Bir şehrin küre görüntüsü (kilit ekranı kapağı, paylaşım kartı). Tema ve şehir başına önbellekli. */
+const artCache = new Map();
+function cityArt(city, size = 512) {
+  const key = `${state.theme}|${city.id}|${size}`;
+  if (artCache.has(key)) return artCache.get(key);
+  let url = null;
+  try { url = Globe.snapshotView({ w: size, h: size, lat: city.lat, lng: city.lng, r: size * 0.42, cy: size / 2, pitch: 0, theme: state.theme }); } catch (e) { url = null; }
+  if (url) { artCache.set(key, url); if (artCache.size > 24) artCache.delete(artCache.keys().next().value); }
+  return url;
+}
+
+// ── Yerel ses (yalnız uygulamada): istasyon sırası yerel çalma listesi olur; kilit ekranı ve kulaklık
+//    tuşları (oynat/duraklat, sonraki/önceki istasyon) uygulama arka plandayken de çalışır. ──
+const NativeAudio = (() => {
+  let loadId = 0, loadKey = '', cityId = null, startToken = -1, everPlayed = false, lastVol = 1;
+  return {
+    start(token, i, list, city) {
+      const tracks = list.filter(st => !st.demo).map(st => ({ url: st.url, title: st.name }));
+      const key = city.id + '|' + tracks.map(t => t.url).join('|');
+      startToken = token; cityId = city.id;
+      if (key === loadKey) { nativePost({ type: 'audio:skipTo', loadId, index: i }); return; }
+      loadKey = key; loadId++; everPlayed = false;
+      nativePost({ type: 'audio:load', loadId, index: i, tracks, meta: { artist: `${city.name} · ${city.country}`, album: 'wGlobe · canlı radyo', artwork: cityArt(city, 512) } });
+    },
+    pause() { if (loadKey) nativePost({ type: 'audio:pause', loadId }); },
+    volume(v) { v = Math.round(clamp(v, 0, 1) * 100) / 100; if (v !== lastVol) { lastVol = v; nativePost({ type: 'audio:volume', v }); } },
+    /** Yerelden gelen durum: çalıyor / tamponda / sıra değişti (kilit ekranından sonraki) / hepsi düştü */
+    onState(m) {
+      if (m.loadId !== loadId || state.activeCityId !== cityId) return;
+      if (Number.isInteger(m.index) && state.queue.stations && m.index !== state.index && state.queue.stations[m.index]) { state.index = m.index; renderSheetDynamic(); }
+      if (m.failed) { if (startToken === attemptToken) setStatus('error'); return; }
+      if (m.playing) {
+        everPlayed = true;
+        if (startToken === attemptToken && state.status !== 'playing') { clearTimeout(startTimer); onStarted(startToken); }
+        else if (state.status !== 'playing') { attemptToken++; startToken = attemptToken; setStatus('playing'); }   // kilit ekranından sürdürüldü
+      } else if (m.buffering) { if (state.status === 'playing' || state.status === 'paused') setStatus('loading'); }
+      else if (everPlayed && (state.status === 'playing' || state.status === 'loading')) { attemptToken++; setStatus('paused'); }   // kilit ekranından duraklatıldı
+    },
+  };
+})();
+function onNativeMessage(raw) {
+  let m = raw; try { if (typeof raw === 'string') m = JSON.parse(raw); } catch (e) { return; }
+  if (!m || typeof m !== 'object') return;
+  if (m.type === 'audio:state') NativeAudio.onState(m);
+  else if (m.type === 'link' && m.params) openSharedLink(m.params);
+}
+window.wglobeNative = onNativeMessage;   // yerel taraf injectJavaScript ile çağırır
+
+/** Önceki istasyon (kilit ekranı/kulaklık 'önceki' tuşu) */
+async function prev() {
+  if (!state.queue.stations) return play(); Ambient.unlock(); failedAttempts = 0; const token = ++attemptToken; clearTimeout(startTimer);
+  const n = state.queue.stations.length, wasPlaying = state.status === 'playing'; setStatus('loading'); if (wasPlaying && !NATIVE) { Sound.fadeOut(); await sleep(DUR.audioOut); }
+  if (token === attemptToken) startAttempt((state.index - 1 + n) % n, false);
+}
+
+// ── Kilit ekranı ve kulaklık (web sitesi): Media Session ──
+const MS = 'mediaSession' in navigator && !NATIVE;
+let msKey = '', msArtUrl = null;
+function mediaSync() {
+  if (!MS) return;
+  const city = CITY[state.activeCityId], st = currentStation(), s = state.status;
+  try { navigator.mediaSession.playbackState = s === 'playing' ? 'playing' : s === 'idle' ? 'none' : 'paused'; } catch (e) {}
+  if (!city) return;
+  const key = `${city.id}|${st ? st.uuid : ''}|${state.theme}`;
+  if (key === msKey) return; msKey = key;
+  const meta = { title: st && !st.demo ? st.name : `${city.name} radyoları`, artist: `${city.name} · ${city.country}`, album: 'wGlobe · canlı radyo' };
+  const apply = art => { try { navigator.mediaSession.metadata = new MediaMetadata(Object.assign(meta, art ? { artwork: [{ src: art, sizes: '512x512', type: 'image/jpeg' }] } : {})); } catch (e) {} };
+  const data = cityArt(city, 512);
+  if (!data) { apply(null); return; }
+  fetch(data).then(r => r.blob()).then(b => { if (msKey !== key) return; if (msArtUrl) URL.revokeObjectURL(msArtUrl); msArtUrl = URL.createObjectURL(b); apply(msArtUrl); }).catch(() => apply(null));
+}
+if (MS) {
+  const on = (a, f) => { try { navigator.mediaSession.setActionHandler(a, f); } catch (e) {} };
+  on('play', () => { Ambient.unlock(); play(); });
+  on('pause', () => pause());
+  on('stop', () => pause());
+  on('nexttrack', () => next());
+  on('previoustrack', () => prev());
+  on('seekbackward', null); on('seekforward', null); on('seekto', null);
+}
+
+// ── Paylaşım kartı ──
+function shareLink(city, st) {
+  const q = new URLSearchParams({ c: city.id });
+  if (!CITIES.includes(city)) { q.set('n', city.name); q.set('co', city.country || ''); q.set('cc', city.countryCode || ''); q.set('la', city.lat.toFixed(4)); q.set('lo', city.lng.toFixed(4)); q.set('tz', city.timezone || 'UTC'); }
+  if (st && !st.demo && !st.fallback && st.url) { q.set('su', st.url); q.set('sn', st.name); q.set('st', st.uuid); }
+  return SITE_URL + '?' + q.toString();
+}
+/** '#RRGGBB' + saydamlık → rgba() (kartın üst kısmındaki geçiş için) */
+function hexA(h, a) { const n = parseInt(String(h).replace('#', ''), 16) || 0; return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`; }
+function fitText(g, text, font, maxW, startPx, minPx) {
+  let px = startPx; do { g.font = font.replace('{px}', px); if (g.measureText(text).width <= maxW) break; px -= 4; } while (px > minPx); return px;
+}
+async function buildShareCard(city, st) {
+  const W = 1080, H = 1350, cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+  const g = cv.getContext('2d'), th = THEMES[state.theme] || THEMES.classic, light = isLightTheme(state.theme);
+  const bg = th.p.background || '#000000', ink = light ? '#141414' : '#F2F7FF', ink2 = light ? 'rgba(20,20,20,0.62)' : 'rgba(232,240,255,0.66)', acc = light ? '#2A4E7A' : '#A9D3FF';
+  try { await Promise.race([Promise.all(['700 120px "Bricolage Grotesque"', '500 40px Geist', '500 28px "Geist Mono"'].map(f => document.fonts.load(f))), sleep(1500)]); } catch (e) {}
+  g.fillStyle = bg; g.fillRect(0, 0, W, H);
+  const S = 880, art = (() => { try { return Globe.snapshotView({ w: S, h: S, lat: city.lat, lng: city.lng, r: 372, cy: S * 0.5, pitch: 0.18, theme: state.theme }); } catch (e) { return null; } })();
+  const pin = Globe.snapshotView.pin;
+  const TOP = 30; if (art) { const im = new Image(); im.src = art; await im.decode().catch(() => {}); g.drawImage(im, (W - S) / 2, TOP, S, S); }
+  if (art && pin) {   // şehrin üstünde nabız halkaları
+    const px = (W - S) / 2 + pin.x * S, py = TOP + pin.y * S;
+    [[34, 0.25], [20, 0.45]].forEach(([r, a]) => { g.beginPath(); g.arc(px, py, r, 0, TAU); g.strokeStyle = `rgba(234,244,255,${a})`; g.lineWidth = 3; g.stroke(); });
+    g.beginPath(); g.arc(px, py, 9, 0, TAU); g.fillStyle = '#EAF4FF'; g.fill();
+  }
+  const grd = g.createLinearGradient(0, 700, 0, 960); grd.addColorStop(0, hexA(bg, 0)); grd.addColorStop(1, hexA(bg, 1)); g.fillStyle = grd; g.fillRect(0, 700, W, 260); g.fillStyle = bg; g.fillRect(0, 960, W, H - 960);
+  const X = 84; g.textBaseline = 'alphabetic';
+  const Y0 = 950; g.fillStyle = acc; g.font = '500 28px "Geist Mono", monospace'; g.fillText('ŞU AN DİNLİYORUM', X, Y0);
+  const name = city.name; const px = fitText(g, name, '700 {px}px "Bricolage Grotesque", sans-serif', W - 2 * X, 124, 60);
+  const yCity = Y0 + 18 + px * 0.92;
+  g.fillStyle = ink; g.font = `700 ${px}px "Bricolage Grotesque", sans-serif`; g.fillText(name, X, yCity);
+  let t = ''; try { t = cityTime(city.timezone).slice(0, 5); } catch (e) {}
+  g.fillStyle = ink2; g.font = '500 36px Geist, sans-serif'; g.fillText(`${city.country}${t ? ' · yerel saat ' + t : ''}`, X, yCity + 64);
+  if (st && !st.demo) { const sn = st.name.length > 40 ? st.name.slice(0, 39) + '…' : st.name; g.fillStyle = ink; g.font = '600 40px Geist, sans-serif'; g.fillText(sn, X, yCity + 126); }
+  g.fillStyle = light ? 'rgba(20,20,20,0.14)' : 'rgba(232,240,255,0.14)'; g.fillRect(X, H - 112, W - 2 * X, 2);
+  g.fillStyle = ink2; g.font = '500 24px "Geist Mono", monospace'; g.fillText('wGlobe · dünyanın radyosu', X, H - 62);
+  g.textAlign = 'right'; g.fillText('bolut916.github.io/wGlobe', W - X, H - 62); g.textAlign = 'left';
+  return cv;
+}
+let shareState = null;
+async function openShare() {
+  const city = CITY[state.activeCityId]; if (!city) return;
+  const st = currentStation(), url = shareLink(city, st), text = `${city.name} radyosunu wGlobe'da dinliyorum${st && !st.demo ? ' · ' + st.name : ''}`;
+  vibrate(8);
+  const el = $('#share'); el.classList.add('open'); el.setAttribute('aria-hidden', 'false'); el.classList.add('busy');
+  $('#shImg').removeAttribute('src');
+  const cv = await buildShareCard(city, st);
+  const dataUrl = cv.toDataURL('image/jpeg', 0.9);
+  shareState = { city, url, text, dataUrl, blob: await new Promise(r => cv.toBlob(r, 'image/jpeg', 0.9)) };
+  $('#shImg').src = dataUrl; el.classList.remove('busy');
+}
+function closeShare() { const el = $('#share'); el.classList.remove('open'); el.setAttribute('aria-hidden', 'true'); }
+async function doShare() {
+  const s = shareState; if (!s) return;
+  if (NATIVE) { nativePost({ type: 'share', image: s.dataUrl, url: s.url, text: s.text, title: 'wGlobe' }); return; }
+  const file = s.blob ? new File([s.blob], `wglobe-${s.city.id}.jpg`, { type: 'image/jpeg' }) : null;
+  try {
+    if (file && navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: 'wGlobe', text: s.text + '\n' + s.url }); closeShare(); return; }
+    if (navigator.share) { await navigator.share({ title: 'wGlobe', text: s.text, url: s.url }); closeShare(); return; }
+  } catch (e) { if (e && e.name === 'AbortError') return; }
+  copyLink();
+}
+async function copyLink() {
+  const s = shareState; if (!s) return;
+  try { await navigator.clipboard.writeText(s.url); toast('Bağlantı kopyalandı'); }
+  catch (e) { const ta = document.createElement('textarea'); ta.value = s.url; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); toast('Bağlantı kopyalandı'); } catch (err) { toast(s.url); } ta.remove(); }
+}
+function saveCard() {
+  const s = shareState; if (!s || !s.blob) return;
+  if (NATIVE) { nativePost({ type: 'share', image: s.dataUrl, url: s.url, text: s.text, title: 'wGlobe' }); return; }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(s.blob); a.download = `wglobe-${s.city.id}.jpg`; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000); toast('Görsel kaydedildi');
+}
+$('#shGo').addEventListener('click', doShare);
+$('#shCopy').addEventListener('click', copyLink);
+$('#shSave').addEventListener('click', saveCard);
+$('#shClose').addEventListener('click', closeShare);
+$('#share').addEventListener('click', e => { if (e.target === $('#share')) closeShare(); });
+
+/** Paylaşılan bağlantı: ?c=şehir (+ yer bilgisi) (+ istasyon). Uygulama doğrudan o şehirde açılır. */
+function readLinkParams(search) {
+  const q = new URLSearchParams(search || ''); const c = q.get('c'); if (!c) return null;
+  const o = {}; q.forEach((v, k) => { o[k] = v; }); return o;
+}
+let pendingLink = readLinkParams(location.search);
+function openSharedLink(p) {
+  if (!p || !p.c) return;
+  let city = CITY[p.c];
+  const la = parseFloat(p.la), lo = parseFloat(p.lo);
+  if (!city && Number.isFinite(la) && Number.isFinite(lo)) city = registerPlace({ id: String(p.c).slice(0, 40), name: (p.n || 'Paylaşılan yer').slice(0, 60), country: (p.co || '').slice(0, 60), lat: la, lng: lo, timezone: p.tz || 'UTC', countryCode: (p.cc || '').slice(0, 3).toUpperCase(), vibeTag: Math.abs(la) < 23.5 ? 'Tropikal Ritimler' : Math.abs(la) > 55 ? 'Yağmurlu Sokaklar' : 'Sabah Kahvesi' });
+  if (!city) { toast('Paylaşılan yer bulunamadı'); return; }
+  const su = p.su && /^https:\/\//i.test(p.su) ? p.su : null;
+  if (state.view !== 'app') { if (!state.auth) { state.auth = 'guest'; save(); } enterApp(); }
+  if (state.tab !== 'globe') setTab('globe');
+  state.pinned = su ? { cityId: city.id, stations: [{ uuid: p.st || ('link-' + city.id), name: (p.sn || 'Paylaşılan istasyon').slice(0, 80), url: su, codec: 'MP3', bitrate: 0, fallback: false }] } : null;
+  if (state.activeCityId === city.id) state.activeCityId = null;
+  MapGlobe.takeControl(); handleSelect(city);
+  toast(`${city.name} · paylaşılan radyo`);
+}
+
+// ── Uçuş modu: küre her dakika uzak bir şehre süzülür, radyo değişir, şehir adı sinematik belirir ──
+const FLIGHT_LEG_MS = 60000;
+const flight = { on: false, timer: 0, titleTimer: 0, recent: [], leg: 0 };
+function pickFlightCity() {
+  const cur = CITY[state.activeCityId];
+  let pool = CITIES.filter(c => !flight.recent.includes(c.id) && (!cur || c.id !== cur.id));
+  if (cur) { const far = pool.filter(c => kmBetween([cur.lat, cur.lng], [c.lat, c.lng]) > 3000); if (far.length > 8) pool = far; }
+  return pool[Math.floor(Math.random() * pool.length)] || CITIES[0];
+}
+function flightTitle(city) {
+  const box = $('#flCard'); box.classList.remove('in'); void box.offsetWidth;
+  $('#flCity').innerHTML = [...city.name].map((ch, i) => `<span style="--i:${i}">${ch === ' ' ? '&nbsp;' : esc(ch)}</span>`).join('');
+  let t = ''; try { t = cityTime(city.timezone).slice(0, 5); } catch (e) {}
+  $('#flMeta').textContent = `${city.countryCode} · ${city.country.toLocaleUpperCase('tr-TR')} · ${t}`;
+  $('#flSt').textContent = 'Yayın aranıyor…';
+  box.classList.add('in');
+}
+function flightSync() {
+  if (!flight.on) return;
+  const st = currentStation(), s = state.status;
+  $('#flSt').textContent = s === 'playing' && st ? (st.demo ? 'Önizleme sesi' : st.name) : s === 'error' ? 'Bu şehirde yayın açılamadı' : 'Yayın aranıyor…';
+}
+function flightLeg() {
+  if (!flight.on) return;
+  clearTimeout(flight.timer); clearTimeout(flight.titleTimer);
+  const city = pickFlightCity(); flight.recent.push(city.id); if (flight.recent.length > 12) flight.recent.shift(); flight.leg++;
+  $('#flLeg').textContent = `${String(flight.leg).padStart(2, '0')}. DURAK`;
+  $('#flCard').classList.add('out');
+  if (state.sheetOpen) openSheet(false);
+  state.interacted = true; Ambient.unlock(); selectCity(city);
+  if (!MapGlobe.cruise(city)) Globe.setActive(city.id, true, 0, 2400);
+  // Kamera varmadan hemen önce başlık yükselir; ilerleme çizgisi bacak boyunca dolar
+  flight.titleTimer = setTimeout(() => { $('#flCard').classList.remove('out'); flightTitle(city); flightSync(); }, reduceMotion.matches ? 0 : 2600);
+  const bar = $('#flBar'); bar.style.transition = 'none'; bar.style.transform = 'scaleX(0)'; void bar.offsetWidth;
+  bar.style.transition = `transform ${FLIGHT_LEG_MS}ms linear`; bar.style.transform = 'scaleX(1)';
+  flight.timer = setTimeout(flightLeg, FLIGHT_LEG_MS);
+}
+function startFlight() {
+  if (flight.on) return;
+  flight.on = true; flight.leg = 0; vibrate([8, 40, 8]);
+  $('#pane-globe').classList.add('flying-mode'); $('#flight').hidden = false; $('#flightBtn').classList.add('on'); $('#flightBtn').setAttribute('aria-pressed', 'true');
+  $('#search') && Search.reset();
+  MapGlobe.onUserMove(() => stopFlight(true));
+  flightLeg();
+}
+function stopFlight(byUser) {
+  if (!flight.on) return;
+  flight.on = false; clearTimeout(flight.timer); clearTimeout(flight.titleTimer);
+  MapGlobe.onUserMove(null);
+  $('#pane-globe').classList.remove('flying-mode'); $('#flightBtn').classList.remove('on'); $('#flightBtn').setAttribute('aria-pressed', 'false');
+  $('#flCard').classList.remove('in'); $('#flight').hidden = true;
+  updateDock();
+  if (byUser) toast('Uçuş bitti · kontrol sende');
+}
+$('#flightBtn').addEventListener('click', () => { flight.on ? stopFlight(false) : startFlight(); });
+$('#flStop').addEventListener('click', () => stopFlight(false));
+$('#flNext').addEventListener('click', () => { vibrate(6); flightLeg(); });
+$('#globeStage').addEventListener('pointerdown', () => { if (flight.on) stopFlight(true); });
+
+// ═════════════════════════════════════════════════════════
 //  BAŞLAT
 // ═════════════════════════════════════════════════════════
 hydrateIcons();
@@ -4413,6 +4821,8 @@ renderLive(); $('#hint').classList.add('show'); tickClock();
 if (state.activeCityId) renderSheet();
 
 function afterIntro() {
+  // Paylaşılan bağlantıyla gelindiyse doğrudan o şehre (gerekirse misafir olarak)
+  if (pendingLink) { const p = pendingLink; pendingLink = null; try { window.history.replaceState(null, '', location.pathname + location.hash); } catch (e) {} if (!state.auth) { state.auth = 'guest'; save(); } enterApp(); setTimeout(() => openSharedLink(p), 900); return; }
   // Hesabı (veya misafir oturumu) olan doğrudan ana sayfaya; yeni kullanıcı karşılama ekranına (Giriş / Üye ol / Misafir).
   if (state.auth) { enterApp(); }
   else { state.view = 'welcome'; $('#welcome').classList.add('choose'); mountGlobe(); }

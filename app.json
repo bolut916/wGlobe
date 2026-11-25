@@ -6,13 +6,13 @@
     "scheme": "wglobe",
     "orientation": "portrait",
     "userInterfaceStyle": "dark",
-    "backgroundColor": "#07090F",
+    "backgroundColor": "#050B18",
     "newArchEnabled": true,
     "icon": "./assets/images/icon.png",
     "splash": {
       "image": "./assets/images/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#07090F"
+      "backgroundColor": "#050B18"
     },
     "ios": {
       "bundleIdentifier": "com.wglobe.app",
@@ -48,7 +48,7 @@
       "versionCode": 1,
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#07090F"
+        "backgroundColor": "#050B18"
       },
       "edgeToEdgeEnabled": true,
       "usesCleartextTraffic": false,
@@ -86,7 +86,7 @@
           "image": "./assets/images/splash.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#07090F"
+          "backgroundColor": "#050B18"
         }
       ]
     ],
