@@ -772,6 +772,49 @@ svg.i.filled { fill: currentColor; }
 .share.busy .sh-act { opacity: 0.45; pointer-events: none; }
 @media (prefers-reduced-motion: reduce) { .fl-card.in .fl-city span { animation-duration: 1ms; animation-delay: 0ms; } }
 
+/* Görev satırı (küre ayrıntısı) */
+.th-quest { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; padding: 12px 14px; border-radius: 18px; background: rgba(232,240,255,0.05); box-shadow: inset 0 0 0 1px rgba(232,240,255,0.1); max-width: 360px; }
+.th-quest[hidden] { display: none !important; }
+.th-quest .q-row { display: flex; align-items: center; gap: 8px; font-size: 13.5px; line-height: 18px; color: var(--fg); }
+.th-quest .q-ic { color: var(--a2); display: grid; flex: none; }
+.th-quest .q-t { flex: 1; min-width: 0; }
+.th-quest .q-n { flex: none; font-size: 11px; color: var(--fg-2); }
+.th-quest .q-bar { height: 4px; border-radius: 2px; background: rgba(232,240,255,0.1); overflow: hidden; }
+.th-quest .q-bar i { display: block; height: 100%; border-radius: 2px; background: var(--grad); transform-origin: left; transform: scaleX(0); transition: transform 700ms var(--e-enter); }
+.th-quest.nudge { animation: qNudge 420ms var(--e-spring); }
+@keyframes qNudge { 0%, 100% { transform: none; } 30% { transform: translateX(-6px); } 60% { transform: translateX(5px); } }
+.th.ink-dark .th-quest { background: rgba(20,20,20,0.06); box-shadow: inset 0 0 0 1px rgba(20,20,20,0.12); }
+.th.ink-dark .th-quest .q-row { color: #141414; }
+.th.ink-dark .th-quest .q-bar { background: rgba(20,20,20,0.12); }
+/* Çekmecede kilitli bilyelerin ilerlemesi */
+.pkd-prog { display: none; width: 56px; height: 3px; border-radius: 2px; background: rgba(232,240,255,0.1); overflow: hidden; }
+.pkd-item.has-q .pkd-prog { display: block; }
+.pkd-prog i { display: block; height: 100%; background: var(--grad); transform-origin: left; transform: scaleX(0); }
+.pkd-item.locked .mb-img { filter: saturate(0.55) brightness(0.8); }
+/* Yeni küre açıldı: kart yukarıdan yaylanarak iner, bilye büyüyerek oturur, ışık halkası açılır */
+.unlock { position: absolute; left: 12px; right: 12px; top: calc(var(--sat) + 10px); z-index: 95; display: flex; justify-content: center; pointer-events: none; }
+.unlock[hidden] { display: none !important; }
+.ul-card { pointer-events: auto; position: relative; width: 100%; max-width: 420px; display: flex; align-items: center; gap: 14px; padding: 12px 16px 12px 12px; border-radius: 28px; text-align: left;
+  background: rgba(10,19,40,0.94); box-shadow: inset 0 0 0 1px rgba(205,230,255,0.28), 0 20px 50px rgba(2,6,16,0.6); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px);
+  transform: translateY(-140%); opacity: 0; }
+.unlock.in .ul-card { animation: ulIn 620ms var(--e-spring) forwards; }
+.unlock.out .ul-card { animation: ulOut 280ms var(--e-exit) forwards; }
+@keyframes ulIn { from { transform: translateY(-140%); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes ulOut { from { transform: none; opacity: 1; } to { transform: translateY(-140%); opacity: 0; } }
+.ul-orb { position: relative; width: 62px; height: 62px; flex: none; border-radius: 50%; transform: scale(0.3); }
+.ul-orb img { width: 100%; height: 100%; display: block; border-radius: 50%; }
+.unlock.in .ul-orb { animation: ulOrb 720ms var(--e-spring) 140ms forwards; }
+@keyframes ulOrb { 0% { transform: scale(0.3) rotate(-30deg); } 70% { transform: scale(1.12) rotate(4deg); } 100% { transform: none; } }
+.ul-orb::after { content: ""; position: absolute; inset: -2px; border-radius: 50%; border: 2px solid rgba(205,230,255,0.9); opacity: 0; }
+.unlock.in .ul-orb::after { animation: ulRing 1000ms var(--e-standard) 360ms; }
+@keyframes ulRing { 0% { transform: scale(1); opacity: 0.9; } 100% { transform: scale(2.2); opacity: 0; } }
+.ul-tx { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.ul-label { font-family: var(--mono); font-size: 10px; letter-spacing: 0.16em; color: var(--a1); }
+.ul-tx b { font-family: var(--display); font-size: 20px; line-height: 24px; font-weight: 700; letter-spacing: -0.02em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ul-sub { font-size: 12.5px; line-height: 16px; color: var(--fg-2); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.ul-go { color: var(--fg-2); display: grid; flex: none; }
+@media (prefers-reduced-motion: reduce) { .unlock.in .ul-card, .unlock.in .ul-orb { animation: none; transform: none; opacity: 1; } .unlock.in .ul-orb::after { animation: none; } }
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 1ms !important; animation-iteration-count: 1 !important; transition-duration: 1ms !important; transition-delay: 0ms !important; }
 }
@@ -914,6 +957,7 @@ svg.i.filled { fill: currentColor; }
             <div class="th-info">
               <div class="th-row"><h2 class="th-name" id="thName"></h2><span class="label" id="thState"></span></div>
               <p class="th-desc" id="thDesc"></p>
+              <div class="th-quest" id="thQuest" hidden><span class="q-row"><span class="q-ic" data-icon="sparkles" data-size="14"></span><span class="q-t"></span><span class="q-n num"></span></span><span class="q-bar"><i></i></span></div>
               <button class="btn press th-action" id="themeAction"><span class="lbl"></span><span class="spin"></span></button>
             </div>
             <div class="th-pocket-space"></div>
@@ -969,6 +1013,9 @@ svg.i.filled { fill: currentColor; }
             <div class="sh-row"><button class="btn line press" id="shCopy"><span class="lbl"><span data-icon="link" data-size="17"></span>Bağlantı</span></button><button class="btn line press" id="shSave"><span class="lbl"><span data-icon="download" data-size="17"></span>Kaydet</span></button></div>
           </div>
         </div>
+      </div>
+      <div class="unlock" id="unlock" hidden aria-live="polite">
+        <button class="ul-card" id="ulCard" aria-label="Yeni küreyi koleksiyonda gör"><span class="ul-orb" id="ulOrb"></span><span class="ul-tx"><span class="ul-label" id="ulLabel">YENİ KÜRE AÇILDI</span><b id="ulName"></b><span class="ul-sub" id="ulSub"></span></span><span class="ul-go" data-icon="arrow-right" data-size="18"></span></button>
       </div>
       <div class="toast" id="toast" role="status"></div>
     </div>
@@ -1387,7 +1434,7 @@ try { const saved = JSON.parse(localStorage.getItem(STORE_KEY) || 'null'); if (s
 if (!state.uid) state.uid = Math.random().toString(36).slice(2, 10);
 if (!Number.isFinite(state.listenMs)) state.listenMs = 0;
 function save() {
-  try { const { auth, email, theme, unlocked, favorites, visits, lastCityId, listenMs, joinedAt, uid, prefs } = state; localStorage.setItem(STORE_KEY, JSON.stringify({ auth, email, theme, unlocked, favorites, visits, lastCityId, listenMs, joinedAt, uid, prefs })); } catch (e) {}
+  try { const { auth, email, theme, unlocked, favorites, visits, lastCityId, listenMs, joinedAt, uid, prefs, stats } = state; localStorage.setItem(STORE_KEY, JSON.stringify({ auth, email, theme, unlocked, favorites, visits, lastCityId, listenMs, joinedAt, uid, prefs, stats })); } catch (e) {}
 }
 
 // ═════════════════════════════════════════════════════════
@@ -2600,7 +2647,7 @@ function failover(token, tried = 1) {
   startAttempt((state.index + tried) % state.queue.stations.length, true);
 }
 function onStarted(token) {
-  if (token !== attemptToken) return; failedAttempts = 0; msPlayCount++;
+  if (token !== attemptToken) return; failedAttempts = 0; msPlayCount++; setTimeout(() => evaluateQuests(false), 900);
   const city = CITY[state.activeCityId]; setStatus('playing');
   const lastV = state.visits[0];
   if (!lastV || lastV.cityId !== city.id || Date.now() - new Date(lastV.visitedAt) > 30 * 60 * 1000) {
@@ -2808,7 +2855,7 @@ const SatMosaic = (() => {
 })();
 
 /** Sürüm etiketi: sitede hangi sürümün açık olduğunu rozetten görmek için (önbellek kontrolü). */
-const BUILD = 'v30';
+const BUILD = 'v31';
 const MapGlobe = (() => {
   const host = document.getElementById('mapStage');
   const badge = document.getElementById('lodBadge');
@@ -3626,7 +3673,7 @@ function toggleFavorite() {
   const heart = $('#favBtn .heart'); if (heart) { heart.classList.remove('pop'); void heart.offsetWidth; heart.classList.add('pop'); }
   const i = state.favorites.findIndex(f => f.stationUuid === st.uuid);
   if (i >= 0) { state.favorites.splice(i, 1); vibrate(6); } else { state.favorites.unshift({ id: 'f' + Date.now(), stationUuid: st.uuid, stationName: st.name, cityId: city.id, cityName: city.name, countryCode: city.countryCode, index: state.index }); vibrate([8, 40, 8]); }
-  save(); renderSheetDynamic();
+  save(); renderSheetDynamic(); if (i < 0) setTimeout(() => evaluateQuests(false), 600);
 }
 function tickClock() {
   const city = CITY[state.activeCityId], el = $('#sheetClock'); if (city && el) el.textContent = cityTime(city.timezone);
@@ -4073,7 +4120,7 @@ function updateInk() {
 }
 const isLightTheme = id => { const c = new THREE.Color(THEMES[id].p.background); return (0.2126 * c.r + 0.7152 * c.g + 0.0722 * c.b) > 0.5; };
 function orbStyle(p) { return `background: radial-gradient(circle at 34% 30%, ${p.oceanShallow} 0%, ${p.oceanDeep} 55%, ${p.landLow} 100%); box-shadow: inset -6px -8px 14px rgba(0,0,0,0.42), inset 4px 4px 10px ${p.landHigh}66;`; }
-function themeStateLabel(id) { return state.theme === id ? 'kullanılıyor' : state.unlocked.includes(id) ? 'koleksiyonda' : 'kilitli · önizleme'; }
+function themeStateLabel(id) { return state.theme === id ? 'kullanılıyor' : state.unlocked.includes(id) ? 'koleksiyonda' : 'kilitli · görevle açılır'; }
 /** Yazılar: dir = 0 anında, ±1 o yöne çıkar ve karşı yönden girer */
 function renderThemes(dir, delayIn = 210) {
   const id = state.previewTheme, t = THEMES[id], unlocked = state.unlocked.includes(id), selected = state.theme === id, idx = THEME_ORDER.indexOf(id);
@@ -4081,7 +4128,7 @@ function renderThemes(dir, delayIn = 210) {
   const ser = SERIES.find(x => x.id === THEME_SERIES[id]);
   $('#thCount').textContent = `${ser ? ser.name.toLocaleUpperCase('tr-TR') + ' · ' : ''}${String(idx + 1).padStart(3, '0')} / ${THEME_ORDER.length}`;
   const swaps = [$('#thName'), $('#thState'), $('#thDesc')];
-  const fill = () => { $('#thName').textContent = t.name; $('#thDesc').textContent = t.desc; const el = $('#thState'); el.textContent = themeStateLabel(id); el.classList.toggle('accent', selected || unlocked); };
+  const fill = () => { $('#thName').textContent = t.name; $('#thDesc').textContent = t.desc; const el = $('#thState'); el.textContent = themeStateLabel(id); el.classList.toggle('accent', selected || unlocked); renderQuestLine(id); };
   themeAnims.forEach(a => a.cancel()); themeAnims = [];
   if (!dir || reduceMotion.matches) fill();
   else {
@@ -4094,8 +4141,8 @@ function renderThemes(dir, delayIn = 210) {
     }, delayIn);
   }
   const btn = $('#themeAction');
-  btn.className = `btn press th-action ${selected ? 'line' : unlocked ? 'solid' : 'brass'} ${themeBusy ? 'loading' : ''}`; btn.disabled = selected;
-  btn.querySelector('.lbl').innerHTML = selected ? icon('check', 17) + 'Küre bu temayı kullanıyor' : unlocked ? icon('sparkles', 17) + 'Küreye uygula' : icon('lock-open', 17) + 'Kilidi aç ve uygula';
+  btn.className = `btn press th-action ${selected || !unlocked ? 'line' : 'solid'} ${themeBusy ? 'loading' : ''}`; btn.disabled = selected || !unlocked;
+  btn.querySelector('.lbl').innerHTML = selected ? icon('check', 17) + 'Küre bu temayı kullanıyor' : unlocked ? icon('sparkles', 17) + 'Küreye uygula' : icon('lock', 17) + 'Görevi tamamla, küre senin olsun';
 }
 // ── Cep → çekmece: 100 küre, 10 seri ──
 // Kapalı: cam tepside önizlenen küre ve serideki 3 komşusu süzülür. Dokun → çekmece yaylanarak açılır (560 ms),
@@ -4116,9 +4163,22 @@ function buildDrawer() {
   $('#pkdSeries').innerHTML = SERIES.map(sr => `<button class="pkd-chip press" data-series="${sr.id}">${esc(sr.name)}</button>`).join('');
   let k = 0;
   $('#pkdGrid').innerHTML = SERIES.map(sr => `<section class="pkd-sec" id="pkd-${sr.id}" data-series="${sr.id}"><div class="pkd-sh"><b>${esc(sr.name)}</b><span class="label">${sr.themes.length} küre</span></div>
-    <div class="pkd-items">${sr.themes.map(row => { const tid = row[0]; return `<button class="pkd-item press" data-theme-id="${tid}" style="--i:${k++}" aria-label="${esc(THEMES[tid].name)}">${marbleImg(tid)}<span class="pkd-n"></span><span class="pkd-use"></span></button>`; }).join('')}</div></section>`).join('');
+    <div class="pkd-items">${sr.themes.map(row => { const tid = row[0]; return `<button class="pkd-item press" data-theme-id="${tid}" style="--i:${k++}" aria-label="${esc(THEMES[tid].name)}">${marbleImg(tid)}<span class="pkd-n"></span><span class="pkd-prog"><i></i></span><span class="pkd-use"></span></button>`; }).join('')}</div></section>`).join('');
+}
+/** Küre ayrıntısında görev satırı: metin + ilerleme çizgisi (kilitliyse) */
+function renderQuestLine(id) {
+  const el = $('#thQuest'); if (!el) return;
+  const un = state.unlocked.includes(id), q = un ? null : questOf(id);
+  el.hidden = !q; if (!q) return;
+  el.querySelector('.q-t').textContent = q.text;
+  el.querySelector('.q-n').textContent = `${Math.floor(q.have)} / ${q.need}`;
+  el.querySelector('.q-bar i').style.transform = `scaleX(${q.have / q.need})`;
 }
 function renderPocket() {
+  questCtx.cache = questCtx();
+  try { renderPocketInner(); } finally { questCtx.cache = null; }
+}
+function renderPocketInner() {
   const ids = trayIds();
   $('#pkMarbles').innerHTML = ids.map((tid, k) => `<span class="marble" data-theme-id="${tid}" style="--i:${k}">${marbleImg(tid)}</span>`).join('');
   $('#pkLabels').innerHTML = ids.map(tid => `<span class="${tid === state.previewTheme ? 'on' : ''}">${state.unlocked.includes(tid) ? '' : icon('lock', 9)}${THEMES[tid].short}</span>`).join('');
@@ -4130,6 +4190,8 @@ function renderPocket() {
     b.classList.toggle('on', tid === state.previewTheme); b.classList.toggle('used', tid === state.theme); b.classList.toggle('locked', !un);
     const n = b.querySelector('.pkd-n'), html = `${un ? '' : icon('lock', 9)}${esc(THEMES[tid].name)}`; if (n.innerHTML !== html) n.innerHTML = html;
     b.querySelector('.pkd-use').textContent = tid === state.theme ? 'KULLANILIYOR' : '';
+    const qo = un ? null : questOf(tid), bar = b.querySelector('.pkd-prog i');
+    b.classList.toggle('has-q', !!qo); if (bar) bar.style.transform = `scaleX(${qo ? qo.have / qo.need : 0})`;
   });
 }
 /** Önizleme görselleri: kare başına iki bilye; tepsidekiler ve görünen seri önce. */
@@ -4245,6 +4307,7 @@ function changeTheme(id) {
 }
 async function themeAction() {
   const id = state.previewTheme, unlocked = state.unlocked.includes(id);
+  if (!unlocked) { vibrate([10, 40, 10]); const q = $('#thQuest'); q.classList.remove('nudge'); void q.offsetWidth; q.classList.add('nudge'); return; }
   themeBusy = true; renderThemes(0); await sleep(450); themeBusy = false;
   if (!unlocked) state.unlocked.push(id);
   state.theme = id; save(); MapGlobe.setTheme(id); vibrate([8, 40, 8]); renderThemes(0); renderPocket(); updateInk();
@@ -4561,6 +4624,163 @@ $('#registerForm').addEventListener('submit', async e => {
 });
 
 // ═════════════════════════════════════════════════════════
+//  KOLEKSİYONU KAZANMA — her küre bir yolculuk görevidir
+// ═════════════════════════════════════════════════════════
+// Görevler dinleme geçmişinden hesaplanır (şehir, ülke, kıta, o şehrin yerel saati, enlem), ayrıca dinleme süresi,
+// favoriler, uçuş durakları ve paylaşımlar. Klasik herkese açıktır. Her serinin görevi temasına uyar.
+function questCtx() {
+  const countries = new Set(), cities = new Set(), conts = new Map(), contCountries = new Map(), zones = new Set();
+  const byCC = new Map(), hourCities = [], latList = [];
+  state.visits.forEach(v => {
+    const x = visitInfo(v), c = CITY[v.cityId] || {}, lat = Number.isFinite(x.lat) ? x.lat : c.lat, lng = Number.isFinite(x.lng) ? x.lng : c.lng;
+    if (x.cc) countries.add(x.cc);
+    if (cities.has(v.cityId)) return;   // aşağıdakiler şehir başına bir kez
+    cities.add(v.cityId);
+    if (x.cc) byCC.set(x.cc, (byCC.get(x.cc) || 0) + 1);
+    const k = continentOf(lat, lng, x.tz);
+    if (k) { conts.set(k, (conts.get(k) || 0) + 1); if (x.cc) { if (!contCountries.has(k)) contCountries.set(k, new Set()); contCountries.get(k).add(x.cc); } }
+    if (x.tz) zones.add(x.tz);
+    if (Number.isFinite(lat)) latList.push(lat);
+  });
+  // Yerel saat pencereleri: şehir başına, herhangi bir ziyaretin o şehrin saatiyle hangi saate düştüğü
+  const hoursByCity = new Map();
+  state.visits.forEach(v => { const x = visitInfo(v); let h = null; try { h = zoned(x.tz || 'UTC', new Date(v.visitedAt)).h; } catch (e) {} if (h === null) return; if (!hoursByCity.has(v.cityId)) hoursByCity.set(v.cityId, new Set()); hoursByCity.get(v.cityId).add(h); });
+  hoursByCity.forEach((hs, id) => hourCities.push({ id, hs }));
+  const st = state.stats || {};
+  return { countries: countries.size, cities: cities.size, conts, contCountries, zones: zones.size, byCC, hourCities, latList,
+    listenMin: Math.floor(listenTotal() / 60000), favs: state.favorites.length, flights: st.flights || 0, shares: st.shares || 0, unlocked: state.unlocked.length, visited: cities };
+}
+const inWin = (h, lo, hi) => lo <= hi ? h >= lo && h < hi : h >= lo || h < hi;
+const hourCount = (c, lo, hi) => c.hourCities.filter(x => [...x.hs].some(h => inWin(h, lo, hi))).length;
+const CONT_TR = { EU: 'Avrupa', AS: 'Asya', AF: 'Afrika', NA: 'Kuzey Amerika', SA: 'Güney Amerika', OC: 'Okyanusya' };
+const durTR = m => m >= 60 ? `${Math.round(m / 60 * 10) / 10} saat`.replace('.', ',') : `${m} dakika`;
+const Q = {
+  countries: n => [`${n} farklı ülkenin radyosunu dinle`, c => [c.countries, n]],
+  cities: n => [`${n} farklı şehrin radyosunu dinle`, c => [c.cities, n]],
+  listen: m => [`Toplam ${durTR(m)} radyo dinle`, c => [c.listenMin, m]],
+  night: n => [`Yerel saatle gece (20:00–05:00) ${n} şehir dinle`, c => [hourCount(c, 20, 5), n]],
+  hour: (lo, hi, n, label) => [`${label} ${n} şehir dinle`, c => [hourCount(c, lo, hi), n]],
+  favs: n => [`${n} istasyonu favorilerine ekle`, c => [c.favs, n]],
+  flights: n => [`Uçuş modunda ${n} durak gez`, c => [c.flights, n]],
+  shares: n => [n === 1 ? 'Bir şehri arkadaşınla paylaş' : `${n} kez paylaşım kartı gönder`, c => [c.shares, n]],
+  cont: (k, n) => [`${CONT_TR[k]}'dan ${n} şehir dinle`.replace("Asya'dan", "Asya'dan").replace("Afrika'dan", "Afrika'dan"), c => [c.conts.get(k) || 0, n]],
+  conts: n => [`${n} kıtadan radyo dinle`, c => [c.conts.size, n]],
+  contCountries: (k, n) => [`${CONT_TR[k]}'da ${n} farklı ülke dinle`, c => [(c.contCountries.get(k) || new Set()).size, n]],
+  cc: (codes, n, label) => [n === 1 ? `${label} bir şehir dinle` : `${label} ${n} şehir dinle`, c => [codes.reduce((s, k) => s + (c.byCC.get(k) || 0), 0), n]],
+  city: (id, label) => [`${label} radyosunu dinle`, c => [c.visited.has(id) ? 1 : 0, 1]],
+  lat: (min, n) => [`${min}° kuzeyin ötesinde ${n} şehir dinle`, c => [c.latList.filter(l => l >= min).length, n]],
+  equator: n => [`Ekvatora yakın (±12°) ${n} şehir dinle`, c => [c.latList.filter(l => Math.abs(l) <= 12).length, n]],
+  tropic: n => [`Tropiklerde ${n} şehir dinle`, c => [c.latList.filter(l => Math.abs(l) <= 23.5).length, n]],
+  hemis: n => [`Kuzey ve güney yarımkürede ${n}'er şehir dinle`, c => [Math.min(n, c.latList.filter(l => l >= 0).length) + Math.min(n, c.latList.filter(l => l < 0).length), 2 * n]],
+  zones: n => [`${n} farklı saat diliminde dinle`, c => [c.zones, n]],
+  unlocked: n => [`Koleksiyonunda ${n} küre topla`, c => [c.unlocked, n]],
+};
+const QUESTS = {
+  // Gerçek Dünya
+  night_lights: Q.hour(0, 4, 1, 'Yerel saatle gece yarısından sonra (00–04)'), altin_saat: Q.hour(17, 19, 3, 'Gün batımı saatinde (17–19)'),
+  kutup_sabahi: Q.lat(60, 1), derin_mavi: Q.cont('OC', 2), yesil_gezegen: Q.cont('SA', 2), col_ruzgari: Q.cont('AF', 2),
+  ay_isigi: Q.flights(5), mavi_bilye: Q.conts(5), kizil_gezegen: Q.listen(180),
+  // Kartografya: kâşif ol
+  parchment: Q.countries(2), deniz_haritasi: Q.countries(3), eski_atlas: Q.countries(4), mavi_kopya: Q.countries(5), sepya: Q.countries(6),
+  kasif_defteri: Q.countries(8), venedik: Q.countries(10), ipek_yolu: Q.countries(12), piri_reis: Q.countries(15), gemici: Q.countries(20),
+  // Minimal: dinle, sadece dinle
+  swiss_minimal: Q.listen(10), bauhaus: Q.listen(30), kar: Q.listen(60), murekkep: Q.listen(90), grafit: Q.listen(120),
+  kagit: Q.listen(180), gece_minimal: Q.listen(300), kum: Q.listen(480), nane: Q.listen(720), iskandinav: Q.listen(1200),
+  // Gece & Işık: gecenin şehirleri
+  kehribar: Q.night(1), kutup_isigi: Q.night(2), neon_tokyo: Q.night(3), mavi_saat: Q.night(5), lav: Q.night(7),
+  yildiz_tozu: Q.night(10), zumrut_gece: Q.night(13), sonar: Q.night(16), sehir_isiklari: Q.night(20), kozmik: Q.night(25),
+  // Mevsimler: şehirler biriktikçe
+  ilkbahar: Q.cities(3), yaz: Q.cities(5), sonbahar: Q.cities(8), kis: Q.cities(10), muson: Q.cities(13),
+  hasat: Q.cities(16), lale: Q.cities(20), kiraz: Q.cities(25), ilk_kar: Q.cities(30), tropikal: Q.cities(40),
+  // Taş & Mineral: değerli istasyonlar
+  mermer: Q.favs(1), obsidyen: Q.favs(2), yesim: Q.favs(3), kehribar_tas: Q.favs(4), lapis: Q.favs(5),
+  bakir: Q.favs(6), akik: Q.favs(8), ametist: Q.favs(10), turkuaz: Q.favs(12), granit: Q.favs(15),
+  // Gökyüzü Saatleri: günün saatleri
+  safak: Q.hour(5, 7, 2, 'Şafakta (05–07)'), gun_ortasi: Q.hour(11, 13, 2, 'Gün ortasında (11–13)'), gun_batimi: Q.hour(17, 19, 5, 'Gün batımında (17–19)'),
+  alacakaranlik: Q.hour(19, 21, 3, 'Alacakaranlıkta (19–21)'), gece_yarisi: Q.hour(23, 1, 3, 'Gece yarısında (23–01)'), kutup_gunesi: Q.lat(60, 3),
+  firtina: Q.cc(['GB', 'IE', 'IS', 'NO'], 2, 'İngiltere, İrlanda, İzlanda ya da Norveç’ten'), sis: Q.hour(6, 9, 4, 'Sabah erkenden (06–09)'),
+  yildizli_gece: Q.hour(1, 4, 3, 'Gece 01–04 arası'), tan_yeri: Q.hour(4, 6, 2, 'Tan vaktinde (04–06)'),
+  // Sanat
+  ukiyoe: Q.cc(['JP'], 1, 'Japonya’dan'), art_deco: Q.cc(['US'], 2, 'ABD’den'), pastel: Q.shares(1), monokrom: Q.shares(2), pop_art: Q.shares(3),
+  risograf: Q.shares(5), suluboya: Q.flights(3), karakalem: Q.flights(10), vitray: Q.cc(['FR', 'DE', 'IT', 'ES'], 3, 'Fransa, Almanya, İtalya ya da İspanya’dan'), empresyonist: Q.cc(['FR'], 2, 'Fransa’dan'),
+  // Kültürler
+  istanbul_cini: Q.city('istanbul', 'İstanbul’un'), kyoto: Q.cc(['JP'], 2, 'Japonya’dan'), marakes: Q.cc(['MA'], 1, 'Fas’tan'), lizbon: Q.cc(['PT'], 1, 'Portekiz’den'),
+  santorini: Q.cc(['GR'], 1, 'Yunanistan’dan'), havana: Q.cc(['CU'], 1, 'Küba’dan'), izlanda: Q.cc(['IS'], 1, 'İzlanda’dan'), sahra: Q.contCountries('AF', 3),
+  amazon: Q.cc(['BR'], 2, 'Brezilya’dan'), nordik_gece: Q.cc(['NO', 'SE', 'FI', 'DK'], 2, 'İskandinavya’dan'),
+  // Bilim
+  topografya: Q.conts(3), batimetri: Q.cont('OC', 4), isi_haritasi: Q.equator(3), kizilotesi: Q.tropic(6), rontgen: Q.zones(8),
+  radar: Q.flights(25), termal: Q.listen(600), jeoloji: Q.countries(25), manyetik: Q.hemis(5), kontur: Q.unlocked(50),
+};
+// Türkçe ek uyumu: "Okyanusya'dan", "Avrupa'dan", "Afrika'da" — kıta adları sesli harfle bitiyor, ekler doğru.
+function questOf(id) {
+  const q = QUESTS[id]; if (!q) return null;
+  let have = 0, need = 1; try { [have, need] = q[1](questCtx.cache || questCtx()); } catch (e) {}
+  return { text: q[0], have: Math.min(have, need), need, done: have >= need };
+}
+/** Tamamlanan görevlerin kürelerini açar. silent: sessizce (ilk çalıştırma özeti için yeniler döndürülür). */
+function evaluateQuests(silent) {
+  questCtx.cache = questCtx();
+  const fresh = [];
+  let changed = true;
+  while (changed) {   // 'küre topla' görevi diğer açılışlara bağlı olabilir
+    changed = false;
+    THEME_ORDER.forEach(id => {
+      if (state.unlocked.includes(id) || !QUESTS[id]) return;
+      const [have, need] = QUESTS[id][1](questCtx.cache);
+      if (have >= need) { state.unlocked.push(id); fresh.push(id); changed = true; questCtx.cache.unlocked = state.unlocked.length; }
+    });
+  }
+  questCtx.cache = null;
+  if (!fresh.length) return fresh;
+  save();
+  if (state.view === 'app' && state.tab === 'themes') { renderThemes(0); renderPocket(); }
+  if (!silent) celebrate(fresh);
+  return fresh;
+}
+function bumpStat(k) { state.stats = Object.assign({}, state.stats, { [k]: ((state.stats || {})[k] || 0) + 1 }); save(); setTimeout(() => evaluateQuests(false), 400); }
+
+// ── Kutlama: kart yukarıdan yaylanarak iner, bilye büyüyerek oturur, ışık halkası açılır; 3,4 sn sonra çekilir ──
+const unlockQueue = []; let unlockShowing = false;
+function celebrate(ids) {
+  if (ids.length > 2) unlockQueue.push({ ids }); else ids.forEach(id => unlockQueue.push({ ids: [id] }));
+  if (!unlockShowing) nextUnlock();
+}
+function marbleFor(id) {
+  if (snaps && snaps.images[id]) return snaps.images[id];
+  try { const r = Globe.snapshots([id], 144); if (r && r.images[id]) { if (!snaps) snaps = { images: {}, rot: r.rot }; snaps.images[id] = r.images[id]; return r.images[id]; } } catch (e) {}
+  return null;
+}
+function nextUnlock() {
+  const item = unlockQueue.shift(); if (!item) { unlockShowing = false; return; }
+  // Açılış koreografisi bitip küre ekrana oturmadan kutlama gösterilmez (kaçırılmasın)
+  const stageReady = state.view === 'app' && !introRunning && (MapGlobe.revealed || !MapGlobe.available());
+  if (!stageReady) { unlockQueue.unshift(item); unlockShowing = true; setTimeout(() => { unlockShowing = false; nextUnlock(); }, 800); return; }
+  unlockShowing = true;
+  // Özet kartında bilye: açılanlardan gece/ışıltı olmayan (parlak) ilk küre
+  const id = item.ids.length > 1 ? (item.ids.find(x => !['night', 'glow'].includes((THEMES[x] || {}).recipe)) || item.ids[0]) : item.ids[0], t = THEMES[id], el = $('#unlock'), img = marbleFor(id);
+  $('#ulOrb').innerHTML = img ? `<img src="${img}" alt="">` : `<span class="mb-css" style="display:block;width:100%;height:100%;${orbStyle(t.p)}"></span>`;
+  $('#ulLabel').textContent = item.ids.length > 1 ? 'YENİ KÜRELER AÇILDI' : 'YENİ KÜRE AÇILDI';
+  $('#ulName').textContent = item.ids.length > 1 ? `${item.ids.length} küre senin oldu` : t.name;
+  $('#ulSub').textContent = item.ids.length > 1 ? 'Şimdiye kadarki yolculuğun bunları kazandırdı' : (QUESTS[id] ? QUESTS[id][0] : 'Koleksiyonuna eklendi');
+  el.dataset.id = id; el.hidden = false; el.classList.remove('in', 'out'); void el.offsetWidth; el.classList.add('in');
+  vibrate([8, 40, 12]);
+  clearTimeout(el._t); el._t = setTimeout(hideUnlock, 3400);
+}
+function hideUnlock() {
+  const el = $('#unlock'); if (el.hidden) return;
+  el.classList.add('out'); clearTimeout(el._t);
+  setTimeout(() => { el.hidden = true; el.classList.remove('in', 'out'); setTimeout(nextUnlock, 260); }, 300);
+}
+$('#ulCard').addEventListener('click', () => {
+  const id = $('#unlock').dataset.id; hideUnlock();
+  if (!id) return;
+  if (state.tab !== 'themes') setTab('themes');
+  setTimeout(() => changeTheme(id), 200);
+});
+// Dinlerken her dakika: süre görevleri
+setInterval(() => { if (state.status === 'playing') evaluateQuests(false); }, 60000);
+
+// ═════════════════════════════════════════════════════════
 //  UYGULAMA KÖPRÜSÜ (Expo) · KİLİT EKRANI · PAYLAŞIM · UÇUŞ MODU
 // ═════════════════════════════════════════════════════════
 const SITE_URL = 'https://bolut916.github.io/wGlobe/';
@@ -4768,6 +4988,8 @@ async function buildShareCard(city, st) {
   return cv;
 }
 let shareState = null;
+/** Paylaşım görevleri: kart başına bir kez sayılır */
+function markShared() { if (shareState && !shareState.counted) { shareState.counted = true; bumpStat('shares'); } }
 async function openShare() {
   const city = CITY[state.activeCityId]; if (!city) return;
   const st = currentStation(), url = shareLink(city, st), text = shareText(city, st);
@@ -4781,7 +5003,7 @@ async function openShare() {
 }
 function closeShare() { const el = $('#share'); el.classList.remove('open'); el.setAttribute('aria-hidden', 'true'); }
 async function doShare() {
-  const s = shareState; if (!s) return;
+  const s = shareState; if (!s) return; markShared();
   if (NATIVE) { nativePost({ type: 'share', image: s.dataUrl, url: s.url, text: s.text, title: 'wGlobe' }); return; }
   const file = s.blob ? new File([s.blob], `wglobe-${s.city.id}.jpg`, { type: 'image/jpeg' }) : null;
   try {
@@ -4791,12 +5013,12 @@ async function doShare() {
   copyLink();
 }
 async function copyLink() {
-  const s = shareState; if (!s) return;
+  const s = shareState; if (!s) return; markShared();
   try { await navigator.clipboard.writeText(s.url); toast('Bağlantı kopyalandı'); }
   catch (e) { const ta = document.createElement('textarea'); ta.value = s.url; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); toast('Bağlantı kopyalandı'); } catch (err) { toast(s.url); } ta.remove(); }
 }
 function saveCard() {
-  const s = shareState; if (!s || !s.blob) return;
+  const s = shareState; if (!s || !s.blob) return; markShared();
   if (NATIVE) { nativePost({ type: 'share', image: s.dataUrl, url: s.url, text: s.text, title: 'wGlobe' }); return; }
   const a = document.createElement('a'); a.href = URL.createObjectURL(s.blob); a.download = `wglobe-${s.city.id}.jpg`; document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(a.href), 4000); toast('Görsel kaydedildi');
@@ -4874,7 +5096,7 @@ function flightSync() {
 function flightLeg() {
   if (!flight.on) return;
   clearTimeout(flight.timer); clearTimeout(flight.titleTimer);
-  const city = pickFlightCity(); flight.recent.push(city.id); if (flight.recent.length > 12) flight.recent.shift(); flight.leg++;
+  const city = pickFlightCity(); flight.recent.push(city.id); if (flight.recent.length > 12) flight.recent.shift(); flight.leg++; bumpStat('flights');
   $('#flLeg').textContent = `${String(flight.leg).padStart(2, '0')}. DURAK`;
   $('#flCard').classList.add('out');
   if (state.sheetOpen) openSheet(false);
@@ -4932,6 +5154,8 @@ function afterIntro() {
 /** Ana sayfa arayüzünün kademeli gelişi (logo+üst → arama → sekme çubuğu, 90 ms arayla). */
 function arrive() { const app = $('#app'); app.classList.remove('arrive'); void app.offsetWidth; app.classList.add('arrive'); setTimeout(() => app.classList.remove('arrive'), 1200); }
 go('welcome', { replace: true });
+// Güncellemeden sonra ilk açılış: şimdiye kadarki yolculuğun kazandırdığı küreler tek bir kutlamayla açılır
+setTimeout(() => { const fresh = evaluateQuests(true); if (fresh.length) celebrate(fresh); }, 2500);
 // MapLibre küresini intro sırasında, intro'nun varacağı açıda görünmez olarak yükle.
 MapGlobe.preload(state.theme, () => {
   const st = $('#globeStage'), W = st.clientWidth || 390, H = st.clientHeight || 844, L = appLayout(W, H), sun = subsolar(new Date());
