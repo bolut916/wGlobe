@@ -3212,7 +3212,7 @@ const SatMosaic = (() => {
 })();
 
 /** Sürüm etiketi: sitede hangi sürümün açık olduğunu rozetten görmek için (önbellek kontrolü). */
-const BUILD = 'v42';
+const BUILD = 'v43';
 const MapGlobe = (() => {
   const host = document.getElementById('mapStage');
   const badge = document.getElementById('lodBadge');
@@ -3390,6 +3390,7 @@ const MapGlobe = (() => {
   }
   function attachTheme() {
     if (!ready || !map || !themeUrl || !themeLayerWanted(themeId) || themeFor !== themeId) return;
+    sampleThemeEdges(themeUrl, themeId);
     const src = map.getSource('theme');
     if (src) { src.updateImage({ url: themeUrl, coordinates: WORLD }); map.setPaintProperty('theme', 'raster-opacity-transition', { duration: 500, delay: 80 }); map.setPaintProperty('theme', 'raster-opacity', themeOpacity()); }
     else {
@@ -3408,7 +3409,7 @@ const MapGlobe = (() => {
   }
   /** Tema değişince: harita boyası + tema katmanı + bulutlar (yalnız gerçek görüntülü temalarda) */
   function useTheme(id) {
-    themeId = id || themeId;
+    themeId = id || themeId; poleKey = '';
     if (ready) { paint(themeId); if (!themeLayerWanted(themeId)) removeThemeLayer(); else if (themeFor === themeId) attachTheme(); }
     prepareTheme(themeId);
     refreshNight();
@@ -3474,8 +3475,9 @@ const MapGlobe = (() => {
   function refreshNight() {
     clearTimeout(nightTimer);
     if (!map || !ready || !revealed) return;
-    if (!nightWanted()) { removeNight(); return; }
+    if (!nightWanted()) { removeNight(); poleKey = ''; if (poleCells) { buildPoles(); map.triggerRepaint(); } return; }
     nightTimer = setTimeout(refreshNight, 3 * 60 * 1000);
+    poleKey = ''; buildPoles(); if (map) map.triggerRepaint();
     if (nightBusy) return; nightBusy = true;
     nightBlob(1024).then(url => {
       nightBusy = false;
@@ -3667,7 +3669,7 @@ const MapGlobe = (() => {
     // karo ızgarasında ve intro animasyonu sürerken çok gecikebilir, o yüzden onu beklemiyoruz.
     map.once('style.load', () => {
       host.appendChild(fx); fxResize();
-      map.on('render', () => { fxPosition(); if (live || headFade) drawTrail(performance.now()); });
+      map.on('render', () => { fxPosition(); drawTrail(performance.now()); });
       map.on('resize', () => { fxResize(); fxPosition(); });
       clearTimeout(bootTimer); ready = true;
       paint(themeId); applyActive(); map.setPadding(padding());
@@ -3836,8 +3838,12 @@ const MapGlobe = (() => {
   function screenPt(lng, lat) {
     const p = map.project([lng, lat]);
     if (!Number.isFinite(p.x) || !Number.isFinite(p.y)) return null;
+    // Kameranın baktığı yarıkürede değilse (merkeze 90°'den uzak) kesin görünmez
+    const c = map.getCenter(), la = lat * D2R, ca = c.lat * D2R;
+    if (Math.sin(la) * Math.sin(ca) + Math.cos(la) * Math.cos(ca) * Math.cos((lng - c.lng) * D2R) <= 0.02) return null;
+    // Geri izdüşüm aynı noktaya (50 km içinde) dönmüyorsa nokta kürenin arkasında kalır
     const b = map.unproject(p);
-    if (!b || Math.abs(b.lat - lat) > 0.3 || Math.abs(((b.lng - lng + 540) % 360) - 180) > 0.3 * Math.max(1, 1 / Math.max(0.05, Math.cos(lat * D2R)))) return null;
+    if (!b || kmBetween([b.lat, b.lng], [lat, lng]) > 50) return null;
     return p;
   }
   const place = (el, p) => { if (!p || p.x < -80 || p.y < -80 || p.x > fxW + 80 || p.y > fxH + 80) { el.style.visibility = 'hidden'; return false; } el.style.visibility = ''; el.style.transform = `translate3d(${p.x.toFixed(1)}px, ${p.y.toFixed(1)}px, 0)`; return true; };
@@ -3923,9 +3929,110 @@ const MapGlobe = (() => {
     let pen = false; pts.forEach(p => { if (!p) { pen = false; return; } if (pen) fxCtx.lineTo(p.x, p.y); else { fxCtx.moveTo(p.x, p.y); pen = true; } });
     fxCtx.stroke();
   }
+  // ── Kutup başlıkları: Web Mercator karoları ±85,05°'de biter; harita kalan kutbu son piksel sırasını gererek
+  //    doldurur (yelpaze). Kutuplar burada gerçek görüntüden (NASA Blue Marble) örneklenmiş hücrelerle çizilir,
+  //    o anki gece/gündüze göre karartılır; dış halka uyduya yumuşakça karışır. ──
+  const POLE_SECT = 72, POLE_RINGS = [83.2, 83.8, 84.4, 85.0, 85.8, 86.8, 88, 89.3, 90];   // ilk iki halka geçiş, 84,4°'den içerisi tam örtü
+  let poleCells = null, poleImg = null, polePixels = null, poleKey = '', poleScratch = null;
+  function loadPoleImage() {
+    if (poleImg) return; poleImg = new Image(); poleImg.crossOrigin = 'anonymous';
+    poleImg.onload = () => { try { const c = document.createElement('canvas'); c.width = 720; c.height = 360; const g = c.getContext('2d', { willReadFrequently: true }); g.drawImage(poleImg, 0, 0, 720, 360); polePixels = g.getImageData(0, 0, 720, 360).data; } catch (e) { polePixels = null; } poleKey = ''; buildPoles(); if (ready) map.triggerRepaint(); };
+    poleImg.onerror = () => { polePixels = null; buildPoles(); };
+    poleImg.src = 'earth-day.webp';
+  }
+  /** Stilize kürenin haritası Mercator'da ±85°'de biter: kenar satırları 72 dilimde ortalanır, kutba doğru ortalamaya karışır */
+  let themeEdge = null;
+  function sampleThemeEdges(url, id) {
+    if (themeEdge && themeEdge.url === url) return;
+    const im = new Image();
+    im.onload = () => {
+      try {
+        const W = 720, H = 360, c = document.createElement('canvas'); c.width = W; c.height = H; const g = c.getContext('2d', { willReadFrequently: true }); g.drawImage(im, 0, 0, W, H);
+        const row = (y0, y1) => { const d = g.getImageData(0, y0, W, y1 - y0).data, out = [], tot = [0, 0, 0];
+          for (let k = 0; k < POLE_SECT; k++) { let r = 0, gg = 0, b = 0, n = 0; const x0 = Math.floor(k * W / POLE_SECT), x1 = Math.floor((k + 1) * W / POLE_SECT);
+            for (let y = 0; y < y1 - y0; y++) for (let x = x0; x < x1; x++) { const o = (y * W + x) * 4; r += d[o]; gg += d[o + 1]; b += d[o + 2]; n++; }
+            const v = [r / n, gg / n, b / n]; out.push(v); tot[0] += v[0]; tot[1] += v[1]; tot[2] += v[2]; }
+          // komşu dilimlerle yumuşatılır (±3 dilim, döngüsel): kenardaki keskin bir kara parçası kama gibi uzamaz
+          const sm = out.map((_, k) => { const a = [0, 0, 0]; for (let j = -3; j <= 3; j++) { const v = out[(k + j + POLE_SECT) % POLE_SECT]; a[0] += v[0]; a[1] += v[1]; a[2] += v[2]; } return a.map(x => x / 7); });
+          return { sect: sm, mean: tot.map(v => v / POLE_SECT) }; };
+        themeEdge = { url, id, n: row(1, 6), s: row(H - 6, H - 1) }; poleKey = ''; buildPoles(); if (ready) map.triggerRepaint();
+      } catch (e) { themeEdge = null; }
+    };
+    im.src = url;
+  }
+  function poleSample(lat, lng) {
+    if (!polePixels) return lat > 0 ? [44, 78, 100] : [236, 240, 243];   // görüntü yoksa: buzlu deniz / buz örtüsü
+    lat = clamp(lat, -88, 88);   // görüntünün en uç satırları bozuk/karanlık
+    const x = Math.round((lng + 180) / 360 * 720), y = Math.round((90 - lat) / 180 * 360); let r = 0, g = 0, b = 0, n = 0;
+    for (let dy = -2; dy <= 2; dy++) for (let dx = -4; dx <= 4; dx++) { const xx = ((x + dx) % 720 + 720) % 720, yy = clamp(y + dy, 0, 359), o = (yy * 720 + xx) * 4; r += polePixels[o]; g += polePixels[o + 1]; b += polePixels[o + 2]; n++; }
+    return [r / n, g / n, b / n];
+  }
+  /** Hücre renkleri: tema (stilize kürelerde kutup buzu rengi) + gece karartması. Tema/gece değişince yeniden hesaplanır. */
+  function buildPoles() {
+    const t = THEMES[themeId], stylized = themeId !== 'classic' && t && t.p, sun = subsolar(new Date());
+    const key = themeId + '|' + (nightWanted() ? Math.round(sun.lng) + ',' + Math.round(sun.lat) : 'day') + '|' + !!polePixels + '|' + (themeEdge ? themeEdge.url : '');
+    if (key === poleKey && poleCells) return; poleKey = key;
+    const hex = h => { const n = parseInt(String(h).slice(1, 7), 16); return [n >> 16 & 255, n >> 8 & 255, n & 255]; };
+    const edge = stylized && themeEdge && themeEdge.id === themeId ? themeEdge : null, ice = stylized && !edge ? hex(t.p.ice) : null;
+    const nightCol = [6, 12, 30], nightK = 0.64;   // harita gece katmanıyla aynı karartma (tüm kürelerde)
+    const sd = Math.sin(sun.lat * D2R), cd = Math.cos(sun.lat * D2R), cells = [];
+    [1, -1].forEach(hemi => {
+      for (let r = 0; r < POLE_RINGS.length - 1; r++) {
+        const a0 = POLE_RINGS[r] * hemi, a1 = POLE_RINGS[r + 1] * hemi, mid = (a0 + a1) / 2;
+        for (let k = 0; k < POLE_SECT; k++) {
+          const l0 = -180 + k * 360 / POLE_SECT, l1 = l0 + 360 / POLE_SECT, lm = (l0 + l1) / 2;
+          let c;
+          if (edge) { const e = hemi > 0 ? edge.n : edge.s, tt = clamp((Math.abs(mid) - 84.8) / 2.6, 0, 1), m = tt * tt * (3 - 2 * tt); c = e.sect[k].map((v, i) => v + (e.mean[i] - v) * m); }   // kenar rengi kutba doğru ortalamaya erir
+          else c = ice ? ice.slice() : poleSample(mid, lm);
+          if (nightWanted()) {
+            const alt = Math.asin(clamp(Math.sin(mid * D2R) * sd + Math.cos(mid * D2R) * cd * Math.cos((lm - sun.lng) * D2R), -1, 1)) * R2D;
+            const tt = clamp((alt - 4) / (-10 - 4), 0, 1), nk = tt * tt * (3 - 2 * tt) * nightK;
+            c = c.map((v, i) => v + (nightCol[i] - v) * nk);
+          }
+          cells.push({ hemi, r, l0, l1, a0, a1, fill: `rgb(${c.map(v => Math.round(v)).join(',')})`, alpha: r === 0 ? 0.4 : r === 1 ? 0.8 : 1 });
+        }
+      }
+    });
+    poleCells = cells;
+  }
+  /** Kutup bölgesi ekranda mı? Halka üstündeki 8 noktadan biri ya da kutbun kendisi görünüyorsa evet. */
+  function poleVisible(hemi) {
+    if (screenPt(0, 89.9 * hemi)) return true;
+    for (let k = 0; k < 8; k++) if (screenPt(-180 + k * 45, 84.5 * hemi)) return true;
+    return false;
+  }
+  function drawPoles() {
+    if (!poleCells) { loadPoleImage(); buildPoles(); if (!poleCells) return false; }
+    const vis = [poleVisible(1), poleVisible(-1)]; if (!vis[0] && !vis[1]) return false;
+    const cache = new Map(), P = (lng, lat) => { const k = lng + ',' + lat; if (!cache.has(k)) cache.set(k, screenPt(lng, lat)); return cache.get(k); };
+    // Geçiş halkaları önce ayrı bir tuvale tam opak çizilir, sonra tek seferde saydamlaştırılır (hücre dikişi kalmaz)
+    if (!poleScratch) poleScratch = document.createElement('canvas');
+    if (poleScratch.width !== fxCanvas.width || poleScratch.height !== fxCanvas.height) { poleScratch.width = fxCanvas.width; poleScratch.height = fxCanvas.height; }
+    const sc = poleScratch.getContext('2d');
+    const cell = (ctx, c, p) => { ctx.fillStyle = c.fill; ctx.strokeStyle = c.fill; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.moveTo(p[0].x, p[0].y); ctx.lineTo(p[1].x, p[1].y); ctx.lineTo(p[2].x, p[2].y); ctx.lineTo(p[3].x, p[3].y); ctx.closePath(); ctx.fill(); ctx.stroke(); };
+    [0.4, 0.8, 1].forEach(alpha => {
+      const ctx = alpha < 1 ? sc : fxCtx;
+      if (alpha < 1) { sc.setTransform(1, 0, 0, 1, 0, 0); sc.clearRect(0, 0, poleScratch.width, poleScratch.height); sc.setTransform(fxDpr, 0, 0, fxDpr, 0, 0); sc.lineJoin = 'round'; }
+      else { fxCtx.globalAlpha = 1; fxCtx.lineJoin = 'round'; }
+      let any = false;
+      poleCells.forEach(c => {
+        if (c.alpha !== alpha || !vis[c.hemi > 0 ? 0 : 1]) return;
+        const p = [P(c.l0, c.a0), P(c.l1, c.a0), P(c.l1, c.a1), P(c.l0, c.a1)];
+        if (p.some(q => !q)) return;
+        cell(ctx, c, p); any = true;
+      });
+      if (alpha < 1 && any) { fxCtx.save(); fxCtx.setTransform(1, 0, 0, 1, 0, 0); fxCtx.globalAlpha = alpha; fxCtx.drawImage(poleScratch, 0, 0); fxCtx.restore(); }
+    });
+    fxCtx.globalAlpha = 1;
+    return true;
+  }
+  let fxDirty = false;
   function drawTrail(now) {
     if (!fxW) fxResize();
-    fxCtx.setTransform(fxDpr, 0, 0, fxDpr, 0, 0); fxCtx.clearRect(0, 0, fxW, fxH);
+    fxCtx.setTransform(fxDpr, 0, 0, fxDpr, 0, 0);
+    const busy = live || headFade;
+    if (fxDirty || busy) fxCtx.clearRect(0, 0, fxW, fxH);
+    fxDirty = (ready && visible && drawPoles()) || !!busy;
     fxCtx.lineCap = 'round'; fxCtx.lineJoin = 'round';
     if (live) {
       const path = slicePath(live.coords, live.prog), pts = path.map(c => screenPt(c[0], c[1])), head = pts[pts.length - 1];
