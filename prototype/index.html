@@ -223,6 +223,19 @@ svg.i.filled { fill: currentColor; }
 .ts-needle::before { content: ""; position: absolute; left: 50%; top: -3px; width: 8px; height: 8px; margin-left: -4px; border-radius: 4px; background: var(--accent); }
 #timeBtn[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); box-shadow: none; }
 @media (prefers-reduced-motion: reduce) { .tstrip, .tstrip.in { transition: opacity 120ms linear; transform: none; } }
+/* Radyolu alarm */
+.px-alarm-time { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 0 12px 54px; transition: opacity 200ms var(--e-standard); }
+.px-alarm-time.off { opacity: 0.4; }
+.px-alarm-time label { font-size: 14px; color: var(--fg-2); }
+.px-alarm-time input { font: 600 20px/1 var(--font); font-variant-numeric: tabular-nums; color: var(--fg); background: rgba(232,240,255,0.06); border: 0; border-radius: 12px; padding: 8px 12px; color-scheme: dark; min-height: 40px; }
+.tg[disabled] { opacity: 0.4; }
+/* Dil seçimi */
+.px-langcard { padding-top: 12px; padding-bottom: 12px; }
+.px-lang { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.px-lang button { min-height: 40px; border-radius: 20px; font-size: 14px; font-weight: 550; color: var(--fg-2); background: rgba(232,240,255,0.06); transition: background 180ms var(--e-standard), color 180ms var(--e-standard); }
+.px-lang button.on { background: var(--fg); color: var(--ivory-ink); }
+.px-lang-note { display: block; padding: 8px 4px 0; color: var(--fg-3); }
+.px-lang-note:empty { display: none; }
 /* ── Kimlik ───────────────────────────────────────────── */
 /* Hesap bildirimleri (v47): 280 ms'de 8 px aşağıdan gelir; eylem bağlantıları metnin altında. */
 @keyframes noteIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
@@ -1381,6 +1394,14 @@ svg.i.filled { fill: currentColor; }
 <script>
 (() => {
 'use strict';
+// ── Dil: Ayarlar'daki seçim, yoksa telefonun dili (Türkçe değilse İngilizce) ──
+const LANG = (() => {
+  try { const p = (JSON.parse(localStorage.getItem('wglobe-prototype-v2') || 'null') || {}).prefs || {}; if (p.lang === 'tr' || p.lang === 'en') return p.lang; } catch (e) {}
+  const langs = (navigator.languages && navigator.languages.length ? navigator.languages : [navigator.language || 'tr']).map(String);
+  return langs.some(l => /^tr\b/i.test(l)) ? 'tr' : 'en';
+})();
+const LOC = LANG === 'tr' ? 'tr-TR' : 'en-US';
+const EN = LANG !== 'tr';
 
 // ═════════════════════════════════════════════════════════
 //  VERİ
@@ -1609,6 +1630,17 @@ const atlasShape = a => ({ id: a.id, name: a.name, country: countryNameTR(a.cc) 
 // Atlas şehirleri CITY'den her zaman bulunur (paylaşım bağlantısı, geçmiş, favoriler cihazda kayıtlı olmasa da açılır).
 const ATLAS_IDS = new Set(ATLAS.map(a => a.id));
 ATLAS.forEach(a => { if (!CITY[a.id]) CITY[a.id] = atlasShape(a); });
+const CITY_EN = { 'london': 'London', 'cairo': 'Cairo', 'seoul': 'Seoul', 'sydney': 'Sydney', 'lisbon': 'Lisbon', 'vienna': 'Vienna', 'rome': 'Rome', 'mexico-city': 'Mexico City', 'singapore': 'Singapore', 'prague': 'Prague', 'athens': 'Athens', 'munich': 'Munich', 'barcelona': 'Barcelona', 'seville': 'Seville', 'milan': 'Milan', 'naples': 'Naples', 'marseille': 'Marseille', 'brussels': 'Brussels', 'luxembourg': 'Luxembourg', 'zurich': 'Zurich', 'copenhagen': 'Copenhagen', 'warsaw': 'Warsaw', 'krakow': 'Kraków', 'budapest': 'Budapest', 'bucharest': 'Bucharest', 'sofia': 'Sofia', 'belgrade': 'Belgrade', 'sarajevo': 'Sarajevo', 'tirana': 'Tirana', 'skopje': 'Skopje', 'nicosia': 'Nicosia', 'chisinau': 'Chișinău', 'kyiv': 'Kyiv', 'odesa': 'Odesa', 'moscow': 'Moscow', 'tbilisi': 'Tbilisi', 'yerevan': 'Yerevan', 'tehran': 'Tehran', 'baghdad': 'Baghdad', 'damascus': 'Damascus', 'beirut': 'Beirut', 'riyadh': 'Riyadh', 'jeddah': 'Jeddah', 'kuwait': 'Kuwait City', 'muscat': 'Muscat', 'kabul': 'Kabul', 'karachi': 'Karachi', 'lahore': 'Lahore', 'bangalore': 'Bengaluru', 'kolkata': 'Kolkata', 'dhaka': 'Dhaka', 'kathmandu': 'Kathmandu', 'colombo': 'Colombo', 'tashkent': 'Tashkent', 'almaty': 'Almaty', 'bishkek': 'Bishkek', 'ulaanbaatar': 'Ulaanbaatar', 'beijing': 'Beijing', 'shanghai': 'Shanghai', 'jakarta': 'Jakarta', 'casablanca': 'Casablanca', 'marrakesh': 'Marrakesh', 'algiers': 'Algiers', 'tunis': 'Tunis', 'tripoli': 'Tripoli', 'khartoum': 'Khartoum', 'accra': 'Accra', 'kinshasa': 'Kinshasa', 'dar-es-salaam': 'Dar es Salaam', 'san-jose-cr': 'San José', 'caracas': 'Caracas', 'cordoba-ar': 'Córdoba', 'istanbul': 'Istanbul', 'izmir': 'Izmir' };
+if (EN) {
+  const byCC = new Map(); ATLAS.forEach(a => { if (!byCC.has(a.cc)) byCC.set(a.cc, []); byCC.get(a.cc).push(a); });
+  CITIES.forEach(c => {
+    let best = null, bd = 30; (byCC.get(c.countryCode) || []).forEach(a => { const d = kmApprox(c.lat, c.lng, a.lat, a.lng); if (d < bd) { bd = d; best = a; } });
+    if (CITY_EN[c.id]) c.name = CITY_EN[c.id]; else if (best) c.name = best.name;
+    c.country = countryNameTR(c.countryCode) || c.country;
+  });
+  Object.values(PLACES).forEach(p => { if (p.countryCode) p.country = countryNameTR(p.countryCode) || p.country; });
+}
+function kmApprox(a1, o1, a2, o2) { const x = (o2 - o1) * Math.cos((a1 + a2) / 2 * Math.PI / 180), y = a2 - a1; return Math.sqrt(x * x + y * y) * 111.2; }
 /** Seçilen yer: küratörlü şehir ya da atlas şehri (haritadaki etkin nokta için PLACES'e alınır) */
 function asPlace(c) {
   if (!c) return c;
@@ -1743,6 +1775,400 @@ function hydrateIcons(root = document) {
 // ═════════════════════════════════════════════════════════
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+
+// ═════════════════════════════════════════════════════════
+//  DİL (i18n)
+// ═════════════════════════════════════════════════════════
+// Arayüz Türkçe yazılır; İngilizcede ekrana gelen her metin ve erişilebilirlik etiketi burada çevrilir
+// (tam eşleşme sözlüğü + sayı/ad içeren desenler). Yeni çizilen her şey MutationObserver ile anında çevrilir;
+// istasyon, şarkı ve kullanıcı içeriği data-noi18n ile muaftır. Tuvale çizilen metinler t() ile çevrilir.
+const I18N = (() => {
+  const D = new Map(), P = [], missing = new Map(), produced = new Set();
+  const ATTRS = ['aria-label', 'placeholder', 'title', 'aria-valuetext', 'alt'];
+  const SKIP = new Set(['SCRIPT', 'STYLE', 'CANVAS', 'svg', 'SVG', 'TEXTAREA', 'PRE']);   // INPUT atlanmaz: ipucu (placeholder) çevrilir, değeri değil
+  function tr(s) {
+    if (!EN || s == null) return s;
+    const k = String(s).replace(/\s+/g, ' ').trim();
+    if (!k || !/\p{L}/u.test(k)) return s;
+    let v = lookup(k);
+    if (v === undefined && k.includes(' · ')) {
+      // "Ülke · Ruh hâli", "BUGÜNKÜ ROTAN · 2 DURAK · 5 KM" gibi: parçalar ayrı çevrilir
+      let any = false; const parts = k.split(' · ').map(p => { const x = lookup(p); if (x !== undefined) { any = true; return x; } return p; });
+      if (any) v = parts.join(' · ');
+    }
+    if (v === undefined || v === null) { if (missing.size < 4000 && !produced.has(k)) missing.set(k, (missing.get(k) || 0) + 1); return s; }
+    if (produced.size < 20000) produced.add(String(v).trim());
+    const str = String(s);
+    return str.match(/^\s*/)[0] + v + str.match(/\s*$/)[0];
+  }
+  function lookup(k) {
+    let v = D.get(k);
+    if (v === undefined) for (const [re, fn] of P) { const m = k.match(re); if (m) { v = fn(...m); break; } }
+    return v;
+  }
+  function text(n) { const v = tr(n.nodeValue); if (v !== n.nodeValue) n.nodeValue = v; }
+  function attrs(e) { for (const a of ATTRS) { const x = e.getAttribute(a); if (x) { const v = tr(x); if (v !== x) e.setAttribute(a, v); } } }
+  const skipEl = e => SKIP.has(e.nodeName) || e.hasAttribute('data-noi18n');
+  function walk(root) {
+    if (!root) return;
+    if (root.nodeType === 3) { if (!(root.parentElement && root.parentElement.closest('[data-noi18n]'))) text(root); return; }
+    if (root.nodeType !== 1 || skipEl(root) || root.closest('[data-noi18n]')) return;
+    attrs(root);
+    const w = document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT, { acceptNode: n => n.nodeType === 1 && skipEl(n) ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT });
+    let n; while ((n = w.nextNode())) { if (n.nodeType === 3) text(n); else attrs(n); }
+  }
+  function start() {
+    document.documentElement.lang = EN ? 'en' : 'tr';
+    if (!EN) return;
+    walk(document.body);
+    new MutationObserver(list => {
+      for (const m of list) {
+        if (m.type === 'characterData') { if (!(m.target.parentElement && m.target.parentElement.closest('[data-noi18n]'))) text(m.target); }
+        else if (m.type === 'attributes') { if (m.target.nodeType === 1 && !m.target.closest('[data-noi18n]')) attrs(m.target); }
+        else m.addedNodes.forEach(walk);
+      }
+    }).observe(document.body, { subtree: true, childList: true, characterData: true, attributes: true, attributeFilter: ATTRS });
+  }
+  /** Sözlük: düz nesne { 'Türkçe': 'English' }; desen: [RegExp, (tam, ...gruplar) => 'English'] */
+  function add(dict, patterns) { if (dict) for (const k in dict) D.set(k, dict[k]); if (patterns) P.push(...patterns); }
+  return { tr, start, add, walk, get missing() { return missing; } };
+})();
+const tx = s => I18N.tr(s);
+/** Kayıtlı (ziyaret/favori) şehir adı yerine güncel ad: dil değişince de doğru görünür */
+const placeName = (id, stored) => (CITY[id] && CITY[id].name) || stored || '';
+if (EN) {
+// ── İngilizce sözlük (Türkçe → İngilizce) ve desenler ──
+I18N.add({
+  // Karşılama, kimlik
+  'Bir şehre dokun. O anın radyosunu dinle.': 'Tap a city. Hear its radio, right now.',
+  'tüm dünya · canlı': 'the whole world · live', 'Karşılama': 'Welcome',
+  'Giriş Yap': 'Sign In', 'Giriş yap': 'Sign in', 'Üye Ol': 'Sign Up', 'Üye ol': 'Sign up',
+  'Misafir olarak devam et': 'Continue as guest', 'Tekrar hoş geldin': 'Welcome back',
+  'Favori istasyonların ve pasaportun seni bekliyor.': 'Your favorite stations and passport are waiting.',
+  'E-posta': 'Email', 'Şifre': 'Password', 'Şifre (tekrar)': 'Password (again)', 'Şifremi unuttum': 'Forgot password',
+  'Hesabın yok mu?': 'No account yet?', 'Zaten hesabın var mı?': 'Already have an account?',
+  'Yolculuğunu kaydet': 'Save your journey', 'Favorilerin ve pasaport damgaların her cihazında seninle olsun.': 'Keep your favorites and passport stamps on every device.',
+  'Hesap Oluştur': 'Create Account', 'Hesap kurtarma': 'Account recovery', 'Yeni şifre': 'New password', 'Yeni şifre (tekrar)': 'New password (again)',
+  'Hesabın için yeni bir şifre belirle.': 'Choose a new password for your account.', 'Şifreyi Güncelle': 'Update Password',
+  'Şifreyi göster': 'Show password', 'Şifreyi gizle': 'Hide password', 'Geri': 'Back',
+  'ad@ornek.com': 'name@example.com', 'En az 8 karakter': 'At least 8 characters', 'Şifreni tekrar gir': 'Enter your password again',
+  'E-posta adresi gerekli.': 'Email address is required.', 'Geçerli bir e-posta adresi girin (ör. ad@ornek.com).': 'Enter a valid email address (e.g. name@example.com).',
+  'Şifre gerekli.': 'Password is required.', 'Şifre en az 8 karakter olmalı.': 'Password must be at least 8 characters.',
+  'Şifre en fazla 72 karakter olabilir.': 'Password can be at most 72 characters.', 'Şifreyi tekrar girin.': 'Enter the password again.', 'Şifreler eşleşmiyor.': 'Passwords do not match.',
+  'Şifre sıfırlama bağlantısı için önce e-postanı yaz.': 'Type your email first to get a reset link.',
+  'ZAYIF': 'WEAK', 'ORTA': 'FAIR', 'İYİ': 'GOOD', 'GÜÇLÜ': 'STRONG',
+  'E-posta ya da şifre hatalı.': 'Wrong email or password.', 'E-posta adresin henüz onaylanmadı.': 'Your email address is not confirmed yet.',
+  'Bu e-posta ile zaten bir hesap var. Giriş yapmayı dene.': 'There is already an account with this email. Try signing in.',
+  'Bu şifre çok zayıf ya da sık kullanılan bir şifre. Daha güçlü bir şifre seç.': 'This password is too weak or too common. Choose a stronger one.',
+  'Yeni şifre eskisiyle aynı olamaz.': 'The new password cannot be the same as the old one.',
+  'Bu e-posta adresi kabul edilmedi. Başka bir adres dene.': 'This email address was not accepted. Try another one.',
+  'Şu an çok fazla e-posta gönderildi. Birkaç dakika sonra tekrar dene.': 'Too many emails were sent just now. Try again in a few minutes.',
+  'Çok fazla deneme yapıldı. Birkaç dakika sonra tekrar dene.': 'Too many attempts. Try again in a few minutes.',
+  'Yeni kayıtlar şu an kapalı.': 'New sign-ups are closed right now.',
+  'Onay e-postası bu adrese şu an gönderilemiyor. Biraz sonra tekrar dene ya da başka bir adres kullan.': 'We can’t send a confirmation email to this address right now. Try again later or use another address.',
+  'Bağlantı kurulamadı. İnternetini kontrol edip tekrar dene.': 'Could not connect. Check your internet and try again.',
+  'Hesap servisine şu an ulaşılamıyor. Biraz sonra tekrar dene.': 'The account service is unreachable right now. Try again shortly.',
+  'Bağlantının süresi dolmuş. Yeni bir sıfırlama bağlantısı iste.': 'This link has expired. Ask for a new reset link.',
+  'Bir şeyler ters gitti. Tekrar dene.': 'Something went wrong. Try again.',
+  'Onay e-postasını tekrar gönder': 'Resend confirmation email', 'Tekrar gönder': 'Resend',
+  'Giriş yapıldı': 'Signed in', 'Giriş yapıldı · bu cihazdaki verilerin hesabına eklendi': 'Signed in · this device’s data was added to your account',
+  'Hesap oluşturuldu': 'Account created', 'Hesap oluşturuldu · misafir verilerin taşındı': 'Account created · your guest data moved over',
+  'E-postan onaylandı · hoş geldin': 'Email confirmed · welcome', 'Şifren güncellendi': 'Password updated',
+  'Bağlantının süresi dolmuş · yeni bir bağlantı iste': 'This link has expired · ask for a new one', 'Bağlantı geçersiz · yeni bir bağlantı iste': 'This link is not valid · ask for a new one',
+  'Oturumun sona erdi · verilerin bu cihazda duruyor, giriş yaparak hesabına bağlayabilirsin': 'Your session ended · your data is still on this device; sign in to link it to your account',
+  'Oturum bağlanıyor…': 'Connecting session…', 'Eşitleniyor…': 'Syncing…', 'Çevrimdışı · bağlantı gelince eşitlenecek': 'Offline · will sync when back online',
+  'Eşitlenemedi · birazdan tekrar denenecek': 'Could not sync · will retry shortly',
+  // Uygulama: küre ekranı
+  'Küre': 'Globe', 'Keşfet': 'Explore', 'Koleksiyon': 'Collection', 'Profil': 'Profile', 'Sekmeler': 'Tabs',
+  'Şehir, ülke veya istasyon ara': 'Search a city, country or station', 'Arama sonuçları': 'Search results', 'Aramayı temizle': 'Clear search',
+  'Şehirler': 'Cities', 'Ülkeler': 'Countries', 'İstasyonlar': 'Stations', 'Bölgeler': 'Regions', 'Ülke geneli': 'Whole country',
+  'Rastgele şehir': 'Random city', 'Uçuş modu': 'Flight mode', 'Uçuşu bitir': 'End flight', 'UÇUŞ MODU': 'FLIGHT MODE', 'Sonraki durak': 'Next stop',
+  'Uçuş bitti · kontrol sende': 'Flight over · you’re in control',
+  'KÜREYİ ÇEVİR · BİR ŞEHRE DOKUN': 'SPIN THE GLOBE · TAP A CITY',
+  'RADYO KAPALI': 'RADIO OFF', 'DURAKLATILDI': 'PAUSED', 'BAĞLANIYOR': 'CONNECTING', 'SIRADAKİ YAYIN': 'NEXT STREAM', 'CANLI': 'LIVE', 'YAYIN YOK': 'NO STREAM', 'ÇALIYOR': 'PLAYING', 'YAYIN AÇILAMADI': 'STREAM FAILED',
+  'Yayın aranıyor…': 'Finding a stream…', 'Yayın yanıt vermedi, sıradakine geçiliyor…': 'Stream didn’t answer, trying the next…',
+  'Şu an yayın alınamıyor. Bağlantını kontrol edip tekrar dene.': 'Can’t get a stream right now. Check your connection and try again.',
+  'Duraklatıldı': 'Paused', 'Önizleme sesi · ağ kapalı': 'Preview sound · offline', 'Global yayın · canlı': 'Global stream · live', 'Yerel': 'Local', 'Canlı': 'Live',
+  'Dinle': 'Play', 'Sonra': 'Later', 'Duraklat': 'Pause', 'Oynat': 'Play', 'Paylaş': 'Share', 'Kartı kapat': 'Close card', 'Kapat': 'Close', 'Kaydet': 'Save', 'Vazgeç': 'Cancel', 'Çık': 'Leave',
+  'Favorilere ekle': 'Add to favorites', 'Favorilerden çıkar': 'Remove from favorites', 'Dünyada başka bir yer': 'Somewhere else in the world',
+  'Dinlemek için oynat’a dokun': 'Tap play to listen', 'ÖRNEK': 'SAMPLE', 'Gezgin': 'Traveler',
+  'Şarkı kaydedildi · Profil → Favoriler': 'Song saved · Profile → Favorites', 'Şarkı kaydedilenlerden çıkarıldı': 'Song removed from saved',
+  'Paylaşım kartı önizlemesi': 'Share card preview', 'Bağlantı kopyalandı': 'Link copied', 'Görsel kaydedildi': 'Image saved', 'Paylaşılan yer bulunamadı': 'Shared place not found',
+  'Uyku zamanlayıcısı radyoyu kapattı': 'Sleep timer turned the radio off',
+  // Hava durumu
+  'Kapalı': 'Off',
+  // Ruh hâlleri
+  'Sabah Kahvesi': 'Morning Coffee', 'Gece Yarısı Cazı': 'Midnight Jazz', 'Yağmurlu Sokaklar': 'Rainy Streets', 'Tropikal Ritimler': 'Tropical Rhythms', 'Okyanus Esintisi': 'Ocean Breeze', 'Çöl Gün Batımı': 'Desert Sunset',
+  'Dağ Sabahı': 'Mountain Morning', 'Şehir Işıkları': 'City Lights', 'Kuzey Işıkları': 'Northern Lights',
+  // Anlar
+  'Anlar': 'Moments', 'Günün şehri': 'City of the day', 'GÜNÜN ŞEHRİ': 'CITY OF THE DAY', 'BUGÜNÜN ŞEHRİ': 'TODAY’S CITY', 'BUGÜNÜN ŞEHRİ ·': 'TODAY’S CITY ·',
+  'Gün doğumu': 'Sunrise', 'güneşi kovala': 'chase the sun', 'GÜNEŞ ŞİMDİ DOĞUYOR': 'THE SUN IS RISING NOW', 'Canlı nabız': 'Live pulse', 'şu an dinlenenler': 'being played now',
+  'ŞU AN DİNLENİYOR': 'PLAYING NOW', 'ŞU AN DÜNYADA': 'RIGHT NOW IN THE WORLD', 'Canlı nabzı kapat': 'Close live pulse', 'Dünya dinleniyor…': 'Listening to the world…',
+  'Canlı veri yok': 'No live data', 'Bugünün şehrini dinledin': 'You listened to today’s city', 'Yeni şehre': 'Next city in',
+  'Şu an güneşin doğduğu bir şehir bulunamadı': 'No city is seeing sunrise right now', 'Şu an nabız verisi alınamadı': 'Couldn’t get pulse data right now',
+  'Canlı nabız için küre haritası gerekiyor': 'Live pulse needs the globe map',
+  // Zaman kaydırıcısı
+  'Zaman kaydırıcısı: dünyayı başka bir saatte gör': 'Time scrubber: see the world at another hour', 'Zaman kaydırıcısını kapat': 'Close time scrubber',
+  'Cetveli kaydır: dünya başka bir saatte': 'Slide the ruler: the world at another hour', 'Şimdi': 'Now', 'Saat': 'Hour', 'senin saatinle': 'your time',
+  // Keşfet
+  'Saat kadranı: çevirerek saat seç': 'Clock dial: turn to pick an hour', '← SAATİ ÇEVİR →': '← TURN THE CLOCK →', 'Bu saatteki şehirler': 'Cities at this hour',
+  'Kadranı bırakınca ilk şehir çalar': 'Release the dial and the first city plays', 'Bu saatte kayıtlı bir şehir yok': 'No saved city at this hour',
+  'Gece yarısı yayınları': 'Midnight radio', 'Şehirler uyanıyor': 'Cities waking up', 'Sabah': 'Morning', 'Öğle arası': 'Lunch break', 'İkindi': 'Afternoon', 'Akşam üstü': 'Early evening', 'Gece': 'Night', 'Gece ·': 'Night ·',
+  'Akşam kuşağı': 'Evening', 'AKŞAM KUŞAĞI': 'EVENING', 'İyi akşamlar': 'Good evening', 'İyi sabahlar': 'Good morning', 'Günaydın': 'Good morning', 'İyi geceler': 'Good night', 'İyi günler': 'Good afternoon',
+  'Keşfet\'te kendiliğinden çal': 'Autoplay in Explore', 'Ülke · şehir seç': 'Pick a country · city',
+  // Kıtalar
+  'Avrupa': 'Europe', 'Asya': 'Asia', 'Afrika': 'Africa', 'K. Amerika': 'N. America', 'G. Amerika': 'S. America', 'Kuzey Amerika': 'North America', 'Güney Amerika': 'South America', 'Okyanusya': 'Oceania',
+  // Koleksiyon
+  'Koleksiyon: 100 küre': 'Collection: 100 globes', 'Koleksiyonu kapat': 'Close collection', 'Seriler': 'Series', 'Küreye uygula': 'Apply to globe',
+  'Küre bu temayı kullanıyor': 'The globe uses this theme', 'Küre cebi: açmak için dokun': 'Globe pocket: tap to open', 'kullanılıyor': 'in use', 'KULLANILIYOR': 'IN USE', 'koleksiyonda': 'in collection',
+  'kilitli · görevle açılır': 'locked · unlocks with a quest', 'Görevi tamamla, küre senin olsun': 'Finish the quest and the globe is yours',
+  'Tema önizlemesi; sağa ya da sola kaydırarak da değiştirebilirsin': 'Theme preview; you can also swipe left or right',
+  'YENİ KÜRE AÇILDI': 'NEW GLOBE UNLOCKED', 'YENİ KÜRELER AÇILDI': 'NEW GLOBES UNLOCKED', 'Yeni küreyi koleksiyonda gör': 'See the new globe in the collection',
+  'Şimdiye kadarki yolculuğun bunları kazandırdı': 'Your journey so far earned these', 'Bir şehri arkadaşınla paylaş': 'Share a city with a friend',
+  'Fransa, Almanya, İtalya ya da İspanya’dan 3 şehir dinle': 'Listen to 3 cities in France, Germany, Italy or Spain',
+  'İngiltere, İrlanda, İzlanda ya da Norveç’ten 2 şehir dinle': 'Listen to 2 cities in England, Ireland, Iceland or Norway',
+  'İstanbul’un radyosunu dinle': 'Listen to Istanbul’s radio', 'Kuzey ve güney yarımkürede 5\'er şehir dinle': 'Listen to 5 cities in each hemisphere',
+  // Seriler
+  'Gerçek Dünya': 'Real World', 'Kartografya': 'Cartography', 'Minimal': 'Minimal', 'Gece & Işık': 'Night & Light', 'Mevsimler': 'Seasons', 'Taş & Mineral': 'Stone & Mineral',
+  'Gökyüzü Saatleri': 'Sky Hours', 'Sanat': 'Art', 'Kültürler': 'Cultures', 'Bilim': 'Science',
+  'GERÇEK DÜNYA': 'REAL WORLD', 'KARTOGRAFYA': 'CARTOGRAPHY', 'MINIMAL': 'MINIMAL', 'GECE & IŞIK': 'NIGHT & LIGHT', 'MEVSIMLER': 'SEASONS', 'TAŞ & MINERAL': 'STONE & MINERAL',
+  'GÖKYÜZÜ SAATLERI': 'SKY HOURS', 'SANAT': 'ART', 'KÜLTÜRLER': 'CULTURES', 'BILIM': 'SCIENCE', 'KOLEKSİYON': 'COLLECTION',
+  // Küre adları
+  'Klasik': 'Classic', 'KLASİK': 'CLASSIC', 'Akik': 'Agate', 'Alacakaranlık': 'Twilight', 'Altın Saat': 'Golden Hour', 'Amazon': 'Amazon', 'Ametist': 'Amethyst', 'Art Deco': 'Art Deco', 'Ay Işığı': 'Moonlight',
+  'Bakır': 'Copper', 'Batimetri': 'Bathymetry', 'Bauhaus': 'Bauhaus', 'Deniz Haritası': 'Nautical Chart', 'Derin Mavi': 'Deep Blue', 'Empresyonist': 'Impressionist', 'Eski Atlas': 'Old Atlas',
+  'Gece Işıkları': 'Night Lights', 'Gece Minimal': 'Night Minimal', 'Gece Yarısı': 'Midnight', 'Gemici': 'Mariner', 'Grafit': 'Graphite', 'Granit': 'Granite', 'Gün Batımı': 'Sunset', 'Gün Ortası': 'High Noon',
+  'Hasat': 'Harvest', 'Havana': 'Havana', 'Isı Haritası': 'Heat Map', 'Jeoloji': 'Geology', 'Kar': 'Snow', 'Karakalem': 'Charcoal', 'Kehribar': 'Amber', 'Kehribar Şehirler': 'Amber Cities', 'Kiraz Çiçeği': 'Cherry Blossom',
+  'Kontur': 'Contour', 'Kozmik': 'Cosmic', 'Kum': 'Sand', 'Kutup Güneşi': 'Midnight Sun', 'Kutup Sabahı': 'Polar Morning', 'Kutup Işığı': 'Polar Light', 'Kutup ışığı': 'Polar light', 'Kyoto': 'Kyoto', 'Kâğıt': 'Paper', 'Kâşif Defteri': 'Explorer’s Notebook',
+  'Kızıl Gezegen': 'Red Planet', 'Kızılötesi': 'Infrared', 'Kış': 'Winter', 'Lale Zamanı': 'Tulip Time', 'Lapis Lazuli': 'Lapis Lazuli', 'Lav': 'Lava', 'Manyetik Alan': 'Magnetic Field', 'Mavi Bilye': 'Blue Marble',
+  'Mavi Kopya': 'Blueprint', 'Mavi Saat': 'Blue Hour', 'Mermer': 'Marble', 'Monokrom': 'Monochrome', 'Muson': 'Monsoon', 'Mürekkep': 'Ink', 'Nane': 'Mint', 'Neon Tokyo': 'Neon Tokyo', 'Nordik Gece': 'Nordic Night',
+  'Obsidyen': 'Obsidian', 'Parşömen': 'Parchment', 'Pastel': 'Pastel', 'Piri Reis': 'Piri Reis', 'Pop Art': 'Pop Art', 'Radar': 'Radar', 'Risograf': 'Risograph', 'Röntgen': 'X-Ray', 'Sahra': 'Sahara', 'Santorini': 'Santorini',
+  'Sepya': 'Sepia', 'Sis': 'Fog', 'Sonar': 'Sonar', 'Sonbahar': 'Autumn', 'Suluboya': 'Watercolor', 'Tan Yeri': 'Daybreak', 'Termal': 'Thermal', 'Topoğrafya': 'Topography', 'Tropikal': 'Tropical', 'Turkuaz': 'Turquoise',
+  'Ukiyo-e': 'Ukiyo-e', 'Venedik': 'Venice', 'Vitray': 'Stained Glass', 'Yaz': 'Summer', 'Yeşil Gezegen': 'Green Planet', 'Yeşim': 'Jade', 'Yıldız Tozu': 'Stardust', 'Yıldızlı Gece': 'Starry Night', 'Zümrüt Gece': 'Emerald Night',
+  'Çöl Rüzgârı': 'Desert Wind', 'İlk Kar': 'First Snow', 'İlkbahar': 'Spring', 'İpek Yolu': 'Silk Road', 'İskandinav': 'Scandinavian', 'İstanbul Çini': 'Istanbul Tile', 'İsviçre Minimal': 'Swiss Minimal', 'İzlanda': 'Iceland',
+  'Şafak': 'Dawn', 'Gemici Haritası': 'Mariner’s Chart',
+  // Küre rozetleri (kısa)
+  'AKİK': 'AGATE', 'ALACA': 'DUSK', 'ALTIN': 'GOLD', 'AMBER': 'AMBER', 'AMETİST': 'AMETHYST', 'ATLAS': 'ATLAS', 'AURORA': 'AURORA', 'BAHAR': 'SPRING', 'BAKIR': 'COPPER', 'BAUHAUS': 'BAUHAUS', 'BİLYE': 'MARBLE',
+  'DECO': 'DECO', 'DENİZ': 'SEA', 'DERİN': 'DEEP', 'FIRTINA': 'STORM', 'GECE': 'NIGHT', 'GEMİCİ': 'MARINER', 'GRAFİT': 'GRAPHITE', 'GRANİT': 'GRANITE', 'GÜNEŞ': 'SUN', 'GÜZ': 'FALL', 'HASAT': 'HARVEST',
+  'HAVANA': 'HAVANA', 'JEOLOJİ': 'GEOLOGY', 'KALEM': 'PENCIL', 'KEHRİBAR': 'AMBER', 'KIZIL': 'RED', 'KIŞ': 'WINTER', 'KONTUR': 'CONTOUR', 'KOPYA': 'PRINT', 'KOZMİK': 'COSMIC', 'KUTUP': 'POLAR', 'KYOTO': 'KYOTO',
+  'KİRAZ': 'CHERRY', 'LALE': 'TULIP', 'LAPİS': 'LAPIS', 'LİZBON': 'LISBON', 'MANYETİK': 'MAGNETIC', 'MARAKEŞ': 'MARRAKESH', 'MERMER': 'MARBLE', 'MONO': 'MONO', 'MUSON': 'MONSOON', 'MÜREKKEP': 'INK', 'MİSAFİR': 'GUEST',
+  'NANE': 'MINT', 'NEON': 'NEON', 'NORDİK': 'NORDIC', 'OBSİDYEN': 'OBSIDIAN', 'PARŞÖMEN': 'PARCHMENT', 'PASTEL': 'PASTEL', 'PİRİ': 'PIRI', 'RADAR': 'RADAR', 'RIFF': 'RIFF', 'RİSO': 'RISO', 'SAHRA': 'SAHARA',
+  'SANTORİNİ': 'SANTORINI', 'SEPYA': 'SEPIA', 'SONAR': 'SONAR', 'SULU': 'WATER', 'SİS': 'FOG', 'TERMAL': 'THERMAL', 'TOPO': 'TOPO', 'TROPİK': 'TROPIC', 'TURKUAZ': 'TURQUOISE', 'VENEDİK': 'VENICE', 'VİTRAY': 'GLASS',
+  'YEŞİL': 'GREEN', 'YEŞİM': 'JADE', 'YILDIZ': 'STAR', 'YILDIZLI': 'STARRY', 'ZÜMRÜT': 'EMERALD', 'ÇÖL': 'DESERT', 'ÇİNİ': 'TILE', 'ÖĞLE': 'NOON', 'ÜYE': 'MEMBER', 'İLK KAR': 'FIRST SNOW', 'İPEK': 'SILK',
+  'İSVİÇRE': 'SWISS', 'İZLANDA': 'ICELAND', 'ŞAFAK': 'DAWN', 'ŞEHİR': 'CITY', 'AY': 'MOON', 'LAV': 'LAVA', 'KAR': 'SNOW', 'KUM': 'SAND', 'NİL': 'NILE',
+  // Küre açıklamaları
+  'NASA uydu verisinden gerçek Dünya: fiziksel ışık, atmosfer, bulutlar ve gece tarafında yanan şehirler.': 'The real Earth from NASA satellite data: physical light, atmosphere, clouds and cities glowing on the night side.',
+  'Güneşsiz bir gece: NASA şehir ışıkları, ay ışığında belli belirsiz kıtalar.': 'A night without sun: NASA city lights and continents faint in the moonlight.',
+  'Güneş yok; dolunayın gümüş ışığında kıtalar ve şehirlerin ılık parıltısı.': 'No sun; continents in silver full-moon light and the warm glow of cities.',
+  '1513’ün ruhuyla: ceylan derisi tonları, el çizimi kıyılar, kırmızı ekvator.': 'In the spirit of 1513: deerskin tones, hand-drawn coasts, a red equator.',
+  '1972, Apollo 17: tam aydınlık, masmavi, kusursuz bir bilye.': '1972, Apollo 17: fully lit, deep blue, a flawless marble.',
+  'Açık gri denizler, kemik beyazı kara, mercan bir ekvator.': 'Light gray seas, bone-white land, a coral equator.',
+  'Anadolu’nun taşı: turkuaz denizler, kum rengi kara.': 'The stone of Anatolia: turquoise seas, sand-colored land.',
+  'Azulejo karoları: beyaz denizler, kobalt kıtalar.': 'Azulejo tiles: white seas, cobalt continents.',
+  'Bebek mavisi denizler, pudra pembesi kıtalar.': 'Baby-blue seas, powder-pink continents.',
+  'Beyazın üstüne beyaz; yalnızca kıyılar belli belirsiz.': 'White on white; only the coasts faintly show.',
+  'Bir kâşifin haritası: sepya mürekkep, taranmış dağlar, solgun kâğıt okyanuslar.': 'An explorer’s map: sepia ink, hatched mountains, pale paper oceans.',
+  'Bir ressamın gecesi: lacivert girdaplar, altın kıyılar.': 'A painter’s night: navy swirls, golden coasts.',
+  'Bitki örtüsü kızıla döner; uydu gözüyle bir bakış.': 'Vegetation turns red; a look through a satellite’s eye.',
+  'Buğday tarlaları gibi altın kıtalar.': 'Continents golden like wheat fields.',
+  'Camgöbeği lagünler, gür yeşil adalar.': 'Cyan lagoons, lush green islands.',
+  'Damarlı beyaz taştan oyulmuş bir küre.': 'A globe carved from veined white stone.',
+  'Denizaltı ekranından: yeşil tek bir sinyal ve karanlık.': 'From a submarine screen: a single green signal and darkness.',
+  'Denizin altı: kıta sahanlıkları ve derin hendekler öne çıkar.': 'Beneath the sea: continental shelves and deep trenches stand out.',
+  'Derin yeşil sular ve fosforlu kıyılar.': 'Deep green waters and phosphorescent coasts.',
+  'Doğu’nun değerli taşı: süt yeşili kıtalar.': 'The precious stone of the East: milky green continents.',
+  'Dünyanın ciğeri: koyu yeşil, bereketli, nemli.': 'The lungs of the world: dark green, fertile, humid.',
+  'Düz kara, siyah kıyı çizgisi, kırmızı ekvator. Gereksiz hiçbir şey yok.': 'Flat land, black coastline, red equator. Nothing unnecessary.',
+  'Eski bir fotoğraf gibi: tek ton, sıcak ve sessiz.': 'Like an old photograph: one tone, warm and quiet.',
+  'Ferah, serin, sade: nane yeşili kıtalar.': 'Airy, cool, simple: mint-green continents.',
+  'Gece kulübü zarafeti: siyah ve altın.': 'Nightclub elegance: black and gold.',
+  'Gece yarısı caddeleri: pembe kıyılar, camgöbeği ışıklar.': 'Midnight streets: pink coasts, cyan lights.',
+  'Gecenin en koyu saati; kıyılar soluk mavi.': 'The darkest hour of the night; coasts pale blue.',
+  'Gün batımından hemen sonra: her şey derin bir maviye gömülür.': 'Just after sunset: everything sinks into deep blue.',
+  'Gün batımının bal rengi ışığı bütün gezegene yayılmış; kıtalar sıcak, okyanuslar derin.': 'The honey light of sunset spread over the planet; warm continents, deep oceans.',
+  'Günün ilk ışığı: şeftali kıyılar, mor bir gökyüzü.': 'The day’s first light: peach coasts, a purple sky.',
+  'Güneşte yanmış kıtalar, berrak turkuaz denizler.': 'Sun-scorched continents, clear turquoise seas.',
+  'Hava kontrol ekranı: yeşil fosfor ve karanlık.': 'Air traffic screen: green phosphor and darkness.',
+  'Her şey yumuşak, her şey uzak.': 'Everything soft, everything far.',
+  'Hiç batmayan güneş: buz beyazı kıtalar, altın kıyılar.': 'A sun that never sets: ice-white continents, golden coasts.',
+  'Işığın çekildiği an: gri-mavi bir dinginlik.': 'The moment the light withdraws: a gray-blue calm.',
+  'Japon gravürü: yosun yeşili kara, çivit kıyılar, kırmızı bir mühür.': 'Japanese woodblock: moss-green land, indigo coasts, a red seal.',
+  'Kaptan köşkünden: derinlik tonları, ince kıyı çizgileri, sakin bir lacivert mürekkep.': 'From the bridge: depth tones, fine coastlines, calm navy ink.',
+  'Kara mavi, kıyı siyah, ekvator kırmızı. Biçim işlevi izler.': 'Land blue, coast black, equator red. Form follows function.',
+  'Karanlık kıtalarda kehribar gibi yanan kıyı şehirleri.': 'Coastal cities glowing like amber on dark continents.',
+  'Karla örtülü kıtalar ve çelik mavisi denizler.': 'Snow-covered continents and steel-blue seas.',
+  'Katedral camından süzülen bordo, altın ve camgöbeği.': 'Burgundy, gold and cyan filtering through cathedral glass.',
+  'Kayaç katmanları: toprak tonları ve taranmış dağlar.': 'Rock strata: earth tones and hatched mountains.',
+  'Kervanların haritası: safran tonları ve kırmızı bir ekvator.': 'The caravans’ map: saffron tones and a red equator.',
+  'Kireç beyazı adalar, koyu Ege mavisi.': 'Whitewashed islands, deep Aegean blue.',
+  'Krem kâğıt, sıcak gri kara, tuğla rengi bir ekvator.': 'Cream paper, warm gray land, a brick-red equator.',
+  'Kum fırtınası sonrası: kehribar çöller, toz pembesi ufuk.': 'After the sandstorm: amber deserts, a dusty-pink horizon.',
+  'Kum tepelerinin altın dalgaları.': 'The golden waves of the dunes.',
+  'Kumsal tonları; kahverengi tek bir çizgi.': 'Beach tones; a single brown line.',
+  'Kurşun kalem grileri ve ince bir sarı ekvator.': 'Pencil grays and a thin yellow equator.',
+  'Kurşun rengi bir gökyüzü altında gergin bir sessizlik.': 'A tense silence under a leaden sky.',
+  'Kutup dairesinin uzun gecesi; buz mavisi kıyılar.': 'The long night of the polar circle; ice-blue coasts.',
+  'Kutuplar arasında gerilen mavi ve pembe çizgiler.': 'Blue and pink lines stretched between the poles.',
+  'Kutuplardan süzülen yeşil perdeler; kıyılar nane, ufuk mavi.': 'Green curtains flowing from the poles; mint coasts, blue horizon.',
+  'Kâğıda yayılmış ıslak mavi ve yeşil.': 'Wet blue and green spreading on paper.',
+  'Kütüphanenin en arka rafından: yıpranmış deri, kahverengi mürekkep, taranmış dağlar.': 'From the library’s back shelf: worn leather, brown ink, hatched mountains.',
+  'Kıyılar akkor, denizler kömür karası.': 'Coasts glowing hot, seas coal black.',
+  'Kıyılar sıcak, denizler soğuk.': 'Warm coasts, cold seas.',
+  'Kızıl surlar, safran ve Majorelle mavisi.': 'Red walls, saffron and Majorelle blue.',
+  'Kışın ilk sabahı: her şey yumuşak ve sessiz.': 'The first morning of winter: everything soft and quiet.',
+  'Lacivert taşın içinde altın damarlar.': 'Golden veins in a deep-blue stone.',
+  'Lacivert üstüne buz mavisi kıyılar; sessiz bir gece.': 'Ice-blue coasts on navy; a quiet night.',
+  'Lavanta ışıltısıyla çizilmiş kıtalar; uzayın en sakin köşesi.': 'Continents drawn in lavender shimmer; the calmest corner of space.',
+  'Lav taşı, yosun ve buzul suyu.': 'Lava stone, moss and glacier water.',
+  'Lila ve gül kurusu; uyanmak üzere bir dünya.': 'Lilac and dusty rose; a world about to wake.',
+  'Mars’ın tozlu tonlarında bir Dünya hayali: pas rengi kara, koyu bakır denizler.': 'An Earth dreamed in Mars’ dusty tones: rust land, dark copper seas.',
+  'Mor kristallerin sakin ışığı.': 'The calm light of purple crystals.',
+  'Mor soğuktan sarı sıcağa bir veri gezegeni.': 'A data planet from cold purple to hot yellow.',
+  'Mor ve pembe bir bulutsunun ortasında asılı bir gezegen.': 'A planet hanging in a purple and pink nebula.',
+  'Mühendis masasından bir plan: lacivert zemin, beyaz tebeşir kıyılar.': 'A plan from the engineer’s desk: navy ground, white chalk coasts.',
+  'Nilüferli bir bahçe: mavi, yeşil ve güneş sarısı.': 'A garden of water lilies: blue, green and sun yellow.',
+  'Nisan bahçeleri: yeşil kara, kıyılarda lale kırmızısı.': 'April gardens: green land, tulip red on the coasts.',
+  'Okyanusların ağır bastığı bir Dünya; sahanlıklar camgöbeği, açık deniz gece mavisi.': 'An ocean-heavy Earth; cyan shelves, midnight-blue open sea.',
+  'Ormanların geri kazandığı bir gezegen: zümrüt kıtalar, sakin koyu sular.': 'A planet reclaimed by forests: emerald continents, calm dark waters.',
+  'Pas, bal ve tarçın: dökülen yaprakların gezegeni.': 'Rust, honey and cinnamon: a planet of falling leaves.',
+  'Pastel cepheler, turkuaz Karayip, şeftali kıyılar.': 'Pastel façades, turquoise Caribbean, peach coasts.',
+  'Patine olmuş yeşil denizler ve parlak bakır kıtalar.': 'Patinated green seas and bright copper continents.',
+  'Pembe beyaz çiçeklerle kaplı bir gezegen.': 'A planet covered in pink and white blossoms.',
+  'Reçinenin içinde donmuş sıcak bir ışık.': 'A warm light frozen in resin.',
+  'Rüzgâr gülü ve pusula: gri-mavi denizler, kırmızı bir yön çizgisi.': 'Compass rose and compass: gray-blue seas, a red bearing line.',
+  'Saf mavi, saf sarı, kalın siyah çizgi.': 'Pure blue, pure yellow, a thick black line.',
+  'Sahada tutulmuş notlar: zeytin yeşili kara, kurşun kalem kıyılar.': 'Field notes: olive-green land, pencil coasts.',
+  'Sağlam, gri, zamansız.': 'Solid, gray, timeless.',
+  'Siyah deniz, beyaz kara; başka hiçbir şey.': 'Black sea, white land; nothing else.',
+  'Siyah kâğıda tek bir beyaz çizgi.': 'A single white line on black paper.',
+  'Soğuk, berrak bir sabah: buz mavisi denizler, kar beyazına çalan kıtalar.': 'A cold, clear morning: ice-blue seas, continents near snow white.',
+  'Sıcak beyaz ışıklarla örülmüş kıyılar; sessiz bir uçuş.': 'Coasts woven with warm white lights; a quiet flight.',
+  'Tapınak bahçesi: yosun, ahşap ve kırmızı bir kapı.': 'A temple garden: moss, wood and a red gate.',
+  'Taranmış gölgeler, kömür kıyılar.': 'Hatched shadows, charcoal coasts.',
+  'Taze yeşil, açık mavi, çiçek pembesi kıyılar.': 'Fresh green, light blue, blossom-pink coasts.',
+  'Tepedeki güneş: parlak mavi denizler, berrak kıtalar.': 'The sun overhead: bright blue seas, clear continents.',
+  'Ticaret yollarının haritası: lagün yeşili sular, terakota kıtalar.': 'A map of trade routes: lagoon-green waters, terracotta continents.',
+  'Turuncu kıtalar, mürdüm denizler.': 'Orange continents, plum seas.',
+  'Volkanik cam: siyahın içinde gri yansımalar.': 'Volcanic glass: gray reflections inside black.',
+  'Yalnızca çizgiler: ızgara, kıyı ve ekvator.': 'Only lines: grid, coast and equator.',
+  'Yağmurla doymuş yeşiller, ağır ve ıslak bir hava.': 'Rain-soaked greens, heavy wet air.',
+  'Yükseklik katmanları: ovalar yeşil, dağlar kum rengi, ızgara görünür.': 'Elevation bands: green plains, sand-colored mountains, visible grid.',
+  'İki renkli baskı makinesinden çıkmış gibi.': 'As if straight from a two-color press.',
+  'İznik çinisi: kobalt mavi denizler, süt beyazı kara, mercan kırmızısı.': 'İznik tile: cobalt seas, milk-white land, coral red.',
+  'İçi görünen bir gezegen: soğuk beyaz kontürler.': 'A planet you can see inside: cold white contours.',
+  'Şarap kırmızısı, tütsü ve gül tonları.': 'Wine red, incense and rose tones.',
+  // Profil
+  'Rota': 'Route', 'Duraklar': 'Stops', 'Favoriler': 'Favorites', 'Kıtalar': 'Continents', 'BUGÜNKÜ ROTAN': 'TODAY’S ROUTE', 'DURAKLAR': 'STOPS', 'FAVORİLER': 'FAVORITES', 'KITALAR': 'CONTINENTS', 'DÜNYA TURU TAMAM': 'WORLD TOUR COMPLETE',
+  'Bugün henüz yola çıkmadın': 'You haven’t set off today', 'Henüz durak yok': 'No stops yet', 'Bir şehrin radyosu çalınca damgası buraya basılır.': 'When a city’s radio plays, its stamp lands here.',
+  'DAMGAYA DOKUN, KÜREDE AÇ': 'TAP A STAMP, OPEN IT ON THE GLOBE', 'Henüz favorin yok': 'No favorites yet',
+  'Dinlerken kalbe dokun; istasyon buraya gelsin. Çalan şarkının yanındaki + ile şarkıyı da kaydedebilirsin.': 'Tap the heart while listening and the station lands here. Use + next to the playing song to save it too.',
+  'Kaydedilen şarkılar': 'Saved songs', "Spotify'da ara": 'Search on Spotify', "Apple Music'te ara": 'Search on Apple Music',
+  'dinleme': 'listening', 'şehir': 'cities', 'ülke': 'countries', 'MİSAFİR': 'GUEST', 'Yolculuğunu kaybetme': 'Don’t lose your journey',
+  'Damgaların ve favorilerin şu an yalnızca bu cihazda. Bir hesapla her yerde seninle.': 'Your stamps and favorites live only on this device for now. With an account they go everywhere with you.',
+  // Ayarlar
+  'Ayarlar': 'Settings', 'Ayarları kapat': 'Close settings', 'Tercihler': 'Preferences', 'Titreşim': 'Haptics', 'Dokunuşlarda hafif geri bildirim': 'Light feedback on touch',
+  'Gece ve gündüz': 'Night and day', 'Ana kürede güneşin gerçek konumu ve şehir ışıkları': 'The sun’s real position and city lights on the main globe',
+   'Arka planda süzülen renkler': 'Colors drifting in the background', 'Teknik rozet': 'Technical badge', 'Küre ekranında görüntü ayrıntıları': 'Image details on the globe screen',
+  'Uyku zamanlayıcısı': 'Sleep timer', 'Radyoyu bir süre sonra kapat': 'Turn the radio off after a while', 'KAPALI': 'OFF', 'kapalı': 'off', 
+  'Sonunda ses 30 sn’de söner': 'At the end the sound fades over 30 s', 'sönüyor': 'fading',
+  'Çıkış yap': 'Sign out', 'Misafirden çık': 'Leave guest mode', 'Hesabı sil': 'Delete account', 'Misafir modundan çık': 'Leave guest mode',
+  'Favorilerin ve damgaların bu cihazda saklanmaya devam eder.': 'Your favorites and stamps stay on this device.',
+  'Bu cihazdaki oturumun kapatılacak. Verilerin hesabında güvende; tekrar giriş yapınca geri gelir.': 'You’ll be signed out on this device. Your data is safe in your account and comes back when you sign in.',
+  'Hesabı kalıcı olarak sil': 'Delete account permanently',
+  'Favorilerin, damgaların ve açtığın küreler dahil tüm verilerin sunucudan ve bu cihazdan silinecek. Bu işlem geri alınamaz.': 'All your data, including favorites, stamps and unlocked globes, will be deleted from the server and this device. This cannot be undone.',
+  'Hesabın ve tüm verilerin silindi': 'Your account and all your data were deleted', 'Hesabı silmek için önce yeniden giriş yap': 'Sign in again before deleting your account', 'Hesap silinemedi': 'Account could not be deleted',
+  'Çıkış yapıldı': 'Signed out', 'Ses günlüğü': 'Audio log', 'Temizle': 'Clear', 'Henüz kayıt yok': 'Nothing logged yet', 'Radyolu alarm': 'Radio alarm', 'Güneşin doğduğu yerden uyan': 'Wake up where the sun is rising',
+  'Her sabah seçtiğin saatte bildirim gelir; dokununca o an güneşin doğduğu şehrin radyosu çalar.': 'Every morning at your chosen time you get a notification; tap it and the radio of a city seeing sunrise right then starts playing.',
+  'Alarm bildirim gerektirdiği için yalnızca uygulamada çalışır.': 'The alarm needs notifications, so it works only in the app.',
+  'Günaydın ☀️': 'Good morning ☀️', 'Güneşin şu an doğduğu şehrin radyosu seni bekliyor. Dokun, başlasın.': 'A city is seeing sunrise right now and its radio is waiting for you. Tap to start.',
+  'Bildirim izni verilmedi · telefonun Ayarlar’ından wGlobe bildirimlerini açabilirsin': 'Notifications not allowed · you can turn on wGlobe notifications in your phone’s Settings',
+  'Alarm kurulamadı · tekrar dene': 'Couldn’t set the alarm · try again', 'Alarm kapatıldı': 'Alarm turned off',
+  'Dil': 'Language', 'Dil · Language': 'Dil · Language', 'Fırtına': 'Storm', 'Lizbon': 'Lisbon', 'Marakeş': 'Marrakesh', 'sa': 'h', 'dk': 'min', 'sn': 's', 'Otomatik': 'Automatic',
+  'Uygulama dili': 'App language', 'Telefonun diline göre': 'Follows your phone’s language',
+  // Masaüstü yan panel
+  'ETKİLEŞİMLİ PROTOTİP': 'INTERACTIVE PROTOTYPE', 'ÖNİZLEMEDE SİMÜLE EDİLENLER': 'SIMULATED IN THE PREVIEW', 'HAREKET': 'MOTION',
+  'Expo uygulamasının tarayıcı prototipi. Küre NASA Blue Marble / Black Marble uydu verisinden, fiziksel ışıkla çiziliyor: gerçek güneş konumu, Rayleigh + Mie atmosfer saçılması, okyanus parlaması, bulut gölgeleri. İki parmakla ya da tekerlekle yakınlaştır.': 'The browser prototype of the Expo app. The globe is drawn from NASA Blue Marble / Black Marble satellite data with physical light: the real sun position, Rayleigh + Mie atmospheric scattering, ocean glint and cloud shadows. Zoom with two fingers or the wheel.',
+  'Radyo sesi: şehrin ruh hâline göre üretilen ambiyans. Uygulamada canlı yayın çalar.': 'Radio sound: ambience generated from the city’s mood. The app plays the live stream.',
+  "Radyolar canlıdır (Radio Browser); hava durumu Open-Meteo'dan gelir. Ağ kapalıysa örnek veriye düşülür.": 'Stations are live (Radio Browser); weather comes from Open-Meteo. Offline, it falls back to sample data.',
+  'Hesap: e-posta ve şifre doğrulanır, oturum simüle edilir.': 'Account: email and password are checked against the account service.',
+  'Değiştirmek istediğin her şeyi yaz; önce burada deneriz, sonra Expo koduna taşırım.': 'Write anything you want to change; we try it here first, then move it into the Expo code.',
+  'Açılış koreografisi': 'Opening choreography', 'Basış / bırakış': 'Press / release', 'Kart girişi': 'Card entrance', 'Küre sönümü': 'Globe damping', 'Tema morfu': 'Theme morph', 'Bağlantı': 'Connection',
+  '100 ms / yay': '100 ms / spring', 'yay / 240 ms': 'spring / 240 ms', '0.95 / kare': '0.95 / frame', '≈5.0 sn': '≈5.0 s',
+  // Paylaşım kartı (tuval)
+  'ŞU AN DİNLİYORUM': 'LISTENING NOW', 'wGlobe · dünyanın radyosu': 'wGlobe · the world’s radio', 'yerel saat': 'local time', 'wGlobe · canlı radyo': 'wGlobe · live radio',
+}, [
+  // Durum etiketi (erişilebilirlik): "Radyo durumu: bağlanıyor, Paris"
+  [/^Radyo durumu: ([^,]+)(?:, (.+))?$/, (_, s, r) => `Radio status: ${({ 'radyo kapalı': 'radio off', 'duraklatıldı': 'paused', 'bağlanıyor': 'connecting', 'sıradaki yayın': 'next stream', 'canlı': 'live', 'yayın yok': 'no stream' })[s] || s}${r ? ', ' + I18N.tr(r) : ''}`],
+  [/^(\d+) FAVORİ İSTASYON$/, (_, n) => `${n} FAVORITE STATION${n === '1' ? '' : 'S'}`],
+  [/^(\d+) ŞARKI$/, (_, n) => `${n} SONG${n === '1' ? '' : 'S'}`],
+  [/^(\d+) KÜRE ·$/, (_, n) => `${n} GLOBES ·`],
+  [/^(\d+) \/ (\d+) AÇIK$/, (_, a, b) => `${a} / ${b} UNLOCKED`],
+  [/^(\d+) küre senin oldu$/, (_, n) => n === '1' ? 'A globe is yours' : `${n} globes are yours`],
+  [/^(\d+) şehirde$/, (_, n) => `in ${n} cit${n === '1' ? 'y' : 'ies'}`],
+  [/^saat şu an (\d+)( civarı)?$/, (_, h, near) => near ? `it’s around ${h}:00` : `it’s ${h}:00 now`],
+  [/^(\d+) DURAK$/, (_, n) => `${n} STOP${n === '1' ? '' : 'S'}`],
+  [/^(\d+)\. DURAK$/, (_, n) => `STOP ${n}`],
+  [/^(\d+) ŞEHİR$/, (_, n) => `${n} CIT${n === '1' ? 'Y' : 'IES'}`],
+  [/^(\d+) dk$/, (_, n) => `${n} min`],
+  [/^Alarm kuruldu · her gün (\d\d:\d\d)$/, (_, h) => `Alarm set · every day at ${h}`],
+  [/^(\d+) ülke$/, (_, n) => `${n} countr${n === '1' ? 'y' : 'ies'}`],
+  [/^(\d+) şehir$/, (_, n) => `${n} cit${n === '1' ? 'y' : 'ies'}`],
+  [/^([\d.,]+) KM$/, (_, n) => `${n} KM`],
+  [/^Bugünkü rota: (.+)$/, (_, r) => r === 'henüz durak yok' ? 'Today’s route: no stops yet' : `Today’s route: ${r}`],
+  [/^(.+), yerel saat (\d\d:\d\d)$/, (_, c, h) => `${c}, local time ${h}`],
+  [/^(.+): kürede aç$/, (_, c) => `${c}: open on the globe`],
+  [/^(.+) radyoları$/, (_, c) => `Radio in ${c}`],
+  [/^(.+) yakınları$/, (_, c) => `Near ${c}`],
+  [/^(.+) favorilerden çıkar$/, (_, s) => `Remove ${s} from favorites`],
+  [/^(.+) kaydedilenlerden çıkar$/, (_, s) => `Remove ${s} from saved`],
+  [/^(.+) — şarkıyı kaydet$/, (_, s) => `${s} — save song`],
+  [/^(.+) — kaydedilenlerden çıkar$/, (_, s) => `${s} — remove from saved`],
+  [/^(.+) küreye uygulandı$/, (_, g) => `${I18N.tr(g)} applied to the globe`],
+  [/^(.+) koleksiyonuna eklendi$/, (_, g) => `${I18N.tr(g)} added to your collection`],
+  [/^(.+) · paylaşılan radyo$/, (_, c) => `${c} · shared radio`],
+  [/^Günün şehri serisi: (\d+) gün$/, (_, n) => `City of the day streak: ${n} days`],
+  [/^Seriyi sürdür$/, () => 'Keep the streak'],
+  [/^Çıkış yapıldı · (\d+) değişiklik eşitlenemedi$/, (_, n) => `Signed out · ${n} change${n === '1' ? '' : 's'} could not sync`],
+  [/^Hesap silinemedi · (.+)$/, (_, m) => `Account could not be deleted · ${I18N.tr(m)}`],
+  [/^Misafir verilerin \((\d+) favori, (\d+) damga\) yeni hesabına taşınacak\.$/, (_, f, d) => `Your guest data (${f} favorites, ${d} stamps) will move to your new account.`],
+  [/^Henüz eşitlenmemiş (\d+) değişiklik var\. (.+)$/, (_, n) => `${n} change${n === '1' ? ' is' : 's are'} not synced yet. We’ll try to send ${n === '1' ? 'it' : 'them'} before signing out; without a connection ${n === '1' ? 'it' : 'they'} will be lost.`],
+  [/^Çevrimdışı · (\d+) değişiklik bağlantı gelince eşitlenecek$/, (_, n) => `Offline · ${n} change${n === '1' ? '' : 's'} will sync when back online`],
+  [/^(\d+) değişiklik gönderiliyor$/, (_, n) => `Sending ${n} change${n === '1' ? '' : 's'}`],
+  [/^Hesabınla eşit · (.+)$/, (_, a) => `In sync with your account · ${a === 'az önce' ? 'just now' : a.replace(/(\d+) dk önce/, '$1 min ago').replace(/(\d+) sa önce/, '$1 h ago')}`],
+  [/^(.+) adresi henüz onaylanmadı\. E-postandaki onay bağlantısına dokun, sonra tekrar giriş yap\.$/, (_, e) => `${e} is not confirmed yet. Tap the confirmation link in your email, then sign in again.`],
+  [/^Onay bağlantısını (.+) adresine gönderdik\. .+$/, (_, e) => `We sent a confirmation link to ${e}. Tap it, then come back here and sign in. (If this address is already registered, you can sign in directly.)`],
+  [/^Onay e-postasını (.+) adresine yeniden gönderdik\. .+$/, (_, e) => `We sent the confirmation email to ${e} again. Check your inbox and spam folder.`],
+  [/^(.+) bir hesaba bağlıysa şifre sıfırlama bağlantısı birkaç dakika içinde gelir\. .+$/, (_, e) => `If ${e} belongs to an account, a reset link arrives within a few minutes. Tap it to choose a new password.`],
+  [/^Şimdi · (\d\d:\d\d)$/, (_, h) => `Now · ${h}`],
+  [/^(Yarın|Dün) (\d\d:\d\d)$/, (_, d, h) => `${d === 'Yarın' ? 'Tomorrow' : 'Yesterday'} ${h}`],
+  [/^(?:(\d+) sa)? ?(?:(\d+) dk)? (sonra|önce)$/, (_, h, m, w) => `${[h ? h + ' h' : '', m ? m + ' min' : ''].filter(Boolean).join(' ')} ${w === 'sonra' ? 'later' : 'earlier'}`],
+  [/^(-?\d+)° (.+)$/, (_, n, w) => `${n}° ${({ 'Açık': 'Clear', 'Çoğunlukla açık': 'Mostly clear', 'Parçalı bulutlu': 'Partly cloudy', 'Kapalı': 'Overcast', 'Sisli': 'Foggy', 'Yağmurlu': 'Rainy', 'Hafif kar': 'Light snow', 'Sağanak': 'Showers', 'Fırtına': 'Storm' })[w] || w}`],
+  [/^şimdi: (.+)$/, (_, c) => `now: ${c}`],
+  [/^şu an akşam: (.+)$/, (_, c) => `evening now: ${c}`],
+  [/^Toplam ([\d,]+) saat radyo dinle$/, (_, n) => `Listen to ${n.replace(',', '.')} hours of radio in total`],
+  [/^(\d+) farklı ülkenin radyosunu dinle$/, (_, n) => `Listen to radio from ${n} different countries`],
+  [/^(\d+) farklı şehrin radyosunu dinle$/, (_, n) => `Listen to radio from ${n} different cities`],
+  [/^(\d+) istasyonu favorilerine ekle$/, (_, n) => `Add ${n} stations to your favorites`],
+  [/^(\d+) kez paylaşım kartı gönder$/, (_, n) => `Send a share card ${n} times`],
+  [/^(\d+) kıtadan radyo dinle$/, (_, n) => `Listen to radio from ${n} continents`],
+  [/^(\d+) farklı saat diliminde dinle$/, (_, n) => `Listen in ${n} different time zones`],
+  [/^60° kuzeyin ötesinde (\d+) şehir dinle$/, (_, n) => `Listen to ${n} cit${n === '1' ? 'y' : 'ies'} beyond 60° north`],
+  [/^Ekvatora yakın \(±12°\) (\d+) şehir dinle$/, (_, n) => `Listen to ${n} cities near the equator (±12°)`],
+  [/^Tropiklerde (\d+) şehir dinle$/, (_, n) => `Listen to ${n} cities in the tropics`],
+  [/^Uçuş modunda (\d+) durak gez$/, (_, n) => `Visit ${n} stops in flight mode`],
+  [/^Koleksiyonunda (\d+) küre topla$/, (_, n) => `Collect ${n} globes`],
+  [/^Yerel saatle gece \(20:00–05:00\) (\d+) şehir dinle$/, (_, n) => `Listen to ${n} cit${n === '1' ? 'y' : 'ies'} at night, local time (20:00–05:00)`],
+  [/^Yerel saatle gece yarısından sonra \(00–04\) (\d+) şehir dinle$/, (_, n) => `Listen to ${n} cit${n === '1' ? 'y' : 'ies'} after midnight, local time (00–04)`],
+  [/^Gece 01–04 arası (\d+) şehir dinle$/, (_, n) => `Listen to ${n} cities between 01–04 at night`],
+  [/^(Alacakaranlıkta|Gece yarısında|Gün batımı saatinde|Gün batımında|Gün ortasında|Sabah erkenden|Tan vaktinde|Şafakta) \(([\d–]+)\) (\d+) şehir dinle$/, (_, w, r, n) => `Listen to ${n} cit${n === '1' ? 'y' : 'ies'} ${({ 'Alacakaranlıkta': 'at dusk', 'Gece yarısında': 'around midnight', 'Gün batımı saatinde': 'at sunset', 'Gün batımında': 'at sunset', 'Gün ortasında': 'at midday', 'Sabah erkenden': 'early in the morning', 'Tan vaktinde': 'at daybreak', 'Şafakta': 'at dawn' })[w]} (${r})`],
+  [/^(.+?)[’'](?:da|de|ta|te) (\d+) farklı ülke dinle$/, (_, p, n) => `Listen to ${n} different countries in ${PLACE_EN[p] || p}`],
+  [/^(.+?)[’'](?:dan|den|tan|ten) (\d+) şehir dinle$/, (_, p, n) => `Listen to ${n} cities in ${PLACE_EN[p] || p}`],
+  [/^(.+?)[’'](?:dan|den|tan|ten) bir şehir dinle$/, (_, p) => `Listen to a city in ${PLACE_EN[p] || p}`],
+  [/^(.+) radyosunu dinle$/, (_, c) => `Listen to radio in ${c}`],
+  [/^(.+) dinle$/, (_, s) => `Play ${s}`],
+]);
+const PLACE_EN = { 'ABD': 'the US', 'Brezilya': 'Brazil', 'Fransa': 'France', 'Japonya': 'Japan', 'İskandinavya': 'Scandinavia', 'Afrika': 'Africa', 'Güney Amerika': 'South America', 'Okyanusya': 'Oceania', 'Fas': 'Morocco', 'Küba': 'Cuba', 'Portekiz': 'Portugal', 'Yunanistan': 'Greece', 'İzlanda': 'Iceland', 'Avrupa': 'Europe', 'Asya': 'Asia' };
+
+}
 const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
 const lerp = (a, b, t) => a + (b - a) * t;
 const TAU = Math.PI * 2, D2R = Math.PI / 180, R2D = 180 / Math.PI;
@@ -1798,7 +2224,7 @@ function zoned(tz, d = new Date()) {
 }
 const pad = n => String(n).padStart(2, '0');
 const cityTime = tz => { const z = zoned(tz); return `${pad(z.h)}:${pad(z.mi)}:${pad(z.s)}`; };
-const cityDate = tz => new Intl.DateTimeFormat('tr-TR', { timeZone: tz, day:'numeric', month:'long', weekday:'long' }).format(new Date());
+const cityDate = tz => new Intl.DateTimeFormat(LOC, { timeZone: tz, day:'numeric', month:'long', weekday:'long' }).format(new Date());
 function offsetMin(tz) { const d = new Date(); const z = zoned(tz, d); return Math.round((Date.UTC(z.y, z.mo - 1, z.d, z.h, z.mi, z.s) - Math.floor(d / 1000) * 1000) / 60000); }
 function utcLabel(tz) { const o = offsetMin(tz); if (!o) return 'UTC'; const a = Math.abs(o); return `UTC${o > 0 ? '+' : '−'}${Math.floor(a / 60)}${a % 60 ? ':' + pad(a % 60) : ''}`; }
 const stampShort = iso => { const d = new Date(iso); return `${pad(d.getDate())}.${pad(d.getMonth() + 1)}.${String(d.getFullYear()).slice(2)}`; };
@@ -1840,7 +2266,7 @@ let cloudHook = null;   // Cloud modülü kurulunca bağlanır: her kayıttan so
 let npHook = null, npNow = null;   // Şu an çalan şarkı: NowPlaying modülü kurulunca bağlanır
 function save() {
   if (cloudHook) setTimeout(cloudHook, 0);
-  try { const { auth, email, theme, unlocked, favorites, visits, lastCityId, listenMs, joinedAt, uid, prefs, stats, cotd, songs } = state; localStorage.setItem(STORE_KEY, JSON.stringify({ auth, email, theme, unlocked, favorites, visits, lastCityId, listenMs, joinedAt, uid, prefs, stats, cotd, songs })); } catch (e) {}
+  try { const { auth, email, theme, unlocked, favorites, visits, lastCityId, listenMs, joinedAt, uid, prefs, stats, cotd, songs, alarm } = state; localStorage.setItem(STORE_KEY, JSON.stringify({ auth, email, theme, unlocked, favorites, visits, lastCityId, listenMs, joinedAt, uid, prefs, stats, cotd, songs, alarm })); } catch (e) {}
 }
 
 // ═════════════════════════════════════════════════════════
@@ -3576,7 +4002,7 @@ const SatMosaic = (() => {
 })();
 
 /** Sürüm etiketi: sitede hangi sürümün açık olduğunu rozetten görmek için (önbellek kontrolü). */
-const BUILD = 'v50';
+const BUILD = 'v51';
 const MapGlobe = (() => {
   const host = document.getElementById('mapStage');
   const badge = document.getElementById('lodBadge');
@@ -4748,7 +5174,7 @@ function placeCityTag(p) {
   const city = CITY[state.activeCityId];
   if (!p || !city || !state.sheetOpen || !p.visible || !p.arrived || hopStart) { if (cityTag.classList.contains('show')) hideCityTag(); return; }
   cityTag.style.transform = `translate(${p.x}px, ${p.y}px) translate(-50%, calc(-100% - 16px))`;
-  if (!cityTag.classList.contains('show')) { $('#ctName').textContent = city.name.toLocaleUpperCase('tr-TR'); cityTag.classList.add('show'); if (arrivedFor !== city.id) { arrivedFor = city.id; vibrate('arrive'); } }
+  if (!cityTag.classList.contains('show')) { $('#ctName').textContent = city.name.toLocaleUpperCase(LOC); cityTag.classList.add('show'); if (arrivedFor !== city.id) { arrivedFor = city.id; vibrate('arrive'); } }
   const t = cityTime(city.timezone).slice(0, 5); if ($('#ctTime').textContent !== t) $('#ctTime').textContent = t;
 }
 const STATUS_LABEL = { idle: 'RADYO KAPALI', paused: 'DURAKLATILDI', loading: 'BAĞLANIYOR', failover: 'SIRADAKİ YAYIN', playing: 'CANLI', error: 'YAYIN YOK' };
@@ -4861,7 +5287,7 @@ function renderSheetDynamic() {
     const cls = s === 'playing' ? 'on-air' : busy ? 'busy' : s === 'error' ? 'err' : '';
     const saved = song && isSongSaved(song, st);
     const name = st ? st.name : city.country + ' radyoları', status = song
-      ? `<div class="st-status fade ${cls} has-song"><span class="ld"></span><button type="button" class="np-btn" id="npSave" aria-label="${esc(songLabel(song))} — ${saved ? 'kaydedilenlerden çıkar' : 'şarkıyı kaydet'}"><span class="np-t">${icon('music', 13)}<span>${esc(songLabel(song))}</span></span><span class="np-s ${saved ? 'on' : ''}">${icon(saved ? 'check' : 'plus', 13)}</span></button></div>`
+      ? `<div class="st-status fade ${cls} has-song"><span class="ld"></span><button type="button" class="np-btn" id="npSave" aria-label="${esc(songLabel(song))} — ${saved ? 'kaydedilenlerden çıkar' : 'şarkıyı kaydet'}"><span class="np-t">${icon('music', 13)}<span data-noi18n>${esc(songLabel(song))}</span></span><span class="np-s ${saved ? 'on' : ''}">${icon(saved ? 'check' : 'plus', 13)}</span></button></div>`
       : `<div class="st-status fade ${cls}"><span class="ld"></span><span>${esc(statusLine())}</span></div>`;
     const wrap = texts.querySelector('.st-name-wrap'), cur = wrap && wrap.querySelector('.st-name:not(.ghost)');
     if (cur && cur.textContent === name) {
@@ -4872,12 +5298,12 @@ function renderSheetDynamic() {
     else if (cur && texts.dataset.city === city.id && !reduceMotion.matches && state.sheetOpen) {
       // Aynı yerde istasyon değişti: eski ad yukarı kayıp söner, yenisi alttan yaylanarak gelir
       const ghost = cur; ghost.classList.add('ghost');
-      const fresh = document.createElement('div'); fresh.className = 'st-name'; fresh.textContent = name; wrap.appendChild(fresh);
+      const fresh = document.createElement('div'); fresh.className = 'st-name'; fresh.setAttribute('data-noi18n', ''); fresh.textContent = name; wrap.appendChild(fresh);
       ghost.animate([{ transform: 'none', opacity: 1 }, { transform: 'translateY(-100%)', opacity: 0 }], { duration: 160, easing: 'cubic-bezier(0.3,0,0.8,0.15)', fill: 'forwards' }).onfinish = () => ghost.remove();
       fresh.animate([{ transform: 'translateY(100%)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 260, delay: 60, easing: 'cubic-bezier(0.34,1.56,0.64,1)', fill: 'backwards' });
       const old = texts.querySelector('.st-status'); if (old) old.outerHTML = status;
       if (s === 'playing' || busy) refillViz();
-    } else texts.innerHTML = `<div class="st-name-wrap"><div class="st-name fade">${esc(name)}</div></div>${status}`;
+    } else texts.innerHTML = `<div class="st-name-wrap"><div class="st-name fade" ${st ? 'data-noi18n' : ''}>${esc(name)}</div></div>${status}`;
     texts.dataset.city = city.id;
   }
   const pb = $('#playBtn');
@@ -4963,7 +5389,7 @@ const Search = (() => {
         const code = a + b; let name, eng;
         try { name = tr.of(code); eng = en.of(code); } catch (e) { continue; }
         if (!name || name === code || /bilinmeyen|unknown|pseudo|outlying|europe|united nations|eurozone/i.test(eng || '') || /^(Q[M-Z]|X[A-Z]|ZZ|EU|EZ|UN)$/.test(code)) continue;
-        out.push({ code, name, en: eng, n: norm(name), ne: norm(eng) });
+        out.push({ code, name: EN ? eng : name, en: eng, n: norm(name), ne: norm(eng) });
       }
     } catch (e) {}
     return out;
@@ -5122,7 +5548,7 @@ const Search = (() => {
 // ═════════════════════════════════════════════════════════
 function openCity(id) { const c = CITY[id]; if (!c) return; setTab('globe'); handleSelect(c); }
 function stampSvg(v, i) {
-  const c = CITY[v.cityId], name = esc(v.cityName.toLocaleUpperCase('tr-TR')), tilt = [-7, 5, -3, 8, -5, 2][i % 6], id = 'arc' + i;
+  const c = CITY[v.cityId], name = esc(placeName(v.cityId, v.cityName).toLocaleUpperCase(LOC)), tilt = [-7, 5, -3, 8, -5, 2][i % 6], id = 'arc' + i;
   const fs = name.length > 11 ? 7.2 : name.length > 8 ? 8.2 : 9.2;
   return `<svg viewBox="0 0 100 100" style="transform:rotate(${tilt}deg)" role="img" aria-label="${name} damgası ${stampShort(v.visitedAt)}">
     <defs><path id="${id}" d="M 17 52 A 33 33 0 0 1 83 52"/><path id="${id}b" d="M 22 54 A 28 28 0 0 0 78 54"/></defs>
@@ -5383,7 +5809,7 @@ function renderThemes(dir, delayIn = 210) {
   const id = state.previewTheme, t = THEMES[id], unlocked = state.unlocked.includes(id), selected = state.theme === id, idx = THEME_ORDER.indexOf(id);
   $('#th').classList.toggle('ink-dark', isLightTheme(id)); updateInk();
   const ser = SERIES.find(x => x.id === THEME_SERIES[id]);
-  $('#thCount').textContent = `${ser ? ser.name.toLocaleUpperCase('tr-TR') + ' · ' : ''}${String(idx + 1).padStart(3, '0')} / ${THEME_ORDER.length}`;
+  $('#thCount').textContent = `${ser ? ser.name.toLocaleUpperCase(LOC) + ' · ' : ''}${String(idx + 1).padStart(3, '0')} / ${THEME_ORDER.length}`;
   const swaps = [$('#thName'), $('#thState'), $('#thDesc')];
   const fill = () => { $('#thName').textContent = t.name; $('#thDesc').textContent = t.desc; const el = $('#thState'); el.textContent = themeStateLabel(id); el.classList.toggle('accent', selected || unlocked); renderQuestLine(id); };
   themeAnims.forEach(a => a.cancel()); themeAnims = [];
@@ -5586,7 +6012,7 @@ $('#themeAction').addEventListener('click', themeAction);
 //  AURORA HAREKET MOTORU — dok damlası, sekme yönü, süzülme, anahtarlar
 // ═════════════════════════════════════════════════════════
 const TAB_ORDER = ['globe', 'explore', 'themes', 'profile'];
-const PREF_DEFAULTS = { haptics: true, autoplay: true, badge: false, aurora: true, night: true };
+const PREF_DEFAULTS = { haptics: true, autoplay: true, badge: false, aurora: true, night: true, lang: 'auto' };
 function pref(k) { const p = state.prefs || {}; return k in p ? p[k] : PREF_DEFAULTS[k]; }
 function setPref(k, v) { state.prefs = Object.assign({}, PREF_DEFAULTS, state.prefs, { [k]: v }); save(); applyPrefs(); }
 function applyPrefs() {
@@ -5667,6 +6093,65 @@ function sparkle(el) {
       { duration: 520 + Math.random() * 160, easing: 'cubic-bezier(0.2,0.8,0.2,1)', delay: 60 }).onfinish = () => sp.remove();
   }
 }
+// ── Radyolu alarm (yalnız uygulamada: bildirim gerekir). Cihaza özgüdür, hesapla eşitlenmez. ──
+const alarmState = () => Object.assign({ on: false, h: 7, m: 0 }, state.alarm || {});
+function alarmHTML() {
+  const a = alarmState(), hm = `${pad(a.h)}:${pad(a.m)}`;
+  return `<div class="px-set"><span class="ico">${icon('sunrise', 19)}</span><span class="tx"><b>Güneşin doğduğu yerden uyan</b><span class="small">${NATIVE ? 'Her sabah seçtiğin saatte bildirim gelir; dokununca o an güneşin doğduğu şehrin radyosu çalar.' : 'Alarm bildirim gerektirdiği için yalnızca uygulamada çalışır.'}</span></span>
+    <button class="tg" role="switch" aria-checked="${NATIVE && a.on}" data-alarm-toggle aria-label="Radyolu alarm" ${NATIVE ? '' : 'disabled'}><span class="knob"></span></button></div>
+    <div class="px-alarm-time ${NATIVE && a.on ? '' : 'off'}"><label for="alarmTime">Saat</label><input type="time" id="alarmTime" value="${hm}" ${NATIVE && a.on ? '' : 'disabled'}></div>`;
+}
+let alarmQuiet = false;   // açılıştaki sessiz yeniden kurulum: sonuç bildirimi gösterilmez
+function alarmSend(quiet) {
+  if (!NATIVE) return;
+  const a = alarmState(); alarmQuiet = !!quiet;
+  nativePost({ type: 'alarm:set', enabled: !!a.on, hour: a.h, minute: a.m, title: tx('Günaydın ☀️'), body: tx('Güneşin şu an doğduğu şehrin radyosu seni bekliyor. Dokun, başlasın.') });
+}
+function alarmRender() { const c = document.getElementById('alarmCard'); if (c) { c.innerHTML = alarmHTML(); if (EN) I18N.walk(c); } }
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-alarm-toggle]'); if (!b || !NATIVE) return;
+  const a = alarmState(); a.on = b.getAttribute('aria-checked') !== 'true';
+  state.alarm = a; save(); vibrate(a.on ? 'success' : 6); alarmRender(); alarmSend(false);
+});
+document.addEventListener('change', e => {
+  if (e.target.id !== 'alarmTime' || !NATIVE) return;
+  const m = /^(\d{1,2}):(\d{2})/.exec(e.target.value || ''); if (!m) return;
+  state.alarm = Object.assign(alarmState(), { h: clamp(+m[1], 0, 23), m: clamp(+m[2], 0, 59) }); save(); vibrate(6); alarmSend(false);
+});
+/** Yerelden: alarm kuruldu / kapandı / izin yok */
+function onAlarmStatus(m) {
+  const quiet = alarmQuiet; alarmQuiet = false;
+  if (!m.ok) {
+    state.alarm = Object.assign(alarmState(), { on: false }); save(); alarmRender();
+    toast(m.reason === 'permission' ? 'Bildirim izni verilmedi · telefonun Ayarlar’ından wGlobe bildirimlerini açabilirsin' : 'Alarm kurulamadı · tekrar dene');
+    return;
+  }
+  if (quiet) return;
+  toast(m.enabled ? `Alarm kuruldu · her gün ${pad(m.hour)}:${pad(m.minute)}` : 'Alarm kapatıldı');
+}
+/** Alarm bildirimine dokunuldu: açılış bitince güneşin doğduğu şehre git ve çal */
+function alarmFire() {
+  const t0 = Date.now();
+  const go = () => {
+    if (introRunning || state.view !== 'app') { if (Date.now() - t0 < 20000) setTimeout(go, 300); return; }
+    if (pxsOpen) closeSettings(true);
+    if (state.tab !== 'globe') setTab('globe');
+    vibrate('arrive'); chaseSunrise();
+  };
+  go();
+}
+
+// Dil seçimi: arayüz açılışta çevrildiği için yeni dil sayfa yenilenince uygulanır (180 ms: seçim işareti görünsün)
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-lang]'); if (!b) return;
+  const v = b.dataset.lang; if ((pref('lang') || 'auto') === v) return;
+  vibrate(6);
+  b.parentElement.querySelectorAll('[data-lang]').forEach(x => { const on = x === b; x.classList.toggle('on', on); x.setAttribute('aria-checked', String(on)); });
+  setPref('lang', v);
+  const next = v === 'auto' ? ((navigator.languages && navigator.languages.length ? navigator.languages : [navigator.language || 'tr']).some(l => /^tr\b/i.test(String(l))) ? 'tr' : 'en') : v;
+  if (next !== LANG) setTimeout(() => location.reload(), 180);
+  else { const n = document.querySelector('.px-lang-note'); if (n) n.textContent = v === 'auto' ? tx('Telefonun diline göre') : ''; }
+});
 document.addEventListener('click', e => {
   const t = e.target.closest('[data-tg]'); if (!t) return;
   const on = t.getAttribute('aria-checked') !== 'true';
@@ -5717,16 +6202,16 @@ function countUp(root) {
 }
 function displayName() {
   if (state.auth === 'guest') return 'Gezgin';
-  return (state.email || 'Gezgin').split('@')[0].split(/[._\-+]+/).filter(Boolean).map(w => w[0].toLocaleUpperCase('tr-TR') + w.slice(1)).join(' ') || 'Gezgin';
+  return (state.email || 'Gezgin').split('@')[0].split(/[._\-+]+/).filter(Boolean).map(w => w[0].toLocaleUpperCase(LOC) + w.slice(1)).join(' ') || 'Gezgin';
 }
 function greeting() { const h = new Date().getHours(); return h < 5 ? 'İyi geceler' : h < 12 ? 'Günaydın' : h < 18 ? 'İyi günler' : 'İyi akşamlar'; }
 function songRow(x) {
   const q = encodeURIComponent(x.artist ? `${x.artist} ${x.song}` : x.title);
-  return `<div class="px-row px-song" data-song-id="${esc(x.id)}"><div class="main"><span class="disc">${icon('music', 18)}</span><span class="tx"><b>${esc(x.song || x.title)}</b><span class="label">${esc([x.artist, x.stationName, x.cityName].filter(Boolean).join(' · '))}</span><span class="links"><a href="https://open.spotify.com/search/${q}" target="_blank" rel="noopener">Spotify'da ara</a><a href="https://music.apple.com/search?term=${q}" target="_blank" rel="noopener">Apple Music'te ara</a></span></span></div><button class="round press tight" data-rm-song="${esc(x.id)}" aria-label="${esc(x.song || x.title)} kaydedilenlerden çıkar">${icon('x', 18)}</button></div>`;
+  return `<div class="px-row px-song" data-song-id="${esc(x.id)}"><div class="main"><span class="disc">${icon('music', 18)}</span><span class="tx"><b data-noi18n>${esc(x.song || x.title)}</b><span class="label" data-noi18n>${esc([x.artist, x.stationName, placeName(x.cityId, x.cityName)].filter(Boolean).join(' · '))}</span><span class="links"><a href="https://open.spotify.com/search/${q}" target="_blank" rel="noopener">Spotify'da ara</a><a href="https://music.apple.com/search?term=${q}" target="_blank" rel="noopener">Apple Music'te ara</a></span></span></div><button class="round press tight" data-rm-song="${esc(x.id)}" aria-label="${esc(x.song || x.title)} kaydedilenlerden çıkar">${icon('x', 18)}</button></div>`;
 }
 function favRow(f, st) {
   const cur = !!(st && st.uuid === f.stationUuid && state.activeCityId === f.cityId);
-  return `<div class="px-row ${cur ? 'current' : ''} ${cur && state.status !== 'playing' ? 'paused' : ''}" data-fav-uuid="${esc(f.stationUuid)}"><button class="main press" data-play-fav="${f.id}" aria-label="${esc(f.stationName)} dinle"><span class="disc"><span class="pf-ico">${icon('radio', 18)}</span><span class="pf-eq"><i style="--t:300ms"></i><i style="--t:230ms"></i><i style="--t:350ms"></i></span></span><span class="tx"><b>${esc(f.stationName)}</b><span class="label">${esc(f.countryCode || '')} · ${esc(f.cityName)}</span></span></button><button class="round heartbtn press tight" data-rm-fav="${f.id}" aria-label="${esc(f.stationName)} favorilerden çıkar">${icon('heart', 20, 'filled')}</button></div>`;
+  return `<div class="px-row ${cur ? 'current' : ''} ${cur && state.status !== 'playing' ? 'paused' : ''}" data-fav-uuid="${esc(f.stationUuid)}"><button class="main press" data-play-fav="${f.id}" aria-label="${esc(f.stationName)} dinle"><span class="disc"><span class="pf-ico">${icon('radio', 18)}</span><span class="pf-eq"><i style="--t:300ms"></i><i style="--t:230ms"></i><i style="--t:350ms"></i></span></span><span class="tx"><b data-noi18n>${esc(f.stationName)}</b><span class="label">${esc(f.countryCode || '')} · ${esc(placeName(f.cityId, f.cityName))}</span></span></button><button class="round heartbtn press tight" data-rm-fav="${f.id}" aria-label="${esc(f.stationName)} favorilerden çıkar">${icon('heart', 20, 'filled')}</button></div>`;
 }
 /** Profil kürenin yerleşimi: kahraman alanındaki daire neredeyse küre orada (kaydırınca birlikte kayar). */
 function profileLayout(W, H) {
@@ -5763,7 +6248,7 @@ function pxPaneHTML(tab) {
   if (tab === 'route') {
     const r = todayRoute(); let km = 0; for (let k = 1; k < r.length; k++) km += kmBetween([r[k - 1].lat, r[k - 1].lng], [r[k].lat, r[k].lng]);
     const cc = new Set(r.map(x => x.cc).filter(Boolean)).size;
-    const cap = r.length ? `BUGÜNKÜ ROTAN · ${r.length} DURAK${km >= 1 ? ` · ${Math.round(km).toLocaleString('tr-TR')} KM` : ''}` : 'BUGÜNKÜ ROTAN';
+    const cap = r.length ? `BUGÜNKÜ ROTAN · ${r.length} DURAK${km >= 1 ? ` · ${Math.round(km).toLocaleString(LOC)} KM` : ''}` : 'BUGÜNKÜ ROTAN';
     return `<span class="label cap">${cap}</span>
       <div class="px-route" id="pxRoute" role="img" aria-label="Bugünkü rota: ${r.length ? esc(r.map(x => x.name).join(', ')) : 'henüz durak yok'}"><canvas></canvas>
       ${r.length ? `<div class="pr-ends"><span>${esc(r[0].name)}</span>${cc > 1 ? `<span class="mid">${cc} ülke</span>` : ''}${r.length > 1 ? `<span>${esc(r[r.length - 1].name)}</span>` : ''}</div>` : `<div class="pr-empty"><b>Bugün henüz yola çıkmadın</b><span>Bir şehre dokun ya da ileri tuşuna bas; rotan burada çizilsin.</span></div>`}</div>`;
@@ -5771,7 +6256,7 @@ function pxPaneHTML(tab) {
   if (tab === 'stamps') {
     const seen = new Set(), stamps = state.visits.filter(v => !seen.has(v.cityId) && seen.add(v.cityId)).slice(0, 24);
     return `<span class="label cap">${stamps.length ? `${stamps.length} ŞEHİR · DAMGAYA DOKUN, KÜREDE AÇ` : 'DURAKLAR'}</span>` + (stamps.length
-      ? `<div class="px-stamps">${stamps.map((v, k) => `<button class="px-stamp press" data-stamp="${esc(v.cityId)}" aria-label="${esc(v.cityName)}: kürede aç">${stampSvg(v, k)}</button>`).join('')}</div>`
+      ? `<div class="px-stamps">${stamps.map((v, k) => `<button class="px-stamp press" data-stamp="${esc(v.cityId)}" aria-label="${esc(placeName(v.cityId, v.cityName))}: kürede aç">${stampSvg(v, k)}</button>`).join('')}</div>`
       : `<div class="px-empty">${icon('stamp', 22)}<span><b>Henüz durak yok</b>Bir şehrin radyosu çalınca damgası buraya basılır.</span></div>`);
   }
   if (tab === 'favs') {
@@ -5811,7 +6296,7 @@ $('#profileScroll').addEventListener('click', e => { const t = e.target.closest(
 let pxsOpen = false, pxsReturn = null;
 function renderSettings(animate) {
   const guest = state.auth === 'guest', body = $('#pxsBody'); let i = 0; const nx = () => `style="--i:${i++}"`;
-  const initial = (displayName()[0] || 'G').toLocaleUpperCase('tr-TR');
+  const initial = (displayName()[0] || 'G').toLocaleUpperCase(LOC);
   body.innerHTML = `
     ${guest ? `<div ${nx()}><div class="px-call"><b>Yolculuğunu kaybetme</b><span class="small">Damgaların ve favorilerin şu an yalnızca bu cihazda. Bir hesapla her yerde seninle.</span>
       <div class="btns"><button class="btn solid press" data-go="register"><span class="lbl">Üye ol</span></button><button class="btn line press" data-go="login"><span class="lbl">Giriş yap</span></button></div></div></div>`
@@ -5823,6 +6308,11 @@ function renderSettings(animate) {
       ${toggleHTML('night', pref('night'), 'Gece ve gündüz', 'Ana kürede güneşin gerçek konumu ve şehir ışıkları', 'moon')}
       ${toggleHTML('badge', pref('badge'), 'Teknik rozet', 'Küre ekranında görüntü ayrıntıları', 'eye')}
     </div></div></div>
+    <div ${nx()}><div class="px-sec"><div class="px-head"><h3 class="h2" data-noi18n>Dil · Language</h3></div><div class="px-card px-langcard">
+      <div class="px-lang" role="radiogroup" aria-label="Dil · Language">${[['auto', 'Otomatik'], ['tr', 'Türkçe'], ['en', 'English']].map(([k, n]) => `<button type="button" class="press ${(pref('lang') || 'auto') === k ? 'on' : ''}" role="radio" aria-checked="${(pref('lang') || 'auto') === k}" data-lang="${k}" ${k === 'auto' ? '' : 'data-noi18n'}>${n}</button>`).join('')}</div>
+      <span class="small px-lang-note">${(pref('lang') || 'auto') === 'auto' ? 'Telefonun diline göre' : ''}</span>
+    </div></div></div>
+    <div ${nx()}><div class="px-sec"><div class="px-head"><h3 class="h2">Radyolu alarm</h3></div><div class="px-card" id="alarmCard">${alarmHTML()}</div></div></div>
     <div ${nx()}><div class="px-card"><div class="px-sleep" id="sleepCard"></div></div></div>
     ${guest ? '' : `<div ${nx()}><div class="px-syncline" id="syncLine" hidden></div></div>`}
     <div ${nx()}><div class="px-acct"><button class="btn line press" id="signOut"><span class="lbl">${icon('log-out', 18)}${guest ? 'Misafirden çık' : 'Çıkış yap'}</span></button>${guest ? '' : `<button class="btn danger press" id="deleteAcct"><span class="lbl">${icon('trash', 18)}Hesabı sil</span></button>`}</div></div>
@@ -5918,7 +6408,7 @@ function todayRoute() {
     const c = CITY[v.cityId], lat = Number.isFinite(v.lat) ? v.lat : c && c.lat, lng = Number.isFinite(v.lng) ? v.lng : c && c.lng;
     if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
     const last = out[out.length - 1]; if (last && last.id === v.cityId) return;
-    out.push({ id: v.cityId, name: v.cityName, lat, lng, cc: v.cc || (c && c.countryCode) || '' });
+    out.push({ id: v.cityId, name: placeName(v.cityId, v.cityName), lat, lng, cc: v.cc || (c && c.countryCode) || '' });
   });
   return out.slice(-30);
 }
@@ -6163,6 +6653,7 @@ const AUTH_MSG = {
   same: 'Yeni şifre eskisiyle aynı olamaz.',
   email: 'Bu e-posta adresi kabul edilmedi. Başka bir adres dene.',
   mailrate: 'Şu an çok fazla e-posta gönderildi. Birkaç dakika sonra tekrar dene.',
+  mailblocked: 'Onay e-postası bu adrese şu an gönderilemiyor. Biraz sonra tekrar dene ya da başka bir adres kullan.',
   rate: 'Çok fazla deneme yapıldı. Birkaç dakika sonra tekrar dene.',
   disabled: 'Yeni kayıtlar şu an kapalı.',
   network: 'Bağlantı kurulamadı. İnternetini kontrol edip tekrar dene.',
@@ -6209,6 +6700,7 @@ const Cloud = (() => {
     if (code === 'user_already_exists' || code === 'email_exists' || /already (been )?registered|already exists/.test(msg)) return 'exists';
     if (code === 'same_password' || /should be different/.test(msg)) return 'same';
     if (code === 'weak_password' || /password should|weak password|pwned/.test(msg)) return 'weak';
+    if (code === 'email_address_not_authorized' || /address not authorized/.test(msg)) return 'mailblocked';   // varsayılan SMTP: yalnız ekip adresleri
     if (code === 'email_address_invalid' || /email address .* invalid|invalid email/.test(msg)) return 'email';
     if (code === 'over_email_send_rate_limit' || /email rate limit/.test(msg)) return 'mailrate';
     if (st === 429 || code === 'over_request_rate_limit' || /rate limit|too many/.test(msg)) return 'rate';
@@ -6935,6 +7427,7 @@ const SITE_URL = 'https://bolut916.github.io/wGlobe/';
 /** Expo uygulamasının içinde mi çalışıyoruz? (WebView köprüsü) Uygulamada ses, titreşim ve paylaşım yereldir. */
 const NATIVE = !!(window.ReactNativeWebView && typeof window.ReactNativeWebView.postMessage === 'function');
 function nativePost(msg) { try { window.ReactNativeWebView.postMessage(JSON.stringify(msg)); } catch (e) {} }
+if (NATIVE && alarmState().on) setTimeout(() => alarmSend(true), 4000);   // bildirim kaybolduysa (yeniden kurulum) yeniden kurulur
 if (NATIVE) document.documentElement.classList.add('in-app');
 // iOS Safari: ses oturumu "çalma" türünde olsun → ekran kilitlenince ve sessiz anahtarında radyo susmaz
 try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (e) {}
@@ -7036,7 +7529,7 @@ const NativeAudio = (() => {
       if (key === loadKey) { nativePost({ type: 'audio:skipTo', loadId, index: i }); return; }
       loadKey = key; loadId++; everPlayed = false;
       const id = loadId;
-      nativePost({ type: 'audio:load', loadId: id, index: i, tracks, meta: { artist: `${city.name} · ${city.country}`, album: 'wGlobe · canlı radyo', artwork: null } });
+      nativePost({ type: 'audio:load', loadId: id, index: i, tracks, meta: { artist: `${city.name} · ${city.country}`, album: tx('wGlobe · canlı radyo'), artwork: null } });
       cityArt(city).then(art => { if (art && id === loadId) nativePost({ type: 'audio:art', loadId: id, artwork: art }); });   // kapak hazır olunca
     },
     pause() { if (loadKey) nativePost({ type: 'audio:pause', loadId }); },
@@ -7063,6 +7556,8 @@ function onNativeMessage(raw) {
   if (m.type === 'audio:state') NativeAudio.onState(m);
   else if (m.type === 'link' && m.params) openSharedLink(m.params);
   // Uygulamanın kilit ekranı / kulaklık tuşu: sitedeki gibi ileri → dünyanın başka yeri, geri → bir önceki yer
+  else if (m.type === 'alarm:status') onAlarmStatus(m);
+  else if (m.type === 'alarm:fire') alarmFire();
   else if (m.type === 'remote') { if (m.action === 'next') next(); else if (m.action === 'prev') prev(); }
 }
 window.wglobeNative = onNativeMessage;   // yerel taraf injectJavaScript ile çağırır
@@ -7087,8 +7582,8 @@ function mediaSync() {
   const song = s === 'playing' && st && npNow && npNow.url === st.url ? npNow : null;
   const key = `${city.id}|${st ? st.uuid : ''}|${state.theme}|${song ? song.title : ''}`;
   if (key === msKey) return; msKey = key;
-  const meta = song ? { title: song.song || song.title, artist: [song.artist, st.name, city.name].filter(Boolean).join(' · '), album: 'wGlobe · canlı radyo' }
-    : { title: st && !st.demo ? st.name : `${city.name} radyoları`, artist: `${city.name} · ${city.country}`, album: 'wGlobe · canlı radyo' };
+  const meta = song ? { title: song.song || song.title, artist: [song.artist, st.name, city.name].filter(Boolean).join(' · '), album: tx('wGlobe · canlı radyo') }
+    : { title: st && !st.demo ? st.name : tx(`${city.name} radyoları`), artist: `${city.name} · ${city.country}`, album: tx('wGlobe · canlı radyo') };
   const apply = art => { try { navigator.mediaSession.metadata = new MediaMetadata(Object.assign({}, meta, art ? { artwork: [{ src: art, sizes: '1024x1024', type: 'image/jpeg' }] } : {})); } catch (e) {} };
   apply(msArtUrl && msKey === key ? msArtUrl : null);
   cityArt(city).then(data => data ? fetch(data).then(r => r.blob()) : null).then(b => {
@@ -7132,13 +7627,13 @@ async function buildShareCard(city, st) {
   const W = 1080, H = 1350, cv = document.createElement('canvas'); cv.width = W; cv.height = H; const g = cv.getContext('2d');
   const y = await drawPocketScene(g, W, H, city, { globeR: 420, lipY: 770, margin: 40, radius: 54 });
   const X = 96, maxW = W - 2 * X;
-  g.fillStyle = '#A9D3FF'; g.font = '500 26px "Geist Mono", monospace'; g.fillText('ŞU AN DİNLİYORUM', X, y + 64);
+  g.fillStyle = '#A9D3FF'; g.font = '500 26px "Geist Mono", monospace'; g.fillText(tx('ŞU AN DİNLİYORUM'), X, y + 64);
   const px = fitText(g, city.name, '700 {px}px "Bricolage Grotesque", sans-serif', maxW, 120, 60), yCity = y + 76 + px * 0.88;
   g.fillStyle = '#F2F7FF'; g.font = `700 ${px}px "Bricolage Grotesque", sans-serif`; g.fillText(city.name, X, yCity);
   const t = localTime(city);
-  g.fillStyle = 'rgba(232,240,255,0.66)'; g.font = '500 36px Geist, sans-serif'; g.fillText(ellipsize(g, `${city.country}${t ? ' · yerel saat ' + t : ''}`, maxW), X, yCity + 62);
+  g.fillStyle = 'rgba(232,240,255,0.66)'; g.font = '500 36px Geist, sans-serif'; g.fillText(ellipsize(g, `${city.country}${t ? ' · ' + tx('yerel saat') + ' ' + t : ''}`, maxW), X, yCity + 62);
   if (st && !st.demo) { g.fillStyle = '#F2F7FF'; g.font = '600 40px Geist, sans-serif'; g.fillText(ellipsize(g, st.name, maxW), X, yCity + 124); }
-  g.fillStyle = 'rgba(169,211,255,0.75)'; g.font = '500 24px "Geist Mono", monospace'; g.fillText('wGlobe · dünyanın radyosu', X, H - 92);
+  g.fillStyle = 'rgba(169,211,255,0.75)'; g.font = '500 24px "Geist Mono", monospace'; g.fillText(tx('wGlobe · dünyanın radyosu'), X, H - 92);
   g.textAlign = 'right'; g.fillText('bolut916.github.io/wGlobe', W - X, H - 92); g.textAlign = 'left';
   return cv;
 }
@@ -7225,7 +7720,7 @@ async function openSharedLink(p) {
   toast(`${city.name} · paylaşılan radyo`);
 }
 var regionNamesTR = null;   // var: atlas daha önce (dosyanın başında) çağırıyor
-function countryNameTR(cc) { try { if (!regionNamesTR) regionNamesTR = new Intl.DisplayNames(['tr'], { type: 'region' }); return cc ? regionNamesTR.of(cc) : ''; } catch (e) { return ''; } }
+function countryNameTR(cc) { try { if (!regionNamesTR) regionNamesTR = new Intl.DisplayNames([EN ? 'en' : 'tr'], { type: 'region' }); return cc ? regionNamesTR.of(cc) : ''; } catch (e) { return ''; } }
 
 // ── Uçuş modu: küre her dakika uzak bir şehre süzülür, radyo değişir, şehir adı sinematik belirir ──
 const FLIGHT_LEG_MS = 60000;
@@ -7239,7 +7734,7 @@ function flightTitle(city) {
   const box = $('#flCard'); box.classList.remove('in'); void box.offsetWidth;
   $('#flCity').innerHTML = [...city.name].map((ch, i) => `<span style="--i:${i}">${ch === ' ' ? '&nbsp;' : esc(ch)}</span>`).join('');
   let t = ''; try { t = cityTime(city.timezone).slice(0, 5); } catch (e) {}
-  $('#flMeta').textContent = `${city.countryCode} · ${city.country.toLocaleUpperCase('tr-TR')} · ${t}`;
+  $('#flMeta').textContent = `${city.countryCode} · ${city.country.toLocaleUpperCase(LOC)} · ${t}`;
   $('#flSt').textContent = 'Yayın aranıyor…';
   box.classList.add('in');
 }
@@ -7325,7 +7820,7 @@ function openCotd(auto) {
   const c = cityOfDay(); cotdUI.city = c; cotdUI.open = true; cotdUI.auto = !!auto;
   if (state.sheetOpen) openSheet(false);
   const el = $('#cotd'), name = $('#cotdName'), len = [...c.name].length;
-  $('#cotdDate').textContent = new Intl.DateTimeFormat('tr-TR', { day: 'numeric', month: 'long', timeZone: 'UTC' }).format(new Date()).toLocaleUpperCase('tr-TR');
+  $('#cotdDate').textContent = new Intl.DateTimeFormat(LOC, { day: 'numeric', month: 'long', timeZone: 'UTC' }).format(new Date()).toLocaleUpperCase(LOC);
   name.className = 'cotd-name' + (len > 13 ? ' xlong' : len > 9 ? ' long' : '');
   name.innerHTML = [...c.name].map((ch, i) => `<span style="--i:${i}">${ch === ' ' ? '&nbsp;' : esc(ch)}</span>`).join('');
   name.setAttribute('aria-label', c.name);
@@ -7551,6 +8046,7 @@ function afterIntro() {
 }
 /** Ana sayfa arayüzünün kademeli gelişi (logo+üst → arama → sekme çubuğu, 90 ms arayla). */
 function arrive() { const app = $('#app'); app.classList.remove('arrive'); void app.offsetWidth; app.classList.add('arrive'); setTimeout(() => app.classList.remove('arrive'), 1200); }
+I18N.start();
 go('welcome', { replace: true });
 Cloud.boot();
 // Güncellemeden sonra ilk açılış: şimdiye kadarki yolculuğun kazandırdığı küreler tek bir kutlamayla açılır

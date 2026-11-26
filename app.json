@@ -19,7 +19,9 @@
       "buildNumber": "1",
       "supportsTablet": true,
       "infoPlist": {
-        "UIBackgroundModes": ["audio"],
+        "UIBackgroundModes": [
+          "audio"
+        ],
         "NSAppTransportSecurity": {
           "NSAllowsArbitraryLoads": false,
           "NSAllowsArbitraryLoadsForMedia": true,
@@ -87,6 +89,12 @@
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#050B18"
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "color": "#9CCBFF"
         }
       ]
     ],

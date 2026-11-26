@@ -10,6 +10,7 @@
  */
 import * as Haptics from 'expo-haptics';
 import * as Linking from 'expo-linking';
+import * as Notifications from 'expo-notifications';
 import * as Sharing from 'expo-sharing';
 import * as FS from 'expo-file-system/legacy';
 import { StatusBar } from 'expo-status-bar';
@@ -19,6 +20,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { WebView, type WebViewMessageEvent, type WebViewProps } from 'react-native-webview';
 
 import { NativeRadio } from '@/shell/NativeRadio';
+import { configureAlarm, isAlarmResponse, setAlarm } from '@/shell/Alarm';
 import { linkParams, parseWebMessage, type HapticName, type NativeMessage, type ShareMessage } from '@/shell/bridge';
 
 const SITE_URL = 'https://bolut916.github.io/wGlobe/';
@@ -97,6 +99,21 @@ export default function WGlobeShell() {
     web.current?.injectJavaScript(js);
   }, []);
 
+  // Radyolu alarm: bildirime dokunulunca web güneşin doğduğu şehri çalar. Uygulama bildirimle sıfırdan açıldıysa
+  // mesaj sayfa yüklenene kadar bekletilir (web tarafı ayrıca açılış animasyonunun bitmesini bekler).
+  const pendingAlarm = useRef(false);
+  const pageReady = useRef(false);
+  useEffect(() => {
+    void configureAlarm();
+    const fire = () => { if (pageReady.current) toWeb({ type: 'alarm:fire' }); else pendingAlarm.current = true; };
+    const sub = Notifications.addNotificationResponseReceivedListener((r) => { if (isAlarmResponse(r)) fire(); });
+    void Notifications.getLastNotificationResponseAsync().then((r) => {
+      // Yalnız yeni dokunuş (son 2 dk): eski bir alarm her açılışta yeniden çalmasın
+      if (isAlarmResponse(r) && r && Date.now() - r.notification.date < 120000) { fire(); void Notifications.clearLastNotificationResponseAsync().catch(() => undefined); }
+    }).catch(() => undefined);
+    return () => sub.remove();
+  }, [toWeb]);
+
   useEffect(() => {
     void NativeRadio.configure();
     radio.current = new NativeRadio(toWeb);
@@ -140,8 +157,9 @@ export default function WGlobeShell() {
       case 'audio:nowplaying': r?.nowPlaying(m.loadId, m.index, m.title); break;
       case 'haptic': haptic(m.p); break;
       case 'share': void shareCard(m); break;
+      case 'alarm:set': void setAlarm(m, toWeb); break;
     }
-  }, []);
+  }, [toWeb]);
 
   const retry = () => { setPhase('loading'); cover.setValue(1); setReloadKey((k) => k + 1); };
 
@@ -167,7 +185,11 @@ export default function WGlobeShell() {
         textZoom={100}
         webviewDebuggingEnabled={__DEV__}
         onMessage={onMessage}
-        onLoadEnd={() => setPhase((p) => (p === 'offline' ? p : 'ready'))}
+        onLoadEnd={() => {
+          setPhase((p) => (p === 'offline' ? p : 'ready'));
+          pageReady.current = true;
+          if (pendingAlarm.current) { pendingAlarm.current = false; setTimeout(() => toWeb({ type: 'alarm:fire' }), 600); }
+        }}
         onError={() => setPhase('offline')}
         onHttpError={(e) => { if (e.nativeEvent.statusCode >= 500 || e.nativeEvent.url.replace(/[?#].*$/, '') === SITE_URL) setPhase('offline'); }}
         onNavigationStateChange={(s) => { canGoBack.current = s.canGoBack; }}

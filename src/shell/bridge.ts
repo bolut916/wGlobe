@@ -23,14 +23,20 @@ export const HAPTIC_NAMES = ['error', 'warning', 'success', 'connect', 'arrive',
 export type HapticName = (typeof HAPTIC_NAMES)[number];
 export type HapticMessage = { type: 'haptic'; p: number | number[] | HapticName };
 export type ShareMessage = { type: 'share'; image: string; url: string; text: string; title?: string };
+/** Radyolu alarm: her gün hour:minute'te sesli bildirim (title/body web'in dilinde gelir) */
+export type AlarmSetMessage = { type: 'alarm:set'; enabled: boolean; hour: number; minute: number; title: string; body: string };
 
-export type WebMessage = AudioLoadMessage | AudioSkipMessage | AudioPauseMessage | AudioVolumeMessage | AudioArtMessage | AudioNowPlayingMessage | HapticMessage | ShareMessage;
+export type WebMessage = AudioLoadMessage | AudioSkipMessage | AudioPauseMessage | AudioVolumeMessage | AudioArtMessage | AudioNowPlayingMessage | HapticMessage | ShareMessage | AlarmSetMessage;
 
 export type AudioStateMessage = { type: 'audio:state'; loadId: number; index: number; playing: boolean; buffering: boolean; failed: boolean };
 export type LinkMessage = { type: 'link'; params: Record<string, string> };
 /** Kilit ekranı / kulaklık ileri-geri tuşu: web dünyanın başka yerine (ya da bir önceki yere) gider */
 export type RemoteMessage = { type: 'remote'; action: 'next' | 'prev' };
-export type NativeMessage = AudioStateMessage | LinkMessage | RemoteMessage;
+/** Alarm kuruldu/kapandı ya da kurulamadı (reason: bildirim izni yok / hata) */
+export type AlarmStatusMessage = { type: 'alarm:status'; ok: boolean; enabled: boolean; hour?: number; minute?: number; reason?: 'permission' | 'error' };
+/** Alarm bildirimine dokunuldu: web, güneşin doğduğu şehrin radyosunu başlatır */
+export type AlarmFireMessage = { type: 'alarm:fire' };
+export type NativeMessage = AudioStateMessage | LinkMessage | RemoteMessage | AlarmStatusMessage | AlarmFireMessage;
 
 /** Gelen mesajı doğrular (WebView içeriği güvenilir olsa da yapı bozuksa sessizce yok sayılır). */
 export function parseWebMessage(raw: string): WebMessage | null {
@@ -56,6 +62,11 @@ export function parseWebMessage(raw: string): WebMessage | null {
       return typeof o.v === 'number' ? (o as unknown as AudioVolumeMessage) : null;
     case 'haptic':
       return typeof o.p === 'number' || Array.isArray(o.p) || (typeof o.p === 'string' && (HAPTIC_NAMES as readonly string[]).includes(o.p)) ? (o as unknown as HapticMessage) : null;
+    case 'alarm:set': {
+      const okNum = (v: unknown, max: number) => typeof v === 'number' && Number.isInteger(v) && v >= 0 && v <= max;
+      const okStr = (v: unknown) => typeof v === 'string' && v.length > 0 && v.length <= 200;
+      return typeof o.enabled === 'boolean' && okNum(o.hour, 23) && okNum(o.minute, 59) && okStr(o.title) && okStr(o.body) ? (o as unknown as AlarmSetMessage) : null;
+    }
     case 'share':
       return typeof o.image === 'string' && typeof o.url === 'string' && typeof o.text === 'string' ? (o as unknown as ShareMessage) : null;
     default:
