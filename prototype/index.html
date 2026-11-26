@@ -1,4 +1,4 @@
-<!doctype html><html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>html,body{margin:0;padding:0}</style></head><body><title>wGlobe</title>
+<!doctype html><html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover"><style>html,body{margin:0;padding:0}</style></head><body><title>wGlobe</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Geist:wght@300..700&family=Geist+Mono:wght@400..600&display=swap">
@@ -51,7 +51,7 @@
   --pod-r: 28px;
   color-scheme: dark;
 }
-html, body { height: 100%; }
+html, body { height: 100%; touch-action: manipulation; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 body { background: var(--stage); color: var(--fg); font-family: var(--font); -webkit-font-smoothing: antialiased; overflow: hidden; overflow: clip; font-feature-settings: "ss01"; }
 * { box-sizing: border-box; }
 button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; -webkit-tap-highlight-color: transparent; text-align: inherit; }
@@ -223,7 +223,7 @@ svg.i.filled { fill: currentColor; }
 .search { position: absolute; top: calc(var(--sat) + 64px); left: 16px; right: 16px; z-index: 11; }
 .search-field { display: flex; align-items: center; gap: 10px; height: 46px; padding: 0 6px 0 14px; background: #0E1218; border: 1px solid rgba(232,240,255,0.14); border-radius: 14px; color: var(--fg-3); }
 .search-field:focus-within { border-color: rgba(232,240,255,0.34); }
-.search-field input { flex: 1; min-width: 0; height: 100%; background: transparent; border: 0; outline: none; color: var(--fg); font: 400 15px/1 var(--font); -webkit-appearance: none; appearance: none; }
+.search-field input { flex: 1; min-width: 0; height: 100%; background: transparent; border: 0; outline: none; color: var(--fg); font: 400 16px/1 var(--font); -webkit-appearance: none; appearance: none; }
 .search-field input::placeholder { color: var(--fg-3); }
 .search-field input::-webkit-search-cancel-button { display: none; }
 .s-clear { width: 34px; height: 34px; border: 0; background: transparent; color: var(--fg-2); font-size: 20px; line-height: 1; border-radius: 10px; cursor: pointer; }
@@ -3208,7 +3208,7 @@ const SatMosaic = (() => {
 })();
 
 /** Sürüm etiketi: sitede hangi sürümün açık olduğunu rozetten görmek için (önbellek kontrolü). */
-const BUILD = 'v40';
+const BUILD = 'v41';
 const MapGlobe = (() => {
   const host = document.getElementById('mapStage');
   const badge = document.getElementById('lodBadge');
@@ -3997,6 +3997,13 @@ const MapGlobe = (() => {
       try { fetch(u, { mode: 'cors', credentials: 'same-origin', priority: 'high' }).then(r => r.arrayBuffer()).catch(() => {}); } catch (e) {}
     });
   }
+  /** Kart kapanınca kürenin odağı kartın üstünden ekranın ortasına 600 ms'de süzülür (yer değişmez, yalnız kadraj) */
+  function easePad() {
+    if (!ready || !visible) return;
+    const p = map.getPadding(), q = padding();
+    if (Math.abs((p.bottom || 0) - q.bottom) < 1 && Math.abs((p.top || 0) - q.top) < 1) return;
+    map.easeTo({ padding: q, duration: reduceMotion.matches ? 0 : 600, easing: easeInOutCubic, essential: true });
+  }
   function flyTo(lng, lat, zoom, speed, pitch = 0, bearing = 0) {
     prefetchTiles(lng, lat, zoom);
     // flyTo önce süren uçuşu durdurur (moveend), hedef çağrıdan sonra kaydedilir.
@@ -4071,7 +4078,8 @@ const MapGlobe = (() => {
       topPad = open ? 0 : basePad.top;
       // Dokunulan yere (ya da aranan/karıştırılan şehre) yumuşak bir kavisle yakınlaşılır; kart kapanınca kamera oynamaz.
       selectFromMap = false;
-      if (!open || !city) return;
+      if (!open) { easePad(); return; }
+      if (!city) return;
       flyTo(city.lng, city.lat, imagery === 'satellite' ? 10 : 5.6, 1.1, 0, 0);
     },
     get ready() { return ready; },
@@ -4102,7 +4110,7 @@ const MapGlobe = (() => {
     overview(lng, lat, zoom = 1.35) { if (!ready || !visible) return; userControl = true; bottomPad = basePad.bottom; topPad = basePad.top; flyTo(lng, lat, zoom, 0.9, 0, 0); },
     /** Günün şehri: şehri ekranın üst yarısında, yörüngeden gösterir */
     showcase(city, bottom) { if (!ready || !visible || !city) return; userControl = true; bottomPad = Math.round(bottom); topPad = 0; map.flyTo({ center: [city.lng, city.lat], zoom: 3.1, padding: padding(), curve: 1.5, duration: reduceMotion.matches ? 0 : 1800, essential: true }, { wglobeFlight: true }); flight = { lng: city.lng, lat: city.lat, zoom: 3.1 }; },
-    restorePad() { bottomPad = state.sheetOpen ? bottomPad : basePad.bottom; topPad = state.sheetOpen ? 0 : basePad.top; },
+    restorePad() { bottomPad = state.sheetOpen ? bottomPad : basePad.bottom; topPad = state.sheetOpen ? 0 : basePad.top; easePad(); },
     _trail() { return { legs: legs.length, live: !!live }; },
     /** Yayın durumu değişti: dalgalar (çalıyor / bağlanıyor / sessiz) */
     syncStatus() { if (ready) waveSync(); },
@@ -6174,6 +6182,8 @@ document.querySelectorAll('[data-back]').forEach(b => b.addEventListener('click'
 $('#btnGuest').addEventListener('click', async () => { const b = $('#btnGuest'); setLoading(b, true); state.auth = 'guest'; save(); await sleep(250); setLoading(b, false); enterApp(); });
 document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => { vibrate(4); setTab(t.dataset.tab); }));
 
+// iOS Safari: arayüz üstünde iki parmak sayfayı büyütmesin (harita kendi yakınlaştırmasını dokunma olaylarıyla yapar)
+['gesturestart', 'gesturechange', 'gestureend'].forEach(t => document.addEventListener(t, e => e.preventDefault(), { passive: false }));
 // Sahne asla kaymaz: odak/scrollIntoView gibi tarayıcı hareketleri .screen'i ya da gövdeyi kaydırırsa anında sıfırlanır
 // (iOS Safari'de çıkış onayından sonra ekranların yukarı kayması). Klavye açıkken pencereye dokunulmaz.
 (() => {
