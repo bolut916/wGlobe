@@ -35,6 +35,8 @@ export class NativeRadio {
   private expect: number | null = null;
   private expectAt = 0;
   private finishedAt = 0;
+  /** Şu an çalan şarkı (web'den): yalnız aynı parça (istasyon) çalarken kilit ekranında başlık olur */
+  private now: { index: number; title: string } | null = null;
 
   constructor(private readonly emit: (msg: NativeMessage) => void) {}
 
@@ -93,6 +95,14 @@ export class NativeRadio {
     try { this.pl.updateLockScreenMetadata(this.metadata(this.pl.currentIndex)); } catch { /* kilit ekranı kapalı */ }
   }
 
+  /** Web, yayının ICY başlığından şarkıyı okudu (ya da şarkı bilgisi bitti: null) */
+  nowPlaying(loadId: number, index: number, title: string | null): void {
+    const pl = this.pl; if (!pl || loadId !== this.loadId) return;
+    const t = title && title.trim() ? title.trim().slice(0, 300) : null;
+    this.now = t ? { index, title: t } : null;
+    try { pl.updateLockScreenMetadata(this.metadata(pl.currentIndex)); } catch { /* kilit ekranı kapalı */ }
+  }
+
   /** Uyku zamanlayıcısının sönüşü */
   setVolume(v: number): void { if (this.pl) this.pl.volume = Math.max(0, Math.min(1, v)); }
 
@@ -103,11 +113,13 @@ export class NativeRadio {
       try { this.pl.clearLockScreenControls(); } catch { /* zaten temiz */ }
       try { this.pl.pause(); this.pl.destroy(); } catch { /* yok edilmiş */ }
     }
-    this.pl = null; this.lastSent = ''; this.expect = null; this.finishedAt = 0;
+    this.pl = null; this.lastSent = ''; this.expect = null; this.finishedAt = 0; this.now = null;
   }
 
   private metadata(index: number) {
     const t = this.tracks[index];
+    // Şarkı biliniyorsa: başlık = şarkı, alt satır = istasyon · şehir · ülke
+    if (t && this.now && this.now.index === index) return { title: this.now.title, artist: `${t.title} · ${this.artist}`, albumTitle: this.album, artworkUrl: this.artworkUrl };
     return { title: t ? t.title : 'wGlobe', artist: this.artist, albumTitle: this.album, artworkUrl: this.artworkUrl };
   }
 

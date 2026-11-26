@@ -115,6 +115,7 @@ export default function WGlobeShell() {
       case 'audio:pause': r?.pause(m.loadId); break;
       case 'audio:volume': r?.setVolume(m.v); break;
       case 'audio:art': void r?.setArtwork(m.loadId, m.artwork); break;
+      case 'audio:nowplaying': r?.nowPlaying(m.loadId, m.index, m.title); break;
       case 'haptic': haptic(m.p); break;
       case 'share': void shareCard(m); break;
     }

@@ -188,6 +188,21 @@ svg.i.filled { fill: currentColor; }
 .ch-top .display { font-size: 40px; line-height: 43px; max-width: 12ch; }
 .ch-actions { display: flex; flex-direction: column; gap: 10px; }
 
+/* Şu an çalan şarkı (v48): durum satırında; dokununca kaydedilir. Satır yüksekliği değişmez (dokunma alanı negatif boşlukla). */
+.st-status.has-song { color: var(--fg); }
+.np-btn { display: flex; align-items: center; gap: 6px; min-width: 0; flex: 1; margin: -7px 0; padding: 7px 0; text-align: left; color: inherit; font: inherit; }
+.np-t { display: flex; align-items: center; gap: 5px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.np-t .i { flex: none; color: var(--accent); }
+.np-t span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.np-s { flex: none; width: 20px; height: 20px; border-radius: 10px; display: grid; place-items: center; color: var(--fg-2); box-shadow: inset 0 0 0 1px var(--hair-2); transition: color 180ms var(--e-standard), background 180ms var(--e-standard), box-shadow 180ms var(--e-standard); }
+.np-s.on { color: var(--accent-ink); background: var(--accent); box-shadow: none; }
+@keyframes npPop { 0% { transform: scale(0.6); } 60% { transform: scale(1.18); } 100% { transform: scale(1); } }
+.np-s.pop { animation: npPop 260ms var(--e-standard); }
+.px-sub { padding: 10px 2px 2px; font: 600 10px/1 var(--mono); letter-spacing: 0.12em; color: var(--fg-3); text-transform: uppercase; }
+.px-song .disc { color: var(--accent); }
+.px-song .links { display: flex; gap: 12px; margin-top: 3px; }
+.px-song .links a { font-size: 12.5px; font-weight: 550; color: var(--accent); text-decoration: none; padding: 2px 0; }
+.px-song .tx .label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 /* ── Kimlik ───────────────────────────────────────────── */
 /* Hesap bildirimleri (v47): 280 ms'de 8 px aşağıdan gelir; eylem bağlantıları metnin altında. */
 @keyframes noteIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
@@ -1655,6 +1670,8 @@ const ICONS = {
   moon:'<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>',
   'log-out':'<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/>',
   trash:'<path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>',
+  music:'<path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>',
+  plus:'<path d="M5 12h14"/><path d="M12 5v14"/>',
   mail:'<rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>',
   alert:'<circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/>',
   'cloud-off':'<path d="m2 2 20 20"/><path d="M5.78 5.78A7 7 0 0 0 9 19h8.5a4.5 4.5 0 0 0 1.31-.2"/><path d="M21.53 16.5A4.5 4.5 0 0 0 17.5 10h-1.79A7 7 0 0 0 9.5 5.06"/>',
@@ -1772,11 +1789,13 @@ try { const saved = JSON.parse(localStorage.getItem(STORE_KEY) || 'null'); if (s
 if (!state.uid) state.uid = Math.random().toString(36).slice(2, 10);
 if (!Number.isFinite(state.listenMs)) state.listenMs = 0;
 if (!state.cotd || typeof state.cotd !== 'object') state.cotd = {};
+if (!Array.isArray(state.songs)) state.songs = [];
 state.moment = null;
 let cloudHook = null;   // Cloud modülü kurulunca bağlanır: her kayıttan sonra buluta gönderimi planlar
+let npHook = null, npNow = null;   // Şu an çalan şarkı: NowPlaying modülü kurulunca bağlanır
 function save() {
   if (cloudHook) setTimeout(cloudHook, 0);
-  try { const { auth, email, theme, unlocked, favorites, visits, lastCityId, listenMs, joinedAt, uid, prefs, stats, cotd } = state; localStorage.setItem(STORE_KEY, JSON.stringify({ auth, email, theme, unlocked, favorites, visits, lastCityId, listenMs, joinedAt, uid, prefs, stats, cotd })); } catch (e) {}
+  try { const { auth, email, theme, unlocked, favorites, visits, lastCityId, listenMs, joinedAt, uid, prefs, stats, cotd, songs } = state; localStorage.setItem(STORE_KEY, JSON.stringify({ auth, email, theme, unlocked, favorites, visits, lastCityId, listenMs, joinedAt, uid, prefs, stats, cotd, songs })); } catch (e) {}
 }
 
 // ═════════════════════════════════════════════════════════
@@ -3054,7 +3073,7 @@ function flushListen(keep) { if (!listenSince) return; state.listenMs = (state.l
 function trackListen(s) { if (s === 'playing') { if (!listenSince) listenSince = Date.now(); } else flushListen(false); }
 addEventListener('pagehide', () => flushListen(true));
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') flushListen(true); });
-function setStatus(s) { trackListen(s); state.status = s; MapGlobe.syncStatus(); renderLive(); renderSheetDynamic(); dkSync(); profileSync(); mediaSync(); flightSync(); if (s === 'playing') cotdCheck(); }
+function setStatus(s) { trackListen(s); state.status = s; MapGlobe.syncStatus(); renderLive(); renderSheetDynamic(); dkSync(); profileSync(); mediaSync(); flightSync(); if (npHook) npHook(); if (s === 'playing') cotdCheck(); }
 async function startAttempt(i, isFailover) {
   const city = CITY[state.activeCityId]; if (!city) { setStatus('error'); return; }
   const token = ++attemptToken; clearTimeout(startTimer);
@@ -3511,7 +3530,7 @@ const SatMosaic = (() => {
 })();
 
 /** Sürüm etiketi: sitede hangi sürümün açık olduğunu rozetten görmek için (önbellek kontrolü). */
-const BUILD = 'v47';
+const BUILD = 'v48';
 const MapGlobe = (() => {
   const host = document.getElementById('mapStage');
   const badge = document.getElementById('lodBadge');
@@ -4654,6 +4673,7 @@ function renderSheet() {
   $('#playBtn').addEventListener('click', () => { vibrate(10); toggle(); });
   $('#nextBtn').addEventListener('click', () => { vibrate(5); next(); });
   $('#favBtn').addEventListener('click', toggleFavorite);
+  $('#stTexts').addEventListener('click', e => { if (e.target.closest('#npSave')) toggleSong(); });
   $('#sheetHead').addEventListener('pointerdown', startSheetDrag);
   renderSheetDynamic();
   sheetH = $('#sheet').offsetHeight || sheetH;
@@ -4672,13 +4692,22 @@ function renderSheetDynamic() {
   const city = CITY[state.activeCityId], texts = $('#stTexts'); if (!city || !texts) return;
   const st = currentStation(), s = state.status, busy = s === 'loading' || s === 'failover';
   const viz = $('#viz'); viz.classList.toggle('playing', s === 'playing'); viz.classList.toggle('busy', busy);
-  const key = (st ? st.uuid : '') + s;
+  const song = s === 'playing' && st && npNow && npNow.url === st.url ? npNow : null;
+  const key = (st ? st.uuid : '') + s + (song ? '|' + song.title : '');
   if (texts.dataset.key !== key) {
+    const hadSong = (texts.dataset.key || '').includes('|');
     texts.dataset.key = key;
     const cls = s === 'playing' ? 'on-air' : busy ? 'busy' : s === 'error' ? 'err' : '';
-    const name = st ? st.name : city.country + ' radyoları', status = `<div class="st-status fade ${cls}"><span class="ld"></span><span>${esc(statusLine())}</span></div>`;
+    const saved = song && isSongSaved(song, st);
+    const name = st ? st.name : city.country + ' radyoları', status = song
+      ? `<div class="st-status fade ${cls} has-song"><span class="ld"></span><button type="button" class="np-btn" id="npSave" aria-label="${esc(songLabel(song))} — ${saved ? 'kaydedilenlerden çıkar' : 'şarkıyı kaydet'}"><span class="np-t">${icon('music', 13)}<span>${esc(songLabel(song))}</span></span><span class="np-s ${saved ? 'on' : ''}">${icon(saved ? 'check' : 'plus', 13)}</span></button></div>`
+      : `<div class="st-status fade ${cls}"><span class="ld"></span><span>${esc(statusLine())}</span></div>`;
     const wrap = texts.querySelector('.st-name-wrap'), cur = wrap && wrap.querySelector('.st-name:not(.ghost)');
-    if (cur && cur.textContent === name) { const old = texts.querySelector('.st-status'); if (old) old.outerHTML = status; }
+    if (cur && cur.textContent === name) {
+      const old = texts.querySelector('.st-status');
+      if (old && (song || hadSong) && state.sheetOpen && !reduceMotion.matches) rollStatus(old, status);
+      else if (old) old.outerHTML = status;
+    }
     else if (cur && texts.dataset.city === city.id && !reduceMotion.matches && state.sheetOpen) {
       // Aynı yerde istasyon değişti: eski ad yukarı kayıp söner, yenisi alttan yaylanarak gelir
       const ghost = cur; ghost.classList.add('ghost');
@@ -4695,6 +4724,35 @@ function renderSheetDynamic() {
   const fav = $('#favBtn'), on = !!(st && state.favorites.some(f => f.stationUuid === st.uuid));
   fav.classList.toggle('on', on); fav.disabled = !st; fav.setAttribute('aria-label', on ? 'Favorilerden çıkar' : 'Favorilere ekle');
   fav.querySelector('svg').classList.toggle('filled', on);
+}
+/** Durum satırı değişimi: eski satır 6 px yukarı kayıp söner (140 ms), yenisi 6 px aşağıdan gelir (220 ms). */
+function rollStatus(old, html) {
+  const tmp = document.createElement('div'); tmp.innerHTML = html; const fresh = tmp.firstElementChild; fresh.classList.remove('fade');
+  const out = old.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'translateY(-6px)' }], { duration: 140, easing: 'cubic-bezier(0.3,0,0.8,0.15)', fill: 'forwards' });
+  out.onfinish = () => {
+    if (!old.isConnected) return;   // bu arada başka bir çizim satırı değiştirdi
+    old.replaceWith(fresh);
+    fresh.animate([{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }], { duration: 220, easing: 'cubic-bezier(0.05,0.7,0.1,1)', fill: 'backwards' });
+  };
+}
+const songLabel = x => x.artist ? `${x.song} · ${x.artist}` : x.song || x.title;   // dar satırda önce şarkı kesilmesin
+const songKey = (title, stationUuid) => String(title || '').toLocaleLowerCase('tr-TR') + '|' + (stationUuid || '');
+function isSongSaved(song, st) { const k = songKey(song.title, st && st.uuid); return (state.songs || []).some(x => songKey(x.title, x.stationUuid) === k); }
+function toggleSong() {
+  const st = currentStation(), city = CITY[state.activeCityId];
+  if (!npNow || !st || !city || npNow.url !== st.url) return;
+  const k = songKey(npNow.title, st.uuid), i = state.songs.findIndex(x => songKey(x.title, x.stationUuid) === k);
+  let on;
+  if (i >= 0) { state.songs.splice(i, 1); on = false; vibrate(6); toast('Şarkı kaydedilenlerden çıkarıldı'); }
+  else {
+    state.songs.unshift({ id: 's' + Date.now() + '_' + Math.random().toString(36).slice(2, 6), title: npNow.title, artist: npNow.artist, song: npNow.song,
+      stationName: st.name, stationUuid: st.uuid, cityId: city.id, cityName: city.name, countryCode: city.countryCode, savedAt: new Date().toISOString() });
+    state.songs = state.songs.slice(0, 200); on = true; vibrate([8, 40, 8]); toast('Şarkı kaydedildi · Profil → Favoriler');
+  }
+  save();
+  const b = $('#npSave'), ss = b && b.querySelector('.np-s');
+  if (ss) { ss.classList.toggle('on', on); ss.innerHTML = icon(on ? 'check' : 'plus', 13); ss.classList.remove('pop'); void ss.offsetWidth; ss.classList.add('pop'); b.setAttribute('aria-label', `${songLabel(npNow)} — ${on ? 'kaydedilenlerden çıkar' : 'şarkıyı kaydet'}`); }
+  if (state.tab === 'profile' && state.view === 'app') renderProfile(false);
 }
 /** Ses çubukları soldan sağa, 9 ms arayla yeniden dolar (yeni yayın geldi hissi) */
 function refillViz() {
@@ -5501,6 +5559,10 @@ function displayName() {
   return (state.email || 'Gezgin').split('@')[0].split(/[._\-+]+/).filter(Boolean).map(w => w[0].toLocaleUpperCase('tr-TR') + w.slice(1)).join(' ') || 'Gezgin';
 }
 function greeting() { const h = new Date().getHours(); return h < 5 ? 'İyi geceler' : h < 12 ? 'Günaydın' : h < 18 ? 'İyi günler' : 'İyi akşamlar'; }
+function songRow(x) {
+  const q = encodeURIComponent(x.artist ? `${x.artist} ${x.song}` : x.title);
+  return `<div class="px-row px-song" data-song-id="${esc(x.id)}"><div class="main"><span class="disc">${icon('music', 18)}</span><span class="tx"><b>${esc(x.song || x.title)}</b><span class="label">${esc([x.artist, x.stationName, x.cityName].filter(Boolean).join(' · '))}</span><span class="links"><a href="https://open.spotify.com/search/${q}" target="_blank" rel="noopener">Spotify'da ara</a><a href="https://music.apple.com/search?term=${q}" target="_blank" rel="noopener">Apple Music'te ara</a></span></span></div><button class="round press tight" data-rm-song="${esc(x.id)}" aria-label="${esc(x.song || x.title)} kaydedilenlerden çıkar">${icon('x', 18)}</button></div>`;
+}
 function favRow(f, st) {
   const cur = !!(st && st.uuid === f.stationUuid && state.activeCityId === f.cityId);
   return `<div class="px-row ${cur ? 'current' : ''} ${cur && state.status !== 'playing' ? 'paused' : ''}" data-fav-uuid="${esc(f.stationUuid)}"><button class="main press" data-play-fav="${f.id}" aria-label="${esc(f.stationName)} dinle"><span class="disc"><span class="pf-ico">${icon('radio', 18)}</span><span class="pf-eq"><i style="--t:300ms"></i><i style="--t:230ms"></i><i style="--t:350ms"></i></span></span><span class="tx"><b>${esc(f.stationName)}</b><span class="label">${esc(f.countryCode || '')} · ${esc(f.cityName)}</span></span></button><button class="round heartbtn press tight" data-rm-fav="${f.id}" aria-label="${esc(f.stationName)} favorilerden çıkar">${icon('heart', 20, 'filled')}</button></div>`;
@@ -5552,9 +5614,11 @@ function pxPaneHTML(tab) {
       : `<div class="px-empty">${icon('stamp', 22)}<span><b>Henüz durak yok</b>Bir şehrin radyosu çalınca damgası buraya basılır.</span></div>`);
   }
   if (tab === 'favs') {
-    return `<span class="label cap">${state.favorites.length ? `${state.favorites.length} FAVORİ İSTASYON` : 'FAVORİLER'}</span>` + (state.favorites.length
-      ? `<div class="px-list">${state.favorites.map(f => favRow(f, st)).join('')}</div>`
-      : `<div class="px-empty">${icon('heart', 22)}<span><b>Henüz favorin yok</b>Dinlerken kalbe dokun; istasyon buraya gelsin.</span></div>`);
+    const nf = state.favorites.length, ns = (state.songs || []).length;
+    const cap = nf || ns ? [nf ? `${nf} FAVORİ İSTASYON` : '', ns ? `${ns} ŞARKI` : ''].filter(Boolean).join(' · ') : 'FAVORİLER';
+    return `<span class="label cap">${cap}</span>` + (nf || ns
+      ? `<div class="px-list">${state.favorites.map(f => favRow(f, st)).join('')}${ns ? `${nf ? '<div class="px-sub">Kaydedilen şarkılar</div>' : ''}${state.songs.map(songRow).join('')}` : ''}</div>`
+      : `<div class="px-empty">${icon('heart', 22)}<span><b>Henüz favorin yok</b>Dinlerken kalbe dokun; istasyon buraya gelsin. Çalan şarkının yanındaki + ile şarkıyı da kaydedebilirsin.</span></div>`);
   }
   const sc = profileStats();
   return `<span class="label cap">KITALAR · ${sc.conts.size === 6 ? 'DÜNYA TURU TAMAM' : `${sc.conts.size} / 6`}</span>
@@ -5777,6 +5841,7 @@ $('#profileScroll').addEventListener('click', e => {
   const g = e.target.closest('[data-go]'); if (g) { go(g.dataset.go); return; }
   const sp = e.target.closest('[data-stamp]'); if (sp) { vibrate(6); openCity(sp.dataset.stamp); return; }
   const p = e.target.closest('[data-play-fav]'); if (p) { const f = state.favorites.find(x => x.id === p.dataset.playFav); if (f) playFavorite(f); return; }
+  const rs = e.target.closest('[data-rm-song]'); if (rs) { rs.closest('.px-row').classList.add('leaving'); vibrate(6); setTimeout(() => { state.songs = state.songs.filter(x => x.id !== rs.dataset.rmSong); save(); renderProfile(false); }, 200); return; }
   const r = e.target.closest('[data-rm-fav]'); if (r) { r.closest('.px-row').classList.add('leaving'); vibrate(6); setTimeout(() => { state.favorites = state.favorites.filter(x => x.id !== r.dataset.rmFav); save(); renderProfile(false); }, 260); }
 });
 function playFavorite(f) {
@@ -5963,7 +6028,12 @@ const Cloud = (() => {
   let snap = null;
   try { const v = JSON.parse(localStorage.getItem(SNAP_KEY) || 'null'); if (v && typeof v === 'object' && typeof v.uid === 'string') snap = v; } catch (e) {}
   const writeSnap = () => { try { if (snap) localStorage.setItem(SNAP_KEY, JSON.stringify(snap)); else localStorage.removeItem(SNAP_KEY); } catch (e) {} };
-  const freshSnap = uid => ({ uid, fresh: true, favs: [], visits: [], unlocked: [], listenMs: 0, stats: {}, theme: null, prefs: null });
+  const freshSnap = uid => ({ uid, fresh: true, favs: [], songs: [], visits: [], unlocked: [], listenMs: 0, stats: {}, theme: null, prefs: null });
+  // Eklenip silinebilen koleksiyonlar: aynı üç yönlü birleştirme (fotoğrafta olup uzakta yok = başka cihazda silindi).
+  const COLLS = [
+    { st: 'favorites', key: 'stationUuid', table: 'favorites', col: 'station_uuid', snap: 'favs', order: 'created_at', max: 500, ts: x => { const n = parseInt(String(x.id || '').slice(1), 10); return Number.isFinite(n) ? n : 0; } },
+    { st: 'songs', key: 'id', table: 'songs', col: 'id', snap: 'songs', order: 'saved_at', max: 200, ts: x => Date.parse(x.savedAt) || 0, row: x => ({ saved_at: new Date(Date.parse(x.savedAt) || Date.now()).toISOString() }) },
+  ];
   const withTimeout = (p, ms) => Promise.race([p, new Promise((_, rej) => setTimeout(() => rej(Object.assign(new Error('zaman aşımı'), { name: 'Timeout' })), ms))]);
   const stable = o => JSON.stringify(o, (k, v) => v && typeof v === 'object' && !Array.isArray(v) ? Object.keys(v).sort().reduce((a, x) => (a[x] = v[x], a), {}) : v);
   const num = v => (typeof v === 'number' && Number.isFinite(v) && v > 0) ? v : 0;
@@ -6023,11 +6093,12 @@ const Cloud = (() => {
   function renderLine() { const el = document.getElementById('syncLine'); if (!el) return; const l = lineHTML(); el.className = 'px-syncline ' + l.cls; el.innerHTML = `<span class="d"></span><span>${l.html}</span>`; el.hidden = !l.html; }
 
   // ── Farklar ──
-  function favMap() { const m = new Map(); (state.favorites || []).forEach(f => { if (f && typeof f.stationUuid === 'string' && f.stationUuid) m.set(f.stationUuid, f); }); return m; }
+  function collMap(c) { const m = new Map(); (state[c.st] || []).forEach(x => { const k = x && x[c.key]; if (typeof k === 'string' && k) m.set(k, x); }); return m; }
   function diff() {
     if (!snap) return null;
-    const fm = favMap(), sf = new Set(snap.favs), sv = new Set(snap.visits);
-    const addFav = [...fm.keys()].filter(u => !sf.has(u)), delFav = snap.favs.filter(u => !fm.has(u));
+    const colls = COLLS.map(c => { const m = collMap(c), have = snap[c.snap] || [], sk = new Set(have); return { c, m, add: [...m.keys()].filter(k => !sk.has(k)), del: have.filter(k => !m.has(k)) }; });
+    const sv = new Set(snap.visits);
+    const addFav = colls[0].add, delFav = colls[0].del;
     const newVisits = (state.visits || []).filter(v => v && typeof v.id === 'string' && v.id && !sv.has(v.id));
     const su = new Set(snap.unlocked), unlocked = (state.unlocked || []).filter(t => typeof t === 'string' && !su.has(t));
     const theme = state.theme !== snap.theme ? state.theme : null;
@@ -6035,11 +6106,11 @@ const Cloud = (() => {
     const listen = Math.max(0, Math.round(num(state.listenMs) - num(snap.listenMs)));
     const stats = {}; Object.entries(state.stats || {}).forEach(([k, v]) => { const d = Math.round(num(v) - num((snap.stats || {})[k])); if (d > 0) stats[k] = d; });
     const cotd = stable(state.cotd || {}) !== snap.cotd ? (state.cotd || {}) : null;
-    return { addFav, delFav, newVisits, unlocked, theme, prefs, listen, stats, cotd, fm };
+    return { colls, addFav, delFav, newVisits, unlocked, theme, prefs, listen, stats, cotd, collChanges: colls.reduce((n, x) => n + x.add.length + x.del.length, 0) };
   }
   function pendingCount() {
     const d = diff(); if (!d) return 0;
-    return d.addFav.length + d.delFav.length + d.newVisits.length + d.unlocked.length + (d.theme ? 1 : 0) + (d.prefs ? 1 : 0) + (d.cotd ? 1 : 0) + (d.listen > 0 || Object.keys(d.stats).length ? 1 : 0);
+    return d.collChanges + d.newVisits.length + d.unlocked.length + (d.theme ? 1 : 0) + (d.prefs ? 1 : 0) + (d.cotd ? 1 : 0) + (d.listen > 0 || Object.keys(d.stats).length ? 1 : 0);
   }
   const clean = o => { try { const j = JSON.stringify(o); return j.length < 1800 ? JSON.parse(j) : null; } catch (e) { return null; } };
 
@@ -6047,16 +6118,18 @@ const Cloud = (() => {
   async function push() {
     if (!user || !snap || snap.uid !== user.id) return;
     const uid = user.id, d = diff();
-    if (d.addFav.length) {
-      const rows = d.addFav.map(u => ({ user_id: uid, station_uuid: u, data: clean(d.fm.get(u)) })).filter(r => r.data);
-      const { error } = await withTimeout(client.from('favorites').upsert(rows, { onConflict: 'user_id,station_uuid' }), 15000);
-      if (error) throw error;
-      snap.favs = snap.favs.concat(d.addFav); writeSnap();
-    }
-    if (d.delFav.length) {
-      const { error } = await withTimeout(client.from('favorites').delete().eq('user_id', uid).in('station_uuid', d.delFav), 15000);
-      if (error) throw error;
-      const gone = new Set(d.delFav); snap.favs = snap.favs.filter(u => !gone.has(u)); writeSnap();
+    for (const { c, m, add, del } of d.colls) {
+      if (add.length) {
+        const rows = add.map(k => { const data = clean(m.get(k)); return data ? Object.assign({ user_id: uid, [c.col]: k, data }, c.row ? c.row(m.get(k)) : {}) : null; }).filter(Boolean);
+        const { error } = await withTimeout(client.from(c.table).upsert(rows, { onConflict: 'user_id,' + c.col }), 15000);
+        if (error) throw error;
+        snap[c.snap] = (snap[c.snap] || []).concat(add); writeSnap();
+      }
+      if (del.length) {
+        const { error } = await withTimeout(client.from(c.table).delete().eq('user_id', uid).in(c.col, del), 15000);
+        if (error) throw error;
+        const gone = new Set(del); snap[c.snap] = (snap[c.snap] || []).filter(k => !gone.has(k)); writeSnap();
+      }
     }
     if (d.newVisits.length) {
       const batch = d.newVisits.slice(0, 200);
@@ -6082,20 +6155,22 @@ const Cloud = (() => {
   }
 
   // ── Çek + birleştir ──
-  function merge(p, favRows, visitRows) {
+  function merge(p, collRows, visitRows) {
     const uid = user.id, fresh = !snap || snap.uid !== uid || snap.fresh;
     if (!snap || snap.uid !== uid) snap = freshSnap(uid);
     p = p || {};
     let changed = false;
-    // Favoriler (üç yönlü)
-    const remote = new Map(); (favRows || []).forEach(r => { if (r && r.station_uuid && r.data && typeof r.data === 'object') remote.set(r.station_uuid, Object.assign({}, r.data, { stationUuid: r.station_uuid })); });
-    const sf = new Set(snap.favs), local = state.favorites || [], out = [];
-    local.forEach(f => { if (!f || !f.stationUuid) return; if (remote.has(f.stationUuid) || !sf.has(f.stationUuid)) out.push(f); else changed = true; });
-    const have = new Set(out.map(f => f.stationUuid));
-    remote.forEach((f, u) => { if (!have.has(u) && !sf.has(u)) { out.push(f); changed = true; } });
-    const ts = f => { const n = parseInt(String(f.id || '').slice(1), 10); return Number.isFinite(n) ? n : 0; };
-    out.sort((a, b) => ts(b) - ts(a));
-    state.favorites = out;
+    // Favoriler ve şarkılar (üç yönlü)
+    const remoteKeys = {};
+    COLLS.forEach((c, ci) => {
+      const remote = new Map(); (collRows[ci] || []).forEach(r => { const k = r && r[c.col]; if (k && r.data && typeof r.data === 'object') remote.set(k, Object.assign({}, r.data, { [c.key]: k })); });
+      const sk = new Set(snap[c.snap] || []), out = [];
+      (state[c.st] || []).forEach(x => { const k = x && x[c.key]; if (!k) return; if (remote.has(k) || !sk.has(k)) out.push(x); else changed = true; });
+      const have = new Set(out.map(x => x[c.key]));
+      remote.forEach((x, k) => { if (!have.has(k) && !sk.has(k)) { out.push(x); changed = true; } });
+      out.sort((a, b) => c.ts(b) - c.ts(a));
+      state[c.st] = out.slice(0, c.max); remoteKeys[c.snap] = [...remote.keys()];
+    });
     // Damgalar (birleşim)
     const vmap = new Map(); (state.visits || []).forEach(v => { if (v && v.id) vmap.set(v.id, v); });
     (visitRows || []).forEach(r => { if (r && r.id && r.data && typeof r.data === 'object' && !vmap.has(r.id)) { vmap.set(r.id, Object.assign({}, r.data, { id: r.id, visitedAt: r.data.visitedAt || r.visited_at })); changed = true; } });
@@ -6124,7 +6199,7 @@ const Cloud = (() => {
     if (stable(ns) !== stable(ls)) changed = true; state.stats = ns;
     if (p.created_at && (!state.joinedAt || Date.parse(p.created_at) < Date.parse(state.joinedAt))) state.joinedAt = p.created_at;
     // Fotoğraf = uzak gerçek; kalan yerel farklar push() ile gider
-    snap = { uid, favs: [...remote.keys()], visits: (visitRows || []).map(r => r.id), unlocked: ru, listenMs: num(p.listen_ms), stats: Object.fromEntries(Object.entries(rs).map(([k, v]) => [k, num(v)])),
+    snap = { uid, favs: remoteKeys.favs, songs: remoteKeys.songs, visits: (visitRows || []).map(r => r.id), unlocked: ru, listenMs: num(p.listen_ms), stats: Object.fromEntries(Object.entries(rs).map(([k, v]) => [k, num(v)])),
       theme: typeof p.theme === 'string' ? p.theme : null, prefs: stable(rPrefs), cotd: stable(rc) };
     writeSnap();
     if (newTheme) applyCloudTheme(newTheme);
@@ -6150,14 +6225,14 @@ const Cloud = (() => {
 
   async function pull() {
     const uid = user.id;
-    const [p, f, v] = await withTimeout(Promise.all([
+    const res = await withTimeout(Promise.all([
       client.from('profiles').select('*').eq('id', uid).maybeSingle(),
-      client.from('favorites').select('station_uuid,data,created_at').eq('user_id', uid).order('created_at', { ascending: false }).limit(500),
       client.from('visits').select('id,visited_at,data').eq('user_id', uid).order('visited_at', { ascending: false }).limit(200),
+      ...COLLS.map(c => client.from(c.table).select(c.col + ',data,' + c.order).eq('user_id', uid).order(c.order, { ascending: false }).limit(c.max)),
     ]), 20000);
-    if (p.error) throw p.error; if (f.error) throw f.error; if (v.error) throw v.error;
+    res.forEach(r => { if (r.error) throw r.error; });
     if (!user || user.id !== uid) return false;
-    return merge(p.data, f.data, v.data);
+    return merge(res[0].data, res.slice(2).map(r => r.data), res[1].data);
   }
   /** Tüm bulut işlemleri tek sırada çalışır (çek/gönder iç içe geçmez). */
   function queue(fn) { const run = chain.then(fn); chain = run.catch(() => {}); return run; }
@@ -6179,7 +6254,7 @@ const Cloud = (() => {
   function pushSoon() {
     if (!user || !snap) return;
     const d = diff(); if (!d) return;
-    const urgent = d.addFav.length || d.delFav.length || d.newVisits.length || d.unlocked.length || d.theme || d.prefs || d.cotd;
+    const urgent = d.collChanges || d.newVisits.length || d.unlocked.length || d.theme || d.prefs || d.cotd;
     const run = () => { urgentTimer = slowTimer = 0; setStatus('busy'); queue(push).then(() => { lastSync = Date.now(); backoff = 0; setStatus('ok'); }, fail); };
     if (urgent) { if (!urgentTimer) { clearTimeout(slowTimer); slowTimer = 0; urgentTimer = setTimeout(run, 1500); } }
     else if (!urgentTimer && !slowTimer && (d.listen > 0 || Object.keys(d.stats).length)) slowTimer = setTimeout(run, 20000);
@@ -6325,10 +6400,83 @@ const Cloud = (() => {
   return { boot, signIn, signUp, resend, resetPassword, updatePassword, signOut, deleteAccount, sync, pendingCount, renderLine,
     get user() { return user; }, get status() { return status; }, get snap() { return snap; } };
 })();
+// ═════════════════════════════════════════════════════════
+//  ŞU AN ÇALAN ŞARKI
+// ═════════════════════════════════════════════════════════
+// Tarayıcı ve yerel oynatıcı yayındaki şarkı adını okuyamaz; Supabase'deki now-playing fonksiyonu yayının ICY
+// başlığını okur. Çalarken 25 sn'de bir sorulur (sayfa gizliyse en az 60 sn). Şarkı bilgisi göndermeyen ya da
+// isteği reddeden yayınlar 30 dk sorulmaz. İstasyonun kendi adı / reklam işaretleri gösterilmez.
+const NowPlaying = (() => {
+  const FN = SB_URL + '/functions/v1/now-playing';
+  const quiet = new Map();   // url → bu zamana kadar sorma
+  let timer = 0, url = '', token = 0, misses = 0;
+  const norm = x => String(x || '').toLocaleLowerCase('tr-TR').replace(/[^\p{L}\p{N}]+/gu, '');
+  function tidy(d, st) {
+    if (!d || typeof d.title !== 'string') return null;
+    let t = d.title;
+    const ih = t.match(/text="([^"]*)"/);   // iHeart biçimi: Sanatçı - text="Şarkı" song_spot=…
+    if (ih) { const a = t.split(' - ')[0].trim(); t = (a && !/text="/.test(a) ? a + ' - ' : '') + ih[1]; }
+    t = t.replace(/\s+/g, ' ').trim();
+    if (t.length < 2 || t.length > 200 || /^(advert|advertisement|ad ?break|commercial|reklam|jingle|station id)/i.test(t) || /https?:\/\//i.test(t)) return null;
+    const nt = norm(t), ns = norm(st.name);
+    if (!nt || nt === ns || (ns.length > 3 && ns.includes(nt))) return null;   // istasyonun kendi adı
+    if (ns.length > 3 && nt.includes(ns) && !t.includes(' - ')) return null;   // "İstasyon Online" gibi: şarkı değil
+    const i = t.indexOf(' - ');
+    let artist = i > 0 ? t.slice(0, i).trim() : '', song = i > 0 ? t.slice(i + 3).trim() : t;
+    if (artist && ns && norm(artist) === ns) artist = '';   // "İstasyon - Program"
+    if (!song) return null;
+    return { url: st.url, title: t, artist, song };
+  }
+  async function ask(u) {
+    const ctrl = new AbortController(), tm = setTimeout(() => ctrl.abort(), 10000);
+    try {
+      const r = await fetch(FN + '?url=' + encodeURIComponent(u), { headers: { apikey: SB_KEY }, signal: ctrl.signal, credentials: 'omit', cache: 'no-store' });
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return await r.json();
+    } finally { clearTimeout(tm); }
+  }
+  function set(v) {
+    if ((!npNow && !v) || (npNow && v && npNow.title === v.title && npNow.url === v.url)) return;
+    npNow = v;
+    renderSheetDynamic(); mediaSync();
+    if (NATIVE) NativeAudio.nowPlaying(state.index, v ? (v.artist ? `${v.artist} – ${v.song}` : v.song) : null);
+    if (v) alog('çalan şarkı: ' + v.title);
+  }
+  async function tick() {
+    timer = 0;
+    const st = currentStation();
+    if (state.status !== 'playing' || !st || st.demo || !st.url) return;
+    if (st.url !== url) { url = st.url; misses = 0; set(null); }
+    if ((quiet.get(url) || 0) > Date.now()) return;
+    const t = ++token; let next = 25000;
+    try {
+      const d = await ask(url);
+      if (t !== token || st.url !== url) return;
+      if (!d.title && (d.reason === 'no-icy' || /^http-4/.test(d.reason || ''))) { quiet.set(url, Date.now() + 30 * 60000); set(null); return; }
+      const v = tidy(d, st); set(v);
+      misses = v ? 0 : misses + 1; if (!v) next = misses > 3 ? 90000 : 40000;
+    } catch (e) { if (t !== token) return; misses++; next = Math.min(120000, 30000 * misses); }
+    if (document.hidden && !NATIVE) next = Math.max(next, 60000);
+    if (t === token && !timer) timer = setTimeout(tick, next);
+  }
+  /** Çalma durumu / istasyon her değiştiğinde (setStatus) */
+  function sync() {
+    const st = currentStation();
+    if (state.status !== 'playing' || !st || st.demo || !st.url) {
+      clearTimeout(timer); timer = 0; token++;
+      if (!st || (npNow && npNow.url !== st.url)) set(null);
+      return;
+    }
+    if (st.url !== url || !timer) { clearTimeout(timer); token++; timer = setTimeout(tick, st.url !== url ? 1500 : 400); }
+  }
+  npHook = sync;
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && state.status === 'playing' && !timer) sync(); });
+  return { sync, tidy, get now() { return npNow; } };
+})();
 /** Üyelikten çıkınca (çıkış / hesap silme) bu cihazdaki hesap verisi temizlenir; cihaz tercihleri kalır. */
 function resetLocalAccount() {
   const themeWas = state.theme;
-  Object.assign(state, { auth: null, email: null, favorites: [], visits: [], theme: 'classic', previewTheme: 'classic', unlocked: ['classic'], listenMs: 0, joinedAt: null, stats: {}, cotd: {} });
+  Object.assign(state, { auth: null, email: null, favorites: [], visits: [], songs: [], theme: 'classic', previewTheme: 'classic', unlocked: ['classic'], listenMs: 0, joinedAt: null, stats: {}, cotd: {} });
   save();
   if (themeWas !== 'classic') try { MapGlobe.setTheme('classic'); updateInk(); } catch (e) {}
 }
@@ -6602,6 +6750,8 @@ const NativeAudio = (() => {
       cityArt(city).then(art => { if (art && id === loadId) nativePost({ type: 'audio:art', loadId: id, artwork: art }); });   // kapak hazır olunca
     },
     pause() { if (loadKey) nativePost({ type: 'audio:pause', loadId }); },
+    /** Şu an çalan şarkı kilit ekranında başlık olur (null: istasyon adına döner) */
+    nowPlaying(index, title) { if (loadKey && Number.isInteger(index)) nativePost({ type: 'audio:nowplaying', loadId, index, title: title ? String(title).slice(0, 300) : null }); },
     volume(v) { v = Math.round(clamp(v, 0, 1) * 100) / 100; if (v !== lastVol) { lastVol = v; nativePost({ type: 'audio:volume', v }); } },
     /** Yerelden gelen durum: çalıyor / tamponda / sıra değişti (kilit ekranından sonraki) / hepsi düştü */
     onState(m) {
@@ -6644,9 +6794,11 @@ function mediaSync() {
   try { navigator.mediaSession.playbackState = s === 'playing' ? 'playing' : s === 'idle' ? 'none' : 'paused'; } catch (e) {}
   if (s === 'playing' && msHandlersFor !== msPlayCount) { msHandlersFor = msPlayCount; mediaHandlers(); }
   if (!city) return;
-  const key = `${city.id}|${st ? st.uuid : ''}|${state.theme}`;
+  const song = s === 'playing' && st && npNow && npNow.url === st.url ? npNow : null;
+  const key = `${city.id}|${st ? st.uuid : ''}|${state.theme}|${song ? song.title : ''}`;
   if (key === msKey) return; msKey = key;
-  const meta = { title: st && !st.demo ? st.name : `${city.name} radyoları`, artist: `${city.name} · ${city.country}`, album: 'wGlobe · canlı radyo' };
+  const meta = song ? { title: song.song || song.title, artist: [song.artist, st.name, city.name].filter(Boolean).join(' · '), album: 'wGlobe · canlı radyo' }
+    : { title: st && !st.demo ? st.name : `${city.name} radyoları`, artist: `${city.name} · ${city.country}`, album: 'wGlobe · canlı radyo' };
   const apply = art => { try { navigator.mediaSession.metadata = new MediaMetadata(Object.assign({}, meta, art ? { artwork: [{ src: art, sizes: '1024x1024', type: 'image/jpeg' }] } : {})); } catch (e) {} };
   apply(msArtUrl && msKey === key ? msArtUrl : null);
   cityArt(city).then(data => data ? fetch(data).then(r => r.blob()) : null).then(b => {

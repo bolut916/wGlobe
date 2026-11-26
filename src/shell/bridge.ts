@@ -16,10 +16,12 @@ export type AudioSkipMessage = { type: 'audio:skipTo'; loadId: number; index: nu
 export type AudioPauseMessage = { type: 'audio:pause'; loadId: number };
 export type AudioVolumeMessage = { type: 'audio:volume'; v: number };
 export type AudioArtMessage = { type: 'audio:art'; loadId: number; artwork: string };
+/** Şu an çalan şarkı (web, yayının ICY başlığından okur): kilit ekranında başlık olur; null → istasyon adı */
+export type AudioNowPlayingMessage = { type: 'audio:nowplaying'; loadId: number; index: number; title: string | null };
 export type HapticMessage = { type: 'haptic'; p: number | number[] };
 export type ShareMessage = { type: 'share'; image: string; url: string; text: string; title?: string };
 
-export type WebMessage = AudioLoadMessage | AudioSkipMessage | AudioPauseMessage | AudioVolumeMessage | AudioArtMessage | HapticMessage | ShareMessage;
+export type WebMessage = AudioLoadMessage | AudioSkipMessage | AudioPauseMessage | AudioVolumeMessage | AudioArtMessage | AudioNowPlayingMessage | HapticMessage | ShareMessage;
 
 export type AudioStateMessage = { type: 'audio:state'; loadId: number; index: number; playing: boolean; buffering: boolean; failed: boolean };
 export type LinkMessage = { type: 'link'; params: Record<string, string> };
@@ -44,6 +46,9 @@ export function parseWebMessage(raw: string): WebMessage | null {
       return typeof o.loadId === 'number' ? (o as unknown as AudioPauseMessage) : null;
     case 'audio:art':
       return typeof o.loadId === 'number' && typeof o.artwork === 'string' ? (o as unknown as AudioArtMessage) : null;
+    case 'audio:nowplaying':
+      return typeof o.loadId === 'number' && typeof o.index === 'number' && (o.title === null || (typeof o.title === 'string' && o.title.length <= 300))
+        ? (o as unknown as AudioNowPlayingMessage) : null;
     case 'audio:volume':
       return typeof o.v === 'number' ? (o as unknown as AudioVolumeMessage) : null;
     case 'haptic':
