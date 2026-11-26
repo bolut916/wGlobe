@@ -203,6 +203,26 @@ svg.i.filled { fill: currentColor; }
 .px-song .links { display: flex; gap: 12px; margin-top: 3px; }
 .px-song .links a { font-size: 12.5px; font-weight: 550; color: var(--accent); text-decoration: none; padding: 2px 0; }
 .px-song .tx .label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* Zaman kaydırıcısı (v50): şerit 14 px aşağıdan 320 ms'de gelir, 180 ms'de iner; cetvel parmağı izler, bırakınca kayarak yavaşlar. */
+.tstrip { position: absolute; left: 16px; right: 16px; bottom: calc(146px + var(--sab)); z-index: 12; padding: 10px 10px 10px 16px; border-radius: 22px;
+  background: var(--glass-strong); box-shadow: inset 0 0 0 1px var(--hair), 0 18px 40px rgba(0,0,0,0.45); opacity: 0; transform: translateY(14px);
+  transition: opacity 180ms var(--e-exit), transform 180ms var(--e-exit); pointer-events: none; }
+.tstrip.in { opacity: 1; transform: none; transition: opacity 320ms var(--e-enter), transform 320ms var(--e-enter); }
+#app .tstrip.in { pointer-events: auto; }
+.ts-head { display: flex; align-items: center; gap: 8px; min-height: 36px; }
+.ts-label { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.ts-label b { font-size: 17px; font-weight: 600; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; }
+.ts-label span { font-size: 12px; color: var(--fg-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ts-now { min-height: 34px; padding: 0 14px; border-radius: 17px; font-size: 13px; font-weight: 600; color: var(--accent-ink); background: var(--accent); opacity: 0; transform: scale(0.9); pointer-events: none; transition: opacity 180ms var(--e-standard), transform 220ms var(--e-standard); }
+.ts-now.on { opacity: 1; transform: none; pointer-events: auto; }
+.ts-close { width: 36px; height: 36px; color: var(--fg-2); }
+.ts-track { position: relative; height: 46px; margin: 6px -2px 0 -8px; touch-action: none; cursor: grab; outline: none; border-radius: 12px; }
+.ts-track:focus-visible { box-shadow: 0 0 0 2px var(--accent); }
+.ts-track canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+.ts-needle { position: absolute; left: 50%; top: 2px; bottom: 2px; width: 2px; margin-left: -1px; border-radius: 1px; background: var(--accent); box-shadow: 0 0 10px rgba(156,203,255,0.6); pointer-events: none; }
+.ts-needle::before { content: ""; position: absolute; left: 50%; top: -3px; width: 8px; height: 8px; margin-left: -4px; border-radius: 4px; background: var(--accent); }
+#timeBtn[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); box-shadow: none; }
+@media (prefers-reduced-motion: reduce) { .tstrip, .tstrip.in { transition: opacity 120ms linear; transform: none; } }
 /* ── Kimlik ───────────────────────────────────────────── */
 /* Hesap bildirimleri (v47): 280 ms'de 8 px aşağıdan gelir; eylem bağlantıları metnin altında. */
 @keyframes noteIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
@@ -1177,8 +1197,17 @@ svg.i.filled { fill: currentColor; }
         <div class="pane" id="pane-globe">
           <div class="topbar">
             
+            <button class="round glass press tight fly" id="timeBtn" aria-label="Zaman kaydırıcısı: dünyayı başka bir saatte gör" aria-pressed="false" hidden><span data-icon="clock" data-size="20"></span></button>
             <button class="round glass press tight fly" id="flightBtn" aria-label="Uçuş modu" aria-pressed="false"><span data-icon="plane" data-size="20"></span></button>
             <button class="round glass press tight shuffle fly" id="shuffle" aria-label="Rastgele şehir"><span class="rot" id="shuffleRot" data-icon="shuffle"></span></button>
+          </div>
+          <div class="tstrip" id="tStrip" hidden>
+            <div class="ts-head">
+              <div class="ts-label" aria-live="polite"><b id="tsTime">Şimdi</b><span id="tsRel">Cetveli kaydır: dünya başka bir saatte</span></div>
+              <button class="ts-now press" id="tsNow" type="button">Şimdi</button>
+              <button class="round ts-close press tight" id="tsClose" type="button" aria-label="Zaman kaydırıcısını kapat"><span data-icon="x" data-size="18"></span></button>
+            </div>
+            <div class="ts-track" id="tsTrack" role="slider" tabindex="0" aria-label="Saat" aria-valuemin="-12" aria-valuemax="12" aria-valuenow="0" aria-valuetext="Şimdi"><canvas id="tsRuler"></canvas><span class="ts-needle"></span></div>
           </div>
           <div class="search" id="search">
             <div class="search-field"><span data-icon="search" data-size="18"></span><input id="searchInput" type="search" placeholder="Şehir, ülke veya istasyon ara" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search" aria-label="Şehir, ülke veya istasyon ara" aria-controls="searchResults"><button class="s-clear" id="searchClear" aria-label="Aramayı temizle" hidden>×</button></div>
@@ -1670,6 +1699,7 @@ const ICONS = {
   moon:'<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>',
   'log-out':'<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/>',
   trash:'<path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>',
+  clock:'<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
   music:'<path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>',
   plus:'<path d="M5 12h14"/><path d="M12 5v14"/>',
   mail:'<rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>',
@@ -3461,6 +3491,7 @@ const back = () => go(history.pop() || 'welcome', { replace: true });
 function restartEnter(root) { root.querySelectorAll('.enter').forEach(el => { el.style.animation = 'none'; void el.offsetWidth; el.style.animation = ''; }); }
 function setTab(tab) {
   if (tab !== 'globe' && flight.on) stopFlight(false);
+  if (tab !== 'globe' && TimeScrub.isOpen) TimeScrub.close(true);
   if (tab !== 'globe') { stopPulse(); if (cotdUI.open) closeCotd(false); }
   if (tab !== 'profile' && pxsOpen) closeSettings(true);
   const prevTab = state.tab; paneDirection(prevTab, tab);
@@ -3545,7 +3576,7 @@ const SatMosaic = (() => {
 })();
 
 /** Sürüm etiketi: sitede hangi sürümün açık olduğunu rozetten görmek için (önbellek kontrolü). */
-const BUILD = 'v49';
+const BUILD = 'v50';
 const MapGlobe = (() => {
   const host = document.getElementById('mapStage');
   const badge = document.getElementById('lodBadge');
@@ -3751,6 +3782,9 @@ const MapGlobe = (() => {
   const below = (...ids) => ids.find(id => map.getLayer(id)) || 'borders';
   // ── Gece ve gündüz: güneşin gerçek konumu; gece tarafı kararır, şehir ışıkları yanar. 3 dakikada bir tazelenir. ──
   let nightOn = true, nightUrl = null, nightTimer = 0, nightBusy = false, nightFadeRaf = 0, lightsImg = null;
+  // Zaman kaydırıcısı: gece, gün doğumu çizgisi ve kutuplar bu "sanal saate" göre çizilir (0 = şimdi)
+  let timeOffset = 0;
+  const worldNow = () => new Date(Date.now() + timeOffset);
   const nightWanted = () => nightOn && !(THEMES[themeId] && (THEMES[themeId].recipe === 'night' || THEMES[themeId].recipe === 'glow'));
   const nightOpacity = () => ['interpolate', ['linear'], ['zoom'], 4, 1, 6, 0];
   function nightMain(M, sun) {
@@ -3784,7 +3818,7 @@ const MapGlobe = (() => {
     });
   }
   function nightBlob(M) {
-    const sun = subsolar(new Date()), w = getWorker();
+    const sun = subsolar(worldNow()), w = getWorker();
     if (!w) return nightMain(512, sun);
     return new Promise(res => {
       const id = ++workerSeq;
@@ -3812,10 +3846,15 @@ const MapGlobe = (() => {
     nightTimer = setTimeout(refreshNight, 3 * 60 * 1000);
     poleKey = ''; buildPoles(); if (map) map.triggerRepaint();
     if (nightBusy) return; nightBusy = true;
+    const forOffset = timeOffset;
     nightBlob(1024).then(url => {
       nightBusy = false;
       if (!url || !map) return;
-      if (!nightWanted()) { URL.revokeObjectURL(url); return; }
+      if (!nightWanted()) { URL.revokeObjectURL(url); liveDetach(); return; }
+      // Zaman kaydırıcısı bu arada başka saate geçtiyse: bu görüntüyü kullan ama yenisini de iste
+      if (forOffset !== timeOffset && !scrub) setTimeout(refreshNight, 0);
+      // Yüksek çözünürlüklü görüntü geldi: sürükleme sırasındaki küçük tuval kalkar (görüntü yüklensin diye kısa bekleme)
+      else if (liveOn && !scrub) setTimeout(() => { if (!scrub && forOffset === timeOffset) liveDetach(); }, 450);
       const old = nightUrl; nightUrl = url;
       const src = map.getSource('night');
       if (src) src.updateImage({ url, coordinates: WORLD });
@@ -4302,7 +4341,7 @@ const MapGlobe = (() => {
   }
   /** Hücre renkleri: tema (stilize kürelerde kutup buzu rengi) + gece karartması. Tema/gece değişince yeniden hesaplanır. */
   function buildPoles() {
-    const t = THEMES[themeId], stylized = themeId !== 'classic' && t && t.p, sun = subsolar(new Date());
+    const t = THEMES[themeId], stylized = themeId !== 'classic' && t && t.p, sun = subsolar(worldNow());
     const key = themeId + '|' + (nightWanted() ? Math.round(sun.lng) + ',' + Math.round(sun.lat) : 'day') + '|' + !!polePixels + '|' + (themeEdge ? themeEdge.url : '');
     if (key === poleKey && poleCells) return; poleKey = key;
     const hex = h => { const n = parseInt(String(h).slice(1, 7), 16); return [n >> 16 & 255, n >> 8 & 255, n & 255]; };
@@ -4391,7 +4430,7 @@ const MapGlobe = (() => {
   // ── Gün doğumu çizgisi: terminatörün sabah yarısı; harita geçişiyle 500 ms'de yanar, bekler, 900 ms'de söner ──
   let dawn = null;
   function dawnLine() {
-    const s = subsolar(new Date()), S = unit(s.lat, s.lng);
+    const s = subsolar(worldNow()), S = unit(s.lat, s.lng);
     let u = [-S[1], S[0], 0]; const ul = Math.hypot(u[0], u[1]) || 1; u = [u[0] / ul, u[1] / ul, 0];
     const v = [S[1] * u[2] - S[2] * u[1], S[2] * u[0] - S[0] * u[2], S[0] * u[1] - S[1] * u[0]];
     const pts = [];
@@ -4404,6 +4443,81 @@ const MapGlobe = (() => {
     const seg = []; for (let k = 1; k <= pts.length; k++) { const p = pts[(start + k) % pts.length]; if (!p.m) break; seg.push(p.c); }
     return seg.length > 1 ? unwrap(seg) : [];
   }
+  // ── Zaman kaydırıcısı: sürüklerken gece katmanı 256×256 tuvalde her karede ana iş parçacığında çizilir ──
+  // (1024'lük görüntüyü her karede üretmek kasardı). Satır başına enlem, sütun başına boylam önceden hesaplanır;
+  // ışıklar küçültülmüş bir kopyadan okunur. Bırakınca yüksek çözünürlüklü görüntü gelir ve tuval kalkar.
+  let scrub = false, nightCanvas = null, liveOn = false, dawnT = 0, dawnShown = false;
+  function lightsReady(cb) {
+    if (lightsImg && lightsImg.complete && lightsImg.naturalWidth) { cb(); return; }
+    if (!lightsImg) { lightsImg = new Image(); lightsImg.src = 'earth-lights.jpg'; }
+    lightsImg.addEventListener('load', cb, { once: true });
+  }
+  function liveLights(L) {
+    if (!lightsImg || !lightsImg.naturalWidth) return;
+    try {
+      const lw = 512, lh = 256, c = document.createElement('canvas'); c.width = lw; c.height = lh;
+      const g = c.getContext('2d', { willReadFrequently: true }); g.drawImage(lightsImg, 0, 0, lw, lh);
+      const px = g.getImageData(0, 0, lw, lh).data, M = L.M;
+      for (let y = 0; y < M; y++) {
+        const row = Math.min(lh - 1, Math.max(0, Math.floor((90 - L.lat[y] * R2D) / 180 * lh))) * lw;
+        for (let x = 0; x < M; x++) { let li = px[(row + Math.floor((x + 0.5) / M * lw)) * 4] / 255; L.LI[y * M + x] = li * li * (0.35 + 0.65 * li); }
+      }
+      L.lit = true;
+    } catch (e) { /* ışıksız devam */ }
+  }
+  function liveSetup() {
+    if (nightCanvas) return nightCanvas;
+    const M = 256, cv = document.createElement('canvas'); cv.width = cv.height = M;
+    const ctx = cv.getContext('2d'), img = ctx.createImageData(M, M);
+    const L = { M, cv, ctx, img, u32: new Uint32Array(img.data.buffer), lat: new Float32Array(M), rowS: new Float32Array(M), rowC: new Float32Array(M), lng: new Float32Array(M), cosB: new Float32Array(M), LI: new Float32Array(M * M), lit: false, sun: null };
+    for (let y = 0; y < M; y++) { const lat = Math.atan(Math.sinh(Math.PI * (1 - 2 * (y + 0.5) / M))); L.lat[y] = lat; L.rowS[y] = Math.sin(lat); L.rowC[y] = Math.cos(lat); }
+    for (let x = 0; x < M; x++) L.lng[x] = ((x + 0.5) / M * 360 - 180) * D2R;
+    nightCanvas = L;
+    lightsReady(() => { liveLights(L); if (liveOn && L.sun) liveDraw(L.sun); });
+    return L;
+  }
+  function liveDraw(sun) {
+    const L = nightCanvas, M = L.M, u = L.u32, sd = Math.sin(sun.lat * D2R), cd = Math.cos(sun.lat * D2R), sl = sun.lng * D2R;
+    L.sun = sun;
+    for (let x = 0; x < M; x++) L.cosB[x] = Math.cos(L.lng[x] - sl);
+    // Güneş yüksekliği +4° → −10°: gündüzden geceye (ana katmanla aynı eşikler; sinüs uzayında)
+    const S0 = 0.0697565, inv = 1 / (-0.1736482 - S0);
+    for (let y = 0, o = 0; y < M; y++) {
+      const a = L.rowS[y] * sd, b = L.rowC[y] * cd;
+      for (let x = 0; x < M; x++, o++) {
+        let t = (a + b * L.cosB[x] - S0) * inv;
+        if (t <= 0) { u[o] = 0; continue; }
+        if (t > 1) t = 1;
+        const night = t * t * (3 - 2 * t), li = L.LI[o], k = Math.min(1, li * 1.5) * night;
+        const al = Math.min(255, night * (0.64 + 0.36 * Math.min(1, li * 1.7)) * 255) | 0;
+        u[o] = (al << 24) | ((30 + 110 * k) << 16) | ((12 + 194 * k) << 8) | (6 + 249 * k);
+      }
+    }
+    L.ctx.putImageData(L.img, 0, 0);
+  }
+  function liveAttach() {
+    if (!map || liveOn) return;
+    const L = liveSetup();
+    try {
+      if (!map.getSource('nightLive')) map.addSource('nightLive', { type: 'canvas', canvas: L.cv, coordinates: WORLD, animate: true });
+      if (!map.getLayer('nightLive')) {
+        const ids = map.getStyle().layers.map(l => l.id), i = ids.indexOf('night');
+        const before = i >= 0 ? ids[i + 1] : ids.includes('borders') ? 'borders' : undefined;
+        map.addLayer({ id: 'nightLive', type: 'raster', source: 'nightLive', paint: { 'raster-opacity': nightOpacity(), 'raster-fade-duration': 0, 'raster-resampling': 'linear' } }, before);
+      }
+      if (map.getLayer('night')) { cancelAnimationFrame(nightFadeRaf); map.setPaintProperty('night', 'raster-opacity', 0); }
+      liveOn = true;
+    } catch (e) { alog('zaman: canlı gece katmanı eklenemedi ' + e.message); }
+  }
+  function liveDetach() {
+    if (!map || !liveOn) return; liveOn = false;
+    try {
+      if (map.getLayer('night')) map.setPaintProperty('night', 'raster-opacity', nightOpacity());
+      if (map.getLayer('nightLive')) map.removeLayer('nightLive');
+      if (map.getSource('nightLive')) map.removeSource('nightLive');
+    } catch (e) {}
+  }
+  function dawnSet(c) { if (map.getSource('dawn')) map.getSource('dawn').setData(FC(c.length ? [{ type: 'Feature', properties: {}, geometry: { type: 'LineString', coordinates: c } }] : [])); }
   function dawnOpacity(k, ms) {
     ['dawn-glow', 'dawn-line'].forEach(l => { map.setPaintProperty(l, 'line-opacity-transition', { duration: ms, delay: 0 }); map.setPaintProperty(l, 'line-opacity', (l === 'dawn-glow' ? 0.55 : 0.95) * k); });
   }
@@ -4504,6 +4618,36 @@ const MapGlobe = (() => {
     hide() { visible = false; host.classList.remove('on'); badge.classList.remove('on'); },
     setTheme(id) { useTheme(id); },
     setNight(on) { nightOn = !!on; refreshNight(); },
+    /** Zaman kaydırıcısı açılırken: şehir ışıkları ana iş parçacığında hazır olsun */
+    timePrepare() { if (ready) liveSetup(); },
+    get timeOffset() { return timeOffset; },
+    /**
+     * Zaman kaydırıcısı. ms: şimdiden fark. phase: 'live' (sürükleniyor, her kare) · 'commit' (bıraktı) · 'end' (kapandı).
+     * Gece gölgesi + şehir ışıkları, gün doğumu çizgisi ve kutup başlıkları birlikte akar.
+     */
+    timeTravel(ms, phase) {
+      if (!ready || !map) return;
+      timeOffset = Math.round(ms) || 0;
+      if (phase === 'live') {
+        scrub = true;
+        if (nightWanted()) { liveAttach(); if (liveOn) liveDraw(subsolar(worldNow())); }
+        buildPoles(); map.triggerRepaint();
+        const now = performance.now();
+        if (now - dawnT > 50) {
+          dawnT = now;
+          if (dawn) { clearTimeout(dawn.timer); dawn = null; }   // gün doğumu anı gösterimi varsa, kaydırıcı devralır
+          dawnSet(dawnLine());
+          if (!dawnShown) { dawnShown = true; dawnOpacity(1, 220); }
+        }
+        return;
+      }
+      scrub = false;
+      poleKey = ''; buildPoles(); map.triggerRepaint();
+      if (phase === 'end') {
+        if (dawnShown) { dawnShown = false; dawnOpacity(0, 600); setTimeout(() => { if (!dawnShown && !dawn) dawnSet([]); }, 650); }
+      } else { dawnSet(dawnLine()); if (!dawnShown) { dawnShown = true; dawnOpacity(1, 220); } }
+      if (nightWanted()) refreshNight(); else liveDetach();
+    },
     /** Uçuş modu: şehre yavaş, sinematik bir yörünge uçuşu (kart açmadan) */
     cruise(city) { if (!ready || !visible || !city) return false; userControl = true; flyTo(city.lng, city.lat, 2.35, 0.42, 0, 0); return true; },
     onUserMove(fn) { userMoveCb = fn; },
@@ -4567,6 +4711,7 @@ const MapGlobe = (() => {
 function handleSelect(city) { if (cotdUI.open) closeCotd(false); state.interacted = true; $('#hint').classList.add('gone'); selectCity(city); openSheet(true); }
 let sheetDelay = null, zoomedCityId = null;
 function openSheet(open) {
+  if (open && TimeScrub.isOpen) TimeScrub.close(false);
   const city = CITY[state.activeCityId];
   const wasOpen = state.sheetOpen;
   state.sheetOpen = open;
@@ -6489,6 +6634,135 @@ const NowPlaying = (() => {
   document.addEventListener('visibilitychange', () => { if (!document.hidden && state.status === 'playing' && !timer) sync(); });
   return { sync, tidy, get now() { return npNow; } };
 })();
+// ═════════════════════════════════════════════════════════
+//  ZAMAN KAYDIRICISI
+// ═════════════════════════════════════════════════════════
+// Cetvel: saatte 30 px; −12 … +12 sa. Sürükle → parmağı izler; bırak → hızıyla kayar ve %5/kare yavaşlar (kürenin
+// sönümüyle aynı). Sınırı aşınca %35 direnç, bırakınca 380 ms'de geri yaylanır. Her saat çizgisinde hafif tık.
+const TimeScrub = (() => {
+  const PX = 30, MAXH = 12, strip = $('#tStrip'), track = $('#tsTrack'), cv = $('#tsRuler'), btn = $('#timeBtn');
+  let open = false, h = 0, raf = 0, drag = null, vel = 0, anim = null, lastTickH = 0, lastTickAt = 0, sent = null, hideTimer = 0, commitTimer = 0;
+  const fmt = d => `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  const dayWord = (d, base) => { const a = new Date(base); a.setHours(0, 0, 0, 0); const b = new Date(d); b.setHours(0, 0, 0, 0); const n = Math.round((b - a) / 86400000); return n === 0 ? '' : n === 1 ? 'Yarın ' : n === -1 ? 'Dün ' : ''; };
+  const soft = v => v > MAXH ? MAXH + (v - MAXH) * 0.35 : v < -MAXH ? -MAXH + (v + MAXH) * 0.35 : v;
+  function label() {
+    const now = Date.now(), d = new Date(now + h * 3600000), mins = Math.round(h * 60);
+    $('#tsTime').textContent = Math.abs(mins) < 1 ? `Şimdi · ${fmt(d)}` : `${dayWord(d, now)}${fmt(d)}`;
+    const a = Math.abs(mins), hh = Math.floor(a / 60), mm = a % 60;
+    $('#tsRel').textContent = Math.abs(mins) < 1 ? 'Cetveli kaydır: dünya başka bir saatte' : `${hh ? hh + ' sa' : ''}${hh && mm ? ' ' : ''}${mm ? mm + ' dk' : ''} ${mins > 0 ? 'sonra' : 'önce'} · senin saatinle`;
+    $('#tsNow').classList.toggle('on', Math.abs(mins) >= 1);
+    track.setAttribute('aria-valuenow', (Math.round(h * 4) / 4).toFixed(2)); track.setAttribute('aria-valuetext', $('#tsTime').textContent);
+  }
+  function draw() {
+    const dpr = Math.min(window.devicePixelRatio || 1, 3), W = track.clientWidth, H = track.clientHeight; if (!W || !H) return;
+    if (cv.width !== Math.round(W * dpr) || cv.height !== Math.round(H * dpr)) { cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); }
+    const g = cv.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, W, H);
+    const cx = W / 2, base = Date.now(), Q = 900000;
+    g.font = '500 10px ' + (getComputedStyle(document.documentElement).getPropertyValue('--mono') || 'monospace'); g.textAlign = 'center'; g.textBaseline = 'top';
+    // Çentikler gerçek saate hizalı: çeyrek kısa, yarım orta, saat başı uzun; her 3 saatte bir etiket
+    const tEnd = base + (h + cx / PX) * 3600000 + Q;
+    for (let t = Math.floor((base + (h - cx / PX) * 3600000) / Q) * Q; t <= tEnd; t += Q) {
+      const q = (t - base) / 3600000, x = cx + (q - h) * PX; if (x < -24 || x > W + 24) continue;
+      const d = new Date(t), mi = d.getMinutes(), hour = mi === 0, half = mi === 30;
+      g.globalAlpha = Math.abs(q) > MAXH ? 0.18 : 1;
+      g.fillStyle = hour ? 'rgba(220,234,255,0.6)' : 'rgba(220,234,255,0.24)';
+      const th = hour ? 13 : half ? 8 : 5;
+      g.fillRect(Math.round(x) - 0.5, H - 5 - th, 1, th);
+      if (hour && d.getHours() % 3 === 0) { g.fillStyle = 'rgba(220,234,255,0.62)'; g.fillText(`${pad(d.getHours())}:00`, x, 3); }
+    }
+    // Şimdi işareti: cetvelde gerçek saatin yeri
+    const nx = cx - h * PX; g.globalAlpha = 1;
+    if (nx > -6 && nx < W + 6) { g.fillStyle = '#9CCBFF'; g.beginPath(); g.arc(nx, H - 3, 2.6, 0, Math.PI * 2); g.fill(); }
+    // Kenarlarda sönen maske
+    const fade = g.createLinearGradient(0, 0, W, 0); fade.addColorStop(0, 'rgba(0,0,0,1)'); fade.addColorStop(0.12, 'rgba(0,0,0,0)'); fade.addColorStop(0.88, 'rgba(0,0,0,0)'); fade.addColorStop(1, 'rgba(0,0,0,1)');
+    g.globalCompositeOperation = 'destination-out'; g.fillStyle = fade; g.fillRect(0, 0, W, H); g.globalCompositeOperation = 'source-over';
+  }
+  function push(phase) {
+    const ms = Math.round(soft(h) * 3600000);
+    if (phase === 'live' && sent === ms) return; sent = ms;
+    MapGlobe.timeTravel(ms, phase);
+  }
+  function tick() {
+    const hr = Math.floor(soft(h));
+    if (hr !== lastTickH) { lastTickH = hr; const t = performance.now(); if (t - lastTickAt > 45 && Math.abs(soft(h)) <= MAXH) { lastTickAt = t; vibrate(3); } }
+  }
+  function frame(now) {
+    raf = 0;
+    if (anim) {
+      const k = Math.min(1, (now - anim.t0) / anim.ms), e = anim.ease(k);
+      h = anim.from + (anim.to - anim.from) * e;
+      if (k >= 1) { h = anim.to; const done = anim.done; anim = null; render('live'); if (done) done(); return; }
+    } else if (!drag && Math.abs(vel) > 0) {
+      const dt = Math.min(48, now - (frame.last || now)); frame.last = now;
+      h += vel * dt; vel *= Math.pow(0.95, dt / 16.7);
+      if (Math.abs(h) > MAXH) { const lim = Math.sign(h) * MAXH; vel = 0; h = lim; }
+      if (Math.abs(vel) < 0.00002) { vel = 0; render('live'); settle(); return; }
+    }
+    render('live');
+    if (anim || drag || vel) raf = requestAnimationFrame(frame);
+  }
+  function render(phase) { draw(); label(); tick(); push(phase); }
+  function loop() { if (!raf) { frame.last = performance.now(); raf = requestAnimationFrame(frame); } }
+  function tween(to, ms, done) { anim = { from: h, to, ms, t0: performance.now(), ease: easeInOutCubic, done }; vel = 0; loop(); }
+  /** Bıraktı ve durdu: sınırın dışındaysa geri yaylan, sonra yüksek çözünürlüklü gece görüntüsünü iste */
+  function settle() {
+    if (Math.abs(h) > MAXH) { anim = { from: h, to: Math.sign(h) * MAXH, ms: 380, t0: performance.now(), ease: easeOutCubic, done: settle }; loop(); return; }
+    clearTimeout(commitTimer); commitTimer = setTimeout(() => { if (!drag && !anim && !vel) push('commit'); }, 60);
+  }
+  track.addEventListener('pointerdown', e => {
+    if (!open) return; e.preventDefault();
+    try { track.setPointerCapture(e.pointerId); } catch (_) {}
+    // Zaman damgası olayın kendisinden: ağır bir karede işleyici geç çalışsa da parmağın gerçek hızı ölçülür
+    anim = null; vel = 0; drag = { id: e.pointerId, x: e.clientX, t: e.timeStamp, v: 0 }; track.style.cursor = 'grabbing'; loop();
+  });
+  track.addEventListener('pointermove', e => {
+    if (!drag || e.pointerId !== drag.id) return;
+    const now = e.timeStamp, dx = e.clientX - drag.x, dt = Math.max(1, now - drag.t);
+    let dh = -dx / PX; if (Math.abs(h) > MAXH && Math.sign(dh) === Math.sign(h)) dh *= 0.35;   // sınırın ötesinde direnç
+    h += dh; drag.v = drag.v * 0.6 + (dh / dt) * 0.4; drag.x = e.clientX; drag.t = now; loop();
+  });
+  const up = e => {
+    if (!drag || (e && e.pointerId !== drag.id)) return;
+    vel = e && e.timeStamp - drag.t < 100 ? drag.v : 0; drag = null; track.style.cursor = '';   // parmak durup kalktıysa kaymaz
+    if (Math.abs(h) > MAXH) vel = 0;
+    if (vel) loop(); else settle();
+  };
+  track.addEventListener('pointerup', up); track.addEventListener('pointercancel', up); track.addEventListener('lostpointercapture', up);
+  track.addEventListener('keydown', e => {
+    const step = { ArrowLeft: -0.25, ArrowRight: 0.25, PageDown: -3, PageUp: 3 }[e.key];
+    if (e.key === 'Home') { e.preventDefault(); tween(0, 500, settle); return; }
+    if (step === undefined) return; e.preventDefault();
+    h = clamp(Math.round((h + step) * 4) / 4, -MAXH, MAXH); render('live'); clearTimeout(commitTimer); commitTimer = setTimeout(() => push('commit'), 260);
+  });
+  $('#tsNow').addEventListener('click', () => { vibrate(6); tween(0, 700, settle); });
+  $('#tsClose').addEventListener('click', () => { vibrate(4); close(false); });
+  btn.addEventListener('click', () => open ? close(false) : show());
+  function show() {
+    if (open || !MapGlobe.available() || !MapGlobe.revealed) return;
+    if (state.sheetOpen) openSheet(false);
+    open = true; clearTimeout(hideTimer); h = 0; vel = 0; anim = null; sent = null; lastTickH = 0;
+    MapGlobe.timePrepare();
+    strip.hidden = false; void strip.offsetWidth; strip.classList.add('in');
+    btn.setAttribute('aria-pressed', 'true'); vibrate(6);
+    render('commit');
+    setTimeout(() => { if (open) try { track.focus({ preventScroll: true }); } catch (e) {} }, 340);
+  }
+  /** Kapat: gerçek saate yumuşakça dön (700 ms), sonra şerit iner. instant: sekme değişti, anında. */
+  function close(instant) {
+    if (!open) return; open = false; drag = null; vel = 0;
+    btn.setAttribute('aria-pressed', 'false');
+    const finish = () => { anim = null; h = 0; sent = null; MapGlobe.timeTravel(0, 'end'); strip.classList.remove('in'); clearTimeout(hideTimer); hideTimer = setTimeout(() => { if (!open) strip.hidden = true; }, instant ? 0 : 200); };
+    if (instant || Math.abs(h) < 1 / 120) { cancelAnimationFrame(raf); raf = 0; finish(); return; }
+    anim = { from: h, to: 0, ms: 700, t0: performance.now(), ease: easeInOutCubic, done: finish }; loop();
+  }
+  /** Küre hazır olunca düğme görünür (yalnız uydu haritası açıkken anlamlı) */
+  function sync() { btn.hidden = !(MapGlobe.available() && MapGlobe.revealed); }
+  setInterval(sync, 2000); sync();
+  addEventListener('resize', () => { if (open) draw(); });
+  /** Test kancası: bırakma hızıyla (sa/ms) kaymayı başlat */
+  function _fling(v) { drag = null; anim = null; vel = v; frame.last = 0; loop(); }
+  return { show, close, sync, _fling, get isOpen() { return open; }, get hours() { return h; } };
+})();
 /** Üyelikten çıkınca (çıkış / hesap silme) bu cihazdaki hesap verisi temizlenir; cihaz tercihleri kalır. */
 function resetLocalAccount() {
   const themeWas = state.theme;
@@ -6990,6 +7264,7 @@ function flightLeg() {
   flight.timer = setTimeout(flightLeg, FLIGHT_LEG_MS);
 }
 function startFlight() {
+  if (TimeScrub.isOpen) TimeScrub.close(true);
   if (flight.on) return;
   stopPulse(); if (cotdUI.open) closeCotd(false);
   flight.on = true; flight.leg = 0; vibrate('success');
@@ -7041,6 +7316,7 @@ function cotdTick() {
   if (left < 1000) { setTimeout(() => { if (cotdUI.open) { closeCotd(false); } }, 1200); }
 }
 function openCotd(auto) {
+  if (TimeScrub.isOpen) TimeScrub.close(true);
   if (cotdUI.open || state.view !== 'app') return;
   if (state.tab !== 'globe') setTab('globe');
   if (flight.on) stopFlight(false);
