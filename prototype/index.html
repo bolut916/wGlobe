@@ -169,6 +169,18 @@ svg.i.filled { fill: currentColor; }
 .brand-row { min-height: 26px; }
 .chooser .reveal { opacity: 0; }
 #welcome.choose .chooser .reveal { animation: enterUp 420ms var(--e-enter) both; animation-delay: calc(min(var(--i, 0), 8) * 70ms); pointer-events: auto; }
+/* Yörünge girişi (v45): butonlar kürenin yüzeyindeymiş gibi, dünya dönerken ufkun altından ekrana taşınır.
+   Dünya batıdan doğuya döndüğü için hafifçe soldan-aşağıdan, kavisli bir yolla gelir; eğik başlar, dönerek düzleşir.
+   0–62 %: yavaşlayarak yükselir (tepe noktasında 2 px / 3° taşma = takip eden hareket), 62–100 %: yerine yumuşakça oturur.
+   Dolgu yalnız "backwards": animasyon bitince transform bırakılır → basma geri bildirimi (scale) çalışır. */
+@keyframes orbitIn {
+  0%   { opacity: 0; transform: translate(var(--orb-x, -14px), var(--orb-y, 30px)) perspective(700px) rotateX(var(--orb-rx, 38deg)) rotateY(var(--orb-ry, -14deg)); animation-timing-function: cubic-bezier(0.2, 0.72, 0.3, 1); }
+  36%  { opacity: 1; }
+  62%  { transform: translate(0, -2px) perspective(700px) rotateX(-3deg) rotateY(1deg); animation-timing-function: cubic-bezier(0.45, 0, 0.4, 1); }
+  100% { opacity: 1; transform: translate(0, 0) perspective(700px) rotateX(0deg) rotateY(0deg); }
+}
+#welcome.choose .chooser .ch-actions .reveal { opacity: 1; animation: orbitIn 640ms linear backwards; animation-delay: calc(200ms + (var(--i, 2) - 2) * 80ms); }
+@media (prefers-reduced-motion: reduce) { #welcome.choose .chooser .ch-actions .reveal { animation: fadeIn 200ms var(--e-enter) backwards; } }
 .brand-row { display: flex; align-items: center; justify-content: space-between; }
 .brand-mark { font-size: 22px; font-weight: 650; letter-spacing: -0.045em; }
 .brand-mark span { color: var(--accent-2); }
@@ -274,7 +286,7 @@ svg.i.filled { fill: currentColor; }
 @keyframes arriveUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
 #app.arrive .app-logo, #app.arrive .topbar { animation: arriveUp 420ms var(--e-enter) 0ms backwards; }
 #app.arrive .search { animation: arriveUp 420ms var(--e-enter) 90ms backwards; }
-#app.arrive .tabbar { animation: arriveUp 420ms var(--e-enter) 180ms backwards; }
+#app.arrive .tabbar { --orb-x: -8px; --orb-y: 34px; --orb-rx: 44deg; --orb-ry: -6deg; animation: orbitIn 640ms linear 180ms backwards; }
 @media (prefers-reduced-motion: reduce) { #app.arrive .app-logo, #app.arrive .topbar, #app.arrive .search, #app.arrive .tabbar { animation: none; } }
 .hint { position: absolute; left: 0; right: 0; bottom: calc(96px + var(--sab)); text-align: center; font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em; color: var(--fg-3); opacity: 0; transition: opacity 320ms var(--e-enter); pointer-events: none !important; }
 .hint.show { opacity: 1; transition-delay: 1000ms; }
@@ -3355,7 +3367,7 @@ const SatMosaic = (() => {
 })();
 
 /** Sürüm etiketi: sitede hangi sürümün açık olduğunu rozetten görmek için (önbellek kontrolü). */
-const BUILD = 'v44';
+const BUILD = 'v45';
 const MapGlobe = (() => {
   const host = document.getElementById('mapStage');
   const badge = document.getElementById('lodBadge');
