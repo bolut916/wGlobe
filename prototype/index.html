@@ -727,6 +727,7 @@ svg.i.filled { fill: currentColor; }
 .pxs-acct .tx { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
 .pxs-acct .tx b { font-size: 16px; font-weight: 600; }
 .pxs-acct .tx span { font-size: 13px; color: var(--fg-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.alog { margin: 0; padding: 14px 16px; border-radius: 18px; background: rgba(12,22,44,0.6); box-shadow: inset 0 0 0 1px rgba(232,240,255,0.08); font: 11px/1.6 var(--mono); color: var(--fg-2); white-space: pre-wrap; max-height: 240px; overflow-y: auto; }
 .pxs-ver { text-align: center; font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em; color: var(--fg-4); }
 @media (max-height: 760px) {
   .px-panel { height: 184px; }
@@ -2654,6 +2655,13 @@ const Globe = (() => {
 // ═════════════════════════════════════════════════════════
 //  SES (önizleme ambiyansı)
 // ═════════════════════════════════════════════════════════
+// Ses günlüğü: son 40 olay (duraklama, kopma, yeniden bağlanma, sayfa gizlendi…), cihazda saklanır
+const AUDIO_LOG_KEY = 'wglobe-audiolog';
+let audioLog = []; try { audioLog = JSON.parse(localStorage.getItem(AUDIO_LOG_KEY) || '[]') || []; } catch (e) { audioLog = []; }
+function alog(msg) {
+  const d = new Date(); audioLog.push(`${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())} ${msg}`); if (audioLog.length > 40) audioLog = audioLog.slice(-40);
+  try { localStorage.setItem(AUDIO_LOG_KEY, JSON.stringify(audioLog)); } catch (e) {}
+}
 const Ambient = (() => {
   let ctx = null, master = null, voice = null, base = 0.5, factor = 1, tune = 1, staticGain = null, staticSrc = null;
   const VIBES = {
@@ -2706,7 +2714,8 @@ const Ambient = (() => {
     },
     // iOS'ta ses bağlamı bir dokunuşla açılmalı; ama boşta çalışır bırakılırsa Safari sayfayı 'ortam sesi' sayar ve
     // ekran kilitlenince radyoyu susturur. Bu yüzden açılır ve önizleme çalmıyorsa hemen uyutulur.
-    unlock() { ensure(); if (!ctx) return; const p = ctx.state === 'suspended' ? ctx.resume() : Promise.resolve(); p.then(() => sleepCtx(0)).catch(() => {}); },
+    // Bağlam artık yalnızca önizleme sesi gerçekten çalacaksa kurulur; zaten varsa açılıp hemen uyutulur.
+    unlock() { if (!ctx) return; const p = ctx.state === 'suspended' ? ctx.resume() : Promise.resolve(); p.then(() => sleepCtx(0)).catch(() => {}); },
   };
 })();
 
@@ -2821,15 +2830,50 @@ const Radio = (() => {
     w(0, 'RIFF'); v.setUint32(4, 36 + n, true); w(8, 'WAVEfmt '); v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true); v.setUint32(24, 8000, true); v.setUint32(28, 8000, true); v.setUint16(32, 1, true); v.setUint16(34, 8, true); w(36, 'data'); v.setUint32(40, n, true); b.fill(128, 44);
     let bin = ''; b.forEach(x => { bin += String.fromCharCode(x); }); return 'data:audio/wav;base64,' + btoa(bin); })();
   function stopEl(a) { try { a.pause(); a.removeAttribute('src'); a.load(); } catch (e) {} }
-  function halt() { cancelAnimationFrame(fadeRaf); pool.forEach(stopEl); live = false; cur = null; }
+  let guardOff = null, rec = { n: 0, t: 0 };
+  function unguard() { if (guardOff) { guardOff(); guardOff = null; } }
+  function halt() { unguard(); cancelAnimationFrame(fadeRaf); pool.forEach(stopEl); live = false; cur = null; }
+  /** Yayın başladıktan sonra da izlenir: sistem durdurursa sürdürülür, koparsa aynı adrese yeniden bağlanılır,
+   *  dakikada 3 denemede de gelmezse uygulamaya bildirilir (sıradaki istasyon). iOS izin vermezse 'duraklatıldı'. */
+  function guard(a, url) {
+    unguard();
+    let stallTimer = 0;
+    const lost = why => {
+      if (!live || cur !== a) return; clearTimeout(stallTimer);
+      const now = Date.now(); if (now - rec.t > 60000) rec.n = 0; rec.t = now; rec.n++;
+      alog(`yayın koptu (${why}) · yeniden bağlanma ${rec.n}/3`);
+      if (rec.n > 3) { alog('vazgeçildi → sıradaki istasyon'); if (api.onLost) api.onLost(); return; }
+      try { a.src = url; a.load(); const p = a.play(); if (p && p.catch) p.catch(err => { alog('yeniden çalma reddedildi: ' + (err && err.name)); if (err && err.name === 'NotAllowedError') { if (api.onBlocked) api.onBlocked(); } else if (api.onLost) api.onLost(); }); }
+      catch (e) { if (api.onLost) api.onLost(); }
+    };
+    const onPause = () => {
+      if (!live || cur !== a) return;
+      alog('sistem yayını durdurdu' + (document.hidden ? ' (ekran kapalı)' : ''));
+      setTimeout(() => {
+        if (!live || cur !== a || !a.paused) return;
+        const p = a.play(); if (p && p.catch) p.then(() => alog('sürdürüldü')).catch(err => { alog('sürdürme reddedildi: ' + (err && err.name)); if (err && err.name === 'NotAllowedError') { if (api.onBlocked) api.onBlocked(); } else lost('sürdürülemedi'); });
+      }, 250);
+    };
+    const onEnded = () => lost('bitti'), onError = () => lost('hata');
+    const onWaiting = () => { clearTimeout(stallTimer); stallTimer = setTimeout(() => lost('12 sn takıldı'), 12000); };
+    const onPlaying = () => { clearTimeout(stallTimer); };
+    a.addEventListener('pause', onPause); a.addEventListener('ended', onEnded); a.addEventListener('error', onError);
+    a.addEventListener('waiting', onWaiting); a.addEventListener('stalled', onWaiting); a.addEventListener('playing', onPlaying);
+    guardOff = () => { clearTimeout(stallTimer); a.removeEventListener('pause', onPause); a.removeEventListener('ended', onEnded); a.removeEventListener('error', onError); a.removeEventListener('waiting', onWaiting); a.removeEventListener('stalled', onWaiting); a.removeEventListener('playing', onPlaying); };
+  }
   function fadeTo(v, ms, done) {
     const a = cur; if (!a) { if (done) done(); return; }
     cancelAnimationFrame(fadeRaf);
+    // Ekran kapalıyken requestAnimationFrame çalışmaz: geçiş anında uygulanır (yoksa kilit ekranından 'duraklat' sesi kesmezdi)
+    if (document.hidden || ms <= 0) { setVol(a, v); if (done) done(); return; }
     const from = a.volume, t0 = performance.now();
     const step = now => { const k = Math.min(1, (now - t0) / Math.max(ms, 1)); setVol(a, from + (v - from) * k); if (k < 1) fadeRaf = requestAnimationFrame(step); else if (done) done(); };
     fadeRaf = requestAnimationFrame(step);
   }
-  return {
+  const api = {
+    onLost: null, onBlocked: null,
+    /** Ekran yeniden açıldı: çalıyor görünüp sessizse sürdür */
+    resumeIfSilent() { if (live && cur && cur.paused) { const p = cur.play(); if (p && p.catch) p.then(() => alog('ekran açılınca sürdürüldü')).catch(() => { if (api.onBlocked) api.onBlocked(); }); } },
     /** En fazla 3 URL'yi aynı anda dener; ilk 'playing' olanın sırasını döndürür. */
     race(urls, timeoutMs) {
       if (cancelRace) cancelRace(new Error('superseded'));
@@ -2841,7 +2885,7 @@ const Radio = (() => {
         const finish = fn => { if (done) return; done = true; clearTimeout(timer); clearTimeout(graceTimer); offs.forEach(off => off()); cancelRace = null; fn(); };
         const win = k => finish(() => {
           const a = pool[k]; pool.forEach((o, j) => { if (j !== k) stopEl(o); });
-          cur = a; live = true; a.muted = false; setVol(a, 0); resolve(k);
+          cur = a; live = true; a.muted = false; setVol(a, 0); rec = { n: 0, t: 0 }; guard(a, urls[k]); resolve(k);
         });
         const decide = force => {
           if (done) return;
@@ -2875,6 +2919,7 @@ const Radio = (() => {
     },
     get live() { return live; },
   };
+  return api;
 })();
 // Ambient.unlock zaten her kullanıcı jestinde çağrılıyor; aynı jestte <audio> da açılır.
 { const ambientUnlock = Ambient.unlock; Ambient.unlock = () => { ambientUnlock(); Radio.unlock(); }; }
@@ -2886,6 +2931,13 @@ const Sound = {
 };
 
 let attemptToken = 0, startTimer = null, failedAttempts = 0;
+// Çalan yayın koptu ve geri gelmedi → sıradaki istasyon; iOS sürdürmeye izin vermedi → dürüstçe 'duraklatıldı'
+Radio.onLost = () => { if (!NATIVE && state.status === 'playing') failover(attemptToken, 1); };
+Radio.onBlocked = () => { if (state.status === 'playing') setStatus('paused'); };
+document.addEventListener('visibilitychange', () => {
+  alog(document.hidden ? 'ekran kapandı / sayfa gizlendi' : 'ekran açıldı');
+  if (!document.hidden && !NATIVE && state.status === 'playing') Radio.resumeIfSilent();
+});
 // Dinleme süresi (Profil): 'playing' durumunda geçen süre toplanır, durunca ve sayfa gizlenince kaydedilir.
 let listenSince = 0;
 function listenTotal() { return (state.listenMs || 0) + (listenSince ? Date.now() - listenSince : 0); }
@@ -3156,7 +3208,7 @@ const SatMosaic = (() => {
 })();
 
 /** Sürüm etiketi: sitede hangi sürümün açık olduğunu rozetten görmek için (önbellek kontrolü). */
-const BUILD = 'v39';
+const BUILD = 'v40';
 const MapGlobe = (() => {
   const host = document.getElementById('mapStage');
   const badge = document.getElementById('lodBadge');
@@ -5126,9 +5178,11 @@ function renderSettings(animate) {
     </div></div></div>
     <div ${nx()}><div class="px-card"><div class="px-sleep" id="sleepCard"></div></div></div>
     <div ${nx()}><div class="px-acct"><button class="btn line press" id="signOut"><span class="lbl">${icon('log-out', 18)}${guest ? 'Misafirden çık' : 'Çıkış yap'}</span></button>${guest ? '' : `<button class="btn danger press" id="deleteAcct"><span class="lbl">${icon('trash', 18)}Hesabı sil</span></button>`}</div></div>
+    ${pref('badge') ? `<div ${nx()}><div class="px-sec"><div class="px-head"><h3 class="h2">Ses günlüğü</h3><button class="auth-link press" id="alogClear">Temizle</button></div><pre class="alog">${audioLog.length ? esc(audioLog.slice().reverse().join('\n')) : 'Henüz kayıt yok'}</pre></div></div>` : ''}
     <div ${nx()} class="pxs-ver">wGlobe · ${BUILD}</div>`;
   if (!animate) body.querySelectorAll(':scope > *').forEach(el => { el.style.animation = 'none'; el.style.opacity = '1'; el.style.transform = 'none'; });
   renderSleep(true);
+  const ac = $('#alogClear'); if (ac) ac.addEventListener('click', () => { audioLog = []; try { localStorage.removeItem(AUDIO_LOG_KEY); } catch (e) {} renderSettings(false); });
   $('#signOut').addEventListener('click', async () => {
     const ok = await confirmDialog(guest ? 'Misafir modundan çık' : 'Çıkış yap', guest ? 'Favorilerin ve damgaların bu cihazda saklanmaya devam eder.' : 'Bu cihazdaki oturumun kapatılacak. Verilerin hesabında güvende.', guest ? 'Çık' : 'Çıkış yap');
     if (!ok) return; closeSettings(true); pause(); openSheet(false); state.auth = null; state.email = null; save(); history = []; go('welcome', { replace: true });
@@ -5700,8 +5754,8 @@ function mediaHandlers() {
   if (!MS) return;
   const on = (a, f) => { try { navigator.mediaSession.setActionHandler(a, f); } catch (e) {} };
   on('seekbackward', null); on('seekforward', null); on('seekto', null);
-  on('play', () => { Ambient.unlock(); play(); });
-  on('pause', () => pause());
+  on('play', () => { alog('kilit ekranı: oynat'); Ambient.unlock(); play(); });
+  on('pause', () => { alog('kilit ekranı: duraklat'); pause(); });
   on('stop', () => pause());
   on('previoustrack', () => prev());
   on('nexttrack', () => next());
