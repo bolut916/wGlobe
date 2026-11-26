@@ -677,6 +677,67 @@ svg.i.filled { fill: currentColor; }
 .px-tag { position: absolute; right: 18px; bottom: 26px; z-index: 2; padding: 7px 12px; border-radius: 14px; font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em; color: var(--accent-ink); background: var(--grad); }
 .px-tag.guest { color: var(--fg); background: rgba(12,22,44,0.75); box-shadow: inset 0 0 0 1px rgba(232,240,255,0.16); }
 .px-sec { display: flex; flex-direction: column; gap: 14px; }
+/* ── Profil: tek ekran. Kahraman (küre + 3 sayı) esner, altta 4 sekmeli bir pano; ayarlar sağ üstten açılan çekmecede ── */
+.px-wrap { position: absolute; left: 0; right: 0; top: calc(var(--sat) + 62px); bottom: calc(96px + var(--sab)); display: flex; flex-direction: column; gap: 12px; padding: 0 20px; overflow: hidden; }
+.px-wrap .px-hi { position: relative; left: auto; top: auto; right: auto; flex: none; flex-direction: row; align-items: flex-end; justify-content: space-between; gap: 12px; }
+.px-wrap .px-hi > div { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.px-wrap .px-name { font-size: 34px; line-height: 38px; }
+.px-wrap .px-tag { position: static; flex: none; margin-bottom: 6px; }
+.px-wrap .px-hero { flex: 1 1 auto; min-height: 0; height: auto; margin: 0 -20px; }
+.px-wrap .px-globe { top: 50%; left: 50%; width: auto; height: min(100%, 250px); aspect-ratio: 1; margin: 0; transform: translate(-50%, -50%); }
+.px-wrap .px-orb { padding: 10px 14px; border-radius: 22px; }
+.px-wrap .px-orb b { font-size: 26px; line-height: 28px; }
+.px-wrap .px-orb.o1 { left: 16px; top: 8%; }
+.px-wrap .px-orb.o2 { right: 16px; top: 34%; }
+.px-wrap .px-orb.o3 { left: 22px; top: auto; bottom: 6%; }
+.px-wrap .segmented { flex: none; }
+.px-wrap .segmented button { font-size: 13.5px; }
+.px-panel { position: relative; flex: none; height: 214px; }
+.px-pane { position: absolute; inset: 0; display: flex; flex-direction: column; gap: 10px; }
+.px-pane .label.cap { color: var(--fg-3); }
+.px-pane .px-route { flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: center; padding: 10px 12px; }
+.px-pane .px-stamps { margin: 0 -20px; padding: 4px 20px 6px; }
+.px-pane .px-list { overflow-y: auto; min-height: 0; flex: 1; scrollbar-width: none; overscroll-behavior: contain; padding-bottom: 4px; -webkit-mask-image: linear-gradient(180deg, #000 calc(100% - 18px), transparent); mask-image: linear-gradient(180deg, #000 calc(100% - 18px), transparent); }
+.px-pane .px-list::-webkit-scrollbar { display: none; }
+.px-pane .px-stars { grid-template-columns: repeat(6, 1fr); gap: 6px; align-items: center; flex: 1; }
+.px-pane .px-star { width: 100%; max-width: 58px; height: auto; aspect-ratio: 1; font-size: 9.5px; gap: 0; margin: 0 !important; }
+.px-pane .px-star b { font-size: 17px; }
+.px-pane .px-star:nth-child(even) { transform: translateY(16px); }
+.px-pane .px-empty { flex: 1; }
+.px-gear { position: absolute; top: calc(var(--sat) + 8px); right: 16px; z-index: 6; width: 48px; height: 48px; border-radius: 24px; }
+.px-gear .gi { display: grid; transition: transform 560ms var(--e-spring); }
+.px-gear[aria-expanded="true"] .gi { transform: rotate(90deg); }
+/* Ayarlar çekmecesi: sağdan yaylanarak gelir (520 ms), karartma 240 ms; sağa sürükleyerek de kapanır */
+#app .pxs.open, #app .pxs-dim.open { pointer-events: auto; }   /* #app varsayılanı pointer-events: none */
+.pxs-dim { position: absolute; inset: 0; z-index: 38; background: rgba(2,6,16,0.6); opacity: 0; visibility: hidden; transition: opacity 240ms var(--e-standard), visibility 0s linear 240ms; }
+.pxs-dim.open { opacity: 1; visibility: visible; transition: opacity 240ms var(--e-standard), visibility 0s; }
+.pxs { position: absolute; top: 0; bottom: 0; right: 0; width: min(100%, 440px); z-index: 40; display: flex; flex-direction: column; background: #081226; box-shadow: -24px 0 60px rgba(2,6,16,0.55), inset 1px 0 0 rgba(232,240,255,0.08); transform: translate3d(104%, 0, 0); visibility: hidden; transition: transform 300ms var(--e-exit), visibility 0s linear 300ms; will-change: transform; }
+.pxs.open { transform: none; visibility: visible; transition: transform 560ms var(--e-spring), visibility 0s; }
+.pxs.dragging { transition: none; }
+.pxs-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: calc(var(--sat) + 10px) 16px 6px 22px; }
+.pxs-head h2 { margin: 0; font-family: var(--display); font-size: 30px; font-weight: 750; letter-spacing: -0.04em; }
+.pxs-head .round { width: 44px; height: 44px; border-radius: 22px; background: rgba(232,240,255,0.06); }
+.pxs-body { flex: 1; min-height: 0; overflow-y: auto; padding: 10px 20px calc(28px + var(--sab)); display: flex; flex-direction: column; gap: 22px; scrollbar-width: none; overscroll-behavior: contain; }
+.pxs-body::-webkit-scrollbar { display: none; }
+.pxs-body > * { opacity: 0; transform: translateX(28px); }
+.pxs.open .pxs-body > * { animation: pxsIn 520ms var(--e-spring) forwards; animation-delay: calc(120ms + var(--i, 0) * 60ms); }
+@keyframes pxsIn { to { opacity: 1; transform: none; } }
+.pxs-acct { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 22px; background: rgba(12,22,44,0.6); box-shadow: inset 0 0 0 1px rgba(232,240,255,0.08); }
+.pxs-acct .av { width: 44px; height: 44px; border-radius: 22px; flex: none; display: grid; place-items: center; font-weight: 700; color: var(--accent-ink); background: var(--grad); }
+.pxs-acct .tx { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.pxs-acct .tx b { font-size: 16px; font-weight: 600; }
+.pxs-acct .tx span { font-size: 13px; color: var(--fg-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pxs-ver { text-align: center; font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em; color: var(--fg-4); }
+@media (max-height: 760px) {
+  .px-panel { height: 184px; }
+  .px-wrap { gap: 10px; }
+  .px-wrap .px-name { font-size: 30px; line-height: 34px; }
+  .px-wrap .px-orb { padding: 8px 12px; }
+  .px-wrap .px-orb b { font-size: 22px; line-height: 24px; }
+  .px-pane .px-stamp { width: 84px; height: 84px; }
+  .px-pane .px-stamp svg { width: 78px; height: 78px; }
+}
+@media (max-height: 640px) { .px-panel { height: 160px; } .px-wrap .px-hi .label { display: none; } }
 .px-route { position: relative; border-radius: 24px; padding: 14px 12px 12px; background: rgba(12,22,44,0.62); box-shadow: inset 0 0 0 1px rgba(232,240,255,0.1); overflow: hidden; }
 .px-route canvas { display: block; width: 100%; }
 .pr-ends { display: flex; justify-content: space-between; gap: 12px; margin-top: 10px; font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.12em; color: var(--fg-3); text-transform: uppercase; }
@@ -1140,8 +1201,16 @@ svg.i.filled { fill: currentColor; }
             <div class="pkd-grid" id="pkdGrid"></div>
           </div>
         </div>
-        <div class="pane" id="pane-profile"><div class="scroll" id="profileScroll"></div></div>
+        <div class="pane" id="pane-profile">
+          <div class="px-wrap" id="profileScroll"></div>
+          <button class="round glass press tight px-gear" id="pxGear" aria-label="Ayarlar" aria-haspopup="dialog" aria-expanded="false"><span class="gi" data-icon="settings" data-size="21"></span></button>
+        </div>
         <div class="app-logo" role="img" aria-label="wGlobe">w<span>Globe</span></div>
+        <div class="pxs-dim" id="pxsDim"></div>
+        <aside class="pxs" id="pxSettings" role="dialog" aria-modal="true" aria-labelledby="pxsTitle" aria-hidden="true">
+          <div class="pxs-head"><h2 id="pxsTitle">Ayarlar</h2><button class="round press tight" id="pxsClose" aria-label="Ayarları kapat" data-icon="x" data-size="20"></button></div>
+          <div class="pxs-body" id="pxsBody"></div>
+        </aside>
         <nav class="tabbar" aria-label="Sekmeler">
           <span class="dock-blob" id="dockBlob" aria-hidden="true"></span>
           <button class="tab" data-tab="globe"><span data-icon="globe" data-size="21"></span><span>Küre</span><span class="dot"></span></button>
@@ -1533,6 +1602,7 @@ const ICONS = {
   'eye-off':'<path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49"/><path d="M14.084 14.158a3 3 0 0 1-4.242-4.242"/><path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143"/><path d="m2 2 20 20"/>',
   stamp:'<path d="M5 22h14"/><path d="M19.27 13.73A2.5 2.5 0 0 0 17.5 13h-11A2.5 2.5 0 0 0 4 15.5V17a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-1.5c0-.66-.26-1.3-.73-1.77Z"/><path d="M14 13V8.5C14 7 15 7 15 5a3 3 0 0 0-3-3c-1.69 0-3 1-3 3s1 2 1 3.5V13"/>',
   sparkles:'<path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/>',
+  settings:'<path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/>',
   sunrise:'<path d="M12 2v8"/><path d="m4.93 10.93 1.41 1.41"/><path d="M2 18h2"/><path d="M20 18h2"/><path d="m19.07 10.93-1.41 1.41"/><path d="M22 22H2"/><path d="m8 6 4-4 4 4"/><path d="M16 18a4 4 0 0 0-8 0"/>',
   activity:'<path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"/>',
   route:'<circle cx="6" cy="19" r="3"/><path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15"/><circle cx="18" cy="5" r="3"/>',
@@ -3003,6 +3073,7 @@ function restartEnter(root) { root.querySelectorAll('.enter').forEach(el => { el
 function setTab(tab) {
   if (tab !== 'globe' && flight.on) stopFlight(false);
   if (tab !== 'globe') { stopPulse(); if (cotdUI.open) closeCotd(false); }
+  if (tab !== 'profile' && pxsOpen) closeSettings(true);
   const prevTab = state.tab; paneDirection(prevTab, tab);
   state.tab = tab;
   document.querySelectorAll('.tab').forEach(t => { const on = t.dataset.tab === tab; t.classList.toggle('active', on); t.setAttribute('aria-current', on ? 'page' : 'false'); });
@@ -3085,7 +3156,7 @@ const SatMosaic = (() => {
 })();
 
 /** Sürüm etiketi: sitede hangi sürümün açık olduğunu rozetten görmek için (önbellek kontrolü). */
-const BUILD = 'v37';
+const BUILD = 'v38';
 const MapGlobe = (() => {
   const host = document.getElementById('mapStage');
   const badge = document.getElementById('lodBadge');
@@ -4967,55 +5038,150 @@ function profileLayout(W, H) {
   const h = host.getBoundingClientRect(), r = el.getBoundingClientRect();
   return { cx: r.left - h.left + r.width / 2, cy: r.top - h.top + r.height / 2, r: r.width * 0.5 };
 }
+const PX_TABS = [['route', 'Rota'], ['stamps', 'Duraklar'], ['favs', 'Favoriler'], ['conts', 'Kıtalar']];
+let pxTab = 'route';
 function renderProfile(animate = true) {
-  const guest = state.auth === 'guest', st = currentStation(), sc = profileStats(), L = listenParts(sc.listenMs);
-  const seen = new Set(), stamps = state.visits.filter(v => !seen.has(v.cityId) && seen.add(v.cityId)).slice(0, 24);
+  const guest = state.auth === 'guest', sc = profileStats(), L = listenParts(sc.listenMs);
   let i = 0; const nx = () => `class="px-in" style="--i:${i++}"`;
   const root = $('#profileScroll');
   root.classList.toggle('static', !animate);
+  const idx = Math.max(0, PX_TABS.findIndex(t => t[0] === pxTab));
   root.innerHTML = `
-    <div ${nx()}><div class="px-hero">
-      <div class="px-hi"><span class="label">${greeting()}</span><h2 class="px-name grad-text">${esc(displayName())}</h2></div>
+    <div ${nx()}><div class="px-hi"><div><span class="label">${greeting()}</span><h2 class="px-name grad-text">${esc(displayName())}</h2></div><span class="px-tag ${guest ? 'guest' : ''}">${guest ? 'MİSAFİR' : 'ÜYE'}</span></div></div>
+    <div class="px-hero px-in" style="--i:${i++}">
       <div class="px-globe" id="pxGlobe" aria-hidden="true"></div>
       <div class="px-orb o1 fly"><b><span data-count="${sc.countries}">${sc.countries}</span></b><span class="label">ülke</span></div>
       <div class="px-orb o2 fly"><b><span data-count="${sc.cities}">${sc.cities}</span></b><span class="label">şehir</span></div>
       <div class="px-orb o3 fly"><b><span data-count="${L.n}">${L.n}</span><small>${L.u}</small>${L.sub !== null ? `<small>${pad(L.sub)}</small>` : ''}</b><span class="label">dinleme</span></div>
-      <span class="px-tag ${guest ? 'guest' : ''} fly">${guest ? 'MİSAFİR' : 'ÜYE'}</span>
-    </div></div>
+    </div>
+    <div class="segmented px-in" style="--i:${i++}" role="tablist" aria-label="Profil"><span class="ind" id="pxInd" style="transform:translateX(${idx * 100}%)"></span>${PX_TABS.map(([k, n], j) => `<button class="press ${j === idx ? 'on' : ''}" role="tab" aria-selected="${j === idx}" data-pxtab="${k}">${n}</button>`).join('')}</div>
+    <div class="px-panel px-in" style="--i:${i++}" id="pxPanel"><div class="px-pane" role="tabpanel">${pxPaneHTML(pxTab)}</div></div>`;
+  seedFly(root);
+  countUp(root);
+  if (pxTab === 'route') mountRoute(animate);
+  if (pxsOpen) renderSettings(false);
+}
+function pxPaneHTML(tab) {
+  const st = currentStation();
+  if (tab === 'route') {
+    const r = todayRoute(); let km = 0; for (let k = 1; k < r.length; k++) km += kmBetween([r[k - 1].lat, r[k - 1].lng], [r[k].lat, r[k].lng]);
+    const cc = new Set(r.map(x => x.cc).filter(Boolean)).size;
+    const cap = r.length ? `BUGÜNKÜ ROTAN · ${r.length} DURAK${km >= 1 ? ` · ${Math.round(km).toLocaleString('tr-TR')} KM` : ''}` : 'BUGÜNKÜ ROTAN';
+    return `<span class="label cap">${cap}</span>
+      <div class="px-route" id="pxRoute" role="img" aria-label="Bugünkü rota: ${r.length ? esc(r.map(x => x.name).join(', ')) : 'henüz durak yok'}"><canvas></canvas>
+      ${r.length ? `<div class="pr-ends"><span>${esc(r[0].name)}</span>${cc > 1 ? `<span class="mid">${cc} ülke</span>` : ''}${r.length > 1 ? `<span>${esc(r[r.length - 1].name)}</span>` : ''}</div>` : `<div class="pr-empty"><b>Bugün henüz yola çıkmadın</b><span>Bir şehre dokun ya da ileri tuşuna bas; rotan burada çizilsin.</span></div>`}</div>`;
+  }
+  if (tab === 'stamps') {
+    const seen = new Set(), stamps = state.visits.filter(v => !seen.has(v.cityId) && seen.add(v.cityId)).slice(0, 24);
+    return `<span class="label cap">${stamps.length ? `${stamps.length} ŞEHİR · DAMGAYA DOKUN, KÜREDE AÇ` : 'DURAKLAR'}</span>` + (stamps.length
+      ? `<div class="px-stamps">${stamps.map((v, k) => `<button class="px-stamp press" data-stamp="${esc(v.cityId)}" aria-label="${esc(v.cityName)}: kürede aç">${stampSvg(v, k)}</button>`).join('')}</div>`
+      : `<div class="px-empty">${icon('stamp', 22)}<span><b>Henüz durak yok</b>Bir şehrin radyosu çalınca damgası buraya basılır.</span></div>`);
+  }
+  if (tab === 'favs') {
+    return `<span class="label cap">${state.favorites.length ? `${state.favorites.length} FAVORİ İSTASYON` : 'FAVORİLER'}</span>` + (state.favorites.length
+      ? `<div class="px-list">${state.favorites.map(f => favRow(f, st)).join('')}</div>`
+      : `<div class="px-empty">${icon('heart', 22)}<span><b>Henüz favorin yok</b>Dinlerken kalbe dokun; istasyon buraya gelsin.</span></div>`);
+  }
+  const sc = profileStats();
+  return `<span class="label cap">KITALAR · ${sc.conts.size === 6 ? 'DÜNYA TURU TAMAM' : `${sc.conts.size} / 6`}</span>
+    <div class="px-stars">${CONTINENTS.map(([k, n]) => `<div class="px-star ${sc.conts.has(k) ? 'on' : ''}"><b>${sc.conts.get(k) || 0}</b>${n}</div>`).join('')}</div>`;
+}
+/** Pano sekmesi: eski içerik yön tarafına 160 ms'de kayıp söner, yenisi karşı yandan yaylanarak gelir (360 ms) */
+function setPxTab(tab) {
+  if (tab === pxTab) return;
+  const from = PX_TABS.findIndex(t => t[0] === pxTab), to = PX_TABS.findIndex(t => t[0] === tab), dir = to > from ? 1 : -1;
+  pxTab = tab; vibrate(5);
+  $('#pxInd').style.transform = `translateX(${to * 100}%)`;
+  document.querySelectorAll('[data-pxtab]').forEach(b => { const on = b.dataset.pxtab === tab; b.classList.toggle('on', on); b.setAttribute('aria-selected', String(on)); });
+  const panel = $('#pxPanel'), old = panel.querySelector('.px-pane:not(.leaving)');
+  cancelAnimationFrame(routeRaf); if (routeIO) { routeIO.disconnect(); routeIO = null; }
+  if (old) {
+    old.classList.add('leaving'); old.removeAttribute('id');
+    const rt = old.querySelector('#pxRoute'); if (rt) rt.removeAttribute('id');
+    const a = old.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: `translateX(${-24 * dir}px)` }], { duration: reduceMotion.matches ? 1 : 160, easing: 'cubic-bezier(0.3,0,0.8,0.15)', fill: 'forwards' });
+    a.onfinish = () => old.remove();
+  }
+  const pane = document.createElement('div'); pane.className = 'px-pane'; pane.setAttribute('role', 'tabpanel'); pane.innerHTML = pxPaneHTML(tab);
+  panel.appendChild(pane);
+  if (!reduceMotion.matches) pane.animate([{ opacity: 0, transform: `translateX(${28 * dir}px)` }, { opacity: 1, transform: 'none' }], { duration: 420, delay: 90, easing: 'cubic-bezier(0.34,1.56,0.64,1)', fill: 'backwards' });
+  if (tab === 'route') mountRoute(true);
+}
+$('#profileScroll').addEventListener('click', e => { const t = e.target.closest('[data-pxtab]'); if (t) setPxTab(t.dataset.pxtab); });
+
+// ── Ayarlar çekmecesi ──
+let pxsOpen = false, pxsReturn = null;
+function renderSettings(animate) {
+  const guest = state.auth === 'guest', body = $('#pxsBody'); let i = 0; const nx = () => `style="--i:${i++}"`;
+  const initial = (displayName()[0] || 'G').toLocaleUpperCase('tr-TR');
+  body.innerHTML = `
     ${guest ? `<div ${nx()}><div class="px-call"><b>Yolculuğunu kaybetme</b><span class="small">Damgaların ve favorilerin şu an yalnızca bu cihazda. Bir hesapla her yerde seninle.</span>
-      <div class="btns"><button class="btn solid press" data-go="register"><span class="lbl">Üye ol</span></button><button class="btn line press" data-go="login"><span class="lbl">Giriş yap</span></button></div></div></div>` : ''}
-    ${routeSection(nx())}
-    <div ${nx()}><div class="px-sec"><div class="px-head"><h3 class="h2">Kıtalar</h3><span class="label">${sc.conts.size === 6 ? 'dünya turu tamam' : `${sc.conts.size} / 6`}</span></div>
-      <div class="px-stars">${CONTINENTS.map(([k, n]) => `<div class="px-star ${sc.conts.has(k) ? 'on' : ''} fly"><b>${sc.conts.get(k) || 0}</b>${n}</div>`).join('')}</div></div></div>
-    <div ${nx()}><div class="px-sec"><div class="px-head"><h3 class="h2">Duraklar</h3>${stamps.length ? `<span class="label">${stamps.length} şehir</span>` : ''}</div>
-      ${stamps.length ? `<div class="px-stamps">${stamps.map((v, k) => `<button class="px-stamp press" data-stamp="${esc(v.cityId)}" aria-label="${esc(v.cityName)}: kürede aç">${stampSvg(v, k)}</button>`).join('')}</div>`
-      : `<div class="px-empty">${icon('stamp', 22)}<span><b>Henüz durak yok</b>Bir şehrin radyosu çalınca damgası buraya basılır.</span></div>`}</div></div>
-    <div ${nx()}><div class="px-sec"><div class="px-head"><h3 class="h2">Favoriler</h3>${state.favorites.length ? `<span class="label">${state.favorites.length}</span>` : ''}</div>
-      ${state.favorites.length ? `<div class="px-list">${state.favorites.map(f => favRow(f, st)).join('')}</div>`
-      : `<div class="px-empty">${icon('heart', 22)}<span><b>Henüz favorin yok</b>Dinlerken kalbe dokun; istasyon buraya gelsin.</span></div>`}</div></div>
-    <div ${nx()}><div class="px-sec"><div class="px-head"><h3 class="h2">Ayarlar</h3></div><div class="px-card">
+      <div class="btns"><button class="btn solid press" data-go="register"><span class="lbl">Üye ol</span></button><button class="btn line press" data-go="login"><span class="lbl">Giriş yap</span></button></div></div></div>`
+      : `<div ${nx()}><div class="pxs-acct"><span class="av">${esc(initial)}</span><span class="tx"><b>${esc(displayName())}</b><span>${esc(state.email || '')}</span></span></div></div>`}
+    <div ${nx()}><div class="px-sec"><div class="px-head"><h3 class="h2">Tercihler</h3></div><div class="px-card">
       ${toggleHTML('autoplay', pref('autoplay'), 'Keşfet\'te kendiliğinden çal', 'Kadranı bırakınca ilk şehir çalar', 'compass')}
       ${toggleHTML('haptics', pref('haptics'), 'Titreşim', 'Dokunuşlarda hafif geri bildirim', 'sparkles')}
       ${toggleHTML('aurora', pref('aurora'), 'Kutup ışığı', 'Arka planda süzülen renkler', 'moon')}
       ${toggleHTML('night', pref('night'), 'Gece ve gündüz', 'Ana kürede güneşin gerçek konumu ve şehir ışıkları', 'moon')}
       ${toggleHTML('badge', pref('badge'), 'Teknik rozet', 'Küre ekranında görüntü ayrıntıları', 'eye')}
-      <div class="px-sleep" id="sleepCard"></div>
     </div></div></div>
-    <div ${nx()}><div class="px-acct"><button class="btn line press" id="signOut"><span class="lbl">${icon('log-out', 18)}${guest ? 'Misafirden çık' : 'Çıkış yap'}</span></button>${guest ? '' : `<button class="btn danger press" id="deleteAcct"><span class="lbl">${icon('trash', 18)}Hesabı sil</span></button>`}</div></div>`;
-  seedFly(root);
+    <div ${nx()}><div class="px-card"><div class="px-sleep" id="sleepCard"></div></div></div>
+    <div ${nx()}><div class="px-acct"><button class="btn line press" id="signOut"><span class="lbl">${icon('log-out', 18)}${guest ? 'Misafirden çık' : 'Çıkış yap'}</span></button>${guest ? '' : `<button class="btn danger press" id="deleteAcct"><span class="lbl">${icon('trash', 18)}Hesabı sil</span></button>`}</div></div>
+    <div ${nx()} class="pxs-ver">wGlobe · ${BUILD}</div>`;
+  if (!animate) body.querySelectorAll(':scope > *').forEach(el => { el.style.animation = 'none'; el.style.opacity = '1'; el.style.transform = 'none'; });
   renderSleep(true);
-  countUp(root);
-  mountRoute(animate);
   $('#signOut').addEventListener('click', async () => {
     const ok = await confirmDialog(guest ? 'Misafir modundan çık' : 'Çıkış yap', guest ? 'Favorilerin ve damgaların bu cihazda saklanmaya devam eder.' : 'Bu cihazdaki oturumun kapatılacak. Verilerin hesabında güvende.', guest ? 'Çık' : 'Çıkış yap');
-    if (!ok) return; pause(); openSheet(false); state.auth = null; state.email = null; save(); history = []; go('welcome', { replace: true });
+    if (!ok) return; closeSettings(true); pause(); openSheet(false); state.auth = null; state.email = null; save(); history = []; go('welcome', { replace: true });
   });
   const del = $('#deleteAcct');
   if (del) del.addEventListener('click', async () => {
     const ok = await confirmDialog('Hesabı kalıcı olarak sil', 'Favorilerin, damgaların ve açtığın küreler dahil tüm verilerin silinecek. Bu işlem geri alınamaz.', 'Hesabı sil');
-    if (!ok) return; pause(); openSheet(false); Object.assign(state, { auth: null, email: null, favorites: [], visits: [], theme: 'classic', unlocked: ['classic'], listenMs: 0, joinedAt: null }); save(); history = []; go('welcome', { replace: true }); toast('Hesabın silindi');
+    if (!ok) return; closeSettings(true); pause(); openSheet(false); Object.assign(state, { auth: null, email: null, favorites: [], visits: [], theme: 'classic', unlocked: ['classic'], listenMs: 0, joinedAt: null }); save(); history = []; go('welcome', { replace: true }); toast('Hesabın silindi');
   });
 }
+function openSettings() {
+  if (pxsOpen) return; pxsOpen = true; vibrate(6);
+  pxsReturn = document.activeElement;
+  renderSettings(true);
+  const el = $('#pxSettings'); el.scrollTop = 0; $('#pxsBody').scrollTop = 0;
+  el.classList.add('open'); el.setAttribute('aria-hidden', 'false'); $('#pxsDim').classList.add('open');
+  $('#pxGear').setAttribute('aria-expanded', 'true');
+  setTimeout(() => { if (pxsOpen) try { $('#pxsClose').focus({ preventScroll: true }); } catch (e) {} }, 380);
+}
+function closeSettings(instant) {
+  if (!pxsOpen) return; pxsOpen = false;
+  const el = $('#pxSettings');
+  if (instant) { el.style.transition = 'none'; requestAnimationFrame(() => { el.style.transition = ''; }); }
+  el.classList.remove('open'); el.setAttribute('aria-hidden', 'true'); $('#pxsDim').classList.remove('open');
+  $('#pxGear').setAttribute('aria-expanded', 'false');
+  if (state.tab === 'profile' && state.view === 'app') renderProfile(false);   // tercih/hesap değiştiyse profil güncel kalsın
+  if (pxsReturn && pxsReturn.isConnected) try { pxsReturn.focus({ preventScroll: true }); } catch (e) {}
+}
+$('#pxGear').addEventListener('click', () => pxsOpen ? closeSettings() : openSettings());
+$('#pxsClose').addEventListener('click', () => { vibrate(4); closeSettings(); });
+$('#pxsDim').addEventListener('click', () => closeSettings());
+$('#pxsBody').addEventListener('click', e => { const g = e.target.closest('[data-go]'); if (g) { closeSettings(true); go(g.dataset.go); } });
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && pxsOpen) closeSettings(); });
+// Sağa sürükleyerek kapat (parmağı izler; 90 px ya da hızlı bir fiske kapatır)
+(() => {
+  const el = $('#pxSettings'); let pid = null, x0 = 0, y0 = 0, lx = 0, lt = 0, vx = 0, horiz = null;
+  el.addEventListener('pointerdown', e => { if (!pxsOpen || e.target.closest('button, .tg, [data-sleep]')) return; pid = e.pointerId; x0 = lx = e.clientX; y0 = e.clientY; lt = performance.now(); vx = 0; horiz = null; });
+  el.addEventListener('pointermove', e => {
+    if (e.pointerId !== pid) return;
+    const dx = e.clientX - x0, dy = e.clientY - y0;
+    if (horiz === null && (Math.abs(dx) > 8 || Math.abs(dy) > 8)) { horiz = Math.abs(dx) > Math.abs(dy) && dx > 0; if (horiz) { el.classList.add('dragging'); try { el.setPointerCapture(pid); } catch (err) {} } }
+    if (!horiz) return;
+    const now = performance.now(); vx = (e.clientX - lx) / Math.max(1, now - lt); lx = e.clientX; lt = now;
+    el.style.transform = `translate3d(${Math.max(0, dx)}px, 0, 0)`;
+  });
+  const end = e => {
+    if (e.pointerId !== pid) return; pid = null;
+    if (!horiz) return;
+    const dx = e.clientX - x0; el.classList.remove('dragging'); el.style.transform = '';
+    if (dx > 90 || vx > 0.6) { vibrate(5); closeSettings(); }
+  };
+  el.addEventListener('pointerup', end); el.addEventListener('pointercancel', end);
+})();
 // ── Bugünkü rotan: noktalı dünya haritası (2°'lik kara maskesi), duraklar arasında büyük daire yayları ──
 // Kart ekrana girince: noktalar soldan sağa 420 ms'de belirir → yaylar sırayla 1,3 sn'de çizilir → her durak varılınca yaylanır.
 const WORLD_BITS = 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAf/AAAAAAAAAAAAAAAAAAAAAAAA3/////+AAAAACAADAAAAAAAAAAAAAIf8P///wAA+AAAAAA8AAAAAAAAAAAwAj4f///wAAYAAAAAAGAAAAAAAAAAAHgvwAf//wAAAAADAAf/4AGAAAAAAAD4238AP//gAAAAAEAD///cDAAAABgAAfw3/gD/+gAAAgAEDe/////9gAAP/7/v5djwH/+AAAH/AA7f////////4P//////g8H/gAAAf/y//f////////Mf/////9F4D8AeAA++P///////////AP/////wA4B4AAAD5/////////////Af/////gHgA4AAAH5///////////LwAHgH///gHkAAAAAH4/////////+AIAABAB///4D+AAAAGCx/////////4A8AAAABf///n/gAAAKCD/////////wA4AAAAAf///n/wAAAbH///////////AwAAAAAP/////wAAADf//////////9AAAAAAAD////8YAAAB///////////9AAAAAAAD////8AAAAB///////////4AAAAAAAD////+AAAAB/f4f///////wAAAAAAAD////gAAAAPxnwP///////jAAAAAAAD////AAAAAPib3v//////+AAAAAAAAD///+AAAAAfALf//////+ECAAAAAAAB///8AAAAAGGAP///////mEAAAAAAAA///8AAAAAH+AA///////E8AAAAAAAAf//wAAAAAP/AA///////BAAAAAAAAAP//gAAAAAf/73///////gAAAAAAAAAH/AQAAAAAf////f/////gAAAAAAAAAF+AQAAAAB///+/n/////AAAAAAAAAAC+AAAAAAB///+fwH////AAAAAAAAAAAeAQAAAAD////f/D///8AAAAAAAAAAAeEEAAAAD////v+B/j/AAAAAAAAAAAAPMAgAAAD////n+A/B+gAAAAAAAAAAAD8AAAAAD////34AeB/AgAAAAAAAAAAAPAAAAAH////3gAcAfAgAAAAAAAAAAADAAAAAD////+AAcAXgAAAAAAAAAAAABBwAAAD////8wAMATAAAAAAAAAAAAAAj/AAAB/////gAIAQAIAAAAAAAAAAAAH/gAAA/////gACAAAIAAAAAAAAAAAAH/8AAAYH///AAAAsGAAAAAAAAAAAAAH/+AAAAB//+AAAAUOAAAAAAAAAAAAAP/+AAAAB//8AAAAc+AAAAAAAAAAAAAP//gAAAB//4AAAAMeAgAAAAAAAAAAAP//8AAAB//wAAAAGMguAAAAAAAAAAAf///AAAA//wAAAACAAHkAAAAAAAAAAP///gAAA//wAAAABwAHwAAAAAAAAAAH///AAAAf/wAAAAAAACQAAAAAAAAAAH///AAAAf/wAAAAAAAAAAAAAAAAAAAD//+AAAAf/wgAAAAABxAAAAAAAAAAAD//8AAAA//wgAAAAAPxgAAAAAAAAAAA//8AAAA//zgAAAAAf/gAAAAAAAAAAAf/8AAAA//DgAAAAAf/gAAAAAAAAAAAf/8AAAAf/DAAAAAD//4AAAAAAAAAAAf/4AAAAf/DAAAAAH//4AAAAAAAAAAAf/AAAAAf+CAAAAAH//8AAAAAAAAAAAf/AAAAAP8AAAAAAH//+AAAAAAAAAAA/+AAAAAP8AAAAAAH//+AAAAAAAAAAA/8AAAAAH4AAAAAAD//+AAAAAAAAAAA/8AAAAAHwAAAAAADwf8AAAAAAAAAAA/gAAAAAAAAAAAAAAAH4AAAAAAAAAAB/wAAAAAAAAAAAAAAAD4AEAAAAAAAAB/AAAAAAAAAAAAAAAAAAAGAAAAAAAAB+AAAAAAAAAAAAAAAAAQAIAAAAAAAAB8AAAAAAAAAAAAAAAAAQAYAAAAAAAAB4AAAAAAAAAAAAAAAAAAAwAAAAAAAAB4AAAAAAAAAAAAAAAAAAAAAAAAAAAADwAAAAAAAAAAAAAAAAAAAAAAAAAAAABgAAAAAAAAAAAAAAAAAAAAAAAAAAAABwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
@@ -5036,14 +5202,6 @@ function todayRoute() {
     out.push({ id: v.cityId, name: v.cityName, lat, lng, cc: v.cc || (c && c.countryCode) || '' });
   });
   return out.slice(-30);
-}
-function routeSection(attrs) {
-  const r = todayRoute(); let km = 0; for (let i = 1; i < r.length; i++) km += kmBetween([r[i - 1].lat, r[i - 1].lng], [r[i].lat, r[i].lng]);
-  const cc = new Set(r.map(x => x.cc).filter(Boolean)).size;
-  const cap = r.length ? `${r.length} durak${km >= 1 ? ` · ${Math.round(km).toLocaleString('tr-TR')} km` : ''}` : 'henüz yok';
-  return `<div ${attrs}><div class="px-sec"><div class="px-head"><h3 class="h2">Bugünkü rotan</h3><span class="label">${cap}</span></div>
-    <div class="px-route" id="pxRoute" role="img" aria-label="Bugünkü rota: ${r.length ? esc(r.map(x => x.name).join(', ')) : 'henüz durak yok'}"><canvas></canvas>
-    ${r.length ? `<div class="pr-ends"><span>${esc(r[0].name)}</span>${cc > 1 ? `<span class="mid">${cc} ülke</span>` : ''}${r.length > 1 ? `<span>${esc(r[r.length - 1].name)}</span>` : ''}</div>` : `<div class="pr-empty"><b>Bugün henüz yola çıkmadın</b><span>Bir şehre dokun ya da ileri tuşuna bas; rotan burada çizilsin.</span></div>`}</div></div></div>`;
 }
 let routeRaf = 0, routeIO = null;
 function mountRoute(animate = true) {
