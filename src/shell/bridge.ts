@@ -23,7 +23,9 @@ export type WebMessage = AudioLoadMessage | AudioSkipMessage | AudioPauseMessage
 
 export type AudioStateMessage = { type: 'audio:state'; loadId: number; index: number; playing: boolean; buffering: boolean; failed: boolean };
 export type LinkMessage = { type: 'link'; params: Record<string, string> };
-export type NativeMessage = AudioStateMessage | LinkMessage;
+/** Kilit ekranı / kulaklık ileri-geri tuşu: web dünyanın başka yerine (ya da bir önceki yere) gider */
+export type RemoteMessage = { type: 'remote'; action: 'next' | 'prev' };
+export type NativeMessage = AudioStateMessage | LinkMessage | RemoteMessage;
 
 /** Gelen mesajı doğrular (WebView içeriği güvenilir olsa da yapı bozuksa sessizce yok sayılır). */
 export function parseWebMessage(raw: string): WebMessage | null {

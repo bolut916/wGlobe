@@ -3156,7 +3156,7 @@ const SatMosaic = (() => {
 })();
 
 /** Sürüm etiketi: sitede hangi sürümün açık olduğunu rozetten görmek için (önbellek kontrolü). */
-const BUILD = 'v38';
+const BUILD = 'v39';
 const MapGlobe = (() => {
   const host = document.getElementById('mapStage');
   const badge = document.getElementById('lodBadge');
@@ -5662,6 +5662,8 @@ function onNativeMessage(raw) {
   if (!m || typeof m !== 'object') return;
   if (m.type === 'audio:state') NativeAudio.onState(m);
   else if (m.type === 'link' && m.params) openSharedLink(m.params);
+  // Uygulamanın kilit ekranı / kulaklık tuşu: sitedeki gibi ileri → dünyanın başka yeri, geri → bir önceki yer
+  else if (m.type === 'remote') { if (m.action === 'next') next(); else if (m.action === 'prev') prev(); }
 }
 window.wglobeNative = onNativeMessage;   // yerel taraf injectJavaScript ile çağırır
 

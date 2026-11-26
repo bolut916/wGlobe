@@ -2,17 +2,19 @@
  * Yerel radyo: web arayüzünün istasyon sırası, kilit ekranına bağlı bir yerel çalma listesi olur.
  *
  * - Uygulama arka plandayken ve ekran kilitliyken çalmaya devam eder.
- * - Kilit ekranı / Denetim Merkezi / kulaklık tuşları: oynat-duraklat, sonraki-önceki istasyon.
+ * - Kilit ekranı / Denetim Merkezi / kulaklık tuşları: oynat-duraklat; ileri-geri web'e iletilir ('remote'),
+ *   web de sitedeki gibi dünyanın başka bir yerine (ya da bir önceki yere) gider.
  * - Bir istasyon 9 sn içinde çalmaya başlamazsa sıradakine geçilir; hepsi düşerse web'e bildirilir.
  * - Her durum değişikliği (çalıyor / tamponda / sıra değişti) web'e 'audio:state' olarak gider.
  */
 import { createAudioPlaylist, setAudioModeAsync, type AudioPlaylist, type AudioPlaylistStatus } from 'expo-audio';
 import * as FS from 'expo-file-system/legacy';
 
-import type { AudioLoadMessage, AudioStateMessage, Track } from './bridge';
+import type { AudioLoadMessage, AudioStateMessage, NativeMessage, Track } from './bridge';
 
 const START_TIMEOUT_MS = 9000;
 const RESUME_RELOAD_MS = 30000;   // uzun duraklatmadan sonra canlı yayın baştan bağlanır (bayat tampon çalmasın)
+const NATURAL_END_MS = 1500;      // yayın kendiliğinden bittiyse (iOS didJustFinish) sıradaki istasyona geçiş tuş sayılmaz
 
 type Sub = { remove: () => void };
 
@@ -29,8 +31,12 @@ export class NativeRadio {
   private lastSent = '';
   private pausedAt = 0;
   private everPlayed = false;
+  /** Bizim istediğimiz parça değişimi (yükleme, web'in skipTo'su, bekçi). Bunun dışındaki değişim kilit ekranı tuşudur. */
+  private expect: number | null = null;
+  private expectAt = 0;
+  private finishedAt = 0;
 
-  constructor(private readonly emit: (msg: AudioStateMessage) => void) {}
+  constructor(private readonly emit: (msg: NativeMessage) => void) {}
 
   static async configure(): Promise<void> {
     try {
@@ -49,14 +55,15 @@ export class NativeRadio {
     this.album = msg.meta.album || 'wGlobe';
     this.artworkUrl = await saveArtwork(msg.meta.artwork, msg.loadId);
     this.tried = 0; this.everPlayed = false;
-    const pl = createAudioPlaylist({ sources: msg.tracks.map((t) => ({ uri: t.url })), loop: 'none', updateInterval: 500 });
+    // loop 'all': listenin başında/sonunda da ileri-geri tuşu her zaman bir parça değişimi üretir (tuş yakalanabilsin)
+    const pl = createAudioPlaylist({ sources: msg.tracks.map((t) => ({ uri: t.url })), loop: 'all', updateInterval: 500 });
     this.pl = pl;
     this.subs.push(
       pl.addListener('playlistStatusUpdate', (s: AudioPlaylistStatus) => this.onStatus(s)),
-      pl.addListener('trackChanged', (d: { currentIndex: number }) => this.onTrack(d.currentIndex)),
+      pl.addListener('trackChanged', (d: { previousIndex: number; currentIndex: number }) => this.onTrack(d.previousIndex, d.currentIndex)),
     );
     const index = clampIndex(msg.index, msg.tracks.length);
-    pl.skipTo(index);
+    this.expect = index; this.expectAt = Date.now(); pl.skipTo(index);
     pl.play();
     pl.setActiveForLockScreen(true, this.metadata(index), { showNextTrack: true, showPreviousTrack: true, isLiveStream: true });
     this.arm();
@@ -67,7 +74,7 @@ export class NativeRadio {
     const pl = this.pl; if (!pl || loadId !== this.loadId) return;
     const i = clampIndex(index, this.tracks.length);
     const resume = i === pl.currentIndex && this.pausedAt && Date.now() - this.pausedAt < RESUME_RELOAD_MS;
-    if (!resume) pl.skipTo(i);
+    if (!resume) { this.expect = i; this.expectAt = Date.now(); pl.skipTo(i); }
     pl.play(); this.pausedAt = 0; this.tried = 0;
     this.arm();
   }
@@ -96,7 +103,7 @@ export class NativeRadio {
       try { this.pl.clearLockScreenControls(); } catch { /* zaten temiz */ }
       try { this.pl.pause(); this.pl.destroy(); } catch { /* yok edilmiş */ }
     }
-    this.pl = null; this.lastSent = '';
+    this.pl = null; this.lastSent = ''; this.expect = null; this.finishedAt = 0;
   }
 
   private metadata(index: number) {
@@ -104,14 +111,25 @@ export class NativeRadio {
     return { title: t ? t.title : 'wGlobe', artist: this.artist, albumTitle: this.album, artworkUrl: this.artworkUrl };
   }
 
-  private onTrack(index: number): void {
+  private onTrack(previous: number, index: number): void {
     const pl = this.pl; if (!pl) return;
+    const ours = this.expect !== null && this.expect === index && Date.now() - this.expectAt < 4000;
+    this.expect = null;
+    const natural = Date.now() - this.finishedAt < NATURAL_END_MS;
+    if (!ours && !natural && this.tracks.length > 1 && previous !== index) {
+      // Kilit ekranı / kulaklık tuşu: eski yerin sıradaki istasyonu duyulmasın; web yeni yeri yükler
+      const n = this.tracks.length, action = (previous + 1) % n === index ? 'next' : 'prev';
+      this.disarm(); try { pl.pause(); } catch { /* yok edilmiş */ }
+      this.emit({ type: 'remote', action });
+      return;
+    }
     try { pl.updateLockScreenMetadata(this.metadata(index)); } catch { /* kilit ekranı kapalı */ }
     this.arm();
     this.report(pl.currentStatus);
   }
 
   private onStatus(s: AudioPlaylistStatus): void {
+    if (s.didJustFinish) this.finishedAt = Date.now();
     if (s.playing && !s.isBuffering) { this.disarm(); this.tried = 0; this.everPlayed = true; this.pausedAt = 0; }
     else if (!s.playing && this.everPlayed && !this.watchdog && !this.pausedAt) this.pausedAt = Date.now();   // kilit ekranından duraklatıldı
     this.report(s);
@@ -138,7 +156,7 @@ export class NativeRadio {
       if (s.playing && !s.isBuffering) return;
       this.tried += 1;
       if (this.tried >= this.tracks.length) { pl.pause(); this.send({ index: s.currentIndex, failed: true }); return; }
-      pl.skipTo((s.currentIndex + 1) % this.tracks.length); pl.play();
+      this.expect = (s.currentIndex + 1) % this.tracks.length; this.expectAt = Date.now(); pl.skipTo(this.expect); pl.play();
       this.arm();
     }, START_TIMEOUT_MS);
   }
