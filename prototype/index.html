@@ -8,8 +8,8 @@
 :root {
   --bg: #050B18;
   --raise: #0D1A33;
-  --glass: rgba(16, 28, 54, 0.52);
-  --glass-strong: rgba(14, 13, 36, 0.86);
+  --glass: rgba(14, 25, 49, 0.8);
+  --glass-strong: rgba(12, 18, 40, 0.92);
   --fg: #F2F7FF;
   --fg-2: rgba(232,240,255, 0.64);
   --fg-3: rgba(232,240,255, 0.42);
@@ -132,7 +132,7 @@ svg.i.filled { fill: currentColor; }
 .btn.loading .lbl { opacity: 0; transform: scale(0.94); }
 .btn.loading .spin { opacity: 1; }
 .round { width: 44px; height: 44px; border-radius: 22px; display: grid; place-items: center; color: var(--fg); }
-.round.glass { background: var(--glass); box-shadow: inset 0 0 0 1px var(--hair); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); }
+.round.glass { background: var(--glass); box-shadow: inset 0 0 0 1px var(--hair); }
 
 @keyframes rot { to { transform: rotate(360deg); } }
 @keyframes enterUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
@@ -210,7 +210,7 @@ svg.i.filled { fill: currentColor; }
 .scroll::-webkit-scrollbar { display: none; }
 .page-head { display: flex; flex-direction: column; gap: 8px; }
 
-.tabbar { position: absolute; left: 16px; right: 16px; bottom: calc(10px + var(--sab)); height: 64px; border-radius: 32px; display: grid; grid-template-columns: repeat(4, 1fr); background: var(--glass-strong); -webkit-backdrop-filter: blur(24px) saturate(1.4); backdrop-filter: blur(24px) saturate(1.4); box-shadow: inset 0 0 0 1px var(--hair), 0 18px 40px rgba(0,0,0,0.4); z-index: 30; }
+.tabbar { position: absolute; left: 16px; right: 16px; bottom: calc(10px + var(--sab)); height: 64px; border-radius: 32px; display: grid; grid-template-columns: repeat(4, 1fr); background: var(--glass-strong); box-shadow: inset 0 0 0 1px var(--hair), 0 18px 40px rgba(0,0,0,0.4); z-index: 30; }
 .tab { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: var(--fg-3); font-size: 10.5px; font-weight: 500; letter-spacing: 0.01em; transition: color var(--d-toggle) var(--e-standard); }
 .tab .i { transition: transform var(--d-toggle) var(--e-standard); }
 .tab .dot { width: 4px; height: 4px; border-radius: 2px; background: var(--accent); transform: scale(0); transition: transform var(--d-toggle) var(--e-standard); }
@@ -246,7 +246,7 @@ svg.i.filled { fill: currentColor; }
 .app-logo span { color: var(--accent-2); transition: color 500ms var(--e-standard); }
 .screen.ink-dark .app-logo { color: #141414; }
 .screen.ink-dark .app-logo span { color: #8A6A2E; }
-.live { display: flex; align-items: center; gap: 10px; padding: 0 16px 0 14px; height: 44px; border-radius: 22px; background: var(--glass); box-shadow: inset 0 0 0 1px var(--hair); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); max-width: 240px; }
+.live { display: flex; align-items: center; gap: 10px; padding: 0 16px 0 14px; height: 44px; border-radius: 22px; background: var(--glass); box-shadow: inset 0 0 0 1px var(--hair); max-width: 240px; }
 .live .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--fg-4); flex: none; }
 .live.playing .dot { background: var(--live); box-shadow: 0 0 0 0 rgba(255,90,78,0.6); animation: ping 1600ms var(--e-standard) infinite; }
 .live.busy .dot { background: var(--accent); animation: breathe 600ms var(--e-inout) infinite alternate; }
@@ -271,7 +271,7 @@ svg.i.filled { fill: currentColor; }
 .hint.show { opacity: 1; transition-delay: 1000ms; }
 .hint.gone { opacity: 0 !important; transition: opacity var(--d-sheet-close) var(--e-exit); }
 
-.sheet { position: absolute; left: 10px; right: 10px; bottom: calc(84px + var(--sab)); border-radius: 30px; overflow: hidden; background: var(--glass-strong); -webkit-backdrop-filter: blur(30px) saturate(1.4); backdrop-filter: blur(30px) saturate(1.4); box-shadow: inset 0 0 0 1px var(--hair), 0 24px 60px rgba(0,0,0,0.5); z-index: 20;
+.sheet { position: absolute; left: 10px; right: 10px; bottom: calc(84px + var(--sab)); border-radius: 30px; overflow: hidden; background: var(--glass-strong); box-shadow: inset 0 0 0 1px var(--hair), 0 24px 60px rgba(0,0,0,0.5); z-index: 20;
   transform: translateY(calc(100% + 120px)); transition: transform var(--d-sheet-close) var(--e-exit); will-change: transform; }
 .sheet.open { transform: translateY(0); transition: transform var(--spring-sheet-d) var(--spring-sheet); }
 .sheet.dragging { transition: none; }
@@ -320,7 +320,7 @@ svg.i.filled { fill: currentColor; }
 .play.active .ic-pause { opacity: 1; transform: none; }
 .play .ring { position: absolute; inset: -6px; border-radius: 50%; border: 1.5px solid var(--accent); border-top-color: transparent; border-right-color: transparent; opacity: 0; transition: opacity var(--d-toggle); animation: rot 900ms linear infinite; }
 .play.busy .ring { opacity: 1; }
-.city-tag { position: absolute; left: 0; top: 0; z-index: 9; display: flex; align-items: center; gap: 7px; padding: 6px 11px; border-radius: 16px; background: var(--glass-strong); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); box-shadow: inset 0 0 0 1px rgba(160,200,245,0.4); font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; color: var(--fg); white-space: nowrap; pointer-events: none !important; opacity: 0; will-change: transform, opacity; transition: opacity 240ms var(--e-exit); }
+.city-tag { position: absolute; left: 0; top: 0; z-index: 9; display: flex; align-items: center; gap: 7px; padding: 6px 11px; border-radius: 16px; background: var(--glass-strong); box-shadow: inset 0 0 0 1px rgba(160,200,245,0.4); font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; color: var(--fg); white-space: nowrap; pointer-events: none !important; opacity: 0; will-change: transform, opacity; transition: opacity 240ms var(--e-exit); }
 .city-tag.show { opacity: 1; transition: opacity 360ms var(--e-enter); }
 .city-tag b { color: var(--accent-2); font-weight: 500; }
 .city-tag::after { content: ""; position: absolute; left: 50%; bottom: -12px; width: 1px; height: 12px; background: linear-gradient(rgba(160,200,245,0.7), rgba(160,200,245,0)); }
@@ -432,7 +432,7 @@ svg.i.filled { fill: currentColor; }
 #pane-themes.pk-open .pocket { opacity: 0; transform: translateY(24px); pointer-events: none !important; }
 #pane-themes.pk-open .pocket * { pointer-events: none !important; }
 .pk-drawer { position: absolute; left: 10px; right: 10px; top: calc(var(--sat) + 132px); bottom: calc(84px + var(--sab)); z-index: 4; display: flex; flex-direction: column; border-radius: 30px; overflow: hidden;
-  background: rgba(10,19,40,0.95); box-shadow: 0 30px 70px rgba(2,6,16,0.6), inset 0 0 0 1px rgba(232,240,255,0.1); -webkit-backdrop-filter: blur(24px) saturate(1.4); backdrop-filter: blur(24px) saturate(1.4);
+  background: rgba(10,19,40,0.95); box-shadow: 0 30px 70px rgba(2,6,16,0.6), inset 0 0 0 1px rgba(232,240,255,0.1);
   transform: translateY(calc(100% + 40px)); opacity: 0; visibility: hidden; transition: transform 300ms var(--e-exit), opacity 240ms var(--e-exit), visibility 0s linear 300ms; }
 .pk-drawer.open { transform: none; opacity: 1; visibility: visible; transition: transform 560ms var(--e-spring), opacity 240ms var(--e-enter), visibility 0s; }
 .pk-drawer::before { content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1px; background: var(--grad); opacity: 0.35; pointer-events: none; -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0); }
@@ -511,11 +511,11 @@ svg.i.filled { fill: currentColor; }
 /* Onay & bildirim */
 .modal { position: absolute; inset: 0; z-index: 80; display: flex; align-items: flex-end; padding: 10px; background: rgba(2,3,5,0); visibility: hidden; transition: background 320ms var(--e-standard), visibility 0s linear 320ms; }
 .modal.open { background: rgba(2,3,5,0.62); visibility: visible; transition: background 320ms var(--e-standard), visibility 0s; }
-.modal-card { width: 100%; border-radius: 30px; background: var(--glass-strong); -webkit-backdrop-filter: blur(30px); backdrop-filter: blur(30px); box-shadow: inset 0 0 0 1px var(--hair-2); padding: 26px 22px calc(18px + var(--sab)); display: flex; flex-direction: column; gap: 10px; transform: translateY(calc(100% + 24px)); transition: transform var(--d-sheet-close) var(--e-exit); }
+.modal-card { width: 100%; border-radius: 30px; background: var(--glass-strong); box-shadow: inset 0 0 0 1px var(--hair-2); padding: 26px 22px calc(18px + var(--sab)); display: flex; flex-direction: column; gap: 10px; transform: translateY(calc(100% + 24px)); transition: transform var(--d-sheet-close) var(--e-exit); }
 .modal.open .modal-card { transform: none; transition: transform var(--spring-sheet-d) var(--spring-sheet); }
 .modal-card h3 { margin: 0; font-size: 21px; font-weight: 600; letter-spacing: -0.02em; }
 .modal-card p { margin: 0 0 10px; color: var(--fg-2); font-size: 15px; line-height: 21px; }
-.toast { position: absolute; left: 50%; top: calc(var(--sat) + 12px); transform: translate(-50%, -12px); opacity: 0; z-index: 90; padding: 11px 18px; border-radius: 22px; background: var(--glass-strong); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); box-shadow: inset 0 0 0 1px var(--hair-2); font-size: 13px; white-space: nowrap; pointer-events: none; transition: opacity var(--d-card) var(--e-enter), transform var(--d-card) var(--e-enter); }
+.toast { position: absolute; left: 50%; top: calc(var(--sat) + 12px); transform: translate(-50%, -12px); opacity: 0; z-index: 90; padding: 11px 18px; border-radius: 22px; background: var(--glass-strong); box-shadow: inset 0 0 0 1px var(--hair-2); font-size: 13px; white-space: nowrap; pointer-events: none; transition: opacity var(--d-card) var(--e-enter), transform var(--d-card) var(--e-enter); }
 .toast.show { opacity: 1; transform: translate(-50%, 0); }
 
 /* ════════════════════════════════════════════════════════════════════
@@ -556,7 +556,7 @@ svg.i.filled { fill: currentColor; }
 .grad-text, .app-logo span, .brand-mark span, .wordmark .ch.g { background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
 
 /* Kapsül (pod): cam + kutup ışığı kenarı */
-.pod { position: relative; background: var(--glass-strong); border-radius: var(--pod-r); box-shadow: 0 18px 50px rgba(2,6,16,0.45); -webkit-backdrop-filter: blur(22px) saturate(1.5); backdrop-filter: blur(22px) saturate(1.5); }
+.pod { position: relative; background: var(--glass-strong); border-radius: var(--pod-r); box-shadow: 0 18px 50px rgba(2,6,16,0.45); }
 .rim::before { content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1px; background: var(--grad); opacity: 0.55; pointer-events: none;
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0); }
 
@@ -667,7 +667,7 @@ svg.i.filled { fill: currentColor; }
 .px-hi { position: absolute; left: 20px; top: 0; right: 20px; display: flex; flex-direction: column; gap: 2px; }
 .px-hi .label { color: var(--fg-2); }
 .px-name { margin: 0; font-size: 40px; line-height: 44px; font-weight: 800; letter-spacing: -0.05em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.px-orb { position: absolute; z-index: 2; display: flex; flex-direction: column; align-items: flex-start; gap: 1px; padding: 12px 16px; border-radius: 24px; background: rgba(12,22,44,0.7); box-shadow: inset 0 0 0 1px rgba(232,240,255,0.12), 0 16px 34px rgba(2,6,16,0.45); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); }
+.px-orb { position: absolute; z-index: 2; display: flex; flex-direction: column; align-items: flex-start; gap: 1px; padding: 12px 16px; border-radius: 24px; background: rgba(12,22,44,0.7); box-shadow: inset 0 0 0 1px rgba(232,240,255,0.12), 0 16px 34px rgba(2,6,16,0.45); }
 .px-orb b { font-family: var(--display); font-size: 30px; line-height: 32px; font-weight: 750; letter-spacing: -0.04em; font-variant-numeric: tabular-nums; }
 .px-orb b small { font-size: 14px; font-weight: 600; color: var(--fg-2); margin-left: 2px; letter-spacing: 0; }
 .px-orb .label { font-size: 10px; }
@@ -752,7 +752,7 @@ svg.i.filled { fill: currentColor; }
 .fl-top { display: flex; justify-content: space-between; align-items: center; padding: 0 6px 10px; }
 .fl-badge { font-family: var(--mono); font-size: 10px; letter-spacing: 0.16em; padding: 6px 10px; border-radius: 12px; background: var(--grad); color: var(--accent-ink); }
 .fl-leg { font-size: 10px; letter-spacing: 0.14em; color: var(--fg-2); }
-.fl-card { display: flex; flex-direction: column; gap: 6px; padding: 18px 20px 16px; border-radius: 28px; background: rgba(10,19,40,0.84); box-shadow: inset 0 0 0 1px rgba(232,240,255,0.1), 0 24px 60px rgba(2,6,16,0.55); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); transition: opacity 300ms var(--e-exit), transform 300ms var(--e-exit); }
+.fl-card { display: flex; flex-direction: column; gap: 6px; padding: 18px 20px 16px; border-radius: 28px; background: rgba(10,19,40,0.84); box-shadow: inset 0 0 0 1px rgba(232,240,255,0.1), 0 24px 60px rgba(2,6,16,0.55); transition: opacity 300ms var(--e-exit), transform 300ms var(--e-exit); }
 .fl-card.out { opacity: 0; transform: translateY(14px); }
 .fl-card:not(.out) { transition: opacity 420ms var(--e-enter), transform 560ms var(--e-spring); }
 .fl-city { margin: 0; font-family: var(--display); font-size: 46px; line-height: 1.02; font-weight: 750; letter-spacing: -0.05em; white-space: nowrap; overflow: hidden; }
@@ -764,6 +764,35 @@ svg.i.filled { fill: currentColor; }
 .fl-bar i { display: block; height: 100%; background: var(--grad); transform-origin: left; transform: scaleX(0); }
 .fl-act { display: flex; gap: 8px; margin-top: 6px; }
 .fl-act .btn { min-height: 44px; font-size: 14px; }
+/* ── Harita üst katmanı: dalgalar, dokunma halkası, nabız (yalnız transform/opacity → kompozitör) ── */
+.map-fx { position: absolute; inset: 0; z-index: 2; pointer-events: none; overflow: hidden; contain: strict; --fx-ink: #DCEEFF; --fx-line: #EAF4FF; --fx-glow: #A9D3FF; }
+.mfx-trail { position: absolute; inset: 0; width: 100%; height: 100%; }
+.mfx-pt { position: absolute; left: 0; top: 0; width: 0; height: 0; will-change: transform; }
+.mfx-wave { transition: opacity 200ms var(--e-standard); }
+.mfx-wave.off { opacity: 0; }
+.mfx-wave i { position: absolute; left: -9px; top: -9px; width: 18px; height: 18px; border-radius: 50%; border: 1.6px solid var(--fx-ink); opacity: 0; will-change: transform, opacity; }
+.mfx-wave.play i { animation: mfxWave var(--beat, 2340ms) linear infinite; }
+.mfx-wave.play i:nth-child(1) { --s: 3.4; }
+.mfx-wave.play i:nth-child(2) { --s: 2.6; animation-delay: calc(var(--beat, 2340ms) / -3); }
+.mfx-wave.play i:nth-child(3) { --s: 3.0; animation-delay: calc(var(--beat, 2340ms) / -1.5); }
+@keyframes mfxWave {
+  0% { transform: scale(0.9); opacity: 0.62; animation-timing-function: cubic-bezier(0.22, 0.61, 0.36, 1); }
+  62% { transform: scale(var(--s, 3)); opacity: 0; }
+  100% { transform: scale(var(--s, 3)); opacity: 0; }
+}
+.mfx-wave.busy i:first-child { animation: mfxBreath 1600ms var(--e-inout) infinite alternate; }
+@keyframes mfxBreath { from { transform: scale(1.1); opacity: 0.18; } to { transform: scale(1.9); opacity: 0.52; } }
+.mfx-tap i { position: absolute; left: -4px; top: -4px; width: 8px; height: 8px; border-radius: 50%; border: 1.6px solid var(--fx-line); opacity: 0; }
+.mfx-tap.go i { animation: mfxTap 520ms cubic-bezier(0.33, 1, 0.68, 1) forwards; }
+@keyframes mfxTap { from { transform: scale(1); opacity: 0.85; } to { transform: scale(11); opacity: 0; } }
+.mfx-pulse .in { position: absolute; left: 0; top: 0; animation: mfxIn 620ms cubic-bezier(0.34, 1.56, 0.64, 1) calc(260ms + var(--i) * 70ms) backwards; }
+.mfx-pulse b { position: absolute; left: calc(var(--r) * -1); top: calc(var(--r) * -1); width: calc(var(--r) * 2); height: calc(var(--r) * 2); border-radius: 50%; background: radial-gradient(closest-side, var(--fx-glow), rgba(169,211,255,0) 100%); opacity: var(--o); animation: mfxBreathe var(--sp) var(--e-inout) var(--ph) infinite alternate; will-change: transform; }
+.mfx-pulse i { position: absolute; left: calc(var(--c) * -1); top: calc(var(--c) * -1); width: calc(var(--c) * 2); height: calc(var(--c) * 2); border-radius: 50%; background: var(--fx-line); box-shadow: 0 0 0 1px rgba(255,255,255,0.6); }
+@keyframes mfxIn { from { transform: scale(0); opacity: 0; } 40% { opacity: 1; } to { transform: none; opacity: 1; } }
+@keyframes mfxBreathe { from { transform: scale(0.86); } to { transform: scale(1.1); } }
+.mfx-pulses { position: absolute; inset: 0; transition: opacity 300ms var(--e-exit); }
+.mfx-pulses.out { opacity: 0; }
+@media (prefers-reduced-motion: reduce) { .mfx-wave.play i, .mfx-pulse b { animation: none; } .mfx-wave.play i:first-child { opacity: 0.4; transform: scale(1.8); } }
 /* ── Günün şehri: perde 420 ms, harfler 40 ms arayla yaylanarak düşer, ardından bilgi · halka · düğmeler 80 ms arayla ── */
 .cotd { position: absolute; inset: 0; z-index: 14; pointer-events: none; }
 .cotd[hidden] { display: none !important; }
@@ -804,7 +833,7 @@ svg.i.filled { fill: currentColor; }
 .cotd-act .btn { flex: 1; min-height: 52px; }
 #pane-globe.cotd-mode .search, #pane-globe.cotd-mode .hint, #pane-globe.cotd-mode .live-dock, #pane-globe.cotd-mode .topbar, #pane-globe.cotd-mode .pulse-bar { opacity: 0 !important; pointer-events: none !important; transition: opacity 240ms var(--e-standard); }
 /* ── Canlı nabız şeridi: arama kutusunun yerine iner (yay), kapanırken 220 ms'de çekilir ── */
-.pulse-bar { position: absolute; top: calc(var(--sat) + 64px); left: 16px; right: 16px; z-index: 12; display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 6px 7px 6px 16px; border-radius: 26px; background: rgba(12,22,44,0.88); box-shadow: inset 0 0 0 1px rgba(110,170,235,0.38), 0 14px 34px rgba(2,6,16,0.42); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); opacity: 0; transform: translateY(-12px) scale(0.97); pointer-events: none; transition: opacity 220ms var(--e-exit), transform 220ms var(--e-exit); }
+.pulse-bar { position: absolute; top: calc(var(--sat) + 64px); left: 16px; right: 16px; z-index: 12; display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 6px 7px 6px 16px; border-radius: 26px; background: rgba(12,22,44,0.88); box-shadow: inset 0 0 0 1px rgba(110,170,235,0.38), 0 14px 34px rgba(2,6,16,0.42); opacity: 0; transform: translateY(-12px) scale(0.97); pointer-events: none; transition: opacity 220ms var(--e-exit), transform 220ms var(--e-exit); }
 .pulse-bar[hidden] { display: none !important; }
 .pulse-bar.in { opacity: 1; transform: none; pointer-events: auto; transition: opacity 320ms var(--e-enter), transform 560ms var(--e-spring); }
 .pb-dot { width: 9px; height: 9px; border-radius: 50%; flex: none; background: var(--a1); animation: pingA 1400ms var(--e-standard) infinite; }
@@ -826,7 +855,7 @@ svg.i.filled { fill: currentColor; }
 /* ── Keşfet: anlar şeridi ── */
 .dk-moments { display: flex; gap: 8px; margin: 12px -22px 0; padding: 2px 56px 2px 22px; overflow-x: auto; scrollbar-width: none; overscroll-behavior-x: contain; -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 34px), transparent); mask-image: linear-gradient(90deg, #000 calc(100% - 34px), transparent); }
 .dk-moments::-webkit-scrollbar { display: none; }
-.dk-mo { flex: none; display: flex; align-items: center; gap: 9px; min-height: 46px; padding: 0 15px 0 7px; border-radius: 23px; background: rgba(12,22,44,0.66); box-shadow: inset 0 0 0 1px rgba(232,240,255,0.12); color: var(--fg); text-align: left; -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
+.dk-mo { flex: none; display: flex; align-items: center; gap: 9px; min-height: 46px; padding: 0 15px 0 7px; border-radius: 23px; background: rgba(12,22,44,0.66); box-shadow: inset 0 0 0 1px rgba(232,240,255,0.12); color: var(--fg); text-align: left; }
 .dk-mo .ic { width: 32px; height: 32px; border-radius: 16px; display: grid; place-items: center; flex: none; background: rgba(169,211,255,0.14); color: var(--a2); }
 .dk-mo.dawn .ic { background: rgba(255,214,170,0.15); color: #FFDDB8; }
 .dk-mo .tx { display: flex; flex-direction: column; min-width: 0; }
@@ -895,7 +924,7 @@ svg.i.filled { fill: currentColor; }
 .unlock { position: absolute; left: 12px; right: 12px; top: calc(var(--sat) + 10px); z-index: 95; display: flex; justify-content: center; pointer-events: none; }
 .unlock[hidden] { display: none !important; }
 .ul-card { pointer-events: auto; position: relative; width: 100%; max-width: 420px; display: flex; align-items: center; gap: 14px; padding: 12px 16px 12px 12px; border-radius: 28px; text-align: left;
-  background: rgba(10,19,40,0.94); box-shadow: inset 0 0 0 1px rgba(205,230,255,0.28), 0 20px 50px rgba(2,6,16,0.6); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px);
+  background: rgba(10,19,40,0.94); box-shadow: inset 0 0 0 1px rgba(205,230,255,0.28), 0 20px 50px rgba(2,6,16,0.6);
   transform: translateY(-140%); opacity: 0; }
 .unlock.in .ul-card { animation: ulIn 620ms var(--e-spring) forwards; }
 .unlock.out .ul-card { animation: ulOut 280ms var(--e-exit) forwards; }
@@ -2794,7 +2823,7 @@ function flushListen(keep) { if (!listenSince) return; state.listenMs = (state.l
 function trackListen(s) { if (s === 'playing') { if (!listenSince) listenSince = Date.now(); } else flushListen(false); }
 addEventListener('pagehide', () => flushListen(true));
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') flushListen(true); });
-function setStatus(s) { trackListen(s); state.status = s; renderLive(); renderSheetDynamic(); dkSync(); profileSync(); mediaSync(); flightSync(); if (s === 'playing') cotdCheck(); }
+function setStatus(s) { trackListen(s); state.status = s; MapGlobe.syncStatus(); renderLive(); renderSheetDynamic(); dkSync(); profileSync(); mediaSync(); flightSync(); if (s === 'playing') cotdCheck(); }
 async function startAttempt(i, isFailover) {
   const city = CITY[state.activeCityId]; if (!city) { setStatus('error'); return; }
   const token = ++attemptToken; clearTimeout(startTimer);
@@ -3056,7 +3085,7 @@ const SatMosaic = (() => {
 })();
 
 /** Sürüm etiketi: sitede hangi sürümün açık olduğunu rozetten görmek için (önbellek kontrolü). */
-const BUILD = 'v36';
+const BUILD = 'v37';
 const MapGlobe = (() => {
   const host = document.getElementById('mapStage');
   const badge = document.getElementById('lodBadge');
@@ -3369,16 +3398,26 @@ const MapGlobe = (() => {
   const bmOpacity = () => imagery === 'satellite' ? ['interpolate', ['linear'], ['zoom'], 3, 1, 4.5, 0] : 1;
   /** Kıyı/sınır verisi: ana thread'de ağır (3 MB), bu yüzden yalnız gerekince ve geçişten sonra işlenir. */
   let vectorLoaded = false;
+  // Ağır veri boşta işlenir: sınırlar (0,75 MB) her modda; 1:10m kara/kıyı (3 MB) yalnız uydu karoları engelliyse.
+  let bordersLoaded = false;
+  const idle = fn => (window.requestIdleCallback ? requestIdleCallback(fn, { timeout: 2500 }) : setTimeout(fn, 120));
   function loadVectorData() {
-    if (vectorLoaded || !map) return; vectorLoaded = true;
-    Promise.all([fetch('world/land-10m.json').then(r => r.json()), fetch('world/countries-50m.json').then(r => r.json())])
-      .then(([land, countries]) => {
+    if (!map) return;
+    if (!bordersLoaded) {
+      bordersLoaded = true;
+      fetch('world/countries-50m.json').then(r => r.json())
+        .then(countries => idle(() => { if (map) map.getSource('borders').setData(topojson.mesh(countries, countries.objects.countries, (a, b) => a !== b)); }))
+        .catch(() => {});
+    }
+    if (imagery !== 'vector' || vectorLoaded) { if (imagery !== 'vector' && dataStatus === 'yükleniyor') dataStatus = 'uydu'; return; }
+    vectorLoaded = true;
+    fetch('world/land-10m.json').then(r => r.json())
+      .then(land => idle(() => {
         const landGeo = topojson.feature(land, land.objects.land);
         map.getSource('coastline').setData(coastlines(landGeo));
         map.getSource('land').setData(fixPolygons(landGeo));
-        map.getSource('borders').setData(topojson.mesh(countries, countries.objects.countries, (a, b) => a !== b));
         dataStatus = 'veri hazır'; updateBadge(); checkReady();
-      })
+      }))
       .catch(() => { dataStatus = 'veri hatası'; updateBadge(); });
   }
   function checkReady() {
@@ -3397,6 +3436,7 @@ const MapGlobe = (() => {
 
   function updateBadge() {
     if (!visible) { badge.classList.remove('on'); return; }
+    if (!pref('badge')) return;
     const z = map ? map.getZoom().toFixed(1) : '–';
     if (imagery === 'vector') badge.textContent = BUILD + ' · Z ' + z + (bmReady ? ' · NASA görüntüsü' : ' · vektör 1:10m · ' + dataStatus) + ' · uydu karosu engelli';
     else badge.textContent = BUILD + ' · Z ' + z + ' · Uydu karo: ' + satTiles + ' · Hata: ' + satErrors + (imagery === 'probing' ? ' · bağlanıyor' : '') + (satLastError ? '\n' + satLastError.slice(0, 48) : '');
@@ -3428,10 +3468,8 @@ const MapGlobe = (() => {
     if (!ready) return;
     const id = activeId || '';
     // Küre üzerinde nokta yok: yalnızca seçili konum nabız atar.
-    map.setFilter('city-pulse', ['==', ['get', 'id'], id]);
-    map.setFilter('city-pulse2', ['==', ['get', 'id'], id]);
-    map.setFilter('city-wave3', ['==', ['get', 'id'], id]);
     map.setFilter('city-core', ['==', ['get', 'id'], id]);
+    fxActive();
   }
 
   /* Karo akışı kanıtlanınca uyduya geç; ilk karolar hata verirse vektöre dön. */
@@ -3441,12 +3479,15 @@ const MapGlobe = (() => {
     if (mode === 'satellite') {
       map.setPaintProperty('satellite', 'raster-opacity', 1);
       map.setLayoutProperty('coast', 'visibility', 'none');
+      map.setLayoutProperty('land', 'visibility', 'none');   // uydu görüntüsünün altında kalıyordu; kaynağı da artık işlenmez
       map.setPaintProperty('borders', 'line-opacity', 0.55);
       map.setMaxZoom(SAT_MAX_ZOOM);
     } else if (mode === 'vector') {
       if (map.getLayer('satellite')) map.removeLayer('satellite');
       if (map.getSource('satellite')) map.removeSource('satellite');
       map.setLayoutProperty('coast', 'visibility', 'visible');
+      map.setLayoutProperty('land', 'visibility', 'visible');
+      if (revealed) loadVectorData();
       // NASA görüntüsü varsa kıyılar yalnız yaklaşınca (z3,5+) belirir; yoksa vektör veri hemen yüklenir.
       if (bmUrl) map.setPaintProperty('coast', 'line-opacity', ['interpolate', ['linear'], ['zoom'], 3.5, 0, 4.5, 0.85]);
       else ensureFallback();
@@ -3462,9 +3503,9 @@ const MapGlobe = (() => {
       maplibregl.setWorkerUrl(new URL('lib/maplibre-gl-csp-worker.js', document.baseURI).href);
       const c = STYLE[themeId] || STYLE.classic;
       map = new maplibregl.Map({
-        container: host, attributionControl: false, pixelRatio: Math.min(window.devicePixelRatio || 1, 3),
+        container: host, attributionControl: false, pixelRatio: Math.min(window.devicePixelRatio || 1, 2),
         center: [30, 28], zoom: 1.55, minZoom: 0.8, maxZoom: SAT_MAX_ZOOM, maxPitch: 70, fadeDuration: 0,
-        maxTileCacheSize: 1500, cancelPendingTileRequestsWhileZooming: false,
+        maxTileCacheSize: 1500, cancelPendingTileRequestsWhileZooming: true,
         style: {
           version: 8, projection: { type: 'globe' },
           sources: {
@@ -3473,35 +3514,22 @@ const MapGlobe = (() => {
             borders: { type: 'geojson', data: { type: 'FeatureCollection', features: [] }, tolerance: 0.3 },
             cities: { type: 'geojson', data: cityFeatures() },
             atlas: { type: 'geojson', data: { type: 'FeatureCollection', features: CITIES.concat(ATLAS).map(c => ({ type: 'Feature', properties: {}, geometry: { type: 'Point', coordinates: [c.lng, c.lat] } })) }, maxzoom: 8 },
-            tap: { type: 'geojson', data: { type: 'FeatureCollection', features: [] } },
             dawn: { type: 'geojson', data: { type: 'FeatureCollection', features: [] } },
             trail: { type: 'geojson', data: { type: 'FeatureCollection', features: [] } },
-            'trail-live': { type: 'geojson', data: { type: 'FeatureCollection', features: [] } },
-            'trail-head': { type: 'geojson', data: { type: 'FeatureCollection', features: [] } },
-            pulse: { type: 'geojson', data: { type: 'FeatureCollection', features: [] } },
             satellite: { type: 'raster', tiles: [ESRI_URL], tileSize: SAT_TILE_SIZE, maxzoom: SAT_MAX_ZOOM, attribution: 'Imagery © Esri, Maxar, Earthstar Geographics' },
           },
           layers: [
             { id: 'ocean', type: 'background', paint: { 'background-color': c.ocean } },
             { id: 'land', type: 'fill', source: 'land', paint: { 'fill-color': c.land, 'fill-antialias': true } },
-            { id: 'satellite', type: 'raster', source: 'satellite', paint: Object.assign({ 'raster-opacity': 0, 'raster-opacity-transition': { duration: 400, delay: 0 }, 'raster-fade-duration': 200, 'raster-resampling': 'linear' }, RASTER[themeId] || RASTER.classic) },
+            { id: 'satellite', type: 'raster', source: 'satellite', paint: Object.assign({ 'raster-opacity': 0, 'raster-opacity-transition': { duration: 400, delay: 0 }, 'raster-fade-duration': 280, 'raster-resampling': 'linear' }, RASTER[themeId] || RASTER.classic) },
             { id: 'borders', type: 'line', source: 'borders', paint: { 'line-color': c.border, 'line-width': ['interpolate', ['linear'], ['zoom'], 1, 0.4, 6, 1, 10, 1.4] } },
             { id: 'coast', type: 'line', source: 'coastline', layout: { 'line-join': 'round', 'line-cap': 'round' }, paint: { 'line-color': c.coast, 'line-opacity': 0.85, 'line-width': ['interpolate', ['exponential', 1.6], ['zoom'], 1, 0.5, 6, 1.1, 12, 2.2] } },
             { id: 'atlas-dot', type: 'circle', source: 'atlas', minzoom: 2.4, paint: { 'circle-radius': ['interpolate', ['linear'], ['zoom'], 2.4, 1, 5, 1.8, 9, 2.6], 'circle-color': c.coast, 'circle-opacity': ['interpolate', ['linear'], ['zoom'], 2.4, 0, 3.2, 0.42, 7, 0.6], 'circle-stroke-width': 0, 'circle-pitch-alignment': 'map' } },
-            { id: 'dawn-glow', type: 'line', source: 'dawn', layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': '#FFD9AE', 'line-width': 16, 'line-blur': 14, 'line-opacity': 0 } },
-            { id: 'dawn-line', type: 'line', source: 'dawn', layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': '#FFEBD2', 'line-width': 1.6, 'line-opacity': 0 } },
+            { id: 'dawn-glow', type: 'line', source: 'dawn', layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': '#FFD9AE', 'line-width': 16, 'line-blur': 14, 'line-opacity': 0, 'line-opacity-transition': { duration: 500, delay: 0 } } },
+            { id: 'dawn-line', type: 'line', source: 'dawn', layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': '#FFEBD2', 'line-width': 1.6, 'line-opacity': 0, 'line-opacity-transition': { duration: 500, delay: 0 } } },
             { id: 'trail-glow', type: 'line', source: 'trail', layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': '#A9D3FF', 'line-width': 7, 'line-blur': 6, 'line-opacity': ['*', 0.32, ['get', 'a']] } },
             { id: 'trail', type: 'line', source: 'trail', layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': '#EAF4FF', 'line-width': 1.7, 'line-opacity': ['get', 'a'] } },
-            { id: 'trail-live-glow', type: 'line', source: 'trail-live', layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': '#A9D3FF', 'line-width': 9, 'line-blur': 7, 'line-opacity': 0.4 } },
-            { id: 'trail-live', type: 'line', source: 'trail-live', layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': '#F2F8FF', 'line-width': 2.2, 'line-opacity': 0.95 } },
-            { id: 'trail-head', type: 'circle', source: 'trail-head', paint: { 'circle-radius': 4.5, 'circle-color': '#F2F8FF', 'circle-opacity': ['get', 'o'], 'circle-stroke-width': 6, 'circle-stroke-color': '#A9D3FF', 'circle-stroke-opacity': ['*', 0.3, ['get', 'o']], 'circle-pitch-alignment': 'map' } },
-            { id: 'pulse-glow', type: 'circle', source: 'pulse', paint: { 'circle-radius': ['get', 'r'], 'circle-color': '#A9D3FF', 'circle-blur': 0.75, 'circle-opacity': ['get', 'o'], 'circle-pitch-alignment': 'map' } },
-            { id: 'pulse-core', type: 'circle', source: 'pulse', paint: { 'circle-radius': ['get', 'c'], 'circle-color': '#F2F8FF', 'circle-opacity': ['get', 'co'], 'circle-stroke-width': 1, 'circle-stroke-color': '#FFFFFF', 'circle-stroke-opacity': ['*', 0.6, ['get', 'co']], 'circle-pitch-alignment': 'map' } },
-            { id: 'city-pulse', type: 'circle', source: 'cities', filter: ['==', ['get', 'id'], ''], paint: { 'circle-radius': 10, 'circle-color': 'rgba(0,0,0,0)', 'circle-stroke-width': 2, 'circle-stroke-color': '#DCEEFF', 'circle-stroke-opacity': 0.5, 'circle-pitch-alignment': 'map' } },
-            { id: 'city-pulse2', type: 'circle', source: 'cities', filter: ['==', ['get', 'id'], ''], paint: { 'circle-radius': 10, 'circle-color': 'rgba(0,0,0,0)', 'circle-stroke-width': 2, 'circle-stroke-color': '#DCEEFF', 'circle-stroke-opacity': 0, 'circle-pitch-alignment': 'map' } },
-            { id: 'city-wave3', type: 'circle', source: 'cities', filter: ['==', ['get', 'id'], ''], paint: { 'circle-radius': 10, 'circle-color': 'rgba(0,0,0,0)', 'circle-stroke-width': 2, 'circle-stroke-color': '#DCEEFF', 'circle-stroke-opacity': 0, 'circle-pitch-alignment': 'map' } },
-            { id: 'city-core', type: 'circle', source: 'cities', filter: ['==', ['get', 'id'], ''], paint: { 'circle-radius': 6, 'circle-color': '#DCEEFF', 'circle-stroke-width': 1.5, 'circle-stroke-color': '#ffffff', 'circle-stroke-opacity': 0.9, 'circle-pitch-alignment': 'map' } },
-            { id: 'tap-ring', type: 'circle', source: 'tap', paint: { 'circle-radius': 4, 'circle-color': 'rgba(0,0,0,0)', 'circle-stroke-width': 1.6, 'circle-stroke-color': '#ffffff', 'circle-stroke-opacity': 0, 'circle-pitch-alignment': 'map' } },
+            { id: 'city-core', type: 'circle', source: 'cities', filter: ['==', ['get', 'id'], ''], paint: { 'circle-opacity-transition': { duration: 200, delay: 0 }, 'circle-radius': 6, 'circle-color': '#DCEEFF', 'circle-stroke-width': 1.5, 'circle-stroke-color': '#ffffff', 'circle-stroke-opacity': 0.9, 'circle-pitch-alignment': 'map' } },
           ],
         },
       });
@@ -3511,6 +3539,9 @@ const MapGlobe = (() => {
     // 'style.load': stil hazır (katmanlar düzenlenebilir). 'load' tüm karoları bekler; yoğun
     // karo ızgarasında ve intro animasyonu sürerken çok gecikebilir, o yüzden onu beklemiyoruz.
     map.once('style.load', () => {
+      host.appendChild(fx); fxResize();
+      map.on('render', () => { fxPosition(); if (live || headFade) drawTrail(performance.now()); });
+      map.on('resize', () => { fxResize(); fxPosition(); });
       clearTimeout(bootTimer); ready = true;
       paint(themeId); applyActive(); map.setPadding(padding());
       attachImagery(); attachTheme();
@@ -3543,18 +3574,15 @@ const MapGlobe = (() => {
     // Haritada herhangi bir yere dokun → en yakın konumun yerel radyosu.
     map.on('click', ev => {
       if (pulse && !pulse.off && pulse.onPick) {
-        const p = ev.point, hit = map.queryRenderedFeatures([[p.x - 16, p.y - 16], [p.x + 16, p.y + 16]], { layers: ['pulse-glow'] });
-        if (hit.length) {
-          const best = hit.map(f => pulse.items[f.properties.i]).filter(Boolean).sort((a, b) => b.w - a.w)[0];
-          if (best) { lastTouch = Date.now(); userControl = true; tap = performance.now(); map.getSource('tap').setData({ type: 'Feature', properties: {}, geometry: { type: 'Point', coordinates: [best.lng, best.lat] } }); pulse.onPick(best); return; }
-        }
+        const q = ev.point, hit = pulse.items.filter(it => it.p && Math.hypot(it.p.x - q.x, it.p.y - q.y) < Math.max(20, (14 + 34 * it.w) * 0.75));
+        const best = hit.sort((a, b) => b.w - a.w)[0];
+        if (best) { lastTouch = Date.now(); userControl = true; tapRipple(best.lng, best.lat); pulse.onPick(best); return; }
         if (pulse.onMiss) pulse.onMiss();
       }
       if (userMoveCb) userMoveCb();
       lastTouch = Date.now(); userControl = true; selectFromMap = true;
       const { lng, lat } = ev.lngLat;
-      map.getSource('tap').setData({ type: 'Feature', properties: {}, geometry: { type: 'Point', coordinates: [lng, lat] } });
-      tap = performance.now();
+      tapRipple(lng, lat);
       const city = spotPlace(lat, lng);
       if (city && state.activeCityId && city.id !== state.activeCityId) travelBack.push(state.activeCityId);
       if (city && onSelect) onSelect(city);
@@ -3642,13 +3670,6 @@ const MapGlobe = (() => {
     rafId = requestAnimationFrame(animate);
     if (!visible || now - lastFrame < 33) return;
     const dt = lastFrame ? Math.min((now - lastFrame) / 1000, 0.1) : 0; lastFrame = now;
-    if (tap !== null) {   // dokunma dalgası: 520 ms, ease-out, 4→44 px
-      const t = Math.min(1, (now - tap) / 520), e = 1 - Math.pow(1 - t, 3);
-      map.setPaintProperty('tap-ring', 'circle-radius', 4 + 40 * e);
-      map.setPaintProperty('tap-ring', 'circle-stroke-opacity', 0.85 * (1 - t));
-      if (t >= 1) tap = null;
-    }
-    tickWaves(now); tickTrail(now); tickDawn(now); tickPulse(now);
 
     // Kendiliğinden dönüş: açılıştan itibaren (1,2 sn'de yumuşak hızlanma), ilk dokunuşa kadar.
     if (!userControl && !userMoving && !flight && !map.isMoving() && map.getZoom() < 3.5) {
@@ -3668,45 +3689,57 @@ const MapGlobe = (() => {
     const light = id !== 'classic' && p && (lumHex(p.oceanShallow) + lumHex(p.landLow)) / 2 > 0.55;
     ink = light ? { line: '#0B1B33', soft: '#16345E', glow: '#3E6AA6' } : { line: '#EAF4FF', soft: '#DCEEFF', glow: '#A9D3FF' };
     const set = (l, k, v) => { if (map.getLayer(l)) map.setPaintProperty(l, k, v); };
-    ['city-pulse', 'city-pulse2', 'city-wave3'].forEach(l => set(l, 'circle-stroke-color', ink.soft));
-    set('city-core', 'circle-color', ink.soft); set('city-core', 'circle-stroke-color', light ? '#FFFFFF' : '#FFFFFF');
+    set('city-core', 'circle-color', ink.soft);
     set('trail', 'line-color', ink.line); set('trail-glow', 'line-color', ink.glow);
-    set('trail-live', 'line-color', ink.line); set('trail-live-glow', 'line-color', ink.glow);
-    set('trail-head', 'circle-color', ink.line); set('trail-head', 'circle-stroke-color', ink.glow);
-    set('pulse-glow', 'circle-color', ink.glow); set('pulse-core', 'circle-color', ink.line);
-    set('tap-ring', 'circle-stroke-color', light ? '#0B1B33' : '#ffffff');
+    fx.style.setProperty('--fx-ink', ink.soft); fx.style.setProperty('--fx-line', ink.line); fx.style.setProperty('--fx-glow', ink.glow);
   }
   const setP = (() => { const last = new Map(); return (l, k, v) => { const key = l + k, r = typeof v === 'number' ? Math.round(v * 1000) / 1000 : v; if (last.get(key) === r) return; last.set(key, r); map.setPaintProperty(l, k, r); }; })();
 
-  // ── Radyo dalgaları: çalarken ritimle yayılan halkalar; bağlanırken nefes; duraklayınca 200 ms'de sönüş ──
-  const WAVE_LAYERS = ['city-pulse', 'city-pulse2', 'city-wave3'], waves = [null, null, null];
-  let waveNext = 0, waveSlot = 0, waveMode = 'off', waveOffAt = 0;
-  function tickWaves(now) {
-    const s = state.status, mine = !!activeId && state.activeCityId === activeId;
-    const mode = !mine ? 'off' : s === 'playing' ? 'play' : (s === 'loading' || s === 'failover') ? 'busy' : 'off';
-    if (mode !== waveMode) { if (mode === 'off') waveOffAt = now; waveMode = mode; if (mode === 'play') waveNext = now + 120; }
-    if (mode === 'play' && now >= waveNext) {
-      const st = currentStation(), beat = 640 + (hash(st && st.uuid ? st.uuid : String(activeId)) % 280);   // istasyona özgü tempo
-      waves[waveSlot] = { t0: now, amp: 0.62 + Math.random() * 0.38 }; waveSlot = (waveSlot + 1) % 3;
-      waveNext = now + beat * (0.82 + Math.random() * 0.36);
-    }
-    const fade = mode === 'off' ? Math.max(0, 1 - (now - waveOffAt) / 200) : 1;
-    WAVE_LAYERS.forEach((l, i) => {
-      const w = waves[i]; let r = 8, o = 0;
-      if (w) {
-        const t = (now - w.t0) / 1500;
-        if (t >= 1 || fade === 0) waves[i] = null;
-        else { const e = 1 - Math.pow(1 - t, 3); r = 8 + (12 + 26 * w.amp) * e; o = 0.66 * w.amp * Math.pow(1 - t, 1.4) * fade; }
-      } else if (mode === 'busy' && i === 0) {
-        const k = 0.5 - 0.5 * Math.cos((now % 1600) / 1600 * TAU); r = 10 + 7 * k; o = 0.18 + 0.34 * k;   // bağlanırken yavaş nefes
-      }
-      setP(l, 'circle-radius', r); setP(l, 'circle-stroke-opacity', o);
-    });
-    setP('city-core', 'circle-opacity', mode === 'play' ? 1 : mode === 'busy' ? 0.9 : 0.72);
+  // ═══ Üst katman (DOM + tuval): harita her karede yeniden stillenmez; halkalar ve nabız CSS ile kompozitörde döner,
+  //     uçuş izi tuvale çizilir. Konumlar yalnızca harita bir kare çizdiğinde ('render') güncellenir. ═══
+  const fx = document.createElement('div'); fx.className = 'map-fx'; fx.setAttribute('aria-hidden', 'true');
+  fx.innerHTML = '<canvas class="mfx-trail"></canvas><span class="mfx-pt mfx-wave"><i></i><i></i><i></i></span><span class="mfx-pt mfx-tap"><i></i></span><div class="mfx-pulses"></div>';
+  const fxCanvas = fx.querySelector('canvas'), fxCtx = fxCanvas.getContext('2d'), waveEl = fx.querySelector('.mfx-wave'), tapEl = fx.querySelector('.mfx-tap'), pulsesEl = fx.querySelector('.mfx-pulses');
+  let fxW = 0, fxH = 0, fxDpr = 1, tapAt = null;
+  function fxResize() {
+    fxDpr = Math.min(2, window.devicePixelRatio || 1); fxW = host.clientWidth; fxH = host.clientHeight;
+    fxCanvas.width = Math.round(fxW * fxDpr); fxCanvas.height = Math.round(fxH * fxDpr);
+  }
+  /** Ekran konumu; kürenin arkasındaysa null (geri izdüşüm aynı yere dönmüyorsa nokta görünmez) */
+  function screenPt(lng, lat) {
+    const p = map.project([lng, lat]);
+    if (!Number.isFinite(p.x) || !Number.isFinite(p.y)) return null;
+    const b = map.unproject(p);
+    if (!b || Math.abs(b.lat - lat) > 0.3 || Math.abs(((b.lng - lng + 540) % 360) - 180) > 0.3 * Math.max(1, 1 / Math.max(0.05, Math.cos(lat * D2R)))) return null;
+    return p;
+  }
+  const place = (el, p) => { if (!p || p.x < -80 || p.y < -80 || p.x > fxW + 80 || p.y > fxH + 80) { el.style.visibility = 'hidden'; return false; } el.style.visibility = ''; el.style.transform = `translate3d(${p.x.toFixed(1)}px, ${p.y.toFixed(1)}px, 0)`; return true; };
+  function fxPosition() {
+    if (!ready || !visible) return;
+    const c = activeId && CITY[activeId];
+    place(waveEl, c ? screenPt(c.lng, c.lat) : null);
+    if (tapAt) place(tapEl, screenPt(tapAt[0], tapAt[1]));
+    if (pulse) pulse.items.forEach(it => { it.p = screenPt(it.lng, it.lat); place(it.el, it.p); });
   }
 
-  // ── Uçuş izi: iki yer arasına büyük daire yayı; kamerayla eşzamanlı çizilir, eski izler solar ──
-  let legs = [], live = null, headFade = null;
+  // ── Radyo dalgaları: çalarken istasyona özgü tempoda halkalar; bağlanırken nefes; duraklayınca 200 ms'de sönüş ──
+  let waveMode = '', waveOffTimer = 0, waveBeatFor = '';
+  function fxActive() { waveSync(); fxPosition(); }
+  function waveSync() {
+    const s = state.status, mine = !!activeId && state.activeCityId === activeId;
+    const mode = !mine ? 'off' : s === 'playing' ? 'play' : (s === 'loading' || s === 'failover') ? 'busy' : 'off';
+    const st = currentStation(), key = (st && st.uuid) || String(activeId);
+    if (mode === 'play' && key !== waveBeatFor) { waveBeatFor = key; waveEl.style.setProperty('--beat', (3 * (640 + hash(key) % 280)) + 'ms'); }
+    if (mode === waveMode) return;
+    waveMode = mode; clearTimeout(waveOffTimer);
+    if (mode === 'off') { waveEl.classList.add('off'); waveOffTimer = setTimeout(() => waveEl.classList.remove('play', 'busy'), 220); }
+    else { waveEl.classList.remove('off', mode === 'play' ? 'busy' : 'play'); waveEl.classList.add(mode); }
+    if (ready && map.getLayer('city-core')) map.setPaintProperty('city-core', 'circle-opacity', mode === 'play' ? 1 : mode === 'busy' ? 0.9 : 0.72);
+  }
+  function tapRipple(lng, lat) { tapAt = [lng, lat]; tapEl.classList.remove('go'); void tapEl.offsetWidth; tapEl.classList.add('go'); fxPosition(); }
+
+  // ── Uçuş izi: büyük daire yayı tuvale çizilir (kamerayla aynı karede), bitince haritaya tek seferde işlenir ──
+  let legs = [], live = null, headFade = null, fxRaf = 0;
   const unit = (lat, lng) => { const a = lat * D2R, b = lng * D2R; return [Math.cos(a) * Math.cos(b), Math.cos(a) * Math.sin(b), Math.sin(a)]; };
   function gcLine(a, b, n) {
     const A = unit(a.lat, a.lng), B = unit(b.lat, b.lng), dot = clamp(A[0] * B[0] + A[1] * B[1] + A[2] * B[2], -1, 1), om = Math.acos(dot), so = Math.sin(om) || 1, out = [];
@@ -3734,40 +3767,61 @@ const MapGlobe = (() => {
   function finishLive() {
     if (!live) return;
     legs.unshift({ coords: live.coords, at: Date.now() }); legs = legs.slice(0, 7);
-    const end = live.coords[live.coords.length - 1]; headFade = { t0: performance.now(), at: end }; live = null;
-    if (ready) map.getSource('trail-live').setData(FC([]));
-    renderLegs();
+    headFade = { t0: performance.now(), at: live.coords[live.coords.length - 1] }; live = null;
+    renderLegs(); kickFx();
   }
   function addLeg(a, b) {
     if (!a || !b || !Number.isFinite(a.lat) || !Number.isFinite(b.lat)) return;
     const d = kmBetween([a.lat, a.lng], [b.lat, b.lng]); if (d < 300) return;
     if (live) finishLive();
-    const coords = gcLine(a, b, clamp(Math.round(d / 110), 24, 180));
-    if (!visible || !ready || reduceMotion.matches) { live = { coords }; finishLive(); return; }
-    live = { coords, to: b, d, t0: performance.now(), prog: 0, startD: 0 };
+    const coords = gcLine(a, b, clamp(Math.round(d / 160), 20, 72));
+    if (!visible || !ready || reduceMotion.matches) { live = { coords }; finishLive(); headFade = null; return; }
+    live = { coords, to: b, t0: performance.now(), prog: 0, startD: 0 };
+    kickFx();
   }
-  function tickTrail(now) {
+  function trailProgress(now) {
+    if (!live) return;
+    const flying = flight && map.isMoving() && Math.abs(flight.lng - live.to.lng) < 1e-6 && Math.abs(flight.lat - live.to.lat) < 1e-6;
+    let p;
+    if (flying) {   // kamera uçarken iz, kameranın kalan yoluna göre ilerler (aynı anda varırlar)
+      const c = map.getCenter(), rem = kmBetween([c.lat, c.lng], [live.to.lat, live.to.lng]);
+      if (!live.startD) live.startD = Math.max(rem, 1);
+      p = 1 - rem / live.startD; live.t0 = now - 1800 * live.prog;
+    } else p = easeInOutCubic(Math.min(1, (now - live.t0) / 1800));
+    live.prog = Math.max(live.prog, clamp(p, 0, 1));
+    if (live.prog >= 0.999 && !flying) finishLive();
+  }
+  function strokePath(pts, width, color, alpha) {
+    fxCtx.globalAlpha = alpha; fxCtx.strokeStyle = color; fxCtx.lineWidth = width; fxCtx.beginPath();
+    let pen = false; pts.forEach(p => { if (!p) { pen = false; return; } if (pen) fxCtx.lineTo(p.x, p.y); else { fxCtx.moveTo(p.x, p.y); pen = true; } });
+    fxCtx.stroke();
+  }
+  function drawTrail(now) {
+    if (!fxW) fxResize();
+    fxCtx.setTransform(fxDpr, 0, 0, fxDpr, 0, 0); fxCtx.clearRect(0, 0, fxW, fxH);
+    fxCtx.lineCap = 'round'; fxCtx.lineJoin = 'round';
     if (live) {
-      const flying = flight && map.isMoving() && Math.abs(flight.lng - live.to.lng) < 1e-6 && Math.abs(flight.lat - live.to.lat) < 1e-6;
-      let p;
-      if (flying) {   // kamera uçarken iz, kameranın kalan yoluna göre çizilir (aynı anda varırlar)
-        const c = map.getCenter(), rem = kmBetween([c.lat, c.lng], [live.to.lat, live.to.lng]);
-        if (!live.startD) live.startD = Math.max(rem, 1);
-        p = 1 - rem / live.startD; live.t0 = now - 1800 * live.prog;
-      } else p = easeInOutCubic(Math.min(1, (now - live.t0) / 1800));
-      live.prog = Math.max(live.prog, clamp(p, 0, 1));
-      const path = slicePath(live.coords, live.prog);
-      map.getSource('trail-live').setData(FC([{ type: 'Feature', properties: {}, geometry: { type: 'LineString', coordinates: path } }]));
-      map.getSource('trail-head').setData(FC([{ type: 'Feature', properties: { o: 1 }, geometry: { type: 'Point', coordinates: path[path.length - 1] } }]));
-      if (live.prog >= 0.999 && !flying) finishLive();
+      const path = slicePath(live.coords, live.prog), pts = path.map(c => screenPt(c[0], c[1])), head = pts[pts.length - 1];
+      strokePath(pts, 9, ink.glow, 0.28); strokePath(pts, 2.2, ink.line, 0.95);
+      if (head) { fxCtx.globalAlpha = 0.3; fxCtx.fillStyle = ink.glow; fxCtx.beginPath(); fxCtx.arc(head.x, head.y, 10, 0, TAU); fxCtx.fill(); fxCtx.globalAlpha = 1; fxCtx.fillStyle = ink.line; fxCtx.beginPath(); fxCtx.arc(head.x, head.y, 4.5, 0, TAU); fxCtx.fill(); }
     } else if (headFade) {
-      const t = (now - headFade.t0) / 420;
-      map.getSource('trail-head').setData(FC(t >= 1 ? [] : [{ type: 'Feature', properties: { o: +(1 - easeOutCubic(t)).toFixed(3) }, geometry: { type: 'Point', coordinates: headFade.at } }]));
+      const t = (now - headFade.t0) / 420, p = screenPt(headFade.at[0], headFade.at[1]);
       if (t >= 1) headFade = null;
+      else if (p) { const k = 1 - easeOutCubic(t); fxCtx.globalAlpha = 0.3 * k; fxCtx.fillStyle = ink.glow; fxCtx.beginPath(); fxCtx.arc(p.x, p.y, 10, 0, TAU); fxCtx.fill(); fxCtx.globalAlpha = k; fxCtx.fillStyle = ink.line; fxCtx.beginPath(); fxCtx.arc(p.x, p.y, 4.5, 0, TAU); fxCtx.fill(); }
     }
+    fxCtx.globalAlpha = 1;
+  }
+  /** İz canlıyken kendi döngüsü: harita hareket etmiyorsa çizimi o yapar; hareket ediyorsa 'render' olayında çizilir (kayma olmaz) */
+  function kickFx() { if (!fxRaf) fxRaf = requestAnimationFrame(fxTick); }
+  function fxTick(now) {
+    fxRaf = 0; if (!ready) return;
+    trailProgress(now);
+    if (!visible) { if (live) finishLive(); headFade = null; return; }
+    if (!map.isMoving()) drawTrail(now);
+    if (live || headFade) fxRaf = requestAnimationFrame(fxTick); else drawTrail(now);
   }
 
-  // ── Gün doğumu çizgisi: terminatörün sabah yarısı; 500 ms'de yanar, bekler, 900 ms'de söner ──
+  // ── Gün doğumu çizgisi: terminatörün sabah yarısı; harita geçişiyle 500 ms'de yanar, bekler, 900 ms'de söner ──
   let dawn = null;
   function dawnLine() {
     const s = subsolar(new Date()), S = unit(s.lat, s.lng);
@@ -3783,29 +3837,45 @@ const MapGlobe = (() => {
     const seg = []; for (let k = 1; k <= pts.length; k++) { const p = pts[(start + k) % pts.length]; if (!p.m) break; seg.push(p.c); }
     return seg.length > 1 ? unwrap(seg) : [];
   }
-  function tickDawn(now) {
-    if (!dawn) return;
-    const t = now - dawn.t0, inK = Math.min(1, t / 500), out = t > dawn.hold ? Math.min(1, (t - dawn.hold) / 900) : 0, k = easeOutCubic(inK) * (1 - easeInOutCubic(out));
-    setP('dawn-glow', 'line-opacity', 0.55 * k); setP('dawn-line', 'line-opacity', 0.95 * k);
-    if (out >= 1) { dawn = null; map.getSource('dawn').setData(FC([])); }
+  function dawnOpacity(k, ms) {
+    ['dawn-glow', 'dawn-line'].forEach(l => { map.setPaintProperty(l, 'line-opacity-transition', { duration: ms, delay: 0 }); map.setPaintProperty(l, 'line-opacity', (l === 'dawn-glow' ? 0.55 : 0.95) * k); });
   }
 
-  // ── Canlı nabız: en yoğun dinlenen bölgeler; sırayla yaylanarak belirir, her biri kendi ritminde nefes alır ──
+  // ── Canlı nabız: DOM noktaları; sırayla yaylanarak belirir (70 ms ara), her biri kendi ritminde nefes alır ──
   let pulse = null;
-  function tickPulse(now) {
-    if (!pulse) return;
-    const T = now - pulse.t0, gone = pulse.off ? Math.min(1, (now - pulse.off) / 300) : 0;
-    // Her karede yalnızca ≤16 nokta: özellikler doğrudan güncellenir (feature-state yarıçapı küre izdüşümünde uygulanmıyor)
-    map.getSource('pulse').setData(FC(pulse.items.map((it, i) => {
-      const x = clamp((T - i * 70) / 620, 0, 1), c1 = 1.5, c3 = c1 + 1, enter = x <= 0 ? 0 : 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2);
-      const br = 0.5 - 0.5 * Math.cos(((now / 1000) / it.sp + it.ph) * TAU), k = Math.max(0, enter) * (1 - gone);
-      const R = (14 + 34 * it.w) * (0.86 + 0.24 * br), r3 = v => Math.round(v * 1000) / 1000;
-      return { type: 'Feature', id: i, properties: { i, r: r3(R * k), o: r3((0.44 + 0.4 * it.w) * (0.7 + 0.3 * br) * Math.min(1, x * 1.6) * (1 - gone)), c: r3((2.6 + 2.4 * it.w) * k), co: r3(Math.min(1, x * 2) * (1 - gone)) }, geometry: { type: 'Point', coordinates: [it.lng, it.lat] } };
-    })));
-    if (gone >= 1) { pulse = null; map.getSource('pulse').setData(FC([])); }
+  function buildPulse(items) {
+    pulsesEl.innerHTML = '';
+    items.forEach((it, i) => {
+      const el = document.createElement('span'); el.className = 'mfx-pt mfx-pulse';
+      const R = Math.round(14 + 34 * it.w), c = (2.6 + 2.4 * it.w).toFixed(1);
+      el.style.cssText = `--r:${R}px;--c:${c}px;--i:${i};--sp:${(2.2 + (i % 4) * 0.35).toFixed(2)}s;--ph:-${((hash(String(i) + it.lat) % 100) / 40).toFixed(2)}s;--o:${(0.44 + 0.4 * it.w).toFixed(2)}`;
+      el.innerHTML = '<span class="in"><b></b><i></i></span>';
+      pulsesEl.appendChild(el); it.el = el;
+    });
   }
-
+  const prefetched = new Set();
+  /** Hedef görüntünün uydu karoları uçuşun ilk anında istenir; kamera vardığında tarayıcı önbelleğinden anında gelir. */
+  function prefetchTiles(lng, lat, zoom) {
+    if (imagery !== 'satellite' || !map || zoom < 3) return;
+    const W = host.clientWidth || 400, H = host.clientHeight || 860, padT = topPad, padB = bottomPad;
+    const tz = Math.min(SAT_MAX_ZOOM, Math.round(zoom + Math.log2(512 / SAT_TILE_SIZE)));
+    const levels = [tz, tz - 1];
+    const urls = [];
+    levels.forEach(z => {
+      const n = Math.pow(2, z), px = SAT_TILE_SIZE * Math.pow(2, zoom + Math.log2(512 / SAT_TILE_SIZE) - z);   // bir karonun ekrandaki CSS boyu
+      const cx = (lng + 180) / 360 * n, sl = Math.sin(lat * D2R), cy = (0.5 - Math.log((1 + sl) / (1 - sl)) / (4 * Math.PI)) * n;
+      const cyPx = padT + (H - padT - padB) / 2;   // dolgu: şehir kartın üstündeki alanın ortasında durur
+      const x0 = Math.floor(cx - (W / 2) / px), x1 = Math.floor(cx + (W / 2) / px), y0 = Math.floor(cy - cyPx / px), y1 = Math.floor(cy + (H - cyPx) / px);
+      for (let y = Math.max(0, y0); y <= Math.min(n - 1, y1); y++) for (let x = x0; x <= x1; x++) urls.push(ESRI_URL.replace('{z}', z).replace('{y}', y).replace('{x}', ((x % n) + n) % n));
+    });
+    urls.slice(0, 90).forEach(u => {
+      if (prefetched.has(u)) return; prefetched.add(u);
+      if (prefetched.size > 1500) prefetched.clear();
+      try { fetch(u, { mode: 'cors', credentials: 'same-origin', priority: 'high' }).then(r => r.arrayBuffer()).catch(() => {}); } catch (e) {}
+    });
+  }
   function flyTo(lng, lat, zoom, speed, pitch = 0, bearing = 0) {
+    prefetchTiles(lng, lat, zoom);
     // flyTo önce süren uçuşu durdurur (moveend), hedef çağrıdan sonra kaydedilir.
     map.flyTo({ center: [lng, lat], zoom, pitch, bearing, padding: padding(), curve: 1.42, speed: speed || 1.1, essential: true }, { wglobeFlight: true });
     flight = { lng, lat, zoom };
@@ -3853,7 +3923,7 @@ const MapGlobe = (() => {
       themeId = opts.theme || themeId; onSelect = opts.onSelect || null;
       if (!map) create(); if (failed) return false;
       visible = true; host.classList.add('on'); updateBadge();
-      if (ready) map.resize();
+      if (ready) { map.resize(); fxResize(); fxPosition(); }
       useTheme(themeId);
       return true;
     },
@@ -3879,17 +3949,29 @@ const MapGlobe = (() => {
       // Dokunulan yere (ya da aranan/karıştırılan şehre) yumuşak bir kavisle yakınlaşılır; kart kapanınca kamera oynamaz.
       selectFromMap = false;
       if (!open || !city) return;
-      flyTo(city.lng, city.lat, imagery === 'satellite' ? 10.5 : 5.6, 1.1, 0, 0);
+      flyTo(city.lng, city.lat, imagery === 'satellite' ? 10 : 5.6, 1.1, 0, 0);
     },
     get ready() { return ready; },
     get map() { return map; },
     /** Gün doğumu çizgisini göster (ms kadar), sonra söndür */
-    dawn(holdMs) { if (!ready) return false; const c = dawnLine(); if (!c.length) return false; map.getSource('dawn').setData(FC([{ type: 'Feature', properties: {}, geometry: { type: 'LineString', coordinates: c } }])); dawn = { t0: performance.now(), hold: holdMs || 4200 }; return true; },
+    dawn(holdMs) {
+      if (!ready) return false; const c = dawnLine(); if (!c.length) return false;
+      if (dawn) clearTimeout(dawn.timer);
+      map.getSource('dawn').setData(FC([{ type: 'Feature', properties: {}, geometry: { type: 'LineString', coordinates: c } }]));
+      dawnOpacity(1, 500);
+      dawn = { timer: setTimeout(() => { dawnOpacity(0, 900); dawn = { timer: setTimeout(() => { dawn = null; map.getSource('dawn').setData(FC([])); }, 950) }; }, holdMs || 4200) };
+      return true;
+    },
     /** Canlı nabız: items = [{ lng, lat, w (0–1), … }] (en yoğundan), onPick(item). null → 300 ms'de söner */
     pulse(items, onPick, onMiss) {
       if (!ready) return false;
-      if (!items) { if (pulse && !pulse.off) pulse.off = performance.now(); return true; }
-      pulse = { items: items.map((it, i) => Object.assign({ ph: (hash(String(i) + it.lat) % 100) / 100, sp: 2.2 + (i % 4) * 0.35 }, it)), t0: performance.now() + 260, off: 0, onPick, onMiss };
+      if (!items) {
+        if (pulse && !pulse.off) { const p = pulse; p.off = 1; pulsesEl.classList.add('out'); setTimeout(() => { if (pulse === p) { pulse = null; pulsesEl.innerHTML = ''; pulsesEl.classList.remove('out'); } }, 320); }
+        return true;
+      }
+      pulsesEl.classList.remove('out');
+      pulse = { items: items.map(it => Object.assign({}, it)), off: 0, onPick, onMiss };
+      buildPulse(pulse.items); fxPosition();
       return true;
     },
     get pulsing() { return !!(pulse && !pulse.off); },
@@ -3899,6 +3981,8 @@ const MapGlobe = (() => {
     showcase(city, bottom) { if (!ready || !visible || !city) return; userControl = true; bottomPad = Math.round(bottom); topPad = 0; map.flyTo({ center: [city.lng, city.lat], zoom: 3.1, padding: padding(), curve: 1.5, duration: reduceMotion.matches ? 0 : 1800, essential: true }, { wglobeFlight: true }); flight = { lng: city.lng, lat: city.lat, zoom: 3.1 }; },
     restorePad() { bottomPad = state.sheetOpen ? bottomPad : basePad.bottom; topPad = state.sheetOpen ? 0 : basePad.top; },
     _trail() { return { legs: legs.length, live: !!live }; },
+    /** Yayın durumu değişti: dalgalar (çalıyor / bağlanıyor / sessiz) */
+    syncStatus() { if (ready) waveSync(); },
   };
 })();
 
@@ -4446,7 +4530,7 @@ function dkFrame(time) {
     if (Math.abs(dk.vel) > 0.012) { dk.pos += dk.vel * f; dk.vel *= Math.pow(0.92, f); }
     else { dk.vel = 0; const target = Math.round(dk.pos); dk.pos += (target - dk.pos) * (1 - Math.pow(0.82, f)); if (Math.abs(target - dk.pos) < 0.002) dk.pos = target; }
   }
-  $('#dkWheel').style.transform = `rotate(${(-dk.pos * 15).toFixed(3)}deg)`;
+  const rot = `rotate(${(-dk.pos * 15).toFixed(3)}deg)`; if (dk.lastRot !== rot) { dk.lastRot = rot; $('#dkWheel').style.transform = rot; }
   const h = dkHourOf(dk.pos);
   if (h !== dk.hour) {
     const first = dk.hour === -1; dk.lastDir = dk.vel >= 0 ? 1 : -1;
@@ -4466,8 +4550,11 @@ function dkFrame(time) {
     }, 160);
   }
   if (!settled && dk.settleTimer) { clearTimeout(dk.settleTimer); dk.settleTimer = 0; }
+  // Kadran durup saat gösterildiyse döngü uyur (boşta her karede iş yapılmaz); dokunuş/teker/tuş onu uyandırır
+  if (settled && dk.shownHour === h && !dk.settleTimer) { dk.last = 0; return; }
   dk.raf = requestAnimationFrame(dkFrame);
 }
+function dkWake() { if (dk && !dk.raf && state.view === 'app' && state.tab === 'explore') { dk.last = 0; dk.raf = requestAnimationFrame(dkFrame); } }
 function dkTick() {
   if (!dk || state.tab !== 'explore' || state.view !== 'app') return;
   $('#dkCards').querySelectorAll('.dk-ct').forEach(el => { try { const t = cityTime(el.dataset.tz).slice(0, 5); if (!el.textContent.startsWith(t)) el.textContent = t + el.textContent.slice(5); } catch (e) {} });
@@ -4479,7 +4566,7 @@ function bindDial() {
     if (dk.pid !== null) return;
     dk.pid = e.pointerId; try { el.setPointerCapture(dk.pid); } catch (err) {}
     dk.dragging = true; dk.vel = 0; dk.lx = e.clientX; dk.samples = [[performance.now(), e.clientX]];
-    el.classList.add('dragging'); $('#dkHint').classList.add('gone'); dk.userMoved = true; clearTimeout(dk.autoTimer);
+    el.classList.add('dragging'); $('#dkHint').classList.add('gone'); dk.userMoved = true; clearTimeout(dk.autoTimer); dkWake();
     Ambient.unlock();
   });
   el.addEventListener('pointermove', e => {
@@ -4495,10 +4582,10 @@ function bindDial() {
   };
   el.addEventListener('pointerup', end); el.addEventListener('pointercancel', end);
   el.addEventListener('keydown', e => {
-    if (e.key === 'ArrowRight' || e.key === 'ArrowUp') { e.preventDefault(); dk.userMoved = true; dk.pos = Math.round(dk.pos) + 1; dk.vel = 0; }
-    else if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') { e.preventDefault(); dk.userMoved = true; dk.pos = Math.round(dk.pos) - 1; dk.vel = 0; }
+    if (e.key === 'ArrowRight' || e.key === 'ArrowUp') { e.preventDefault(); dk.userMoved = true; dk.pos = Math.round(dk.pos) + 1; dk.vel = 0; dkWake(); }
+    else if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') { e.preventDefault(); dk.userMoved = true; dk.pos = Math.round(dk.pos) - 1; dk.vel = 0; dkWake(); }
   });
-  el.addEventListener('wheel', e => { e.preventDefault(); dk.userMoved = true; dk.vel = clamp(dk.vel + (e.deltaX || e.deltaY) / DK_PX_PER_HOUR * 0.12, -0.6, 0.6); }, { passive: false });
+  el.addEventListener('wheel', e => { e.preventDefault(); dk.userMoved = true; dk.vel = clamp(dk.vel + (e.deltaX || e.deltaY) / DK_PX_PER_HOUR * 0.12, -0.6, 0.6); dkWake(); }, { passive: false });
   $('#dkCards').addEventListener('click', e => {
     const p = e.target.closest('[data-dk-play]'); if (p) { dkPlay(p.dataset.dkPlay); return; }
     const g = e.target.closest('[data-dk-go]'); if (g) { const c = CITY[g.dataset.dkGo]; if (c) { vibrate(8); MapGlobe.takeControl(); openCity(c.id); } return; }
