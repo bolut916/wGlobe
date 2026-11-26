@@ -189,6 +189,20 @@ svg.i.filled { fill: currentColor; }
 .ch-actions { display: flex; flex-direction: column; gap: 10px; }
 
 /* ── Kimlik ───────────────────────────────────────────── */
+/* Hesap bildirimleri (v47): 280 ms'de 8 px aşağıdan gelir; eylem bağlantıları metnin altında. */
+@keyframes noteIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.notice.note-in { animation: noteIn 280ms var(--e-enter) backwards; }
+.notice .nt { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.notice .nacts { display: flex; flex-wrap: wrap; gap: 4px 16px; }
+.notice .nacts .auth-link { width: auto; min-height: 36px; place-items: start; font-size: 14px; }
+.notice.ok .i { color: var(--accent); }
+.auth-link.forgot { align-self: flex-end; width: auto; min-height: 40px; font-size: 14px; margin-top: -10px; padding: 0 2px; }
+.px-syncline { display: flex; align-items: center; gap: 8px; font-size: 13px; line-height: 18px; color: var(--fg-3); padding: 2px 2px 12px; }
+.px-syncline .d { width: 6px; height: 6px; border-radius: 3px; background: var(--fg-4); flex: none; transition: background 240ms var(--e-standard); }
+.px-syncline.ok .d { background: #5BD6A0; }
+.px-syncline.busy .d { background: var(--accent); animation: breathe 600ms var(--e-inout) infinite alternate; }
+.px-syncline.warn .d { background: #F2B65A; }
+.px-syncline b { color: var(--fg-2); font-weight: 500; }
 .auth { position: absolute; inset: 0; overflow-y: auto; padding: calc(var(--sat) + 8px) 24px calc(28px + var(--sab)); display: flex; flex-direction: column; gap: 28px; }
 .view:not(.active) .enter { animation: none; }
 .form { display: flex; flex-direction: column; gap: 22px; }
@@ -1081,6 +1095,7 @@ svg.i.filled { fill: currentColor; }
             <div class="field-wrap"><label class="label" for="loginPass">Şifre</label>
               <div class="field" id="loginPassField"><input id="loginPass" type="password" autocomplete="current-password" placeholder="••••••••"><button type="button" class="eye" data-eye="loginPass" aria-label="Şifreyi göster" data-icon="eye" data-size="18"></button></div>
               <div class="field-error" id="loginPassErr" aria-live="polite"></div></div>
+            <button type="button" class="auth-link press forgot" id="forgotBtn">Şifremi unuttum</button>
           </div>
           <div class="auth-foot enter" style="--i:2">
             <button type="submit" class="btn solid press" id="loginSubmit"><span class="lbl">Giriş Yap</span><span class="spin"></span></button>
@@ -1115,6 +1130,29 @@ svg.i.filled { fill: currentColor; }
           <div class="auth-foot enter" style="--i:3">
             <button type="submit" class="btn solid press" id="regSubmit"><span class="lbl">Hesap Oluştur</span><span class="spin"></span></button>
             <button type="button" class="auth-link press" data-go="login">Zaten hesabın var mı?&nbsp;<b>Giriş yap</b></button>
+          </div>
+        </form>
+      </section>
+
+      <!-- YENİ ŞİFRE (e-postadaki sıfırlama bağlantısıyla gelinir) -->
+      <section class="view solid" id="reset" aria-label="Yeni şifre">
+        <form class="auth" id="resetForm" novalidate>
+          <div class="enter" style="display:flex;flex-direction:column;gap:10px">
+            <span class="label accent">Hesap kurtarma</span>
+            <h2 class="display">Yeni şifre</h2>
+            <p class="body" id="resetLead">Hesabın için yeni bir şifre belirle.</p>
+          </div>
+          <div class="notice error" id="resetBanner" hidden></div>
+          <div class="form enter" style="--i:1">
+            <div class="field-wrap"><label class="label" for="resetPass">Yeni şifre</label>
+              <div class="field" id="resetPassField"><input id="resetPass" type="password" autocomplete="new-password" placeholder="En az 8 karakter"><button type="button" class="eye" data-eye="resetPass" aria-label="Şifreyi göster" data-icon="eye" data-size="18"></button></div>
+              <div class="field-error" id="resetPassErr" aria-live="polite"></div></div>
+            <div class="field-wrap"><label class="label" for="resetConfirm">Yeni şifre (tekrar)</label>
+              <div class="field" id="resetConfirmField"><input id="resetConfirm" type="password" autocomplete="new-password" placeholder="Şifreni tekrar gir"><button type="button" class="eye" data-eye="resetConfirm" aria-label="Şifreyi göster" data-icon="eye" data-size="18"></button></div>
+              <div class="field-error" id="resetConfirmErr" aria-live="polite"></div></div>
+          </div>
+          <div class="auth-foot enter" style="--i:2">
+            <button type="submit" class="btn solid press" id="resetSubmit"><span class="lbl">Şifreyi Güncelle</span><span class="spin"></span></button>
           </div>
         </form>
       </section>
@@ -1617,6 +1655,9 @@ const ICONS = {
   moon:'<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>',
   'log-out':'<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/>',
   trash:'<path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>',
+  mail:'<rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>',
+  alert:'<circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/>',
+  'cloud-off':'<path d="m2 2 20 20"/><path d="M5.78 5.78A7 7 0 0 0 9 19h8.5a4.5 4.5 0 0 0 1.31-.2"/><path d="M21.53 16.5A4.5 4.5 0 0 0 17.5 10h-1.79A7 7 0 0 0 9.5 5.06"/>',
   'cloud-upload':'<path d="M12 13v8"/><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="m8 17 4-4 4 4"/>',
   'chevron-left':'<path d="m15 18-6-6 6-6"/>',
   plane:'<path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/>',
@@ -1732,7 +1773,9 @@ if (!state.uid) state.uid = Math.random().toString(36).slice(2, 10);
 if (!Number.isFinite(state.listenMs)) state.listenMs = 0;
 if (!state.cotd || typeof state.cotd !== 'object') state.cotd = {};
 state.moment = null;
+let cloudHook = null;   // Cloud modülü kurulunca bağlanır: her kayıttan sonra buluta gönderimi planlar
 function save() {
+  if (cloudHook) setTimeout(cloudHook, 0);
   try { const { auth, email, theme, unlocked, favorites, visits, lastCityId, listenMs, joinedAt, uid, prefs, stats, cotd } = state; localStorage.setItem(STORE_KEY, JSON.stringify({ auth, email, theme, unlocked, favorites, visits, lastCityId, listenMs, joinedAt, uid, prefs, stats, cotd })); } catch (e) {}
 }
 
@@ -3112,7 +3155,7 @@ function onStarted(token) {
   const city = CITY[state.activeCityId]; setStatus('playing');
   const lastV = state.visits[0];
   if (!lastV || lastV.cityId !== city.id || Date.now() - new Date(lastV.visitedAt) > 30 * 60 * 1000) {
-    state.visits.unshift({ id: 'v' + Date.now(), cityId: city.id, cityName: city.name, visitedAt: new Date().toISOString(), cc: city.countryCode, lat: city.lat, lng: city.lng, tz: city.timezone }); state.visits = state.visits.slice(0, 200); save();
+    state.visits.unshift({ id: 'v' + Date.now() + '_' + Math.random().toString(36).slice(2, 6), cityId: city.id, cityName: city.name, visitedAt: new Date().toISOString(), cc: city.countryCode, lat: city.lat, lng: city.lng, tz: city.timezone }); state.visits = state.visits.slice(0, 200); save();
   }
 }
 function play() { const city = CITY[state.activeCityId]; if (!city) return; Ambient.unlock(); failedAttempts = 0; startAttempt(Math.max(0, state.index), false); }
@@ -3368,7 +3411,7 @@ function finishIntro(after, skipped) {
 // ═════════════════════════════════════════════════════════
 //  GÖRÜNÜMLER
 // ═════════════════════════════════════════════════════════
-const views = ['welcome', 'login', 'register', 'app'];
+const views = ['welcome', 'login', 'register', 'reset', 'app'];
 let history = [];
 function go(view, { replace = false } = {}) {
   if (window.wglobeUnshift) window.wglobeUnshift();
@@ -3376,7 +3419,7 @@ function go(view, { replace = false } = {}) {
   state.view = view;
   views.forEach(v => document.getElementById(v).classList.toggle('active', v === view));
   if (view === 'welcome') { const w = $('#welcome'); w.classList.remove('choose'); void w.offsetWidth; if (!introRunning) w.classList.add('choose'); }
-  if (view === 'login' || view === 'register') { restartEnter(document.getElementById(view)); resetForms(); }
+  if (view === 'login' || view === 'register' || view === 'reset') { restartEnter(document.getElementById(view)); resetForms(); }
   if (view === 'register') { $('#regSyncNote').hidden = state.auth !== 'guest'; $('#regSyncText').textContent = `Misafir verilerin (${state.favorites.length} favori, ${state.visits.length} damga) yeni hesabına taşınacak.`; }
   mountGlobe();
 }
@@ -3468,7 +3511,7 @@ const SatMosaic = (() => {
 })();
 
 /** Sürüm etiketi: sitede hangi sürümün açık olduğunu rozetten görmek için (önbellek kontrolü). */
-const BUILD = 'v46';
+const BUILD = 'v47';
 const MapGlobe = (() => {
   const host = document.getElementById('mapStage');
   const badge = document.getElementById('lodBadge');
@@ -5556,20 +5599,36 @@ function renderSettings(animate) {
       ${toggleHTML('badge', pref('badge'), 'Teknik rozet', 'Küre ekranında görüntü ayrıntıları', 'eye')}
     </div></div></div>
     <div ${nx()}><div class="px-card"><div class="px-sleep" id="sleepCard"></div></div></div>
+    ${guest ? '' : `<div ${nx()}><div class="px-syncline" id="syncLine" hidden></div></div>`}
     <div ${nx()}><div class="px-acct"><button class="btn line press" id="signOut"><span class="lbl">${icon('log-out', 18)}${guest ? 'Misafirden çık' : 'Çıkış yap'}</span></button>${guest ? '' : `<button class="btn danger press" id="deleteAcct"><span class="lbl">${icon('trash', 18)}Hesabı sil</span></button>`}</div></div>
     ${pref('badge') ? `<div ${nx()}><div class="px-sec"><div class="px-head"><h3 class="h2">Ses günlüğü</h3><button class="auth-link press" id="alogClear">Temizle</button></div><pre class="alog">${audioLog.length ? esc(audioLog.slice().reverse().join('\n')) : 'Henüz kayıt yok'}</pre></div></div>` : ''}
     <div ${nx()} class="pxs-ver">wGlobe · ${BUILD}</div>`;
   if (!animate) body.querySelectorAll(':scope > *').forEach(el => { el.style.animation = 'none'; el.style.opacity = '1'; el.style.transform = 'none'; });
   renderSleep(true);
+  Cloud.renderLine();
   const ac = $('#alogClear'); if (ac) ac.addEventListener('click', () => { audioLog = []; try { localStorage.removeItem(AUDIO_LOG_KEY); } catch (e) {} renderSettings(false); });
   $('#signOut').addEventListener('click', async () => {
-    const ok = await confirmDialog(guest ? 'Misafir modundan çık' : 'Çıkış yap', guest ? 'Favorilerin ve damgaların bu cihazda saklanmaya devam eder.' : 'Bu cihazdaki oturumun kapatılacak. Verilerin hesabında güvende.', guest ? 'Çık' : 'Çıkış yap');
-    if (!ok) return; closeSettings(true); pause(); openSheet(false); state.auth = null; state.email = null; save(); history = []; go('welcome', { replace: true });
+    if (guest) {
+      const ok = await confirmDialog('Misafir modundan çık', 'Favorilerin ve damgaların bu cihazda saklanmaya devam eder.', 'Çık');
+      if (!ok) return; closeSettings(true); pause(); openSheet(false); state.auth = null; state.email = null; save(); history = []; go('welcome', { replace: true });
+      return;
+    }
+    const n = Cloud.pendingCount();
+    const ok = await confirmDialog('Çıkış yap', n ? `Henüz eşitlenmemiş ${n} değişiklik var. Çıkmadan önce göndermeyi deneyeceğiz; bağlantı yoksa bu değişiklikler kaybolur.` : 'Bu cihazdaki oturumun kapatılacak. Verilerin hesabında güvende; tekrar giriş yapınca geri gelir.', 'Çıkış yap');
+    if (!ok) return;
+    const b = $('#signOut'); if (b) setLoading(b, true);
+    const r = await Cloud.signOut();
+    closeSettings(true); pause(); openSheet(false); resetLocalAccount(); history = []; go('welcome', { replace: true });
+    toast(r.lost ? `Çıkış yapıldı · ${r.lost} değişiklik eşitlenemedi` : 'Çıkış yapıldı');
   });
   const del = $('#deleteAcct');
   if (del) del.addEventListener('click', async () => {
-    const ok = await confirmDialog('Hesabı kalıcı olarak sil', 'Favorilerin, damgaların ve açtığın küreler dahil tüm verilerin silinecek. Bu işlem geri alınamaz.', 'Hesabı sil');
-    if (!ok) return; closeSettings(true); pause(); openSheet(false); Object.assign(state, { auth: null, email: null, favorites: [], visits: [], theme: 'classic', unlocked: ['classic'], listenMs: 0, joinedAt: null }); save(); history = []; go('welcome', { replace: true }); toast('Hesabın silindi');
+    const ok = await confirmDialog('Hesabı kalıcı olarak sil', 'Favorilerin, damgaların ve açtığın küreler dahil tüm verilerin sunucudan ve bu cihazdan silinecek. Bu işlem geri alınamaz.', 'Hesabı sil');
+    if (!ok) return;
+    setLoading(del, true);
+    const r = await Cloud.deleteAccount();
+    if (r.error) { setLoading(del, false); vibrate([10, 50, 10]); toast(r.error === 'session' ? 'Hesabı silmek için önce yeniden giriş yap' : 'Hesap silinemedi · ' + authMessage(r.error)); return; }
+    closeSettings(true); pause(); openSheet(false); resetLocalAccount(); history = []; go('welcome', { replace: true }); toast('Hesabın ve tüm verilerin silindi');
   });
 }
 function openSettings() {
@@ -5775,10 +5834,10 @@ function setFieldError(prefix, err, shake) {
   if (msg.textContent !== (err || '')) { msg.textContent = err || ''; if (err) { msg.classList.remove('fade'); void msg.offsetWidth; msg.classList.add('fade'); } }
   if (err && shake) { field.classList.remove('shake'); void field.offsetWidth; field.classList.add('shake'); }
 }
-function resetForms() { ['loginEmail', 'loginPass', 'regEmail', 'regPass', 'regConfirm'].forEach(p => setFieldError(p, null)); $('#loginBanner').hidden = true; $('#regBanner').hidden = true; }
+function resetForms() { ['loginEmail', 'loginPass', 'regEmail', 'regPass', 'regConfirm', 'resetPass', 'resetConfirm'].forEach(p => setFieldError(p, null)); $('#loginBanner').hidden = true; $('#regBanner').hidden = true; $('#resetBanner').hidden = true; }
 function setLoading(btn, on) { btn.classList.toggle('loading', on); btn.disabled = on; }
 document.querySelectorAll('[data-eye]').forEach(b => b.addEventListener('click', () => { const inp = document.getElementById(b.dataset.eye); const show = inp.type === 'password'; inp.type = show ? 'text' : 'password'; b.innerHTML = icon(show ? 'eye-off' : 'eye', 18); b.setAttribute('aria-label', show ? 'Şifreyi gizle' : 'Şifreyi göster'); }));
-['loginEmail', 'loginPass', 'regEmail', 'regPass', 'regConfirm'].forEach(id => document.getElementById(id).addEventListener('input', () => setFieldError(id, null)));
+['loginEmail', 'loginPass', 'regEmail', 'regPass', 'regConfirm', 'resetPass', 'resetConfirm'].forEach(id => document.getElementById(id).addEventListener('input', () => setFieldError(id, null)));
 $('#regPass').addEventListener('input', e => { const s = strength(e.target.value); document.querySelectorAll('#segs .seg').forEach((seg, i) => { seg.classList.toggle('on', s > i); seg.querySelector('i').style.background = STRENGTH[s][1]; }); const l = $('#strengthLabel'); l.textContent = STRENGTH[s][0]; l.style.color = STRENGTH[s][1]; });
 function enterApp(msg) {
   if (!state.joinedAt) { state.joinedAt = new Date().toISOString(); save(); }
@@ -5794,8 +5853,17 @@ $('#loginForm').addEventListener('submit', async e => {
   const email = $('#loginEmail').value, pass = $('#loginPass').value, ee = validateEmail(email), pe = validatePass(pass, false);
   setFieldError('loginEmail', ee, true); setFieldError('loginPass', pe, true);
   if (ee || pe) { vibrate([10, 50, 10]); return; }
-  const btn = $('#loginSubmit'); setLoading(btn, true); await sleep(800); setLoading(btn, false);
-  vibrate([8, 40, 8]); state.auth = 'member'; state.email = email.trim().toLowerCase(); save(); enterApp('Giriş yapıldı · prototipte oturum simüle edilir');
+  const btn = $('#loginSubmit'); if (btn.disabled) return; authNote('loginBanner'); setLoading(btn, true);
+  const r = await Cloud.signIn(email.trim(), pass);
+  setLoading(btn, false);
+  if (r.error) {
+    vibrate([10, 50, 10]);
+    if (r.error === 'unconfirmed') authNote('loginBanner', 'info', `${email.trim()} adresi henüz onaylanmadı. E-postandaki onay bağlantısına dokun, sonra tekrar giriş yap.`, [{ label: 'Onay e-postasını tekrar gönder', run: () => resendConfirm(email.trim(), 'loginBanner') }]);
+    else { authNote('loginBanner', 'error', authMessage(r.error)); if (r.error === 'invalid') setFieldError('loginPass', ' ', true); }
+    return;
+  }
+  vibrate([8, 40, 8]);
+  enterApp(r.migrated ? 'Giriş yapıldı · bu cihazdaki verilerin hesabına eklendi' : 'Giriş yapıldı');
 });
 $('#registerForm').addEventListener('submit', async e => {
   e.preventDefault();
@@ -5803,10 +5871,467 @@ $('#registerForm').addEventListener('submit', async e => {
   const ee = validateEmail(email), pe = validatePass(pass, true), ce = !conf ? 'Şifreyi tekrar girin.' : conf !== pass ? 'Şifreler eşleşmiyor.' : null;
   setFieldError('regEmail', ee, true); setFieldError('regPass', pe, true); setFieldError('regConfirm', ce, true);
   if (ee || pe || ce) { vibrate([10, 50, 10]); return; }
-  const btn = $('#regSubmit'); setLoading(btn, true); await sleep(900); setLoading(btn, false);
-  const wasGuest = state.auth === 'guest'; vibrate([8, 40, 8]); state.auth = 'member'; state.email = email.trim().toLowerCase(); save();
+  const btn = $('#regSubmit'); if (btn.disabled) return; authNote('regBanner'); setLoading(btn, true);
+  const wasGuest = state.auth === 'guest';
+  const r = await Cloud.signUp(email.trim(), pass);
+  setLoading(btn, false);
+  if (r.error) {
+    vibrate([10, 50, 10]);
+    if (r.error === 'exists') authNote('regBanner', 'error', authMessage('exists'), [{ label: 'Giriş yap', run: () => { const e = $('#regEmail').value; go('login'); $('#loginEmail').value = e; } }]);
+    else authNote('regBanner', 'error', authMessage(r.error));
+    return;
+  }
+  vibrate([8, 40, 8]);
+  if (r.confirm) {
+    // E-posta onayı açık: oturum bağlantıya dokununca açılır. Misafir verileri cihazda bekler, girişte hesaba eklenir.
+    $('#regPass').value = ''; $('#regConfirm').value = ''; $('#regPass').dispatchEvent(new Event('input'));
+    authNote('regBanner', 'ok', `Onay bağlantısını ${email.trim()} adresine gönderdik. Bağlantıya dokunduktan sonra buraya dönüp giriş yap. (Bu adres zaten kayıtlıysa doğrudan giriş yapabilirsin.)`,
+      [{ label: 'Giriş yap', run: () => { const e = $('#regEmail').value; go('login'); $('#loginEmail').value = e; } }, { label: 'Tekrar gönder', run: () => resendConfirm(email.trim(), 'regBanner') }]);
+    return;
+  }
   enterApp(wasGuest ? 'Hesap oluşturuldu · misafir verilerin taşındı' : 'Hesap oluşturuldu');
 });
+$('#forgotBtn').addEventListener('click', async () => {
+  const email = $('#loginEmail').value.trim(), ee = validateEmail(email);
+  if (ee) { setFieldError('loginEmail', ee === 'E-posta adresi gerekli.' ? 'Şifre sıfırlama bağlantısı için önce e-postanı yaz.' : ee, true); vibrate([10, 50, 10]); $('#loginEmail').focus(); return; }
+  const b = $('#forgotBtn'); if (b.disabled) return; b.disabled = true; b.style.opacity = '0.5';
+  const r = await Cloud.resetPassword(email);
+  b.disabled = false; b.style.opacity = '';
+  if (r.error && r.error !== 'invalid') { authNote('loginBanner', 'error', authMessage(r.error)); return; }
+  vibrate([8, 40, 8]);
+  authNote('loginBanner', 'ok', `${email} bir hesaba bağlıysa şifre sıfırlama bağlantısı birkaç dakika içinde gelir. Bağlantıya dokununca yeni şifreni belirleyebilirsin.`);
+});
+$('#resetForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const pass = $('#resetPass').value, conf = $('#resetConfirm').value;
+  const pe = validatePass(pass, true), ce = !conf ? 'Şifreyi tekrar girin.' : conf !== pass ? 'Şifreler eşleşmiyor.' : null;
+  setFieldError('resetPass', pe, true); setFieldError('resetConfirm', ce, true);
+  if (pe || ce) { vibrate([10, 50, 10]); return; }
+  const btn = $('#resetSubmit'); if (btn.disabled) return; authNote('resetBanner'); setLoading(btn, true);
+  const r = await Cloud.updatePassword(pass);
+  setLoading(btn, false);
+  if (r.error) { vibrate([10, 50, 10]); authNote('resetBanner', 'error', authMessage(r.error)); return; }
+  vibrate([8, 40, 8]); $('#resetPass').value = ''; $('#resetConfirm').value = '';
+  enterApp('Şifren güncellendi');
+});
+async function resendConfirm(email, noteId) {
+  const r = await Cloud.resend(email);
+  if (r.error) authNote(noteId, 'error', authMessage(r.error));
+  else authNote(noteId, 'ok', `Onay e-postasını ${email} adresine yeniden gönderdik. Gelen kutunu ve istenmeyen klasörünü kontrol et.`);
+}
+/** Kimlik ekranlarındaki bildirim: tür (error / ok / info), metin ve isteğe bağlı eylem bağlantıları. */
+function authNote(id, kind, text, actions = []) {
+  const el = document.getElementById(id); if (!el) return;
+  if (!text) { el.hidden = true; el.innerHTML = ''; return; }
+  el.className = 'notice note-in' + (kind === 'error' ? ' error' : ' ok');
+  el.setAttribute('role', kind === 'error' ? 'alert' : 'status');
+  el.innerHTML = `${icon(kind === 'error' ? 'alert' : 'mail', 18)}<div class="nt"><span>${esc(text)}</span>${actions.length ? `<div class="nacts">${actions.map((a, i) => `<button type="button" class="auth-link press" data-na="${i}"><b>${esc(a.label)}</b></button>`).join('')}</div>` : ''}</div>`;
+  actions.forEach((a, i) => el.querySelector(`[data-na="${i}"]`).addEventListener('click', a.run));
+  el.hidden = false; el.style.animation = 'none'; void el.offsetWidth; el.style.animation = '';
+}
+const AUTH_MSG = {
+  invalid: 'E-posta ya da şifre hatalı.',
+  unconfirmed: 'E-posta adresin henüz onaylanmadı.',
+  exists: 'Bu e-posta ile zaten bir hesap var. Giriş yapmayı dene.',
+  weak: 'Bu şifre çok zayıf ya da sık kullanılan bir şifre. Daha güçlü bir şifre seç.',
+  same: 'Yeni şifre eskisiyle aynı olamaz.',
+  email: 'Bu e-posta adresi kabul edilmedi. Başka bir adres dene.',
+  mailrate: 'Şu an çok fazla e-posta gönderildi. Birkaç dakika sonra tekrar dene.',
+  rate: 'Çok fazla deneme yapıldı. Birkaç dakika sonra tekrar dene.',
+  disabled: 'Yeni kayıtlar şu an kapalı.',
+  network: 'Bağlantı kurulamadı. İnternetini kontrol edip tekrar dene.',
+  unavailable: 'Hesap servisine şu an ulaşılamıyor. Biraz sonra tekrar dene.',
+  session: 'Bağlantının süresi dolmuş. Yeni bir sıfırlama bağlantısı iste.',
+  unknown: 'Bir şeyler ters gitti. Tekrar dene.',
+};
+const authMessage = code => AUTH_MSG[code] || AUTH_MSG.unknown;
+
+// ═════════════════════════════════════════════════════════
+//  HESAPLAR VE BULUT SENKRONU (Supabase)
+// ═════════════════════════════════════════════════════════
+// Arayüz her zaman yerel durumdan çalışır; bulut onun aynasıdır. Son eşitlenen hâlin bir "fotoğrafı" (snap)
+// tutulur; her kayıtta yerel ↔ fotoğraf farkı gönderilir, her eşitlemede uzak ↔ yerel üç yönlü birleştirilir:
+//   favoriler: fotoğrafta olup uzakta olmayan = başka cihazda silindi; fotoğrafta olup yerelde olmayan = burada silindi.
+//   damgalar: birleşim (yalnız eklenir). küreler: birleşim. dinleme süresi / sayaçlar: yalnız artış gönderilir.
+//   tema / tercihler: yerelde değiştiyse yerel, değişmediyse uzak. günün şehri: daha yeni gün kazanır.
+// Misafir verileri ilk girişte "yerel ekleme" sayılır ve hesaba eklenir. Bağlantı yoksa farklar bekler, gelince gider.
+const SB_URL = 'https://dorodjkpevnklhaqaoyt.supabase.co', SB_KEY = 'sb_publishable_C4Tm9rFGLt-y9I1WIig4Kg_gEdXloFn';
+const Cloud = (() => {
+  const SNAP_KEY = 'wglobe-sync-v1';
+  let client = null, loadP = null, user = null, chain = Promise.resolve(), urgentTimer = 0, slowTimer = 0, retryTimer = 0, backoff = 0;
+  let status = 'idle', lastSync = 0, expectAuth = false, bootDone = false, linkType = '', recoveryShown = false, linkAdopted = false;
+  let snap = null;
+  try { const v = JSON.parse(localStorage.getItem(SNAP_KEY) || 'null'); if (v && typeof v === 'object' && typeof v.uid === 'string') snap = v; } catch (e) {}
+  const writeSnap = () => { try { if (snap) localStorage.setItem(SNAP_KEY, JSON.stringify(snap)); else localStorage.removeItem(SNAP_KEY); } catch (e) {} };
+  const freshSnap = uid => ({ uid, fresh: true, favs: [], visits: [], unlocked: [], listenMs: 0, stats: {}, theme: null, prefs: null });
+  const withTimeout = (p, ms) => Promise.race([p, new Promise((_, rej) => setTimeout(() => rej(Object.assign(new Error('zaman aşımı'), { name: 'Timeout' })), ms))]);
+  const stable = o => JSON.stringify(o, (k, v) => v && typeof v === 'object' && !Array.isArray(v) ? Object.keys(v).sort().reduce((a, x) => (a[x] = v[x], a), {}) : v);
+  const num = v => (typeof v === 'number' && Number.isFinite(v) && v > 0) ? v : 0;
+  const redirect = () => /^https?:$/.test(location.protocol) ? location.origin + location.pathname : undefined;
+
+  function errCode(e) {
+    if (!e) return 'unknown';
+    const code = String(e.code || e.error_code || ''), msg = String(e.message || e.msg || '').toLowerCase(), st = e.status | 0;
+    if (e.name === 'Timeout' || e.name === 'AuthRetryableFetchError' || /failed to fetch|network|load failed|fetch failed|timeout|zaman aşımı/.test(msg)) return 'network';
+    if (code === 'invalid_credentials' || /invalid login credentials/.test(msg)) return 'invalid';
+    if (code === 'email_not_confirmed' || /email not confirmed/.test(msg)) return 'unconfirmed';
+    if (code === 'user_already_exists' || code === 'email_exists' || /already (been )?registered|already exists/.test(msg)) return 'exists';
+    if (code === 'same_password' || /should be different/.test(msg)) return 'same';
+    if (code === 'weak_password' || /password should|weak password|pwned/.test(msg)) return 'weak';
+    if (code === 'email_address_invalid' || /email address .* invalid|invalid email/.test(msg)) return 'email';
+    if (code === 'over_email_send_rate_limit' || /email rate limit/.test(msg)) return 'mailrate';
+    if (st === 429 || code === 'over_request_rate_limit' || /rate limit|too many/.test(msg)) return 'rate';
+    if (code === 'signup_disabled' || /signups? not allowed/.test(msg)) return 'disabled';
+    if (code === 'session_not_found' || code === 'session_expired' || /auth session missing|jwt expired/.test(msg)) return 'session';
+    return 'unknown';
+  }
+
+  /** Supabase istemcisi yalnız gerektiğinde yüklenir (lib/supabase.js, sürümü sabit, sitenin kendi kopyası). */
+  function sdk() {
+    if (client) return Promise.resolve(client);
+    if (loadP) return loadP;
+    loadP = new Promise((res, rej) => {
+      const make = () => {
+        try {
+          client = window.supabase.createClient(SB_URL, SB_KEY, { auth: { storageKey: 'wglobe-auth', persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, flowType: 'implicit' } });
+          client.auth.onAuthStateChange((event, session) => { setTimeout(() => onAuth(event, session), 0); });   // geri çağrıda Supabase'i beklemek kilitlenir
+          res(client);
+        } catch (e) { rej(e); }
+      };
+      if (window.supabase && window.supabase.createClient) return make();
+      const sc = document.createElement('script'); sc.src = 'lib/supabase.js'; sc.async = true;
+      const t = setTimeout(() => rej(new Error('istemci yüklenemedi (zaman aşımı)')), 20000);
+      sc.onload = () => { clearTimeout(t); window.supabase && window.supabase.createClient ? make() : rej(new Error('istemci eksik')); };
+      sc.onerror = () => { clearTimeout(t); rej(new Error('istemci yüklenemedi')); };
+      document.head.appendChild(sc);
+    }).catch(e => { loadP = null; alog('hesap: ' + e.message); throw e; });
+    return loadP;
+  }
+
+  // ── Durum satırı (Ayarlar → hesap) ──
+  function setStatus(s) { status = s; renderLine(); }
+  function ago(t) { const m = Math.round((Date.now() - t) / 60000); return m < 1 ? 'az önce' : m < 60 ? `${m} dk önce` : `${Math.round(m / 60)} sa önce`; }
+  function lineHTML() {
+    const n = pendingCount();
+    if (!user) return { cls: 'warn', html: state.auth === 'member' ? 'Oturum bağlanıyor…' : '' };
+    if (status === 'busy') return { cls: 'busy', html: 'Eşitleniyor…' };
+    if (status === 'offline') return { cls: 'warn', html: n ? `Çevrimdışı · <b>${n}</b> değişiklik bağlantı gelince eşitlenecek` : 'Çevrimdışı · bağlantı gelince eşitlenecek' };
+    if (status === 'error') return { cls: 'warn', html: 'Eşitlenemedi · birazdan tekrar denenecek' };
+    if (lastSync) return { cls: 'ok', html: n ? `<b>${n}</b> değişiklik gönderiliyor` : `Hesabınla eşit · ${ago(lastSync)}` };
+    return { cls: 'busy', html: 'Eşitleniyor…' };
+  }
+  function renderLine() { const el = document.getElementById('syncLine'); if (!el) return; const l = lineHTML(); el.className = 'px-syncline ' + l.cls; el.innerHTML = `<span class="d"></span><span>${l.html}</span>`; el.hidden = !l.html; }
+
+  // ── Farklar ──
+  function favMap() { const m = new Map(); (state.favorites || []).forEach(f => { if (f && typeof f.stationUuid === 'string' && f.stationUuid) m.set(f.stationUuid, f); }); return m; }
+  function diff() {
+    if (!snap) return null;
+    const fm = favMap(), sf = new Set(snap.favs), sv = new Set(snap.visits);
+    const addFav = [...fm.keys()].filter(u => !sf.has(u)), delFav = snap.favs.filter(u => !fm.has(u));
+    const newVisits = (state.visits || []).filter(v => v && typeof v.id === 'string' && v.id && !sv.has(v.id));
+    const su = new Set(snap.unlocked), unlocked = (state.unlocked || []).filter(t => typeof t === 'string' && !su.has(t));
+    const theme = state.theme !== snap.theme ? state.theme : null;
+    const prefs = stable(state.prefs || {}) !== snap.prefs ? (state.prefs || {}) : null;
+    const listen = Math.max(0, Math.round(num(state.listenMs) - num(snap.listenMs)));
+    const stats = {}; Object.entries(state.stats || {}).forEach(([k, v]) => { const d = Math.round(num(v) - num((snap.stats || {})[k])); if (d > 0) stats[k] = d; });
+    const cotd = stable(state.cotd || {}) !== snap.cotd ? (state.cotd || {}) : null;
+    return { addFav, delFav, newVisits, unlocked, theme, prefs, listen, stats, cotd, fm };
+  }
+  function pendingCount() {
+    const d = diff(); if (!d) return 0;
+    return d.addFav.length + d.delFav.length + d.newVisits.length + d.unlocked.length + (d.theme ? 1 : 0) + (d.prefs ? 1 : 0) + (d.cotd ? 1 : 0) + (d.listen > 0 || Object.keys(d.stats).length ? 1 : 0);
+  }
+  const clean = o => { try { const j = JSON.stringify(o); return j.length < 1800 ? JSON.parse(j) : null; } catch (e) { return null; } };
+
+  // ── Gönder ──
+  async function push() {
+    if (!user || !snap || snap.uid !== user.id) return;
+    const uid = user.id, d = diff();
+    if (d.addFav.length) {
+      const rows = d.addFav.map(u => ({ user_id: uid, station_uuid: u, data: clean(d.fm.get(u)) })).filter(r => r.data);
+      const { error } = await withTimeout(client.from('favorites').upsert(rows, { onConflict: 'user_id,station_uuid' }), 15000);
+      if (error) throw error;
+      snap.favs = snap.favs.concat(d.addFav); writeSnap();
+    }
+    if (d.delFav.length) {
+      const { error } = await withTimeout(client.from('favorites').delete().eq('user_id', uid).in('station_uuid', d.delFav), 15000);
+      if (error) throw error;
+      const gone = new Set(d.delFav); snap.favs = snap.favs.filter(u => !gone.has(u)); writeSnap();
+    }
+    if (d.newVisits.length) {
+      const batch = d.newVisits.slice(0, 200);
+      const rows = batch.map(v => { const t = Date.parse(v.visitedAt); return { user_id: uid, id: v.id.slice(0, 80), visited_at: new Date(Number.isFinite(t) ? t : Date.now()).toISOString(), data: clean(v) }; }).filter(r => r.data);
+      const { error } = await withTimeout(client.from('visits').upsert(rows, { onConflict: 'user_id,id', ignoreDuplicates: true }), 15000);
+      if (error) throw error;
+      snap.visits = batch.map(v => v.id).concat(snap.visits).slice(0, 800); writeSnap();
+      if (d.newVisits.length > batch.length) return push();
+    }
+    if (d.unlocked.length || d.theme || d.prefs || d.cotd || d.listen > 0 || Object.keys(d.stats).length) {
+      const listen = Math.min(d.listen, 7 * 86400000);
+      const args = { p_unlocked: d.unlocked.length ? state.unlocked.slice(0, 400) : null, p_theme: d.theme, p_prefs: d.prefs ? clean(d.prefs) : null, p_cotd: d.cotd ? clean(d.cotd) : null, p_listen_delta: listen, p_stats_delta: Object.keys(d.stats).length ? d.stats : null };
+      const { data, error } = await withTimeout(client.rpc('sync_progress', args), 15000);
+      if (error) throw error;
+      snap.listenMs = num(snap.listenMs) + listen;
+      const st = Object.assign({}, snap.stats); Object.entries(d.stats).forEach(([k, v]) => { st[k] = num(st[k]) + v; }); snap.stats = st;
+      if (d.theme) snap.theme = d.theme;
+      if (d.prefs) snap.prefs = stable(d.prefs);
+      if (d.cotd) snap.cotd = stable(d.cotd);
+      snap.unlocked = data && Array.isArray(data.unlocked) ? data.unlocked : Array.from(new Set(snap.unlocked.concat(d.unlocked)));
+      writeSnap();
+    }
+  }
+
+  // ── Çek + birleştir ──
+  function merge(p, favRows, visitRows) {
+    const uid = user.id, fresh = !snap || snap.uid !== uid || snap.fresh;
+    if (!snap || snap.uid !== uid) snap = freshSnap(uid);
+    p = p || {};
+    let changed = false;
+    // Favoriler (üç yönlü)
+    const remote = new Map(); (favRows || []).forEach(r => { if (r && r.station_uuid && r.data && typeof r.data === 'object') remote.set(r.station_uuid, Object.assign({}, r.data, { stationUuid: r.station_uuid })); });
+    const sf = new Set(snap.favs), local = state.favorites || [], out = [];
+    local.forEach(f => { if (!f || !f.stationUuid) return; if (remote.has(f.stationUuid) || !sf.has(f.stationUuid)) out.push(f); else changed = true; });
+    const have = new Set(out.map(f => f.stationUuid));
+    remote.forEach((f, u) => { if (!have.has(u) && !sf.has(u)) { out.push(f); changed = true; } });
+    const ts = f => { const n = parseInt(String(f.id || '').slice(1), 10); return Number.isFinite(n) ? n : 0; };
+    out.sort((a, b) => ts(b) - ts(a));
+    state.favorites = out;
+    // Damgalar (birleşim)
+    const vmap = new Map(); (state.visits || []).forEach(v => { if (v && v.id) vmap.set(v.id, v); });
+    (visitRows || []).forEach(r => { if (r && r.id && r.data && typeof r.data === 'object' && !vmap.has(r.id)) { vmap.set(r.id, Object.assign({}, r.data, { id: r.id, visitedAt: r.data.visitedAt || r.visited_at })); changed = true; } });
+    state.visits = [...vmap.values()].sort((a, b) => (Date.parse(b.visitedAt) || 0) - (Date.parse(a.visitedAt) || 0)).slice(0, 200);
+    // Küreler (birleşim)
+    const ru = Array.isArray(p.unlocked) ? p.unlocked.filter(t => typeof t === 'string') : [];
+    const un = Array.from(new Set((state.unlocked || ['classic']).concat(ru.filter(t => THEMES[t]))));
+    if (un.length !== (state.unlocked || []).length) changed = true;
+    state.unlocked = un;
+    // Tema ve tercihler: yerelde değişmediyse (ya da ilk girişte yerel varsayılansa) uzak kazanır
+    const rTheme = typeof p.theme === 'string' && THEMES[p.theme] && un.includes(p.theme) ? p.theme : null;
+    const localThemeDirty = fresh ? state.theme !== 'classic' : state.theme !== snap.theme;
+    let newTheme = null;
+    if (rTheme && rTheme !== state.theme && !localThemeDirty) newTheme = rTheme;
+    const rPrefs = p.prefs && typeof p.prefs === 'object' ? p.prefs : {};
+    const localPrefsDirty = fresh ? !state.prefs || !Object.keys(state.prefs).length ? false : !Object.keys(rPrefs).length : stable(state.prefs || {}) !== snap.prefs;
+    if (!localPrefsDirty && Object.keys(rPrefs).length && stable(rPrefs) !== stable(state.prefs || {})) { state.prefs = Object.assign({}, PREF_DEFAULTS, rPrefs); changed = true; }
+    // Günün şehri serisi: daha yeni gün (eşitse daha uzun seri) kazanır
+    const rc = p.cotd && typeof p.cotd === 'object' ? p.cotd : {}, lc = state.cotd || {};
+    if ((rc.day || '') > (lc.day || '') || ((rc.day || '') === (lc.day || '') && num(rc.streak) > num(lc.streak))) { state.cotd = Object.assign({}, lc, rc); changed = true; }
+    // Dinleme süresi ve sayaçlar: uzak toplam + henüz gönderilmemiş yerel artış
+    const pendingListen = Math.max(0, num(state.listenMs) - num(snap.listenMs));
+    const lm = num(p.listen_ms) + pendingListen; if (lm !== num(state.listenMs)) changed = true; state.listenMs = lm;
+    const rs = p.stats && typeof p.stats === 'object' ? p.stats : {}, ls = state.stats || {}, ss = snap.stats || {}, ns = {};
+    new Set(Object.keys(rs).concat(Object.keys(ls))).forEach(k => { ns[k] = num(rs[k]) + Math.max(0, num(ls[k]) - num(ss[k])); });
+    if (stable(ns) !== stable(ls)) changed = true; state.stats = ns;
+    if (p.created_at && (!state.joinedAt || Date.parse(p.created_at) < Date.parse(state.joinedAt))) state.joinedAt = p.created_at;
+    // Fotoğraf = uzak gerçek; kalan yerel farklar push() ile gider
+    snap = { uid, favs: [...remote.keys()], visits: (visitRows || []).map(r => r.id), unlocked: ru, listenMs: num(p.listen_ms), stats: Object.fromEntries(Object.entries(rs).map(([k, v]) => [k, num(v)])),
+      theme: typeof p.theme === 'string' ? p.theme : null, prefs: stable(rPrefs), cotd: stable(rc) };
+    writeSnap();
+    if (newTheme) applyCloudTheme(newTheme);
+    if (changed || newTheme) { saveQuiet(); refreshUI(); }
+    return changed;
+  }
+  function saveQuiet() { const h = cloudHook; cloudHook = null; save(); cloudHook = h; }
+  function applyCloudTheme(id) {
+    state.theme = id; state.previewTheme = id;
+    try { MapGlobe.setTheme(id); } catch (e) {}
+    try { updateInk(); renderPocket(); } catch (e) {}
+    if (state.view === 'app' && state.tab === 'themes') try { renderThemes(0); } catch (e) {}
+  }
+  function refreshUI() {
+    try {
+      if (state.view !== 'app') return;
+      if (state.activeCityId) renderSheetDynamic();
+      if (state.tab === 'profile') renderProfile(false);
+      if (pxsOpen) renderSettings(false);
+      evaluateQuests(true);
+    } catch (e) { alog('hesap: arayüz yenilenemedi ' + e.message); }
+  }
+
+  async function pull() {
+    const uid = user.id;
+    const [p, f, v] = await withTimeout(Promise.all([
+      client.from('profiles').select('*').eq('id', uid).maybeSingle(),
+      client.from('favorites').select('station_uuid,data,created_at').eq('user_id', uid).order('created_at', { ascending: false }).limit(500),
+      client.from('visits').select('id,visited_at,data').eq('user_id', uid).order('visited_at', { ascending: false }).limit(200),
+    ]), 20000);
+    if (p.error) throw p.error; if (f.error) throw f.error; if (v.error) throw v.error;
+    if (!user || user.id !== uid) return false;
+    return merge(p.data, f.data, v.data);
+  }
+  /** Tüm bulut işlemleri tek sırada çalışır (çek/gönder iç içe geçmez). */
+  function queue(fn) { const run = chain.then(fn); chain = run.catch(() => {}); return run; }
+  function fail(e) {
+    const code = errCode(e), off = code === 'network' || (typeof navigator !== 'undefined' && navigator.onLine === false);
+    alog('eşitleme hatası: ' + (e && (e.message || e.code) || e));
+    setStatus(off ? 'offline' : 'error');
+    if (code === 'session') { handleLostSession(); return; }
+    clearTimeout(retryTimer); backoff = Math.min(120000, backoff ? backoff * 2 : 4000);
+    retryTimer = setTimeout(() => sync(), backoff);
+  }
+  function sync() {
+    if (!user) return Promise.resolve(false);
+    clearTimeout(urgentTimer); clearTimeout(slowTimer); urgentTimer = slowTimer = 0;
+    setStatus('busy');
+    return queue(async () => { const changed = await pull(); await push(); return changed; })
+      .then(changed => { lastSync = Date.now(); backoff = 0; setStatus('ok'); return changed; }, e => { fail(e); throw e; });
+  }
+  function pushSoon() {
+    if (!user || !snap) return;
+    const d = diff(); if (!d) return;
+    const urgent = d.addFav.length || d.delFav.length || d.newVisits.length || d.unlocked.length || d.theme || d.prefs || d.cotd;
+    const run = () => { urgentTimer = slowTimer = 0; setStatus('busy'); queue(push).then(() => { lastSync = Date.now(); backoff = 0; setStatus('ok'); }, fail); };
+    if (urgent) { if (!urgentTimer) { clearTimeout(slowTimer); slowTimer = 0; urgentTimer = setTimeout(run, 1500); } }
+    else if (!urgentTimer && !slowTimer && (d.listen > 0 || Object.keys(d.stats).length)) slowTimer = setTimeout(run, 20000);
+    renderLine();
+  }
+  cloudHook = () => { if (state.auth === 'member') pushSoon(); };
+  addEventListener('online', () => { if (user) sync().catch(() => {}); });
+  document.addEventListener('visibilitychange', () => {
+    if (!user) return;
+    if (document.visibilityState === 'visible' && Date.now() - lastSync > 60000) sync().catch(() => {});
+    else if (document.visibilityState === 'hidden' && pendingCount()) { clearTimeout(urgentTimer); clearTimeout(slowTimer); urgentTimer = slowTimer = 0; queue(push).catch(() => {}); }
+  });
+
+  // ── Oturum olayları ──
+  function becomeMember(u) { user = u; state.auth = 'member'; state.email = String(u.email || '').toLowerCase(); saveQuiet(); }
+  function afterIntroDo(fn) { const w = () => introRunning ? setTimeout(w, 250) : fn(); w(); }
+  function handleLostSession() {
+    if (state.auth !== 'member') return;
+    user = null; state.auth = 'guest'; saveQuiet(); renderLine();
+    afterIntroDo(() => toast('Oturumun sona erdi · verilerin bu cihazda duruyor, giriş yaparak hesabına bağlayabilirsin'));
+  }
+  function onAuth(event, session) {
+    const u = session && session.user;
+    if ((event === 'PASSWORD_RECOVERY' || (linkType === 'recovery' && (event === 'SIGNED_IN' || event === 'INITIAL_SESSION'))) && u) {
+      if (recoveryShown) { user = u; return; }
+      recoveryShown = true; becomeMember(u);
+      afterIntroDo(() => { history = []; go('reset', { replace: true }); });
+      sync().catch(() => {});
+      return;
+    }
+    if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && u) {
+      const wasMember = state.auth === 'member' && user && user.id === u.id;
+      if (expectAuth || wasMember) { user = u; return; }
+      // E-postadaki onay bağlantısıyla gelindi: hesabı bu cihaza bağla
+      if (linkAdopted) { user = u; return; }
+      linkAdopted = true;
+      if (!snap || snap.uid !== u.id) { snap = freshSnap(u.id); writeSnap(); }
+      becomeMember(u);
+      sync().catch(() => {});
+      afterIntroDo(() => { if (state.view !== 'app') enterApp('E-postan onaylandı · hoş geldin'); else toast('E-postan onaylandı · hoş geldin'); });
+      return;
+    }
+    if ((event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') && u) { user = u; if (u.email) state.email = String(u.email).toLowerCase(); return; }
+    if (event === 'SIGNED_OUT' && !expectAuth && user) handleLostSession();
+  }
+
+  /** Açılış: üyeyse ya da adreste e-posta bağlantısı varsa istemciyi yükle ve oturumu geri getir. */
+  function boot() {
+    if (bootDone) return; bootDone = true;
+    const h = location.hash || '', fromLink = /(^|[#&])(access_token|error_description|error_code)=/.test(h);
+    if (fromLink) {
+      const q = new URLSearchParams(h.replace(/^#/, ''));
+      linkType = q.get('type') || '';   // kütüphane adresi temizlemeden önce: signup / recovery / email_change / magiclink
+      if (q.get('error_description') || q.get('error_code')) {
+        const exp = /expired|otp_expired/i.test((q.get('error_code') || '') + (q.get('error_description') || ''));
+        afterIntroDo(() => toast(exp ? 'Bağlantının süresi dolmuş · yeni bir bağlantı iste' : 'Bağlantı geçersiz · yeni bir bağlantı iste'));
+        try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
+      }
+    }
+    if (state.auth !== 'member' && !fromLink) return;
+    sdk().then(c => c.auth.getSession()).then(({ data }) => {
+      const s = data && data.session;
+      if (s && s.user) {
+        if (state.auth === 'member' && !user) { user = s.user; if (s.user.email) state.email = String(s.user.email).toLowerCase(); sync().catch(() => {}); }
+        else if (state.auth !== 'member' && !user) onAuth('SIGNED_IN', s);
+      } else if (state.auth === 'member') handleLostSession();
+    }).catch(e => { setStatus('offline'); alog('hesap açılışı: ' + (e && e.message)); if (state.auth === 'member') { clearTimeout(retryTimer); retryTimer = setTimeout(() => { bootDone = false; boot(); }, 30000); } });
+  }
+
+  // ── Kullanıcı eylemleri (hepsi { error } ya da { ok } döner, asla fırlatmaz) ──
+  async function ready() { try { return await withTimeout(sdk(), 20000); } catch (e) { return null; } }
+  async function adoptAndSync(u) {
+    const migrated = (!snap || snap.uid !== u.id) && ((state.favorites || []).length > 0 || (state.visits || []).length > 0);
+    if (!snap || snap.uid !== u.id) { snap = freshSnap(u.id); writeSnap(); }
+    becomeMember(u);
+    try { await withTimeout(sync(), 15000); } catch (e) {}   // yavaşsa arkada sürer
+    return migrated;
+  }
+  async function signIn(email, password) {
+    const c = await ready(); if (!c) return { error: 'unavailable' };
+    expectAuth = true;
+    try {
+      const { data, error } = await withTimeout(c.auth.signInWithPassword({ email, password }), 20000);
+      if (error) return { error: errCode(error) };
+      return { ok: true, migrated: await adoptAndSync(data.user) };
+    } catch (e) { return { error: errCode(e) }; } finally { expectAuth = false; }
+  }
+  async function signUp(email, password) {
+    const c = await ready(); if (!c) return { error: 'unavailable' };
+    expectAuth = true;
+    try {
+      const { data, error } = await withTimeout(c.auth.signUp({ email, password, options: { emailRedirectTo: redirect() } }), 20000);
+      if (error) return { error: errCode(error) };
+      if (data.session && data.user) return { ok: true, session: true, migrated: await adoptAndSync(data.user) };
+      return { ok: true, confirm: true };
+    } catch (e) { return { error: errCode(e) }; } finally { expectAuth = false; }
+  }
+  async function resend(email) {
+    const c = await ready(); if (!c) return { error: 'unavailable' };
+    try { const { error } = await withTimeout(c.auth.resend({ type: 'signup', email, options: { emailRedirectTo: redirect() } }), 20000); return error ? { error: errCode(error) } : { ok: true }; }
+    catch (e) { return { error: errCode(e) }; }
+  }
+  async function resetPassword(email) {
+    const c = await ready(); if (!c) return { error: 'unavailable' };
+    try { const { error } = await withTimeout(c.auth.resetPasswordForEmail(email, { redirectTo: redirect() }), 20000); return error ? { error: errCode(error) } : { ok: true }; }
+    catch (e) { return { error: errCode(e) }; }
+  }
+  async function updatePassword(password) {
+    const c = await ready(); if (!c) return { error: 'unavailable' };
+    try { const { data, error } = await withTimeout(c.auth.updateUser({ password }), 20000); if (error) return { error: errCode(error) }; if (data && data.user) becomeMember(data.user); return { ok: true }; }
+    catch (e) { return { error: errCode(e) }; }
+  }
+  /** Çıkış: önce bekleyen farkları göndermeyi dener; gönderilemeyen değişiklik sayısını döner. */
+  async function signOut() {
+    let lost = 0;
+    if (user && client) {
+      clearTimeout(urgentTimer); clearTimeout(slowTimer); urgentTimer = slowTimer = 0;
+      try { await withTimeout(queue(push), 8000); } catch (e) {}
+      lost = pendingCount();
+      expectAuth = true;
+      try { await withTimeout(client.auth.signOut({ scope: 'local' }), 8000); } catch (e) {}
+      expectAuth = false;
+    } else if (client) { try { await client.auth.signOut({ scope: 'local' }); } catch (e) {} }
+    try { localStorage.removeItem('wglobe-auth'); } catch (e) {}
+    user = null; snap = null; writeSnap(); clearTimeout(retryTimer); lastSync = 0; setStatus('idle');
+    return { lost };
+  }
+  async function deleteAccount() {
+    const c = await ready(); if (!c) return { error: 'unavailable' };
+    if (!user) { const { data } = await c.auth.getSession().catch(() => ({ data: null })); if (data && data.session) user = data.session.user; }
+    if (!user) return { error: 'session' };
+    try {
+      const { error } = await withTimeout(c.rpc('delete_user'), 20000);
+      if (error) return { error: errCode(error) };
+    } catch (e) { return { error: errCode(e) }; }
+    expectAuth = true;
+    try { await withTimeout(c.auth.signOut({ scope: 'local' }), 8000); } catch (e) {}
+    expectAuth = false;
+    try { localStorage.removeItem('wglobe-auth'); } catch (e) {}
+    user = null; snap = null; writeSnap(); setStatus('idle');
+    return { ok: true };
+  }
+  return { boot, signIn, signUp, resend, resetPassword, updatePassword, signOut, deleteAccount, sync, pendingCount, renderLine,
+    get user() { return user; }, get status() { return status; }, get snap() { return snap; } };
+})();
+/** Üyelikten çıkınca (çıkış / hesap silme) bu cihazdaki hesap verisi temizlenir; cihaz tercihleri kalır. */
+function resetLocalAccount() {
+  const themeWas = state.theme;
+  Object.assign(state, { auth: null, email: null, favorites: [], visits: [], theme: 'classic', previewTheme: 'classic', unlocked: ['classic'], listenMs: 0, joinedAt: null, stats: {}, cotd: {} });
+  save();
+  if (themeWas !== 'classic') try { MapGlobe.setTheme('classic'); updateInk(); } catch (e) {}
+}
 
 // ═════════════════════════════════════════════════════════
 //  KOLEKSİYONU KAZANMA — her küre bir yolculuk görevidir
@@ -6583,6 +7108,7 @@ function afterIntro() {
 /** Ana sayfa arayüzünün kademeli gelişi (logo+üst → arama → sekme çubuğu, 90 ms arayla). */
 function arrive() { const app = $('#app'); app.classList.remove('arrive'); void app.offsetWidth; app.classList.add('arrive'); setTimeout(() => app.classList.remove('arrive'), 1200); }
 go('welcome', { replace: true });
+Cloud.boot();
 // Güncellemeden sonra ilk açılış: şimdiye kadarki yolculuğun kazandırdığı küreler tek bir kutlamayla açılır
 setTimeout(() => { const fresh = evaluateQuests(true); if (fresh.length) celebrate(fresh); }, 2500);
 // MapLibre küresini intro sırasında, intro'nun varacağı açıda görünmez olarak yükle.
