@@ -2763,6 +2763,54 @@ const GLOBAL_STREAMS = [
 const DEMO_STATION = { uuid: 'demo-ambient', name: 'Önizleme · ambiyans', codec: '—', bitrate: 0, fallback: true, demo: true };
 
 const stationCache = new Map();
+/**
+ * Cihazda kalıcı önbellek (localStorage): istasyon listeleri 24 saat, hava durumu 30 dk.
+ * Uygulama kapanıp açılsa da daha önce gidilen şehre dokununca ağ beklenmez; bayat liste hemen kullanılır,
+ * 10 dk'dan eskiyse arka planda sessizce tazelenir. En fazla 48 liste / 160 hava kaydı; kota dolarsa en eskiler atılır.
+ */
+const RB_KEEP_MS = 24 * 60 * 60 * 1000, WX_KEEP_MS = 30 * 60 * 1000;
+const Persist = (() => {
+  const KEY = 'wglobe-cache-v1', LIMIT = { st: 48, wx: 160 }, TTL = { st: RB_KEEP_MS, wx: WX_KEEP_MS };
+  let data = { st: {}, wx: {} }, timer = 0;
+  try { const d = JSON.parse(localStorage.getItem(KEY) || 'null'); if (d && typeof d === 'object') data = { st: (d.st && typeof d.st === 'object') ? d.st : {}, wx: (d.wx && typeof d.wx === 'object') ? d.wx : {} }; } catch (e) {}
+  function prune(b, max) {
+    const now = Date.now();
+    data[b] = Object.fromEntries(Object.entries(data[b]).filter(([, v]) => v && typeof v.at === 'number' && now - v.at < TTL[b]).sort((x, y) => y[1].at - x[1].at).slice(0, max));
+  }
+  function flush() {
+    timer = 0; prune('st', LIMIT.st); prune('wx', LIMIT.wx);
+    for (let k = 0; k < 4; k++) {
+      try { localStorage.setItem(KEY, JSON.stringify(data)); return; }
+      catch (e) { const n = Object.keys(data.st).length; if (!n) return; prune('st', Math.floor(n / 2)); }   // kota: en eski yarıyı at
+    }
+  }
+  return {
+    get(b, key) { const v = data[b][key]; return v && typeof v.at === 'number' && Date.now() - v.at < TTL[b] ? v : null; },
+    set(b, key, v) { data[b][key] = Object.assign({}, v, { at: Date.now() }); if (!timer) timer = setTimeout(flush, 1200); },
+  };
+})();
+const rbInflight = new Map();
+/** Bellek (10 dk) → cihaz (24 sa, arkada tazelenir) → ağ. Ağ başarısızsa elde ne varsa (bayat > sessizlik). */
+function cachedStations(key, load) {
+  const hit = stationCache.get(key);
+  if (hit && hit.expires > Date.now()) return Promise.resolve(hit.stations);
+  const refresh = () => {
+    if (rbInflight.has(key)) return rbInflight.get(key);
+    const p = load().then(out => {
+      stationCache.set(key, { stations: out, expires: Date.now() + RB_CACHE_MS });
+      if (out.length) Persist.set('st', key, { stations: out });
+      return out;
+    }).finally(() => rbInflight.delete(key));
+    rbInflight.set(key, p); return p;
+  };
+  const disk = Persist.get('st', key);
+  if (disk && Array.isArray(disk.stations) && disk.stations.length) {
+    if (!hit) stationCache.set(key, { stations: disk.stations, expires: disk.at + RB_CACHE_MS });
+    if (Date.now() - disk.at > RB_CACHE_MS) refresh().catch(() => {});
+    return Promise.resolve(disk.stations);
+  }
+  return refresh().catch(() => hit ? hit.stations : []);
+}
 let rbServer = 0;
 async function rbFetch(path) {
   let lastErr = null;
@@ -2806,28 +2854,21 @@ async function nearbyRaw(city, km) {
   const raw = await rbFetch(`/json/stations/search?geo_lat=${city.lat}&geo_long=${city.lng}&geo_distance=${km * 1000}&has_geo_info=true&order=clickcount&reverse=true&hidebroken=true&limit=100`);
   return dedupe((Array.isArray(raw) ? raw : []).map(toStation).filter(st => st && st.geo)).map(st => ({ st, d: kmBetween(st.geo, [city.lat, city.lng]) })).filter(x => x.d <= km);
 }
-async function fetchNearbyStations(city) {
-  const key = 'geo:' + city.id, hit = stationCache.get(key);
-  if (hit && hit.expires > Date.now()) return hit.stations;
-  try {
+function fetchNearbyStations(city) {
+  return cachedStations('geo:' + city.id, async () => {
     let all = await nearbyRaw(city, LOCAL_RADIUS_KM);
     if (all.length < 4) { try { all = dedupe(all.map(x => x.st).concat((await nearbyRaw(city, WIDE_RADIUS_KM)).map(x => x.st))).map(st => ({ st, d: kmBetween(st.geo, [city.lat, city.lng]) })); } catch (e) {} }
     // Dokunulan nokta: en yakın yayından uzağa. Şehir: önce kendi yayınları (≤ 30 km), sonra çevrenin popülerleri.
     const out = (city.spot ? all.slice().sort((a, b) => a.d - b.d) : all.filter(x => x.d <= 30).concat(all.filter(x => x.d > 30))).map(x => x.st).slice(0, 30);
     out.forEach(st => { st.local = true; });
-    stationCache.set(key, { stations: out, expires: Date.now() + RB_CACHE_MS });
     return out;
-  } catch (e) { return hit ? hit.stations : []; }
+  });
 }
-async function fetchCountryStations(cc) {
-  const hit = stationCache.get(cc);
-  if (hit && hit.expires > Date.now()) return hit.stations;
-  try {
+function fetchCountryStations(cc) {
+  return cachedStations(cc, async () => {
     const raw = await rbFetch(`/json/stations/bycountrycodeexact/${encodeURIComponent(cc)}?limit=${RB_LIMIT}&order=clickcount&reverse=true&hidebroken=true`);
-    const out = dedupe((Array.isArray(raw) ? raw : []).map(toStation).filter(Boolean));
-    stationCache.set(cc, { stations: out, expires: Date.now() + RB_CACHE_MS });
-    return out;
-  } catch (e) { return hit ? hit.stations : []; }   // bayat önbellek > sessizlik
+    return dedupe((Array.isArray(raw) ? raw : []).map(toStation).filter(Boolean));
+  });
 }
 async function loadQueue(city) {
   // Sıra: (aramada seçilen istasyon/bölge) → konumun yakını → ülkenin geri kalanı → global yedekler → önizleme
@@ -2987,7 +3028,12 @@ async function startAttempt(i, isFailover) {
   if (st.demo) { Radio.fadeOut(0); if (NATIVE) NativeAudio.pause(); Ambient.play(city.vibeTag, 0); onStarted(token); return; }
   Ambient.fadeOut(0);
   // Uygulamada ses yerel çalma listesinde çalar (kilit ekranı, kulaklık, arka plan); yedekleme de orada yapılır
-  if (NATIVE) { NativeAudio.start(token, i, list, city); startTimer = setTimeout(() => { if (token === attemptToken && state.status !== 'playing') setStatus('error'); }, 45000); return; }
+  if (NATIVE) {
+    const j = await Preflight.pick(list, i);
+    if (token !== attemptToken || state.activeCityId !== city.id) return;
+    if (j !== i) { state.index = j; renderSheetDynamic(); }
+    NativeAudio.start(token, j, list, city); startTimer = setTimeout(() => { if (token === attemptToken && state.status !== 'playing') setStatus('error'); }, 45000); return;
+  }
   // Bu istasyon + sıradaki en fazla 2 gerçek istasyon birlikte denenir.
   const batch = []; for (let k = i; k < list.length && batch.length < 3 && !list[k].demo; k++) batch.push(k);
   Radio.race(batch.map(k => list[k].url), DUR.startTimeout).then(won => {
@@ -3001,6 +3047,61 @@ async function startAttempt(i, isFailover) {
     failover(token, batch.length);
   });
 }
+/**
+ * Uygulamada başlatmadan önce paralel ön kontrol. Yerel oynatıcı ölü bir istasyonda 9 sn bekler;
+ * bunun yerine seçilen istasyon + sıradaki 3 tanesine aynı anda yanıt başlığı yoklaması atılır (no-cors,
+ * başlık gelince bağlantı hemen kesilir, gövde inmez). Öncelik seçilende: 1,2 sn içinde yanıt verirse o çalar.
+ * Hepsi "ölü" dönerse sorun bağlantıdadır, istasyonlarda değil: hiçbiri işaretlenmez, seçilenden başlanır.
+ */
+const Preflight = (() => {
+  const dead = new Map();   // url → bu zamana kadar öne alınmaz
+  const PROBE_MS = 2500, GRACE_MS = 1200, DEAD_MS = 10 * 60 * 1000, MAX = 4;
+  function probe(url) {
+    const ctrl = new AbortController(); let timedOut = false, done = false;
+    const timer = setTimeout(() => { timedOut = true; ctrl.abort(); }, PROBE_MS);
+    return fetch(url, { mode: 'no-cors', cache: 'no-store', credentials: 'omit', signal: ctrl.signal })
+      .then(() => { done = true; clearTimeout(timer); try { ctrl.abort(); } catch (e) {} return 'ok'; },
+            () => { clearTimeout(timer); return done ? 'ok' : timedOut ? 'slow' : 'dead'; });
+  }
+  function pick(list, i) {
+    const now = Date.now(), cand = [];
+    for (let k = 0; k < list.length && cand.length < MAX; k++) {
+      const j = (i + k) % list.length, st = list[j];
+      if (!st || st.demo || !st.url) continue;
+      if (k > 0 && (dead.get(st.url) || 0) > now) continue;   // yakında ölü bulunan yedek öne alınmaz (seçilen her zaman denenir)
+      cand.push(j);
+    }
+    if (cand.length < 2 || cand[0] !== i) return Promise.resolve(i);
+    const res = cand.map(() => null), t0 = performance.now();
+    return new Promise(resolve => {
+      let settled = false;
+      const finish = j => {
+        if (settled) return; settled = true;
+        const known = res.filter(r => r !== null);
+        if (!(known.length === res.length && known.every(r => r === 'dead'))) res.forEach((r, k) => { if (r === 'dead') dead.set(list[cand[k]].url, Date.now() + DEAD_MS); });
+        alog(`ön kontrol: ${res.map(r => r || '…').join(' ')} → ${j === i ? 'seçilen' : '+' + ((j - i + list.length) % list.length)} (${Math.round(performance.now() - t0)} ms)`);
+        resolve(j);
+      };
+      const decide = final => {
+        if (settled) return;
+        const graceOver = final || performance.now() - t0 >= GRACE_MS;
+        for (let k = 0; k < cand.length; k++) {
+          if (res[k] === 'ok') return finish(cand[k]);
+          if (res[k] === null && k === 0 && !graceOver) return;   // seçilen istasyona 1,2 sn öncelik; yedeklerde ilk yanıt veren kazanır
+        }
+        if (final || res.every(r => r !== null)) {
+          // Kanıtlanmış canlı yok: hepsi ölüyse (bağlantı sorunu olabilir) ya da yavaşsa seçilenden başla
+          const k = res.every(r => r === 'dead') ? 0 : Math.max(0, res.findIndex(r => r !== 'dead'));
+          finish(cand[k]);
+        }
+      };
+      cand.forEach((j, k) => probe(list[j].url).then(r => { res[k] = r; decide(false); }));
+      setTimeout(() => decide(false), GRACE_MS + 10);
+      setTimeout(() => decide(true), PROBE_MS + 60);
+    });
+  }
+  return { pick, _dead: dead };
+})();
 function failover(token, tried = 1) {
   if (token !== attemptToken) return; failedAttempts += tried;
   if (failedAttempts >= state.queue.stations.length) { setStatus('error'); return; }
@@ -3367,7 +3468,7 @@ const SatMosaic = (() => {
 })();
 
 /** Sürüm etiketi: sitede hangi sürümün açık olduğunu rozetten görmek için (önbellek kontrolü). */
-const BUILD = 'v45';
+const BUILD = 'v46';
 const MapGlobe = (() => {
   const host = document.getElementById('mapStage');
   const badge = document.getElementById('lodBadge');
@@ -4457,7 +4558,7 @@ const vizBars = () => Array.from({ length: VIZ_BARS }, (_, k) => {
   const h = (Math.sin(k * 1.7) * 0.5 + 0.5), lo = (0.08 + h * 0.12).toFixed(2), hi = (0.35 + ((k * 37) % 61) / 100).toFixed(2);
   return `<i style="--k:${k};--lo:${lo};--hi:${hi};--t:${380 + (k * 53) % 420}ms;--d:-${(k * 97) % 700}ms"></i>`;
 }).join('');
-// Canlı hava durumu (Open-Meteo, anahtarsız). 10 dk önbellek; hata olursa örnek veri + "ÖRNEK" etiketi.
+// Canlı hava durumu (Open-Meteo, anahtarsız). 30 dk önbellek (cihazda kalıcı); hata olursa örnek veri + "ÖRNEK" etiketi.
 const liveWx = new Map();
 function wmoKey(c) { if (c <= 3) return c; if (c === 45 || c === 48) return 45; if (c >= 51 && c <= 67) return 61; if ((c >= 71 && c <= 77) || c === 85 || c === 86) return 71; if (c >= 80 && c <= 82) return 80; if (c >= 95) return 95; return 3; }
 function wxFor(city) { const live = liveWx.get(city.id); return live && live.ok ? { t: live.t, code: live.code, sample: false } : { t: (SAMPLE_WX[city.id] || [18, 2])[0], code: (SAMPLE_WX[city.id] || [18, 2])[1], sample: true }; }
@@ -4467,13 +4568,17 @@ function wxMeta(city) {
 }
 function refreshWeather(city) {
   const cur = liveWx.get(city.id); if (cur && cur.expires > Date.now()) return;
+  const disk = Persist.get('wx', city.id);
+  if (disk && typeof disk.t === 'number') { liveWx.set(city.id, { ok: true, t: disk.t, code: disk.code | 0, expires: disk.at + WX_KEEP_MS }); return; }
   liveWx.set(city.id, Object.assign({}, cur, { expires: Date.now() + 10 * 60 * 1000 }));
   const ctrl = new AbortController(); const timer = setTimeout(() => ctrl.abort(), 7000);
   fetch(`https://api.open-meteo.com/v1/forecast?latitude=${city.lat}&longitude=${city.lng}&current=temperature_2m,weather_code&timezone=auto`, { signal: ctrl.signal })
     .then(r => r.ok ? r.json() : Promise.reject(new Error('HTTP ' + r.status)))
     .then(d => {
       const c = d && d.current; if (!c || typeof c.temperature_2m !== 'number') throw new Error('no data');
-      liveWx.set(city.id, { ok: true, t: c.temperature_2m, code: wmoKey(c.weather_code | 0), expires: Date.now() + 10 * 60 * 1000 });
+      const code = wmoKey(c.weather_code | 0);
+      liveWx.set(city.id, { ok: true, t: c.temperature_2m, code, expires: Date.now() + WX_KEEP_MS });
+      Persist.set('wx', city.id, { t: c.temperature_2m, code });
       const meta = document.getElementById('sheetMeta');
       if (meta && state.activeCityId === city.id) meta.innerHTML = wxMeta(city);
     })
