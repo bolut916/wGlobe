@@ -19,7 +19,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { WebView, type WebViewMessageEvent, type WebViewProps } from 'react-native-webview';
 
 import { NativeRadio } from '@/shell/NativeRadio';
-import { linkParams, parseWebMessage, type NativeMessage, type ShareMessage } from '@/shell/bridge';
+import { linkParams, parseWebMessage, type HapticName, type NativeMessage, type ShareMessage } from '@/shell/bridge';
 
 const SITE_URL = 'https://bolut916.github.io/wGlobe/';
 const SITE_ORIGIN = 'https://bolut916.github.io';
@@ -34,11 +34,33 @@ function startUri(initial: string | null): string {
   return SITE_URL + '?' + Object.entries(p).map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`).join('&');
 }
 
-function haptic(p: number | number[]): void {
-  if (Array.isArray(p)) { void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => undefined); return; }
-  if (p <= 6) void Haptics.selectionAsync().catch(() => undefined);
-  else if (p <= 10) void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => undefined);
-  else void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => undefined);
+const ignore = () => undefined;
+const impact = (style: Haptics.ImpactFeedbackStyle) => void Haptics.impactAsync(style).catch(ignore);
+const notify = (type: Haptics.NotificationFeedbackType) => void Haptics.notificationAsync(type).catch(ignore);
+const later = (ms: number, fn: () => void) => { setTimeout(fn, ms); };
+
+/** Web'in titreşim dili → iOS/Android titreşim motoru. Anlamlı adlar hissin kendisini taşır. */
+function haptic(p: number | number[] | HapticName): void {
+  if (typeof p === 'string') {
+    switch (p) {
+      case 'error': notify(Haptics.NotificationFeedbackType.Error); return;
+      case 'warning': notify(Haptics.NotificationFeedbackType.Warning); return;
+      case 'success': notify(Haptics.NotificationFeedbackType.Success); return;
+      // Yayın bağlandı: yumuşak vuruş + 70 ms sonra hafif ikinci vuruş (kalp atışı)
+      case 'connect': impact(Haptics.ImpactFeedbackStyle.Soft); later(70, () => impact(Haptics.ImpactFeedbackStyle.Light)); return;
+      // Şehre varış: küre yerine oturdu — sert, kısa tek vuruş
+      case 'arrive': impact(Haptics.ImpactFeedbackStyle.Rigid); return;
+      // Küre/rozet açıldı: başarı + iki yükselen vuruş
+      case 'unlock': notify(Haptics.NotificationFeedbackType.Success); later(160, () => impact(Haptics.ImpactFeedbackStyle.Light)); later(260, () => impact(Haptics.ImpactFeedbackStyle.Medium)); return;
+      case 'double': impact(Haptics.ImpactFeedbackStyle.Light); later(60, () => impact(Haptics.ImpactFeedbackStyle.Light)); return;
+      default: return;
+    }
+  }
+  // Eski dizi biçimi (güncellenmemiş sayfa): başarı sayılır
+  if (Array.isArray(p)) { notify(Haptics.NotificationFeedbackType.Success); return; }
+  if (p <= 6) void Haptics.selectionAsync().catch(ignore);
+  else if (p <= 10) impact(Haptics.ImpactFeedbackStyle.Light);
+  else impact(Haptics.ImpactFeedbackStyle.Medium);
 }
 
 async function shareCard(m: ShareMessage): Promise<void> {

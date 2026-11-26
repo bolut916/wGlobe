@@ -18,7 +18,10 @@ export type AudioVolumeMessage = { type: 'audio:volume'; v: number };
 export type AudioArtMessage = { type: 'audio:art'; loadId: number; artwork: string };
 /** Şu an çalan şarkı (web, yayının ICY başlığından okur): kilit ekranında başlık olur; null → istasyon adı */
 export type AudioNowPlayingMessage = { type: 'audio:nowplaying'; loadId: number; index: number; title: string | null };
-export type HapticMessage = { type: 'haptic'; p: number | number[] };
+/** Titreşim: sayı (kısa tık), eski dizi biçimi ya da anlamlı ad (bkz. HAPTIC_NAMES) */
+export const HAPTIC_NAMES = ['error', 'warning', 'success', 'connect', 'arrive', 'unlock', 'double'] as const;
+export type HapticName = (typeof HAPTIC_NAMES)[number];
+export type HapticMessage = { type: 'haptic'; p: number | number[] | HapticName };
 export type ShareMessage = { type: 'share'; image: string; url: string; text: string; title?: string };
 
 export type WebMessage = AudioLoadMessage | AudioSkipMessage | AudioPauseMessage | AudioVolumeMessage | AudioArtMessage | AudioNowPlayingMessage | HapticMessage | ShareMessage;
@@ -52,7 +55,7 @@ export function parseWebMessage(raw: string): WebMessage | null {
     case 'audio:volume':
       return typeof o.v === 'number' ? (o as unknown as AudioVolumeMessage) : null;
     case 'haptic':
-      return typeof o.p === 'number' || Array.isArray(o.p) ? (o as unknown as HapticMessage) : null;
+      return typeof o.p === 'number' || Array.isArray(o.p) || (typeof o.p === 'string' && (HAPTIC_NAMES as readonly string[]).includes(o.p)) ? (o as unknown as HapticMessage) : null;
     case 'share':
       return typeof o.image === 'string' && typeof o.url === 'string' && typeof o.text === 'string' ? (o as unknown as ShareMessage) : null;
     default:

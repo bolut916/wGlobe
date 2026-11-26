@@ -1724,7 +1724,22 @@ const easeOutBack = (t, c = 1.25) => 1 + (c + 1) * Math.pow(t - 1, 3) + c * Math
 /** Anticipation: ilk %50'de hafifçe geri çekil (easeInBack), sonra yumuşakça yerleş (easeOutCubic) */
 const easeAnticipate = t => { const c = 1.15; return t < 0.5 ? (Math.pow(2 * t, 2) * ((c + 1) * 2 * t - c)) / 2 : 1 - Math.pow(2 - 2 * t, 3) / 2; };
 const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
-const vibrate = p => { try { if (state.prefs && state.prefs.haptics === false) return; if (window.ReactNativeWebView) { window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'haptic', p })); return; } navigator.vibrate && navigator.vibrate(p); } catch (e) {} };
+/**
+ * Dokunma titreşimi. Sayı: kısa tık (≤6 seçim, ≤10 hafif, üstü orta). Ad: anlamlı his —
+ *   error (üç kısa vuruş) · warning · success · connect (yayın bağlandı: yumuşak + hafif, kalp atışı)
+ *   arrive (şehre varış: sert tek vuruş) · unlock (küre/rozet: başarı + iki yükselen vuruş) · double (hafif çift)
+ * Uygulamada iOS/Android'in kendi titreşim motoru (expo-haptics), tarayıcıda navigator.vibrate deseni.
+ */
+const HAPTIC_WEB = { error: [10, 50, 10, 50, 10], warning: [12, 60, 12], success: [8, 40, 8], connect: [6, 70, 10], arrive: [14], unlock: [8, 40, 8, 40, 14], double: [6, 30, 6] };
+let hapticAt = 0;
+const vibrate = p => {
+  try {
+    if (state.prefs && state.prefs.haptics === false) return;
+    const now = Date.now(); if (typeof p === 'string' && now - hapticAt < 60) return; hapticAt = now;   // üst üste binen anlamlı titreşimler tek his olsun
+    if (window.ReactNativeWebView) { window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'haptic', p })); return; }
+    navigator.vibrate && navigator.vibrate(typeof p === 'string' ? (HAPTIC_WEB[p] || 8) : p);
+  } catch (e) {}
+};
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const hash = s => [...s].reduce((a, c) => (a * 31 + c.charCodeAt(0)) >>> 0, 7);
 
@@ -3170,7 +3185,7 @@ function failover(token, tried = 1) {
   startAttempt((state.index + tried) % state.queue.stations.length, true);
 }
 function onStarted(token) {
-  if (token !== attemptToken) return; failedAttempts = 0; msPlayCount++; setTimeout(() => evaluateQuests(false), 900);
+  if (token !== attemptToken) return; failedAttempts = 0; if (!document.hidden) vibrate('connect'); msPlayCount++; setTimeout(() => evaluateQuests(false), 900);
   const city = CITY[state.activeCityId]; setStatus('playing');
   const lastV = state.visits[0];
   if (!lastV || lastV.cityId !== city.id || Date.now() - new Date(lastV.visitedAt) > 30 * 60 * 1000) {
@@ -3530,7 +3545,7 @@ const SatMosaic = (() => {
 })();
 
 /** Sürüm etiketi: sitede hangi sürümün açık olduğunu rozetten görmek için (önbellek kontrolü). */
-const BUILD = 'v48';
+const BUILD = 'v49';
 const MapGlobe = (() => {
   const host = document.getElementById('mapStage');
   const badge = document.getElementById('lodBadge');
@@ -4582,12 +4597,13 @@ function openSheet(open) {
   }
 }
 const cityTag = $('#cityTag');
+let arrivedFor = null;   // bu şehre varış titreşimi verildi mi (her seçimde bir kez)
 function hideCityTag() { cityTag.classList.remove('show'); }
 function placeCityTag(p) {
   const city = CITY[state.activeCityId];
   if (!p || !city || !state.sheetOpen || !p.visible || !p.arrived || hopStart) { if (cityTag.classList.contains('show')) hideCityTag(); return; }
   cityTag.style.transform = `translate(${p.x}px, ${p.y}px) translate(-50%, calc(-100% - 16px))`;
-  if (!cityTag.classList.contains('show')) { $('#ctName').textContent = city.name.toLocaleUpperCase('tr-TR'); cityTag.classList.add('show'); }
+  if (!cityTag.classList.contains('show')) { $('#ctName').textContent = city.name.toLocaleUpperCase('tr-TR'); cityTag.classList.add('show'); if (arrivedFor !== city.id) { arrivedFor = city.id; vibrate('arrive'); } }
   const t = cityTime(city.timezone).slice(0, 5); if ($('#ctTime').textContent !== t) $('#ctTime').textContent = t;
 }
 const STATUS_LABEL = { idle: 'RADYO KAPALI', paused: 'DURAKLATILDI', loading: 'BAĞLANIYOR', failover: 'SIRADAKİ YAYIN', playing: 'CANLI', error: 'YAYIN YOK' };
@@ -4747,7 +4763,7 @@ function toggleSong() {
   else {
     state.songs.unshift({ id: 's' + Date.now() + '_' + Math.random().toString(36).slice(2, 6), title: npNow.title, artist: npNow.artist, song: npNow.song,
       stationName: st.name, stationUuid: st.uuid, cityId: city.id, cityName: city.name, countryCode: city.countryCode, savedAt: new Date().toISOString() });
-    state.songs = state.songs.slice(0, 200); on = true; vibrate([8, 40, 8]); toast('Şarkı kaydedildi · Profil → Favoriler');
+    state.songs = state.songs.slice(0, 200); on = true; vibrate('success'); toast('Şarkı kaydedildi · Profil → Favoriler');
   }
   save();
   const b = $('#npSave'), ss = b && b.querySelector('.np-s');
@@ -4763,7 +4779,7 @@ function toggleFavorite() {
   const st = currentStation(), city = CITY[state.activeCityId]; if (!st || !city) return;
   const heart = $('#favBtn .heart'); if (heart) { heart.classList.remove('pop'); void heart.offsetWidth; heart.classList.add('pop'); }
   const i = state.favorites.findIndex(f => f.stationUuid === st.uuid);
-  if (i >= 0) { state.favorites.splice(i, 1); vibrate(6); } else { state.favorites.unshift({ id: 'f' + Date.now(), stationUuid: st.uuid, stationName: st.name, cityId: city.id, cityName: city.name, countryCode: city.countryCode, index: state.index }); vibrate([8, 40, 8]); }
+  if (i >= 0) { state.favorites.splice(i, 1); vibrate(6); } else { state.favorites.unshift({ id: 'f' + Date.now(), stationUuid: st.uuid, stationName: st.name, cityId: city.id, cityName: city.name, countryCode: city.countryCode, index: state.index }); vibrate('success'); }
   save(); renderSheetDynamic(); if (i < 0) setTimeout(() => evaluateQuests(false), 600);
 }
 function tickClock() {
@@ -5336,7 +5352,7 @@ function markSeries(sid) {
 /** Çekmeceden küre seç: sahnedeki küre çekilir, seçilen bilye sahneye uçar ve gerçek küreye dönüşür. */
 function pickTheme(id, itemEl) {
   const oldId = state.previewTheme; if (id === oldId || picking || !THEMES[id]) { if (id === oldId) setPocket(false); return; }
-  picking = true; vibrate([6, 30, 10]);
+  picking = true; vibrate('double');
   const dir = THEME_ORDER.indexOf(id) > THEME_ORDER.indexOf(oldId) ? 1 : -1;
   const stageR = $('#globeStage').getBoundingClientRect(), scr = $('#screen').getBoundingClientRect();
   const target = themesLayout(stageR.width, stageR.height);
@@ -5403,10 +5419,10 @@ function changeTheme(id) {
 }
 async function themeAction() {
   const id = state.previewTheme, unlocked = state.unlocked.includes(id);
-  if (!unlocked) { vibrate([10, 40, 10]); const q = $('#thQuest'); q.classList.remove('nudge'); void q.offsetWidth; q.classList.add('nudge'); return; }
+  if (!unlocked) { vibrate('warning'); const q = $('#thQuest'); q.classList.remove('nudge'); void q.offsetWidth; q.classList.add('nudge'); return; }
   themeBusy = true; renderThemes(0); await sleep(450); themeBusy = false;
   if (!unlocked) state.unlocked.push(id);
-  state.theme = id; save(); MapGlobe.setTheme(id); vibrate([8, 40, 8]); renderThemes(0); renderPocket(); updateInk();
+  state.theme = id; save(); MapGlobe.setTheme(id); vibrate('success'); renderThemes(0); renderPocket(); updateInk();
   toast(unlocked ? `${THEMES[id].name} küreye uygulandı` : `${THEMES[id].name} koleksiyonuna eklendi`);
 }
 $('#themeAction').addEventListener('click', themeAction);
@@ -5513,7 +5529,7 @@ document.addEventListener('click', e => {
   if (on) { try { navigator.vibrate && navigator.vibrate(6); } catch (err) {} }
   sparkle(t);
   setPref(t.dataset.tg, on);
-  if (t.dataset.tg === 'haptics' && on) vibrate([6, 30, 6]);
+  if (t.dataset.tg === 'haptics' && on) vibrate('double');
 });
 
 // Profil · Yörünge: kişinin küresi ortada döner, sayılar kapsüller hâlinde etrafında süzülür.
@@ -5691,7 +5707,7 @@ function renderSettings(animate) {
     if (!ok) return;
     setLoading(del, true);
     const r = await Cloud.deleteAccount();
-    if (r.error) { setLoading(del, false); vibrate([10, 50, 10]); toast(r.error === 'session' ? 'Hesabı silmek için önce yeniden giriş yap' : 'Hesap silinemedi · ' + authMessage(r.error)); return; }
+    if (r.error) { setLoading(del, false); vibrate('error'); toast(r.error === 'session' ? 'Hesabı silmek için önce yeniden giriş yap' : 'Hesap silinemedi · ' + authMessage(r.error)); return; }
     closeSettings(true); pause(); openSheet(false); resetLocalAccount(); history = []; go('welcome', { replace: true }); toast('Hesabın ve tüm verilerin silindi');
   });
 }
@@ -5917,17 +5933,17 @@ $('#loginForm').addEventListener('submit', async e => {
   e.preventDefault();
   const email = $('#loginEmail').value, pass = $('#loginPass').value, ee = validateEmail(email), pe = validatePass(pass, false);
   setFieldError('loginEmail', ee, true); setFieldError('loginPass', pe, true);
-  if (ee || pe) { vibrate([10, 50, 10]); return; }
+  if (ee || pe) { vibrate('error'); return; }
   const btn = $('#loginSubmit'); if (btn.disabled) return; authNote('loginBanner'); setLoading(btn, true);
   const r = await Cloud.signIn(email.trim(), pass);
   setLoading(btn, false);
   if (r.error) {
-    vibrate([10, 50, 10]);
+    vibrate('error');
     if (r.error === 'unconfirmed') authNote('loginBanner', 'info', `${email.trim()} adresi henüz onaylanmadı. E-postandaki onay bağlantısına dokun, sonra tekrar giriş yap.`, [{ label: 'Onay e-postasını tekrar gönder', run: () => resendConfirm(email.trim(), 'loginBanner') }]);
     else { authNote('loginBanner', 'error', authMessage(r.error)); if (r.error === 'invalid') setFieldError('loginPass', ' ', true); }
     return;
   }
-  vibrate([8, 40, 8]);
+  vibrate('success');
   enterApp(r.migrated ? 'Giriş yapıldı · bu cihazdaki verilerin hesabına eklendi' : 'Giriş yapıldı');
 });
 $('#registerForm').addEventListener('submit', async e => {
@@ -5935,18 +5951,18 @@ $('#registerForm').addEventListener('submit', async e => {
   const email = $('#regEmail').value, pass = $('#regPass').value, conf = $('#regConfirm').value;
   const ee = validateEmail(email), pe = validatePass(pass, true), ce = !conf ? 'Şifreyi tekrar girin.' : conf !== pass ? 'Şifreler eşleşmiyor.' : null;
   setFieldError('regEmail', ee, true); setFieldError('regPass', pe, true); setFieldError('regConfirm', ce, true);
-  if (ee || pe || ce) { vibrate([10, 50, 10]); return; }
+  if (ee || pe || ce) { vibrate('error'); return; }
   const btn = $('#regSubmit'); if (btn.disabled) return; authNote('regBanner'); setLoading(btn, true);
   const wasGuest = state.auth === 'guest';
   const r = await Cloud.signUp(email.trim(), pass);
   setLoading(btn, false);
   if (r.error) {
-    vibrate([10, 50, 10]);
+    vibrate('error');
     if (r.error === 'exists') authNote('regBanner', 'error', authMessage('exists'), [{ label: 'Giriş yap', run: () => { const e = $('#regEmail').value; go('login'); $('#loginEmail').value = e; } }]);
     else authNote('regBanner', 'error', authMessage(r.error));
     return;
   }
-  vibrate([8, 40, 8]);
+  vibrate('success');
   if (r.confirm) {
     // E-posta onayı açık: oturum bağlantıya dokununca açılır. Misafir verileri cihazda bekler, girişte hesaba eklenir.
     $('#regPass').value = ''; $('#regConfirm').value = ''; $('#regPass').dispatchEvent(new Event('input'));
@@ -5958,12 +5974,12 @@ $('#registerForm').addEventListener('submit', async e => {
 });
 $('#forgotBtn').addEventListener('click', async () => {
   const email = $('#loginEmail').value.trim(), ee = validateEmail(email);
-  if (ee) { setFieldError('loginEmail', ee === 'E-posta adresi gerekli.' ? 'Şifre sıfırlama bağlantısı için önce e-postanı yaz.' : ee, true); vibrate([10, 50, 10]); $('#loginEmail').focus(); return; }
+  if (ee) { setFieldError('loginEmail', ee === 'E-posta adresi gerekli.' ? 'Şifre sıfırlama bağlantısı için önce e-postanı yaz.' : ee, true); vibrate('error'); $('#loginEmail').focus(); return; }
   const b = $('#forgotBtn'); if (b.disabled) return; b.disabled = true; b.style.opacity = '0.5';
   const r = await Cloud.resetPassword(email);
   b.disabled = false; b.style.opacity = '';
   if (r.error && r.error !== 'invalid') { authNote('loginBanner', 'error', authMessage(r.error)); return; }
-  vibrate([8, 40, 8]);
+  vibrate('success');
   authNote('loginBanner', 'ok', `${email} bir hesaba bağlıysa şifre sıfırlama bağlantısı birkaç dakika içinde gelir. Bağlantıya dokununca yeni şifreni belirleyebilirsin.`);
 });
 $('#resetForm').addEventListener('submit', async e => {
@@ -5971,12 +5987,12 @@ $('#resetForm').addEventListener('submit', async e => {
   const pass = $('#resetPass').value, conf = $('#resetConfirm').value;
   const pe = validatePass(pass, true), ce = !conf ? 'Şifreyi tekrar girin.' : conf !== pass ? 'Şifreler eşleşmiyor.' : null;
   setFieldError('resetPass', pe, true); setFieldError('resetConfirm', ce, true);
-  if (pe || ce) { vibrate([10, 50, 10]); return; }
+  if (pe || ce) { vibrate('error'); return; }
   const btn = $('#resetSubmit'); if (btn.disabled) return; authNote('resetBanner'); setLoading(btn, true);
   const r = await Cloud.updatePassword(pass);
   setLoading(btn, false);
-  if (r.error) { vibrate([10, 50, 10]); authNote('resetBanner', 'error', authMessage(r.error)); return; }
-  vibrate([8, 40, 8]); $('#resetPass').value = ''; $('#resetConfirm').value = '';
+  if (r.error) { vibrate('error'); authNote('resetBanner', 'error', authMessage(r.error)); return; }
+  vibrate('success'); $('#resetPass').value = ''; $('#resetConfirm').value = '';
   enterApp('Şifren güncellendi');
 });
 async function resendConfirm(email, noteId) {
@@ -6621,7 +6637,7 @@ function nextUnlock() {
   $('#ulName').textContent = item.ids.length > 1 ? `${item.ids.length} küre senin oldu` : t.name;
   $('#ulSub').textContent = item.ids.length > 1 ? 'Şimdiye kadarki yolculuğun bunları kazandırdı' : (QUESTS[id] ? QUESTS[id][0] : 'Koleksiyonuna eklendi');
   el.dataset.id = id; el.hidden = false; el.classList.remove('in', 'out'); void el.offsetWidth; el.classList.add('in');
-  vibrate([8, 40, 12]);
+  vibrate('unlock');
   clearTimeout(el._t); el._t = setTimeout(hideUnlock, 3400);
 }
 function hideUnlock() {
@@ -6976,7 +6992,7 @@ function flightLeg() {
 function startFlight() {
   if (flight.on) return;
   stopPulse(); if (cotdUI.open) closeCotd(false);
-  flight.on = true; flight.leg = 0; vibrate([8, 40, 8]);
+  flight.on = true; flight.leg = 0; vibrate('success');
   $('#pane-globe').classList.add('flying-mode'); $('#flight').hidden = false; $('#flightBtn').classList.add('on'); $('#flightBtn').setAttribute('aria-pressed', 'true');
   $('#search') && Search.reset();
   MapGlobe.onUserMove(() => stopFlight(true));
@@ -7055,7 +7071,7 @@ function openCotd(auto) {
     else Globe.setActive(c.id, true, 0, 1400);
   });
   state.cotd = Object.assign({}, state.cotd, { seen: today }); save();
-  vibrate([6, 30, 6]);
+  vibrate('double');
 }
 function closeCotd(play) {
   if (!cotdUI.open) return;
@@ -7111,7 +7127,7 @@ function chaseSunrise() {
   const c = asPlace(t), lit = MapGlobe.dawn(5600);
   state.moment = { cityId: c.id, label: 'GÜNEŞ ŞİMDİ DOĞUYOR', kind: 'dawn' };
   if (state.activeCityId && state.activeCityId !== c.id) travelBack.push(state.activeCityId);
-  MapGlobe.takeControl(); vibrate([6, 30, 6]);
+  MapGlobe.takeControl(); vibrate('double');
   // Önce çizgi yanar (≈450 ms), sonra kamera onun üstündeki şehre süzülür ve kart sıcak bir ışıkla açılır
   setTimeout(() => {
     handleSelect(c);
