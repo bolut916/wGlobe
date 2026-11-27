@@ -128,7 +128,8 @@
                 "initialLayout": "./src/widgets/NowPlayingIOS.tsx"
               }
             }
-          ]
+          ],
+          "bundleIdentifier": "com.wglobe.app.ExpoWidgetsTarget"
         }
       ],
       [
