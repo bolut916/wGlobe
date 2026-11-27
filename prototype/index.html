@@ -1,4 +1,4 @@
-<!doctype html><html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover"><style>html,body{margin:0;padding:0}</style></head><body><title>wGlobe</title>
+<!doctype html><html lang="tr"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-RPlaqiMaqgBLxavAY9tQrWnM32Y8fgf4TYkzSsEl/N4=' https://bolut916.github.io/wGlobe/lib/; worker-src https://bolut916.github.io/wGlobe/lib/ blob:; connect-src 'self' https: data: blob:; img-src 'self' data: blob: https:; media-src 'self' https: data: blob:; style-src 'self' 'unsafe-inline'; font-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; manifest-src 'self'"><meta name="referrer" content="strict-origin-when-cross-origin"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover"><style>html,body{margin:0;padding:0}</style></head><body><title>wGlobe</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <style>
 /* Yazı tipleri sitenin kendisinden (SIL OFL 1.1, lib/fonts): ziyaretçinin IP adresi üçüncü taraflara gitmez.
@@ -716,37 +716,50 @@ svg.i.filled { fill: currentColor; }
 .screen { --tb-b: max(21px, calc(var(--sab) - 13px)); --tb-top: calc(var(--tb-b) + 62px); --stack-top: var(--tb-top);
   /* Yay: gerçek sönümlü yay örneklemesi (ζ 0,75 → yüzde 2,8 aşma; ζ 0,85 → yüzde 0,6). linear() yoksa yakın Bézier. */
   --spring: cubic-bezier(0.25, 1.12, 0.45, 1); --spring-soft: cubic-bezier(0.25, 1.04, 0.45, 1);
-  --dock-glass: rgba(12,22,44,0.86); --dock-rim: rgba(232,240,255,0.13); }
+  --dock-solid: #0C1731; --dock-glass: rgba(12,22,44,0.86); --dock-rim: rgba(232,240,255,0.13); }
 @supports (transition-timing-function: linear(0, 1)) { .screen { --spring: linear(0, 0.038, 0.1303, 0.2509, 0.381, 0.5082, 0.6243, 0.7253, 0.8094, 0.8767, 0.9285, 0.9668, 0.9936, 1.0113, 1.0218, 1.027, 1.0284, 1.0273, 1.0246, 1.0212, 1.0175, 1.0139, 1.0106, 1.0078, 1.0054, 1.0035, 1.002, 1); --spring-soft: linear(0, 0.0402, 0.1349, 0.2549, 0.3808, 0.501, 0.6089, 0.7016, 0.7784, 0.8402, 0.8885, 0.9252, 0.9525, 0.9721, 0.9858, 0.9949, 1.0006, 1.004, 1.0057, 1.0063, 1.0061, 1.0056, 1.0049, 1.0041, 1.0033, 1.0026, 1.002, 1); } }
 .screen.has-mini { --stack-top: calc(var(--tb-top) + 56px); }
 .dock { position: absolute; left: 0; right: 0; bottom: 0; height: 0; z-index: 30; pointer-events: none; }
 .tabbar { left: 21px; right: 21px; bottom: var(--tb-b); height: 62px; border-radius: 31px; padding: 4px; grid-template-columns: repeat(5, 1fr); background: none; box-shadow: none; }
-.tb-bg { position: absolute; top: 0; right: 0; bottom: 0; left: 0; border-radius: 31px; background: var(--dock-glass); box-shadow: inset 0 0 0 1px var(--dock-rim), 0 14px 34px rgba(2,6,16,0.5); pointer-events: none;
-  transition: top 260ms var(--spring-soft), right 260ms var(--spring-soft), bottom 260ms var(--spring-soft), left 260ms var(--spring-soft), border-radius 260ms var(--spring-soft); }
+/* ── Akıcılık (v61): zeminler üç parçadan (sol yarım daire · orta · sağ yarım daire). Küçülme/açılma YALNIZ transform ve
+   opacity ile: her karede düzen hesabı, yeniden boyama, bulanıklık filtresi yok → GPU katmanında, ana iş parçacığından bağımsız.
+   Parçalar opak (üst üste bindikleri yerde dikiş görünmesin); gölgeler önceden çizilmiş iki hâl arasında yalnız opaklıkla geçer. ── */
+.tb-bg, .mini-bg { position: absolute; inset: 0; pointer-events: none; }
+.tb-bg i, .mini-bg i { position: absolute; display: block; pointer-events: none; }
+.pc { will-change: transform; backface-visibility: hidden; }
+.pc-cap { top: 0; border-radius: 50%; background: var(--dock-solid); box-shadow: inset 0 0 0 1px var(--dock-rim); }
+.pc-mid { top: 0; background: var(--dock-solid); box-shadow: inset 0 1px 0 var(--dock-rim), inset 0 -1px 0 var(--dock-rim); transform-origin: 0 50%; }
+.sh-a, .sh-b { will-change: opacity; }
+.tb-bg .pc-cap { width: 62px; height: 62px; transform-origin: 31px 31px; }
+.tb-bg .pc-cap.l { left: 0; } .tb-bg .pc-cap.r { right: 0; }
+.tb-bg .pc-mid { left: 31px; right: 31px; height: 62px; }
+.tb-bg .sh-a { inset: 0; border-radius: 31px; box-shadow: 0 14px 34px rgba(2,6,16,0.5); }
+.tb-bg .sh-b { left: var(--cl, 6.7px); top: 7px; width: 48px; height: 48px; border-radius: 50%; box-shadow: 0 10px 26px rgba(2,6,16,0.45); opacity: 0; }
+.mini-bg .pc-cap { width: 48px; height: 48px; transform-origin: 24px 24px; }
+.mini-bg .pc-cap.l { left: 0; } .mini-bg .pc-cap.r { right: 0; }
+.mini-bg .pc-mid { left: 24px; right: 24px; height: 48px; }
+.mini-bg .sh-a { inset: 0; border-radius: 24px; box-shadow: 0 12px 30px rgba(2,6,16,0.45); }
+.mini-bg .sh-b { left: 69px; right: 69px; top: 0; bottom: 0; border-radius: 24px; box-shadow: 0 10px 26px rgba(2,6,16,0.45); opacity: 0; }
 .dock-blob { top: 4px; height: 54px; border-radius: 27px; background: rgba(232,240,255,0.13); box-shadow: inset 0 0 0 1px rgba(232,240,255,0.06); }
-.dock-blob.ready { transition: opacity 160ms var(--e-enter) 100ms; }
-.tab { color: var(--fg); font-size: 10.5px; font-weight: 600; gap: 2px; transition: opacity 140ms var(--e-enter) 20ms, filter 200ms var(--e-enter) 20ms, transform 260ms var(--spring); }
+.dock-blob.ready { transition: opacity 150ms var(--e-enter) 90ms; }
+.tab { color: var(--fg); font-size: 10.5px; font-weight: 600; gap: 2px; will-change: transform, opacity; }
 #app .tabbar .tab, #app .tabbar .tab.active { color: var(--fg); }
-.tab .tl { transition: opacity 120ms var(--e-enter) 60ms; }
-.tab.active .tl, .tab-search .tl { transition: opacity 120ms var(--e-enter) 150ms; }   /* kayan simge yerine varınca */
-.tb-sbg { position: absolute; right: calc(27.7px); bottom: calc(var(--tb-b) + 7px); width: 48px; height: 48px; border-radius: 24px; background: var(--dock-glass); box-shadow: inset 0 0 0 1px var(--dock-rim), 0 10px 26px rgba(2,6,16,0.45);
-  opacity: 0; transform: scale(0.85); transition: opacity 120ms var(--e-exit), transform 120ms var(--e-exit); pointer-events: none; }
+.tb-sbg { position: absolute; right: calc(27.7px); bottom: calc(var(--tb-b) + 7px); width: 48px; height: 48px; border-radius: 24px; background: var(--dock-solid); box-shadow: inset 0 0 0 1px var(--dock-rim), 0 10px 26px rgba(2,6,16,0.45);
+  opacity: 0; transform: scale(0.86); pointer-events: none; will-change: transform, opacity; }
 /* Mini oynatıcı */
-.mini { position: absolute; left: 21px; right: 21px; bottom: calc(var(--tb-b) + 70px); height: 48px; pointer-events: none; transition: transform 260ms var(--spring); }
+.mini { position: absolute; left: 21px; right: 21px; bottom: calc(var(--tb-b) + 70px); height: 48px; pointer-events: none; will-change: transform; }
 /* Kutu tam genişlikte kalır (zemin daralır): dokunmayı yalnız düğmeler alır, küçükken yandaki daireler kapanmaz */
 .mini-open, .mini-ctl { pointer-events: auto; }
 .mini.off .mini-open, .mini.off .mini-ctl, .view:not(.active) .mini-open, .view:not(.active) .mini-ctl { pointer-events: none !important; }
-.mini-card { position: absolute; inset: 0; transition: opacity 220ms var(--e-enter), transform 280ms var(--spring); }
-.mini.off .mini-card { opacity: 0; transform: translateY(14px) scale(0.96); transition: opacity 160ms var(--e-exit), transform 160ms var(--e-exit); }
-.mini-bg { position: absolute; top: 0; bottom: 0; left: 0; right: 0; border-radius: 24px; background: var(--dock-glass); box-shadow: inset 0 0 0 1px var(--dock-rim), 0 12px 30px rgba(2,6,16,0.45);
-  transition: left 260ms var(--spring) 20ms, right 260ms var(--spring) 20ms; }
-.mini-open { position: absolute; left: 0; top: 0; bottom: 0; display: flex; align-items: center; gap: 9px; padding: 0 0 0 15px; border: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; -webkit-tap-highlight-color: transparent; transition: transform 260ms var(--spring) 20ms; }
+.mini-card { position: absolute; inset: 0; transition: opacity 200ms var(--e-enter), transform 260ms var(--spring); }
+.mini.off .mini-card { opacity: 0; transform: translateY(14px) scale(0.96); transition: opacity 150ms var(--e-exit), transform 150ms var(--e-exit); }
+.mini-open { position: absolute; left: 0; top: 0; bottom: 0; display: flex; align-items: center; gap: 9px; padding: 0 0 0 15px; border: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; -webkit-tap-highlight-color: transparent; will-change: transform; }
 .mini-art { width: 29px; height: 29px; flex: none; border-radius: 7px; overflow: hidden; display: grid; place-items: center; color: var(--a2); background: radial-gradient(circle at 35% 30%, #1C3E72, #0A1830 72%); }
 .mini-art img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.mini-tx { display: flex; flex-direction: column; min-width: 0; width: var(--mtx, 180px); line-height: 1.2; transition: width 0s linear 110ms; }   /* açılırken metin kapsül ~%70 açılınca tam boya geçer (taşma yok) */
+.mini-tx { display: flex; flex-direction: column; min-width: 0; width: var(--mtx, 180px); line-height: 1.2; transition: width 0s linear 100ms; }   /* açılırken metin zemin ~%70 açılınca tam boya geçer (taşma yok) */
 .mini-tx b { font-size: 15px; font-weight: 600; letter-spacing: -0.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .mini-tx span { font-size: 13.5px; color: var(--fg-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.mini-ctls { position: absolute; right: 10px; top: 0; bottom: 0; display: flex; align-items: center; gap: 2px; transition: transform 260ms var(--spring) 20ms; }
+.mini-ctls { position: absolute; right: 10px; top: 0; bottom: 0; display: flex; align-items: center; gap: 2px; will-change: transform; }
 .mini-ctl { position: relative; width: 32px; height: 40px; border: 0; border-radius: 20px; background: none; color: var(--fg); display: grid; place-items: center; cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .mini-ctl:active { transform: scale(0.88); transition: transform 100ms var(--e-press); }
 .mini-ctl .ic { position: absolute; display: grid; transition: opacity 180ms var(--e-standard), transform 180ms var(--e-standard); }
@@ -754,23 +767,40 @@ svg.i.filled { fill: currentColor; }
 #miniPlay.on .ic-pause { opacity: 1; transform: none; }
 .mini-ctl .ring { position: absolute; inset: 3px; border-radius: 50%; border: 1.5px solid var(--accent); border-top-color: transparent; border-right-color: transparent; opacity: 0; animation: rot 900ms linear infinite; transition: opacity 180ms; }
 #miniPlay.busy .ring { opacity: 1; }
-/* Küçük hal: hedef değerler ve GİRİŞ geçişleri (çıkış = yukarıdaki temel geçişler) */
-.dock.collapsed .tb-bg { top: 7px; bottom: 7px; left: var(--cl, 6.7px); right: var(--cr, 296px); border-radius: 24px;
-  transition: top 260ms var(--spring-soft), right 260ms var(--spring-soft), bottom 260ms var(--spring-soft), left 260ms var(--spring-soft), border-radius 260ms var(--spring-soft); }
+/* ── Açılma (temel geçişler, ~220 ms) ── */
+.tb-bg .pc { transition: transform 220ms var(--spring-soft); }
+.tb-bg .sh-a { transition: opacity 180ms var(--e-enter) 50ms; } .tb-bg .sh-b { transition: opacity 90ms var(--e-exit); }
+.tab { transition: opacity 140ms var(--e-enter) 30ms, transform 220ms var(--spring); }
+.tab .tl { transition: opacity 110ms var(--e-enter) 50ms; }
+.tab.lead .tl, .tab-search .tl { transition: opacity 110ms var(--e-enter) 130ms; }   /* kayan simge yerine varınca */
+.tb-sbg { transition: opacity 100ms var(--e-exit), transform 100ms var(--e-exit); }
+.mini { transition: transform 220ms var(--spring); }
+.mini-bg .pc, .mini-open, .mini-ctls { transition: transform 230ms var(--spring) 10ms; }
+.mini-bg .sh-a { transition: opacity 180ms var(--e-enter) 50ms; } .mini-bg .sh-b { transition: opacity 90ms var(--e-exit); }
+/* ── Küçük hâl: hedefler ve küçülme geçişleri (~260 ms) ── */
+.dock.collapsed .tb-bg .pc { transition: transform 240ms var(--spring-soft); }
+.dock.collapsed .tb-bg .pc-cap.l { transform: translateX(var(--clx, 0px)) scale(0.7742); }
+.dock.collapsed .tb-bg .pc-cap.r { transform: translateX(var(--crx, -289px)) scale(0.7742); }
+.dock.collapsed .tb-bg .pc-mid { transform: translateX(var(--clx, 0px)) scale(0.001, 0.7742); }
+.dock.collapsed .tb-bg .sh-a { opacity: 0; transition: opacity 110ms var(--e-exit); }
+.dock.collapsed .tb-bg .sh-b { opacity: 1; transition: opacity 170ms var(--e-enter) 70ms; }
 .dock.collapsed .tabbar { pointer-events: none; }
-.dock.collapsed .tab:not(.active):not(.tab-search) { opacity: 0; filter: blur(6px); pointer-events: none; transition: opacity 110ms var(--e-exit), filter 110ms var(--e-exit); }
-.dock.collapsed .tab.active, .dock.collapsed .tab-search { transform: translate(var(--dx, 0px), var(--dy, 7.5px)); pointer-events: auto; transition: transform 260ms var(--spring); }
-.dock.collapsed .tab .tl { opacity: 0; transition: opacity 30ms var(--e-exit); }
+.dock.collapsed .tab:not(.lead):not(.tab-search) { opacity: 0; transform: scale(0.86); pointer-events: none; transition: opacity 60ms var(--e-exit), transform 140ms var(--e-exit); }
+.dock.collapsed .tab.lead, .dock.collapsed .tab-search { transform: translate(var(--dx, 0px), var(--dy, 7.5px)); pointer-events: auto; transition: transform 240ms var(--spring); }
+.dock.collapsed .tab .tl { opacity: 0; transition: opacity 40ms var(--e-exit); }
 .dock.collapsed .dock-blob { opacity: 0 !important; transition: opacity 60ms var(--e-exit); }
-.dock.collapsed .tb-sbg { opacity: 1; transform: none; transition: opacity 200ms var(--e-enter) 60ms, transform 200ms var(--spring) 60ms; }
-.dock.collapsed .mini { transform: translateY(63px); transition: transform 300ms var(--spring) 70ms; }
-.dock.collapsed .mini-bg { left: 69px; right: 69px; transition: left 340ms var(--spring), right 340ms var(--spring); }
-.dock.collapsed .mini-open { transform: translateX(69px); transition: transform 340ms var(--spring); }
-.dock.collapsed .mini-ctls { transform: translateX(-69px); transition: transform 340ms var(--spring); }
+.dock.collapsed .tb-sbg { opacity: 1; transform: none; transition: opacity 170ms var(--e-enter) 50ms, transform 200ms var(--spring) 50ms; }
+.dock.collapsed .mini { transform: translateY(63px); transition: transform 260ms var(--spring) 40ms; }
+.dock.collapsed .mini-bg .pc { transition: transform 260ms var(--spring); }
+.dock.collapsed .mini-bg .pc-cap.l, .dock.collapsed .mini-open { transform: translateX(69px); transition: transform 260ms var(--spring); }
+.dock.collapsed .mini-bg .pc-cap.r, .dock.collapsed .mini-ctls { transform: translateX(-69px); transition: transform 260ms var(--spring); }
+.dock.collapsed .mini-bg .pc-mid { transform: translateX(69px) scaleX(var(--msx, 0.5446)); }
+.dock.collapsed .mini-bg .sh-a { opacity: 0; transition: opacity 110ms var(--e-exit); }
+.dock.collapsed .mini-bg .sh-b { opacity: 1; transition: opacity 170ms var(--e-enter) 70ms; }
 .dock.collapsed .mini-tx { width: var(--mtx-c, 64px); transition: width 0s; }
 @media (prefers-reduced-motion: reduce) {
-  .tb-bg, .tab, .tab .tl, .tb-sbg, .mini, .mini-card, .mini-bg, .mini-open, .mini-ctls,
-  .dock.collapsed .tb-bg, .dock.collapsed .tab, .dock.collapsed .tab .tl, .dock.collapsed .tb-sbg, .dock.collapsed .mini, .dock.collapsed .mini-bg, .dock.collapsed .mini-open, .dock.collapsed .mini-ctls { transition-duration: 1ms !important; transition-delay: 0ms !important; }
+  .dock .pc, .dock .sh-a, .dock .sh-b, .tab, .tab .tl, .tb-sbg, .mini, .mini-open, .mini-ctls,
+  .dock.collapsed .pc, .dock.collapsed .sh-a, .dock.collapsed .sh-b, .dock.collapsed .tab, .dock.collapsed .tab .tl, .dock.collapsed .tb-sbg, .dock.collapsed .mini, .dock.collapsed .mini-open, .dock.collapsed .mini-ctls { transition-duration: 1ms !important; transition-delay: 0ms !important; }
   .dock .mini-card { transition: opacity 150ms linear !important; }
 }
 .tab.active { color: var(--accent-ink); }
@@ -913,8 +943,8 @@ svg.i.filled { fill: currentColor; }
 .pxs-body { flex: 1; min-height: 0; overflow-y: auto; padding: 10px 20px calc(28px + var(--sab)); display: flex; flex-direction: column; gap: 22px; scrollbar-width: none; overscroll-behavior: contain; }
 .pxs-body::-webkit-scrollbar { display: none; }
 /* ── Ayarlar sekmesi (v59): büyük başlık · profil kartı · ayar grupları; kaydırınca üstte küçük başlık ── */
-#pane-profile .st-scroll { position: absolute; inset: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none; padding: calc(var(--sat) + 10px) 20px calc(var(--stack-top) + 28px); }
-#pane-profile .st-scroll::-webkit-scrollbar { display: none; }
+.pane .st-scroll { position: absolute; inset: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none; padding: calc(var(--sat) + 10px) 20px calc(var(--stack-top) + 28px); }
+.pane .st-scroll::-webkit-scrollbar { display: none; }
 .st-title { position: relative; z-index: 1; margin: 0 0 16px; font-family: var(--display); font-size: 34px; line-height: 40px; font-weight: 750; letter-spacing: -0.045em; transition: opacity 180ms var(--e-standard); }
 .st-scrolled .st-title { opacity: 0; }
 .st-top { position: absolute; left: 0; right: 0; top: 0; z-index: 6; height: calc(var(--sat) + 50px); display: flex; align-items: flex-end; justify-content: center; padding-bottom: 12px; pointer-events: none;
@@ -922,9 +952,9 @@ svg.i.filled { fill: currentColor; }
 .st-top b { font-size: 17px; font-weight: 650; letter-spacing: -0.01em; transform: translateY(5px); transition: transform 220ms var(--e-exit); }
 .st-scrolled .st-top { opacity: 1; transition: opacity 180ms var(--e-enter); }
 .st-scrolled .st-top b { transform: none; transition: transform 260ms var(--e-enter); }
-#app[data-tab="profile"] .app-logo { opacity: 0; }
+#app[data-tab="profile"] .app-logo, #app[data-tab="search"] .app-logo { opacity: 0; }
 /* Alt perde: kaydırılan içerik dok'a doğru zemine erir (bulanıklık yerine; küre ekranında sürekli çizim var) */
-#pane-profile::after { content: ''; position: absolute; left: 0; right: 0; top: auto; bottom: 0; height: calc(var(--stack-top) + 36px); z-index: 5; pointer-events: none;
+#pane-profile::after, #pane-search::after { content: ''; position: absolute; left: 0; right: 0; top: auto; bottom: 0; height: calc(var(--stack-top) + 36px); z-index: 5; pointer-events: none;
   background: linear-gradient(180deg, rgba(5,11,24,0) 0%, rgba(5,11,24,0.82) 45%, rgba(5,11,24,0.96) 100%); }
 /* Profil kartı: kaydırılan sayfada sabit yükseklikler (küre arkada, yarı saydam cam) */
 .st-profile.px-wrap { position: relative; top: auto; bottom: auto; left: auto; right: auto; padding: 18px 16px 16px; gap: 14px; overflow: visible; border-radius: 32px;
@@ -937,6 +967,24 @@ svg.i.filled { fill: currentColor; }
 .st-set .px-sec { gap: 8px; }
 .pxs-body.anim > * { animation: stIn 480ms var(--e-spring) backwards; animation-delay: calc(160ms + min(var(--i, 0), 9) * 50ms); }
 @keyframes stIn { from { opacity: 0; transform: translateY(14px); } }
+/* ── Ara sekmesi (v61): büyük başlık · arama alanı · son aramalar / sonuçlar (tam liste, sayfa kayar) ── */
+#pane-search { background: var(--bg); }
+#pane-search .search { position: relative; top: auto; left: auto; right: auto; z-index: 2; }
+#pane-search .search-field { height: 52px; border-radius: 18px; padding: 0 8px 0 16px; background: rgba(12,22,44,0.72); border: 1px solid rgba(232,240,255,0.12); }
+#pane-search .search-field input { font-size: 17px; }
+#pane-search .search-results { position: static; max-height: none; overflow: visible; margin-top: 12px; border-radius: 22px; }
+.sr-recent { margin-top: 26px; display: flex; flex-direction: column; gap: 8px; }
+.sr-rh { display: flex; align-items: baseline; justify-content: space-between; padding: 0 4px 4px; }
+.sr-rh b { font-size: 17px; font-weight: 650; letter-spacing: -0.01em; }
+.sr-rh button { width: auto; min-height: 36px; font-size: 14px; color: var(--accent); }
+.sr-rc { display: flex; align-items: center; gap: 12px; width: 100%; padding: 11px 12px 11px 12px; border-radius: 20px; text-align: left; color: var(--fg);
+  background: rgba(12,22,44,0.6); box-shadow: inset 0 0 0 1px rgba(232,240,255,0.08); }
+.sr-rc .ic { width: 38px; height: 38px; flex: none; border-radius: 19px; display: grid; place-items: center; color: var(--a2); background: rgba(110,170,235,0.12); }
+.sr-rc .tx { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.sr-rc .tx b { font-size: 15.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sr-rc .tx span { font-size: 13px; color: var(--fg-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sr-rc > svg { color: var(--fg-3); flex: none; }
+.sr-empty { display: flex; align-items: center; gap: 12px; padding: 16px 6px; color: var(--fg-3); font-size: 15px; }
 .pxs-acct { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 22px; background: rgba(12,22,44,0.6); box-shadow: inset 0 0 0 1px rgba(232,240,255,0.08); }
 .pxs-acct .av { width: 44px; height: 44px; border-radius: 22px; flex: none; display: grid; place-items: center; font-weight: 700; color: var(--accent-ink); background: var(--grad); }
 .pxs-acct .tx { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
@@ -1394,10 +1442,6 @@ svg.i.filled { fill: currentColor; }
             </div>
             <div class="ts-track" id="tsTrack" role="slider" tabindex="0" aria-label="Saat" aria-valuemin="-12" aria-valuemax="12" aria-valuenow="0" aria-valuetext="Şimdi"><canvas id="tsRuler"></canvas><span class="ts-needle"></span></div>
           </div>
-          <div class="search" id="search">
-            <div class="search-field"><span data-icon="search" data-size="18"></span><input id="searchInput" type="search" placeholder="Şehir, ülke veya istasyon ara" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search" aria-label="Şehir, ülke veya istasyon ara" aria-controls="searchResults"><button class="s-clear" id="searchClear" aria-label="Aramayı temizle" hidden>×</button></div>
-            <div class="search-results" id="searchResults" role="listbox" aria-label="Arama sonuçları" hidden></div>
-          </div>
           <div class="hint" id="hint">KÜREYİ ÇEVİR · BİR ŞEHRE DOKUN</div>
           <div class="pulse-bar" id="pulseBar" hidden role="status" aria-live="polite">
             <span class="pb-dot" aria-hidden="true"></span>
@@ -1501,24 +1545,35 @@ svg.i.filled { fill: currentColor; }
             <div class="st-set" id="stSettings"><div class="pxs-body" id="pxsBody"></div></div>
           </div>
         </div>
+        <div class="pane" id="pane-search">
+          <div class="st-top" aria-hidden="true"><b>Ara</b></div>
+          <div class="st-scroll" id="srScroll">
+            <h1 class="st-title">Ara</h1>
+            <div class="search" id="search">
+              <div class="search-field"><span data-icon="search" data-size="18"></span><input id="searchInput" type="search" placeholder="Şehir, ülke veya istasyon ara" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search" aria-label="Şehir, ülke veya istasyon ara" aria-controls="searchResults"><button class="s-clear" id="searchClear" aria-label="Aramayı temizle" hidden>×</button></div>
+              <div class="search-results" id="searchResults" role="listbox" aria-label="Arama sonuçları" hidden></div>
+            </div>
+            <div class="sr-recent" id="srRecent"></div>
+          </div>
+        </div>
         <div class="app-logo" role="img" aria-label="wGlobe">w<span>Globe</span></div>
         <div class="dock" id="dock">
           <div class="mini off" id="mini">
             <div class="mini-card">
-              <span class="mini-bg" aria-hidden="true"></span>
+              <span class="mini-bg" aria-hidden="true"><i class="sh-a"></i><i class="sh-b"></i><i class="pc pc-cap l"></i><i class="pc pc-cap r"></i><i class="pc pc-mid"></i></span>
               <button class="mini-open" id="miniOpen" aria-label="Şu an çalan"><span class="mini-art" id="miniArt"><span data-icon="radio" data-size="16"></span></span><span class="mini-tx"><b id="miniTitle"></b><span id="miniSub"></span></span></button>
               <span class="mini-ctls"><button class="mini-ctl" id="miniPlay" aria-label="Oynat"><span class="ic ic-play" data-icon="play" data-size="21" data-cls="filled"></span><span class="ic ic-pause" data-icon="pause" data-size="21" data-cls="filled"></span><span class="ring"></span></button><button class="mini-ctl" id="miniNext" aria-label="Sonraki istasyon"><span data-icon="ff" data-size="25" data-cls="filled"></span></button></span>
             </div>
           </div>
           <span class="tb-sbg" aria-hidden="true"></span>
           <nav class="tabbar" aria-label="Sekmeler">
-            <span class="tb-bg" aria-hidden="true"></span>
+            <span class="tb-bg" aria-hidden="true"><i class="sh-a"></i><i class="sh-b"></i><i class="pc pc-cap l"></i><i class="pc pc-cap r"></i><i class="pc pc-mid"></i></span>
             <span class="dock-blob" id="dockBlob" aria-hidden="true"></span>
             <button class="tab" data-tab="globe"><span data-icon="globe" data-size="24"></span><span class="tl">Küre</span><span class="dot"></span></button>
             <button class="tab" data-tab="explore"><span data-icon="compass" data-size="24"></span><span class="tl">Keşfet</span><span class="dot"></span></button>
             <button class="tab" data-tab="themes"><span data-icon="layers" data-size="24"></span><span class="tl">Koleksiyon</span><span class="dot"></span></button>
             <button class="tab" data-tab="profile"><span data-icon="settings" data-size="24"></span><span class="tl">Ayarlar</span><span class="dot"></span></button>
-            <button class="tab tab-search" id="tabSearch" aria-label="Ara"><span data-icon="search" data-size="24"></span><span class="tl">Ara</span></button>
+            <button class="tab tab-search" id="tabSearch" data-tab="search" aria-label="Ara"><span data-icon="search" data-size="24"></span><span class="tl">Ara</span></button>
           </nav>
         </div>
       </section>
@@ -1958,6 +2013,7 @@ const ICONS = {
   alert:'<circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/>',
   'cloud-off':'<path d="m2 2 20 20"/><path d="M5.78 5.78A7 7 0 0 0 9 19h8.5a4.5 4.5 0 0 0 1.31-.2"/><path d="M21.53 16.5A4.5 4.5 0 0 0 17.5 10h-1.79A7 7 0 0 0 9.5 5.06"/>',
   'cloud-upload':'<path d="M12 13v8"/><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="m8 17 4-4 4 4"/>',
+  'chevron-right':'<path d="m9 18 6-6-6-6"/>',
   'chevron-left':'<path d="m15 18-6-6 6-6"/>',
   plane:'<path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/>',
   share:'<path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" x2="12" y1="2" y2="15"/>',
@@ -2109,7 +2165,7 @@ I18N.add({
   'Yayın aranıyor…': 'Finding a stream…', 'Yayın yanıt vermedi, sıradakine geçiliyor…': 'Stream didn’t answer, trying the next…',
   'Şu an yayın alınamıyor. Bağlantını kontrol edip tekrar dene.': 'Can’t get a stream right now. Check your connection and try again.',
   'Duraklatıldı': 'Paused', 'Önizleme sesi · ağ kapalı': 'Preview sound · offline', 'Global yayın · canlı': 'Global stream · live', 'Yerel': 'Local', 'Canlı': 'Live',
-  'Ara': 'Search', 'Şu an çalan': 'Now playing', 'Sonraki istasyon': 'Next station', 'Bağlanıyor…': 'Connecting…', 'Sıradaki yayına geçiliyor…': 'Switching to the next stream…', 'Yayın yok': 'No stream',
+  'Ara': 'Search', 'Son aramalar': 'Recently searched', 'Şehir, ülke ya da istasyon adı yaz': 'Type a city, country or station name', 'Şu an çalan': 'Now playing', 'Sonraki istasyon': 'Next station', 'Bağlanıyor…': 'Connecting…', 'Sıradaki yayına geçiliyor…': 'Switching to the next stream…', 'Yayın yok': 'No stream',
   'Dinle': 'Play', 'Sonra': 'Later', 'Duraklat': 'Pause', 'Oynat': 'Play', 'Paylaş': 'Share', 'Kartı kapat': 'Close card', 'Kapat': 'Close', 'Kaydet': 'Save', 'Vazgeç': 'Cancel', 'Çık': 'Leave',
   'Favorilere ekle': 'Add to favorites', 'Favorilerden çıkar': 'Remove from favorites', 'Dünyada başka bir yer': 'Somewhere else in the world',
   'Dinlemek için oynat’a dokun': 'Tap play to listen', 'ÖRNEK': 'SAMPLE', 'Gezgin': 'Traveler',
@@ -4182,7 +4238,7 @@ function setTab(tab) {
   const prevTab = state.tab; paneDirection(prevTab, tab);
   state.tab = tab;
   document.querySelectorAll('.tab[data-tab]').forEach(t => { const on = t.dataset.tab === tab; t.classList.toggle('active', on); t.setAttribute('aria-current', on ? 'page' : 'false'); });
-  if (Dock) Dock.expand();
+  if (Dock) { if (tab !== 'search') Dock.lastMain = tab; Dock.expand(); }
   updateDock();
   $('#app').dataset.tab = tab;
   document.querySelectorAll('.pane').forEach(p => p.classList.toggle('active', p.id === 'pane-' + tab));
@@ -4271,7 +4327,7 @@ const SatMosaic = (() => {
 })();
 
 /** Sürüm etiketi: sitede hangi sürümün açık olduğunu rozetten görmek için (önbellek kontrolü). */
-const BUILD = 'v60';
+const BUILD = 'v61';
 const MapGlobe = (() => {
   const host = document.getElementById('mapStage');
   const badge = document.getElementById('lodBadge');
@@ -5813,7 +5869,7 @@ $('#shuffle').addEventListener('click', () => { shuffleDeg += 180; $('#shuffleRo
 //  Görsel: düz liste, efekt ve animasyon yok.
 // ═════════════════════════════════════════════════════════
 const Search = (() => {
-  const input = $('#searchInput'), box = $('#searchResults'), clearBtn = $('#searchClear');
+  const input = $('#searchInput'), box = $('#searchResults'), clearBtn = $('#searchClear'), recentEl = $('#srRecent');
   const norm = t => (t || '').toLocaleLowerCase('tr-TR').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/ı/g, 'i').replace(/\s+/g, ' ').trim();
   const COUNTRIES = (() => {
     const out = [];
@@ -5836,9 +5892,46 @@ const Search = (() => {
 
   const badgeEl = document.getElementById('lodBadge');
   // Liste açıkken rozet gizlenir (rozet görünüm katmanının üstünde, listeyi örterdi).
-  function open() { box.hidden = false; badgeEl.style.visibility = 'hidden'; }
-  function close() { box.hidden = true; box.innerHTML = ''; items = []; badgeEl.style.visibility = ''; }
+  function open() { box.hidden = false; recentEl.hidden = true; badgeEl.style.visibility = 'hidden'; }
+  function close() { box.hidden = true; box.innerHTML = ''; items = []; badgeEl.style.visibility = ''; renderRecent(); }
   function reset() { input.value = ''; clearBtn.hidden = true; close(); input.blur(); }
+
+  // ── Son aramalar: yalnız bu cihazda (buluta gitmez), en fazla 8; okurken her alan doğrulanır ──
+  const RECENT_KEY = 'wglobe-recent-v1';
+  const RAW_KEYS = ['stationuuid', 'name', 'url', 'url_resolved', 'codec', 'bitrate', 'countrycode', 'state', 'country', 'geo_lat', 'geo_long', 'lastcheckok', 'votes', 'tags'];
+  const pickRaw = r => { const o = {}; RAW_KEYS.forEach(k => { const v = r && r[k]; if ((typeof v === 'string' && v.length <= 600) || (typeof v === 'number' && isFinite(v))) o[k] = v; }); return o; };
+  const snap = c => ({ id: String(c.id).slice(0, 60), name: String(c.name || '').slice(0, 80), country: String(c.country || '').slice(0, 60), lat: +c.lat, lng: +c.lng, timezone: String(c.timezone || 'UTC').slice(0, 64), countryCode: String(c.countryCode || '').slice(0, 3), vibeTag: c.vibeTag });
+  function readRecent() {
+    try {
+      const a = JSON.parse(localStorage.getItem(RECENT_KEY) || '[]');
+      return Array.isArray(a) ? a.filter(x => x && typeof x.t === 'string' && x.t.length && x.t.length <= 80 && typeof (x.m || '') === 'string' && x.p && typeof x.p === 'object').slice(0, 8) : [];
+    } catch (e) { return []; }
+  }
+  function writeRecent(a) { try { if (a.length) localStorage.setItem(RECENT_KEY, JSON.stringify(a.slice(0, 8))); else localStorage.removeItem(RECENT_KEY); } catch (e) {} }
+  function remember(title, meta, place, raw) {
+    if (!place) return;
+    const a = readRecent().filter(x => !(x.t === title && x.p && x.p.id === place.id));
+    a.unshift({ t: String(title).slice(0, 80), m: String(meta || '').slice(0, 100), p: snap(place), s: raw ? pickRaw(raw) : null });
+    writeRecent(a);
+  }
+  function renderRecent() {
+    if (!recentEl) return;
+    const show = !box.innerHTML && input.value.trim().length < 2; recentEl.hidden = !show; if (!show) return;
+    const a = readRecent();
+    recentEl.innerHTML = a.length
+      ? `<div class="sr-rh"><b>Son aramalar</b><button type="button" class="auth-link press" id="srRecentClear">Temizle</button></div>` + a.map((x, i) => `<button type="button" class="sr-rc press" data-rc="${i}"><span class="ic">${icon(x.s ? 'radio' : 'globe', 18)}</span><span class="tx"><b>${esc(x.t)}</b><span>${esc(x.m || '')}</span></span>${icon('chevron-right', 18)}</button>`).join('')
+      : `<div class="sr-empty">${icon('search', 20)}<span>Şehir, ülke ya da istasyon adı yaz</span></div>`;
+  }
+  recentEl.addEventListener('click', e => {
+    if (e.target.closest('#srRecentClear')) { vibrate(4); writeRecent([]); renderRecent(); return; }
+    const b = e.target.closest('[data-rc]'); if (!b) return;
+    const x = readRecent()[Number(b.dataset.rc)]; if (!x) return;
+    const place = registerPlace(x.p); if (!place) return;   // sanePlace ile doğrulanır
+    const st = x.s ? toStation(x.s) : null;               // istasyon da doğrulanır
+    remember(x.t, x.m, place, st ? x.s : null);
+    play(place, st ? [st] : null);
+  });
+  function forget() { writeRecent([]); renderRecent(); }
 
   function render(groups, extra = '') {
     items = []; let html = extra;
@@ -5856,7 +5949,7 @@ const Search = (() => {
       .map(c => ({ kind: 'country', title: c.name, meta: 'Ülke · şehir seç', cc: c.code }));
     const seenC = new Set();
     const cities = CITIES.concat(Object.values(PLACES), ATLAS.map(a => CITY[a.id]))
-      .filter(c => matches(norm(c.name), q) && !seenC.has(norm(c.name) + '|' + c.countryCode) && seenC.add(norm(c.name) + '|' + c.countryCode)).slice(0, 6)
+      .filter(c => (matches(norm(c.name), q) || (CITY_EN[c.id] && matches(norm(CITY_EN[c.id]), q))) && !seenC.has(norm(c.name) + '|' + c.countryCode) && seenC.add(norm(c.name) + '|' + c.countryCode)).slice(0, 6)   /* İngilizce adla da (Lisbon, Cairo, Moscow…) */
       .map(c => ({ kind: 'city', title: c.name, meta: c.country, city: c }));
     return { countries, cities };
   }
@@ -5937,6 +6030,7 @@ const Search = (() => {
   function play(place, pinnedStations) {
     if (!place) return;
     place = asPlace(place);
+    if (state.tab !== 'globe') setTab('globe');   // Ara sekmesinden seçildi: küreye geç, şehir orada açılır
     MapGlobe.takeControl();
     state.pinned = pinnedStations && pinnedStations.length ? { cityId: place.id, stations: pinnedStations } : null;
     if (state.activeCityId === place.id) state.activeCityId = null;   // aynı yer seçildiyse de yeni sırayla yeniden başlat
@@ -5945,9 +6039,9 @@ const Search = (() => {
   }
 
   async function choose(r) {
-    if (r.kind === 'city') return play(r.city, r.region ? r.region.stations : null);
-    if (r.kind === 'geo') return play(placeFromGeo(r.geo));
-    if (r.kind === 'station') return play(placeForStation(r.raw, r.st), [r.st]);
+    if (r.kind === 'city') { remember(r.title, r.meta, r.city, null); return play(r.city, r.region ? r.region.stations : null); }
+    if (r.kind === 'geo') { const pl = placeFromGeo(r.geo); remember(r.title, r.meta, pl, null); return play(pl); }
+    if (r.kind === 'station') { const pl = placeForStation(r.raw, r.st); remember(r.title, r.meta, pl, r.raw); return play(pl, [r.st]); }
     if (r.kind === 'country') { input.value = r.title; return askCity(r.cc, r.title); }
     if (r.kind === 'region') {
       // Bölgenin konumu Open-Meteo ile bulunur; bulunamazsa ülkenin ilk kayıtlı konumu, o da yoksa ilk istasyonun konumu.
@@ -5955,17 +6049,19 @@ const Search = (() => {
       try { const g = (await geocode(r.region.label, r.cc))[0]; if (g) place = placeFromGeo(g); } catch (e) {}
       if (!place) place = CITIES.find(c => c.countryCode === r.cc) || null;
       if (!place) { const withGeo = r.region.stations.find(st => st.geo); if (withGeo) { const near = nearestCityTo(withGeo.geo[0], withGeo.geo[1]); place = registerPlace({ id: 'r' + r.cc + norm(r.region.label).replace(/[^a-z0-9]/g, ''), name: r.region.label, country: countryName(r.cc), lat: withGeo.geo[0], lng: withGeo.geo[1], timezone: near.timezone, countryCode: r.cc, vibeTag: vibeFor(withGeo.geo[0]) }); } }
+      remember(r.title, r.meta, place, null);
       return play(place, r.region.stations);
     }
     if (r.kind === 'country-all') {
       let place = CITIES.find(c => c.countryCode === r.cc) || null;
       if (!place) { try { const g = (await geocode(countryName(r.cc), r.cc))[0]; if (g) place = placeFromGeo(g); } catch (e) {} }
       const sts = (Array.isArray(r.raw) ? r.raw : []).map(toStation).filter(Boolean).slice(0, 20);
+      remember(countryName(r.cc), r.title, place, null);
       return play(place, sts);
     }
   }
 
-  input.addEventListener('input', () => { clearBtn.hidden = !input.value; search(input.value); });
+  input.addEventListener('input', () => { clearBtn.hidden = !input.value; search(input.value); if (input.value.trim().length < 2) renderRecent(); });
   input.addEventListener('focus', () => { if (input.value.trim().length >= 2 && box.hidden) search(input.value); });
   input.addEventListener('keydown', e => {
     if (e.key === 'Enter') { e.preventDefault(); const first = items[0]; if (first) choose(first); }
@@ -5973,9 +6069,8 @@ const Search = (() => {
   });
   clearBtn.addEventListener('click', () => { reset(); });
   box.addEventListener('click', e => { const b = e.target.closest('.sr-row'); if (!b) return; const r = items[Number(b.dataset.i)]; if (r) choose(r); });
-  // Arama dışına dokununca liste kapanır
-  document.addEventListener('pointerdown', e => { if (!box.hidden && !e.target.closest('#search')) close(); });
-  return { reset, get countries() { return COUNTRIES.length; } };
+  renderRecent();
+  return { reset, forget, get countries() { return COUNTRIES.length; } };
 })();
 
 // ═════════════════════════════════════════════════════════
@@ -6446,7 +6541,7 @@ $('#themeAction').addEventListener('click', themeAction);
 // ═════════════════════════════════════════════════════════
 //  AURORA HAREKET MOTORU — dok damlası, sekme yönü, süzülme, anahtarlar
 // ═════════════════════════════════════════════════════════
-const TAB_ORDER = ['globe', 'explore', 'themes', 'profile'];
+const TAB_ORDER = ['globe', 'explore', 'themes', 'profile', 'search'];
 const PREF_DEFAULTS = { haptics: true, autoplay: true, badge: false, aurora: true, night: true, lang: 'auto' };
 function pref(k) { const p = state.prefs || {}; return k in p ? p[k] : PREF_DEFAULTS[k]; }
 function setPref(k, v) { state.prefs = Object.assign({}, PREF_DEFAULTS, state.prefs, { [k]: v }); save(); applyPrefs(); }
@@ -6543,22 +6638,28 @@ const alarmState = () => { const a = state.alarm || {}, n = (v, d, max) => Numbe
  * Ölçüler pt: kapsül 62 (alttan 21), oynatıcı 48 (araya 8), daireler 48 (kenardan 27,7), oynatıcı–daire arası 14,3.
  */
 var Dock = (() => {
-  const SCROLLERS = '.st-scroll, .px-list, .pkd-grid, .scroll', STEP = 12;
-  let collapsed = false, acc = 0; const seen = new WeakMap();
+  // Açılma yalnız sayfanın en üstüne yaklaşınca (NEAR px); yukarı yönlü kaydırma tek başına açmaz
+  const SCROLLERS = '.st-scroll, .px-list, .pkd-grid, .scroll', STEP = 12, NEAR = 40;
+  let collapsed = false, acc = 0, lastMain = 'globe'; const seen = new WeakMap();
   const el = () => document.getElementById('dock');
   function geom() {
     const d = el(), bar = d && d.querySelector('.tabbar'); if (!bar || !bar.offsetWidth) return;
     const bw = bar.offsetWidth, cL = 51.7 - 21, cR = bw - cL;
+    const lead = state.tab === 'search' ? lastMain : state.tab;
     d.style.setProperty('--cl', (cL - 24).toFixed(1) + 'px');
-    d.style.setProperty('--cr', (bw - cL - 24).toFixed(1) + 'px');
+    d.style.setProperty('--clx', (cL - 31).toFixed(1) + 'px');
+    d.style.setProperty('--crx', (cL - (bw - 31)).toFixed(1) + 'px');
     bar.querySelectorAll('.tab').forEach(t => {
-      const c = t.offsetLeft + t.offsetWidth / 2, to = t.classList.contains('tab-search') ? cR : cL, ic = t.firstElementChild;
+      const isS = t.classList.contains('tab-search');
+      t.classList.toggle('lead', !isS && t.dataset.tab === lead);
+      const c = t.offsetLeft + t.offsetWidth / 2, to = isS ? cR : cL, ic = t.firstElementChild;
       t.style.setProperty('--dx', (to - c).toFixed(1) + 'px');
       if (ic) t.style.setProperty('--dy', (t.offsetHeight / 2 - (ic.offsetTop + ic.offsetHeight / 2)).toFixed(1) + 'px');   // etiket gizlenince simge dairenin ortasına
     });
     const ctl = 76;   // iki düğme (2 × 32 + 2) + sağ iç boşluk 10
     d.style.setProperty('--mtx', Math.max(60, bw - 15 - 29 - 9 - ctl - 8) + 'px');
     d.style.setProperty('--mtx-c', Math.max(40, bw - 138 - 15 - 29 - 9 - ctl - 8) + 'px');
+    d.style.setProperty('--msx', Math.max(0.01, (bw - 138 - 48) / (bw - 48)).toFixed(4));
   }
   function collapse() { if (collapsed || state.view !== 'app') return; geom(); collapsed = true; el().classList.add('collapsed'); }
   function expand() { acc = 0; if (!collapsed) return; collapsed = false; el().classList.remove('collapsed'); }
@@ -6566,21 +6667,20 @@ var Dock = (() => {
     const t = e.target; if (!t || t.nodeType !== 1 || !t.matches(SCROLLERS)) return;
     const max = t.scrollHeight - t.clientHeight; if (max < 60) return;   // kaydıracak kadar içerik yok
     const y = t.scrollTop, prev = seen.has(t) ? seen.get(t) : y; seen.set(t, y);
-    if (y <= 2) { expand(); return; }
+    if (y <= NEAR) { expand(); return; }   // en üste geldi / çok yaklaştı
     const dy = y - prev; if (!dy) return;
-    if (dy < 0 && y >= max - 2) return;   // dipte yaylanma (iOS) açmaz
-    acc = Math.sign(dy) === Math.sign(acc) ? acc + dy : dy;
-    if (acc > STEP) collapse(); else if (acc < -STEP) expand();
+    if (dy < 0) { acc = 0; return; }       // yukarı kaydırma açmaz
+    acc += dy; if (acc > STEP) collapse();
   }
   document.getElementById('app').addEventListener('scroll', onScroll, true);
   addEventListener('resize', geom);
-  return { geom, collapse, expand, get collapsed() { return collapsed; } };
+  return { geom, collapse, expand, get collapsed() { return collapsed; }, get lastMain() { return lastMain; }, set lastMain(v) { if (v) lastMain = v; } };
 })();
 const Hud = (() => {
   const IDLE = 220, SAFETY = 5000;
   // Göz alttan yukarı okur: önce sekme çubuğu, sonra canlı yayın çubuğu, ipucu, üst düğmeler, logo, arama
   // Alt dok söndürülmez: küre çevrilirken küçülür (Dock), küre durunca açılır
-  const PARTS = [['#hint', 'bot', 20], ['#tStrip', 'bot', 30], ['#pulseBar', 'top', 40], ['#pane-globe .topbar', 'top', 40], ['.app-logo', 'top', 50], ['#search', 'top', 60]];
+  const PARTS = [['#hint', 'bot', 20], ['#tStrip', 'bot', 30], ['#pulseBar', 'top', 40], ['#pane-globe .topbar', 'top', 40], ['.app-logo', 'top', 50]];
   let calmOn = false, timer = 0, safety = 0, backTimer = 0, marked = false;
   const app = () => document.getElementById('app');
   function mark() {
@@ -6971,10 +7071,10 @@ function openSettings() {
 function closeSettings() { /* çekmece yok: geriye dönük uyumluluk */ }
 $('#pxsBody').addEventListener('click', e => { const g = e.target.closest('[data-go]'); if (g) go(g.dataset.go); });
 // Büyük başlık kaydırılıp gidince üstte küçük ortalı başlık belirir (iOS büyük başlık davranışı)
-(() => {
-  const sc = $('#stScroll'), pane = $('#pane-profile'); let on = false;
+document.querySelectorAll('.pane .st-scroll').forEach(sc => {
+  const pane = sc.closest('.pane'); let on = false;
   sc.addEventListener('scroll', () => { const v = sc.scrollTop > 34; if (v !== on) { on = v; pane.classList.toggle('st-scrolled', v); } }, { passive: true });
-})();
+});
 // ── Bugünkü rotan: noktalı dünya haritası (2°'lik kara maskesi), duraklar arasında büyük daire yayları ──
 // Kart ekrana girince: noktalar soldan sağa 420 ms'de belirir → yaylar sırayla 1,3 sn'de çizilir → her durak varılınca yaylanır.
 const WORLD_BITS = 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAf/AAAAAAAAAAAAAAAAAAAAAAAA3/////+AAAAACAADAAAAAAAAAAAAAIf8P///wAA+AAAAAA8AAAAAAAAAAAwAj4f///wAAYAAAAAAGAAAAAAAAAAAHgvwAf//wAAAAADAAf/4AGAAAAAAAD4238AP//gAAAAAEAD///cDAAAABgAAfw3/gD/+gAAAgAEDe/////9gAAP/7/v5djwH/+AAAH/AA7f////////4P//////g8H/gAAAf/y//f////////Mf/////9F4D8AeAA++P///////////AP/////wA4B4AAAD5/////////////Af/////gHgA4AAAH5///////////LwAHgH///gHkAAAAAH4/////////+AIAABAB///4D+AAAAGCx/////////4A8AAAABf///n/gAAAKCD/////////wA4AAAAAf///n/wAAAbH///////////AwAAAAAP/////wAAADf//////////9AAAAAAAD////8YAAAB///////////9AAAAAAAD////8AAAAB///////////4AAAAAAAD////+AAAAB/f4f///////wAAAAAAAD////gAAAAPxnwP///////jAAAAAAAD////AAAAAPib3v//////+AAAAAAAAD///+AAAAAfALf//////+ECAAAAAAAB///8AAAAAGGAP///////mEAAAAAAAA///8AAAAAH+AA///////E8AAAAAAAAf//wAAAAAP/AA///////BAAAAAAAAAP//gAAAAAf/73///////gAAAAAAAAAH/AQAAAAAf////f/////gAAAAAAAAAF+AQAAAAB///+/n/////AAAAAAAAAAC+AAAAAAB///+fwH////AAAAAAAAAAAeAQAAAAD////f/D///8AAAAAAAAAAAeEEAAAAD////v+B/j/AAAAAAAAAAAAPMAgAAAD////n+A/B+gAAAAAAAAAAAD8AAAAAD////34AeB/AgAAAAAAAAAAAPAAAAAH////3gAcAfAgAAAAAAAAAAADAAAAAD////+AAcAXgAAAAAAAAAAAABBwAAAD////8wAMATAAAAAAAAAAAAAAj/AAAB/////gAIAQAIAAAAAAAAAAAAH/gAAA/////gACAAAIAAAAAAAAAAAAH/8AAAYH///AAAAsGAAAAAAAAAAAAAH/+AAAAB//+AAAAUOAAAAAAAAAAAAAP/+AAAAB//8AAAAc+AAAAAAAAAAAAAP//gAAAB//4AAAAMeAgAAAAAAAAAAAP//8AAAB//wAAAAGMguAAAAAAAAAAAf///AAAA//wAAAACAAHkAAAAAAAAAAP///gAAA//wAAAABwAHwAAAAAAAAAAH///AAAAf/wAAAAAAACQAAAAAAAAAAH///AAAAf/wAAAAAAAAAAAAAAAAAAAD//+AAAAf/wgAAAAABxAAAAAAAAAAAD//8AAAA//wgAAAAAPxgAAAAAAAAAAA//8AAAA//zgAAAAAf/gAAAAAAAAAAAf/8AAAA//DgAAAAAf/gAAAAAAAAAAAf/8AAAAf/DAAAAAD//4AAAAAAAAAAAf/4AAAAf/DAAAAAH//4AAAAAAAAAAAf/AAAAAf+CAAAAAH//8AAAAAAAAAAAf/AAAAAP8AAAAAAH//+AAAAAAAAAAA/+AAAAAP8AAAAAAH//+AAAAAAAAAAA/8AAAAAH4AAAAAAD//+AAAAAAAAAAA/8AAAAAHwAAAAAADwf8AAAAAAAAAAA/gAAAAAAAAAAAAAAAH4AAAAAAAAAAB/wAAAAAAAAAAAAAAAD4AEAAAAAAAAB/AAAAAAAAAAAAAAAAAAAGAAAAAAAAB+AAAAAAAAAAAAAAAAAQAIAAAAAAAAB8AAAAAAAAAAAAAAAAAQAYAAAAAAAAB4AAAAAAAAAAAAAAAAAAAwAAAAAAAAB4AAAAAAAAAAAAAAAAAAAAAAAAAAAADwAAAAAAAAAAAAAAAAAAAAAAAAAAAABgAAAAAAAAAAAAAAAAAAAAAAAAAAAABwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
@@ -8040,6 +8140,7 @@ const TimeScrub = (() => {
 })();
 /** Üyelikten çıkınca (çıkış / hesap silme) bu cihazdaki hesap verisi temizlenir; cihaz tercihleri kalır. */
 function resetLocalAccount() {
+  try { Search.forget(); } catch (e) {}
   const themeWas = state.theme;
   Object.assign(state, { auth: null, email: null, favorites: [], visits: [], songs: [], theme: 'classic', previewTheme: 'classic', unlocked: ['classic'], listenMs: 0, joinedAt: null, stats: {}, cotd: {} });
   save();
@@ -8848,14 +8949,18 @@ document.querySelectorAll('[data-back]').forEach(b => b.addEventListener('click'
 $('#btnGuest').addEventListener('click', async () => { const b = $('#btnGuest'); setLoading(b, true); state.auth = 'guest'; save(); await sleep(250); setLoading(b, false); enterApp(); });
 document.querySelectorAll('.tab[data-tab]').forEach(t => t.addEventListener('click', () => {
   vibrate(4);
-  if (Dock && Dock.collapsed) { Dock.expand(); return; }   // küçük hâlde sol daire: önce açılır
+  if (Dock && Dock.collapsed) {
+    if (t.classList.contains('tab-search')) { Dock.expand(); if (state.tab !== 'search') setTab('search'); return; }
+    Dock.expand(); return;   // küçük hâlde sol daire: açar
+  }
+  if (t.dataset.tab === state.tab) { pageTop(); return; }
   setTab(t.dataset.tab);
 }));
-$('#tabSearch').addEventListener('click', () => {
-  vibrate(4); if (Dock) Dock.expand();
-  const focus = () => { const i = $('#searchInput'); if (i) i.focus(); };
-  if (state.tab !== 'globe') { setTab('globe'); setTimeout(focus, 300); } else focus();
-});
+/** Etkin sekmeye yeniden dokununca: sayfa başına (iOS gibi); Ara'da arama alanına odak. */
+function pageTop() {
+  if (state.tab === 'search') { const i = $('#searchInput'); if (i) i.focus(); }
+  const sc = document.querySelector(`#pane-${state.tab} .st-scroll`); if (sc && sc.scrollTop > 0) sc.scrollTo({ top: 0, behavior: reduceMotion.matches ? 'auto' : 'smooth' });
+}
 
 // iOS Safari: arayüz üstünde iki parmak sayfayı büyütmesin (harita kendi yakınlaştırmasını dokunma olaylarıyla yapar)
 ['gesturestart', 'gesturechange', 'gestureend'].forEach(t => document.addEventListener(t, e => e.preventDefault(), { passive: false }));
