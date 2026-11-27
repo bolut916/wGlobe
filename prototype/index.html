@@ -1,8 +1,15 @@
 <!doctype html><html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover"><style>html,body{margin:0;padding:0}</style></head><body><title>wGlobe</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Geist:wght@300..700&family=Geist+Mono:wght@400..600&display=swap">
 <style>
+/* Yazı tipleri sitenin kendisinden (SIL OFL 1.1, lib/fonts): ziyaretçinin IP adresi üçüncü taraflara gitmez.
+   Değişken fontlar — Bricolage Grotesque (opsz 12–96, wght 200–800), Geist ve Geist Mono (wght 100–900);
+   latin + latin-ext alt kümeleri (ğ ş İ latin-ext'te, ı latin'de). */
+@font-face { font-family: 'Bricolage Grotesque'; font-style: normal; font-display: swap; font-weight: 200 800; src: url(lib/fonts/bricolage-grotesque-latin-ext-opsz-normal.woff2) format('woff2'); unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF; }
+@font-face { font-family: 'Bricolage Grotesque'; font-style: normal; font-display: swap; font-weight: 200 800; src: url(lib/fonts/bricolage-grotesque-latin-opsz-normal.woff2) format('woff2'); unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+@font-face { font-family: 'Geist'; font-style: normal; font-display: swap; font-weight: 100 900; src: url(lib/fonts/geist-latin-ext-wght-normal.woff2) format('woff2'); unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF; }
+@font-face { font-family: 'Geist'; font-style: normal; font-display: swap; font-weight: 100 900; src: url(lib/fonts/geist-latin-wght-normal.woff2) format('woff2'); unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+@font-face { font-family: 'Geist Mono'; font-style: normal; font-display: swap; font-weight: 100 900; src: url(lib/fonts/geist-mono-latin-ext-wght-normal.woff2) format('woff2'); unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF; }
+@font-face { font-family: 'Geist Mono'; font-style: normal; font-display: swap; font-weight: 100 900; src: url(lib/fonts/geist-mono-latin-wght-normal.woff2) format('woff2'); unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
 /* Düzen: masaüstünde ortalanmış telefon + not sütunu; telefonda tam ekran uygulama.
    Uygulama tek bir dünyaya ait: gece boşluğu, sıcak fildişi yazı, pirinç yalnızca vurgu. Tek tema bilinçli. */
 :root {
@@ -848,6 +855,10 @@ svg.i.filled { fill: currentColor; }
 .pxs-acct .tx span { font-size: 13px; color: var(--fg-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .alog { margin: 0; padding: 14px 16px; border-radius: 18px; background: rgba(12,22,44,0.6); box-shadow: inset 0 0 0 1px rgba(232,240,255,0.08); font: 11px/1.6 var(--mono); color: var(--fg-2); white-space: pre-wrap; max-height: 240px; overflow-y: auto; }
 .pxs-ver { text-align: center; font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em; color: var(--fg-4); }
+.pxs-links { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 6px 10px; padding: 6px 0 0; font-size: 13px; }
+.pxs-links a { color: var(--fg-2); text-decoration: none; padding: 6px 2px; }
+.pxs-links a:active { color: var(--fg); }
+.pxs-links span { color: var(--fg-4, rgba(232,240,255,0.3)); }
 @media (max-height: 760px) {
   .px-panel { height: 184px; }
   .px-wrap { gap: 10px; }
@@ -2185,7 +2196,7 @@ I18N.add({
   'Hesabı kalıcı olarak sil': 'Delete account permanently',
   'Favorilerin, damgaların ve açtığın küreler dahil tüm verilerin sunucudan ve bu cihazdan silinecek. Bu işlem geri alınamaz.': 'All your data, including favorites, stamps and unlocked globes, will be deleted from the server and this device. This cannot be undone.',
   'Hesabın ve tüm verilerin silindi': 'Your account and all your data were deleted', 'Hesabı silmek için önce yeniden giriş yap': 'Sign in again before deleting your account', 'Hesap silinemedi': 'Account could not be deleted',
-  "wGlobe'u destekle": 'Support wGlobe', 'Yayını birlikte sürdürelim': 'Keep the broadcast going',
+  'Gizlilik politikası': 'Privacy policy', 'Hesap silme': 'Delete account', 'Destek': 'Support', "wGlobe'u destekle": 'Support wGlobe', 'Yayını birlikte sürdürelim': 'Keep the broadcast going',
   "wGlobe'u tek bir geliştirici yapıyor. Beğendiysen küçük bir bahşişle destek olabilirsin.": 'wGlobe is made by a single developer. If you enjoy it, you can support it with a small tip.',
   'Bahşiş yalnızca uygulamada, App Store ve Google Play üzerinden verilebilir.': 'Tips are only available in the app, through the App Store and Google Play.',
   'Mağazaya şu an ulaşılamıyor.': "Can't reach the store right now.", 'Bir şarkı': 'A song', 'Bir albüm': 'An album', 'Bir yayın gecesi': 'A night on air', 'Bahşiş seç': 'Choose a tip',
@@ -4097,14 +4108,18 @@ $('#modal').addEventListener('click', e => { if (e.target.id === 'modal') closeM
 // ═════════════════════════════════════════════════════════
 const SatMosaic = (() => {
   const URL_T = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
-  const loadImg = url => new Promise((res, rej) => { const im = new Image(); im.crossOrigin = 'anonymous'; im.onload = () => res(im); im.onerror = rej; im.src = url; });
-  async function build(z) {
+  // fetch + createImageBitmap: <img> gibi sayfanın load olayını geciktirmez (yerel kabuğun yükleme örtüsü ona bağlı; asılı bir karo
+  // örtüyü dakikalarca tutmasın) ve süre dolunca istek iptal edilir. createImageBitmap yoksa eski yol.
+  const loadImg = (url, signal) => typeof createImageBitmap === 'function'
+    ? fetch(url, { mode: 'cors', credentials: 'omit', signal }).then(r => { if (!r.ok) throw new Error('karo ' + r.status); return r.blob(); }).then(b => createImageBitmap(b))
+    : new Promise((res, rej) => { const im = new Image(); im.crossOrigin = 'anonymous'; im.onload = () => res(im); im.onerror = rej; im.src = url; if (signal) signal.addEventListener('abort', () => { im.src = ''; rej(new Error('iptal')); }); });
+  async function build(z, signal) {
     const n = 2 ** z, T = 256, M = n * T;
     const merc = document.createElement('canvas'); merc.width = merc.height = M;
     const mc = merc.getContext('2d', { willReadFrequently: true });
     const jobs = [];
     for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) {
-      jobs.push(loadImg(URL_T.replace('{z}', z).replace('{y}', y).replace('{x}', x)).then(im => mc.drawImage(im, x * T, y * T)));
+      jobs.push(loadImg(URL_T.replace('{z}', z).replace('{y}', y).replace('{x}', x), signal).then(im => { mc.drawImage(im, x * T, y * T); if (im.close) im.close(); }));
     }
     await Promise.all(jobs);
     const src = mc.getImageData(0, 0, M, M).data;            // CORS yoksa burada hata atar → null
@@ -4121,12 +4136,15 @@ const SatMosaic = (() => {
   }
   return {
     /** z seviyesinde mozaik; süre dolarsa ya da karolar alınamazsa null. */
-    load(z, timeoutMs) { return Promise.race([build(z).catch(() => null), new Promise(r => setTimeout(() => r(null), timeoutMs))]); },
+    load(z, timeoutMs) {
+      const ac = typeof AbortController === 'function' ? new AbortController() : null;
+      return Promise.race([build(z, ac ? ac.signal : undefined).catch(() => null), new Promise(r => setTimeout(() => { if (ac) ac.abort(); r(null); }, timeoutMs))]);
+    },
   };
 })();
 
 /** Sürüm etiketi: sitede hangi sürümün açık olduğunu rozetten görmek için (önbellek kontrolü). */
-const BUILD = 'v56';
+const BUILD = 'v57';
 const MapGlobe = (() => {
   const host = document.getElementById('mapStage');
   const badge = document.getElementById('lodBadge');
@@ -4142,6 +4160,11 @@ const MapGlobe = (() => {
   let dataStatus = 'yükleniyor';
   // Uydu modu: 'probing' → ilk karolar bekleniyor, 'satellite' → karo akıyor, 'vector' → engelli
   let imagery = 'probing', satTiles = 0, satErrors = 0, satLastError = '';
+  // Yavaş/kesik ağ: ilk karolar gelmezse NASA görüntüsüyle devam edilir, uydu kaynağı bırakılır (bekleyen istekler görüntü kuyruğunu
+  // tıkamasın). Arka planda tek küçük karoyla ağ yoklanır; yanıt gelirse uydu katmanı yeniden eklenir, ilk karoda yumuşakça uyduya geçilir.
+  let satWaiting = false, satRetry = 0, satRetryTimer = 0, satWaitTimer = 0, satLateTimer = 0;
+  const SAT_RETRY = [15000, 45000, 120000];
+  const satLayerSpec = () => ({ id: 'satellite', type: 'raster', source: 'satellite', paint: Object.assign({ 'raster-opacity': 0, 'raster-opacity-transition': { duration: 400, delay: 0 }, 'raster-fade-duration': 280, 'raster-resampling': 'linear' }, RASTER[themeId] || RASTER.classic) });
   const ESRI_URL = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
   const SAT_TILE_SIZE = 128;   // 256 px görüntü / 128 CSS px → 4× karo yoğunluğu
   const SAT_MAX_ZOOM = 19;
@@ -4489,7 +4512,7 @@ const MapGlobe = (() => {
     if (!visible) { badge.classList.remove('on'); return; }
     if (!pref('badge')) return;
     const z = map ? map.getZoom().toFixed(1) : '–';
-    if (imagery === 'vector') badge.textContent = BUILD + ' · Z ' + z + (bmReady ? ' · NASA görüntüsü' : ' · vektör 1:10m · ' + dataStatus) + ' · uydu karosu engelli';
+    if (imagery === 'vector') badge.textContent = BUILD + ' · Z ' + z + (bmReady ? ' · NASA görüntüsü' : ' · vektör 1:10m · ' + dataStatus) + (satWaiting ? ' · uydu yeniden bağlanıyor' : ' · uydu karosu engelli');
     else badge.textContent = BUILD + ' · Z ' + z + ' · Uydu karo: ' + satTiles + ' · Hata: ' + satErrors + (imagery === 'probing' ? ' · bağlanıyor' : '') + (satLastError ? '\n' + satLastError.slice(0, 48) : '');
     badge.classList.add('on');
   }
@@ -4526,16 +4549,25 @@ const MapGlobe = (() => {
   /* Karo akışı kanıtlanınca uyduya geç; ilk karolar hata verirse vektöre dön. */
   function setImagery(mode) {
     if (imagery === mode) return;
+    const late = imagery === 'vector';
     imagery = mode;
     if (mode === 'satellite') {
+      satWaiting = false; clearTimeout(satWaitTimer); clearTimeout(satRetryTimer);
       map.setPaintProperty('satellite', 'raster-opacity', 1);
-      map.setLayoutProperty('coast', 'visibility', 'none');
-      map.setLayoutProperty('land', 'visibility', 'none');   // uydu görüntüsünün altında kalıyordu; kaynağı da artık işlenmez
-      map.setPaintProperty('borders', 'line-opacity', 0.55);
       map.setMaxZoom(SAT_MAX_ZOOM);
+      // Geç geçiş: uydu 400 ms'de NASA katmanının altında belirir, NASA/kara katmanları ondan sonra çekilir (arada boş okyanus görünmez)
+      const settle = () => {
+        if (!map || imagery !== 'satellite') return;
+        map.setLayoutProperty('coast', 'visibility', 'none');
+        map.setLayoutProperty('land', 'visibility', 'none');   // uydu görüntüsünün altında kalıyordu; kaynağı da artık işlenmez
+        map.setPaintProperty('borders', 'line-opacity', 0.55);
+        if (map.getLayer('bluemarble')) map.setPaintProperty('bluemarble', 'raster-opacity', bmOpacity());
+        updateBadge();
+      };
+      if (late) { clearTimeout(satLateTimer); satLateTimer = setTimeout(settle, 450); updateBadge(); return; }
+      settle();
     } else if (mode === 'vector') {
-      if (map.getLayer('satellite')) map.removeLayer('satellite');
-      if (map.getSource('satellite')) map.removeSource('satellite');
+      dropSatellite(); scheduleSatRetry();
       map.setLayoutProperty('coast', 'visibility', 'visible');
       map.setLayoutProperty('land', 'visibility', 'visible');
       if (revealed) loadVectorData();
@@ -4547,6 +4579,39 @@ const MapGlobe = (() => {
     if (map.getLayer('bluemarble')) map.setPaintProperty('bluemarble', 'raster-opacity', bmOpacity());
     updateBadge(); checkReady();
   }
+  function satSourceSpec() { return { type: 'raster', tiles: [ESRI_URL], tileSize: SAT_TILE_SIZE, maxzoom: SAT_MAX_ZOOM, attribution: 'Imagery © Esri, Maxar, Earthstar Geographics' }; }
+  function dropSatellite() {
+    satWaiting = false; clearTimeout(satWaitTimer);
+    if (!map) return;
+    if (map.getLayer('satellite')) map.removeLayer('satellite');
+    if (map.getSource('satellite')) map.removeSource('satellite');
+  }
+  /** NASA görüntüsündeyken ağı arada bir tek küçük karoyla yokla (en çok 3 kez; çevrimiçi olunca da). */
+  function scheduleSatRetry() {
+    clearTimeout(satRetryTimer);
+    if (satRetry >= SAT_RETRY.length) return;
+    satRetryTimer = setTimeout(probeSatellite, SAT_RETRY[satRetry++]);
+  }
+  function probeSatellite() {
+    clearTimeout(satRetryTimer);
+    if (!map || imagery !== 'vector' || satWaiting || map.getSource('satellite')) return;
+    const ac = typeof AbortController === 'function' ? new AbortController() : null;
+    const to = setTimeout(() => { if (ac) ac.abort(); }, 8000);
+    fetch(ESRI_URL.replace('{z}', '1').replace('{y}', '0').replace('{x}', '0'), { mode: 'cors', credentials: 'omit', signal: ac ? ac.signal : undefined })
+      .then(r => { clearTimeout(to); if (!r.ok) throw new Error('karo ' + r.status); return r.blob(); })
+      .then(() => {
+        if (!map || imagery !== 'vector' || map.getSource('satellite')) return;
+        satTiles = 0; satErrors = 0; satLastError = '';
+        map.addSource('satellite', satSourceSpec());
+        map.addLayer(satLayerSpec(), map.getLayer('bluemarble') ? 'bluemarble' : below('theme', 'clouds', 'night', 'nightLive'));
+        paint(themeId);
+        satWaiting = true; updateBadge();
+        // Karolar yine gelmezse kuyruğu tıkamadan bırak, sonra yeniden dene
+        satWaitTimer = setTimeout(() => { if (satWaiting && satTiles === 0) { dropSatellite(); updateBadge(); scheduleSatRetry(); } }, 10000);
+      })
+      .catch(() => { clearTimeout(to); scheduleSatRetry(); });
+  }
+  window.addEventListener('online', () => { if (map && imagery === 'vector' && !satWaiting) { satRetry = Math.max(0, satRetry - 1); clearTimeout(satRetryTimer); satRetryTimer = setTimeout(probeSatellite, 1500); } });
 
   function create() {
     try {
@@ -4567,12 +4632,12 @@ const MapGlobe = (() => {
             atlas: { type: 'geojson', data: { type: 'FeatureCollection', features: CITIES.concat(ATLAS).map(c => ({ type: 'Feature', properties: {}, geometry: { type: 'Point', coordinates: [c.lng, c.lat] } })) }, maxzoom: 8 },
             dawn: { type: 'geojson', data: { type: 'FeatureCollection', features: [] } },
             trail: { type: 'geojson', data: { type: 'FeatureCollection', features: [] } },
-            satellite: { type: 'raster', tiles: [ESRI_URL], tileSize: SAT_TILE_SIZE, maxzoom: SAT_MAX_ZOOM, attribution: 'Imagery © Esri, Maxar, Earthstar Geographics' },
+            satellite: satSourceSpec(),
           },
           layers: [
             { id: 'ocean', type: 'background', paint: { 'background-color': c.ocean } },
             { id: 'land', type: 'fill', source: 'land', paint: { 'fill-color': c.land, 'fill-antialias': true } },
-            { id: 'satellite', type: 'raster', source: 'satellite', paint: Object.assign({ 'raster-opacity': 0, 'raster-opacity-transition': { duration: 400, delay: 0 }, 'raster-fade-duration': 280, 'raster-resampling': 'linear' }, RASTER[themeId] || RASTER.classic) },
+            satLayerSpec(),
             { id: 'borders', type: 'line', source: 'borders', paint: { 'line-color': c.border, 'line-width': ['interpolate', ['linear'], ['zoom'], 1, 0.4, 6, 1, 10, 1.4] } },
             { id: 'coast', type: 'line', source: 'coastline', layout: { 'line-join': 'round', 'line-cap': 'round' }, paint: { 'line-color': c.coast, 'line-opacity': 0.85, 'line-width': ['interpolate', ['exponential', 1.6], ['zoom'], 1, 0.5, 6, 1.1, 12, 2.2] } },
             { id: 'atlas-dot', type: 'circle', source: 'atlas', minzoom: 2.4, paint: { 'circle-radius': ['interpolate', ['linear'], ['zoom'], 2.4, 1, 5, 1.8, 9, 2.6], 'circle-color': c.coast, 'circle-opacity': ['interpolate', ['linear'], ['zoom'], 2.4, 0, 3.2, 0.42, 7, 0.6], 'circle-stroke-width': 0, 'circle-pitch-alignment': 'map' } },
@@ -4601,7 +4666,7 @@ const MapGlobe = (() => {
     map.on('error', e => {
       if (e && e.sourceId === 'satellite') {
         satErrors += 1; satLastError = (e.error && e.error.message) || 'karo hatası';
-        if (imagery === 'probing' && satTiles === 0 && satErrors >= 4) setImagery('vector');
+        if (satTiles === 0 && satErrors >= 4) { if (imagery === 'probing') setImagery('vector'); else if (satWaiting) { dropSatellite(); scheduleSatRetry(); } }
         updateBadge(); return;
       }
       if (!ready) fail(e && e.error && e.error.message || 'harita hatası');
@@ -4609,7 +4674,7 @@ const MapGlobe = (() => {
     map.on('data', e => {
       if (e.dataType === 'source' && e.sourceId === 'satellite' && e.tile) {
         satTiles += 1;
-        if (imagery === 'probing') setImagery('satellite'); else if (visible) updateBadge();
+        if (imagery === 'probing' || satWaiting) setImagery('satellite'); else if (visible) updateBadge();
       }
     });
     // Ağ sessizce düşürürse (CSP bazen hata olayı üretmez): 6 sn'de karo yoksa vektöre geç.
@@ -6662,6 +6727,7 @@ function renderSettings(animate) {
     ${guest ? '' : `<div ${nx()}><div class="px-syncline" id="syncLine" hidden></div></div>`}
     <div ${nx()}><div class="px-acct"><button class="btn line press" id="signOut"><span class="lbl">${icon('log-out', 18)}${guest ? 'Misafirden çık' : 'Çıkış yap'}</span></button>${guest ? '' : `<button class="btn danger press" id="deleteAcct"><span class="lbl">${icon('trash', 18)}Hesabı sil</span></button>`}</div></div>
     ${pref('badge') ? `<div ${nx()}><div class="px-sec"><div class="px-head"><h3 class="h2">Ses günlüğü</h3><button class="auth-link press" id="alogClear">Temizle</button></div><pre class="alog">${audioLog.length ? esc(audioLog.slice().reverse().join('\n')) : 'Henüz kayıt yok'}</pre></div></div>` : ''}
+    <div ${nx()} class="pxs-links">${[['privacy/', 'Gizlilik politikası'], ['support/', 'Destek'], ['delete-account/', 'Hesap silme']].map(([u, t]) => `<a href="${u}${EN ? '#en' : ''}" target="_blank" rel="noopener">${t}</a>`).join('<span aria-hidden="true">·</span>')}</div>
     <div ${nx()} class="pxs-ver">wGlobe · ${BUILD}</div>`;
   if (!animate) body.querySelectorAll(':scope > *').forEach(el => { el.style.animation = 'none'; el.style.opacity = '1'; el.style.transform = 'none'; });
   renderSleep(true);
