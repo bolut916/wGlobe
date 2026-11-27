@@ -213,7 +213,7 @@ svg.i.filled { fill: currentColor; }
 .px-song .links a { font-size: 12.5px; font-weight: 550; color: var(--accent); text-decoration: none; padding: 2px 0; }
 .px-song .tx .label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 /* Zaman kaydırıcısı (v50): şerit 14 px aşağıdan 320 ms'de gelir, 180 ms'de iner; cetvel parmağı izler, bırakınca kayarak yavaşlar. */
-.tstrip { position: absolute; left: 16px; right: 16px; bottom: calc(146px + var(--sab)); z-index: 12; padding: 10px 10px 10px 16px; border-radius: 22px;
+.tstrip { position: absolute; left: 16px; right: 16px; bottom: calc(var(--stack-top) + 12px); z-index: 12; padding: 10px 10px 10px 16px; border-radius: 22px;
   background: var(--glass-strong); box-shadow: inset 0 0 0 1px var(--hair), 0 18px 40px rgba(0,0,0,0.45); opacity: 0; transform: translateY(14px);
   transition: opacity 180ms var(--e-exit), transform 180ms var(--e-exit); pointer-events: none; }
 .tstrip.in { opacity: 1; transform: none; transition: opacity 320ms var(--e-enter), transform 320ms var(--e-enter); }
@@ -322,11 +322,13 @@ svg.i.filled { fill: currentColor; }
 #app .tabbar, #app .pane.active:not(#pane-globe), #pane-globe.active .topbar, #pane-globe.active .search, #pane-globe.active .live-dock:not(.hidden) .live, #pane-globe.active .sheet, #pane-globe.active .hint { pointer-events: auto; }
 .pane { position: absolute; inset: 0; opacity: 0; visibility: hidden; transition: opacity 260ms var(--e-standard), visibility 0s linear 260ms; }
 .pane.active { opacity: 1; visibility: inherit; transition: opacity 260ms var(--e-standard), visibility 0s; }
-.view:not(.active) .pane, .view:not(.active) .tabbar { pointer-events: none !important; }
+.view:not(.active) .pane, .view:not(.active) .tabbar, .view:not(.active) .mini { pointer-events: none !important; }
+#app .dock.collapsed .tabbar { pointer-events: none; }
+#app .dock.collapsed .tab.active, #app .dock.collapsed .tab-search { pointer-events: auto; }
 .pane.solid { background: var(--bg); }
 .pane.solid::after { content: ""; position: absolute; left: 0; right: 0; top: 0; height: calc(var(--sat) + 64px); background: linear-gradient(180deg, var(--bg) 58%, rgba(5,11,24,0)); pointer-events: none; z-index: 2; }
 .pane:not(.active) .enter { animation: none; }
-.scroll { position: absolute; inset: 0; overflow-y: auto; padding: calc(var(--sat) + 70px) 20px calc(110px + var(--sab)); display: flex; flex-direction: column; gap: 40px; scrollbar-width: none; }
+.scroll { position: absolute; inset: 0; overflow-y: auto; padding: calc(var(--sat) + 70px) 20px calc(var(--stack-top) + 32px); display: flex; flex-direction: column; gap: 40px; scrollbar-width: none; }
 .scroll::-webkit-scrollbar { display: none; }
 .page-head { display: flex; flex-direction: column; gap: 8px; }
 
@@ -394,7 +396,7 @@ svg.i.filled { fill: currentColor; }
 #app.arrive .search { animation: arriveUp 420ms var(--e-enter) 90ms backwards; }
 #app.arrive .tabbar { --orb-x: -8px; --orb-y: 34px; --orb-rx: 44deg; --orb-ry: -6deg; animation: orbitIn 640ms linear 180ms backwards; }
 @media (prefers-reduced-motion: reduce) { #app.arrive .app-logo, #app.arrive .topbar, #app.arrive .search, #app.arrive .tabbar { animation: none; } }
-.hint { position: absolute; left: 0; right: 0; bottom: calc(96px + var(--sab)); text-align: center; font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em; color: var(--fg-3); opacity: 0; transition: opacity 320ms var(--e-enter); pointer-events: none !important; }
+.hint { position: absolute; left: 0; right: 0; bottom: calc(var(--stack-top) + 18px); text-align: center; font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em; color: var(--fg-3); opacity: 0; transition: opacity 320ms var(--e-enter); pointer-events: none !important; }
 .hint.show { opacity: 1; transition-delay: 1000ms; }
 .hint.gone { opacity: 0 !important; transition: opacity var(--d-sheet-close) var(--e-exit); }
 
@@ -454,7 +456,7 @@ svg.i.filled { fill: currentColor; }
 
 /* Keşfet — Saat Kadranı: dünya bir saat. Kadranı çevir, o anda saati o olan şehirleri dinle. */
 #pane-explore.solid::after { display: none; }
-.dk { position: absolute; inset: 0; overflow: hidden; display: flex; flex-direction: column; padding: calc(var(--sat) + 58px) 0 calc(var(--sab) + 222px); background: var(--bg); }
+.dk { position: absolute; inset: 0; overflow: hidden; display: flex; flex-direction: column; padding: calc(var(--sat) + 58px) 0 calc(var(--stack-top) + 144px); background: var(--bg); }
 .dk-sky { position: absolute; inset: 0; pointer-events: none; }
 .dk-sky i { position: absolute; inset: 0; opacity: 0; will-change: opacity; }
 .dk-orbit { position: absolute; left: 0; right: 0; top: calc(var(--sat) + 40px); height: 260px; pointer-events: none; }
@@ -497,7 +499,7 @@ svg.i.filled { fill: currentColor; }
 .dk-card.is-on.is-busy .dk-st .ld { background: var(--a2); animation: breathe 600ms var(--e-inout) infinite alternate; }
 .dk-empty { position: relative; z-index: 2; margin: auto 22px; color: var(--fg-2); font-size: 15px; line-height: 22px; }
 /* Kadran */
-.dk-dial { position: absolute; left: 0; right: 0; bottom: calc(86px + var(--sab)); height: 136px; z-index: 3; overflow: hidden; touch-action: none; cursor: grab; user-select: none; -webkit-user-select: none; outline: none;
+.dk-dial { position: absolute; left: 0; right: 0; bottom: calc(var(--stack-top) + 8px); transition: bottom 300ms var(--e-standard); height: 136px; z-index: 3; overflow: hidden; touch-action: none; cursor: grab; user-select: none; -webkit-user-select: none; outline: none;
   -webkit-mask-image: linear-gradient(90deg, transparent, #000 16%, #000 84%, transparent); mask-image: linear-gradient(90deg, transparent, #000 16%, #000 84%, transparent); }
 .dk-dial.dragging { cursor: grabbing; }
 .dk-wheel { position: absolute; left: 50%; top: 30px; width: 880px; height: 880px; margin-left: -440px; will-change: transform; }
@@ -515,7 +517,7 @@ svg.i.filled { fill: currentColor; }
 }
 
 /* Koleksiyon — Küre Cebi */
-.th { position: absolute; inset: 0; z-index: 1; display: flex; flex-direction: column; gap: 12px; padding: calc(var(--sat) + 17px) 20px calc(80px + var(--sab)); color: var(--fg); transition: color 500ms var(--e-standard); }
+.th { position: absolute; inset: 0; z-index: 1; display: flex; flex-direction: column; gap: 12px; padding: calc(var(--sat) + 17px) 20px calc(var(--stack-top) + 2px); color: var(--fg); transition: color 500ms var(--e-standard); }
 .th.ink-dark { --fg: #141414; --fg-2: rgba(20,20,20,0.66); --fg-3: rgba(20,20,20,0.48); --fg-4: rgba(20,20,20,0.28); --hair: rgba(20,20,20,0.12); --hair-2: rgba(20,20,20,0.22); }
 .th.ink-dark .btn.solid { color: #F4F1EA; }
 .th-top { display: flex; justify-content: flex-end; align-items: center; min-height: 26px; }
@@ -528,7 +530,7 @@ svg.i.filled { fill: currentColor; }
 .th-pocket-space { height: 104px; flex: none; }
 .pk-dim { position: absolute; inset: 0; z-index: 2; background: rgba(0,0,0,0.55); opacity: 0; pointer-events: none !important; transition: opacity 360ms var(--e-standard); }
 #pane-themes.pk-open .pk-dim { opacity: 1; pointer-events: auto !important; }
-.pocket { position: absolute; left: 14px; right: 14px; bottom: calc(80px + var(--sab)); height: 196px; z-index: 3; cursor: pointer; -webkit-tap-highlight-color: transparent; pointer-events: none !important; }
+.pocket { position: absolute; left: 14px; right: 14px; bottom: calc(var(--stack-top) + 2px); height: 196px; z-index: 3; cursor: pointer; -webkit-tap-highlight-color: transparent; pointer-events: none !important; }
 .pocket .pk-front, .pocket .marble { pointer-events: auto; }
 .pk-mouth { position: absolute; left: 7%; right: 7%; bottom: 52px; height: 40px; border-radius: 50%; background: radial-gradient(ellipse at 50% 62%, #000 0%, #060504 55%, rgba(6,5,4,0) 72%); transform: scaleY(0.3); transform-origin: 50% 70%; transition: transform 480ms var(--spring-button); }
 .pocket.open .pk-mouth { transform: scaleY(1); }
@@ -558,7 +560,7 @@ svg.i.filled { fill: currentColor; }
 #pane-themes .pocket { transition: opacity 260ms var(--e-standard), transform 420ms var(--e-spring); }
 #pane-themes.pk-open .pocket { opacity: 0; transform: translateY(24px); pointer-events: none !important; }
 #pane-themes.pk-open .pocket * { pointer-events: none !important; }
-.pk-drawer { position: absolute; left: 10px; right: 10px; top: calc(var(--sat) + 132px); bottom: calc(84px + var(--sab)); z-index: 4; display: flex; flex-direction: column; border-radius: 30px; overflow: hidden;
+.pk-drawer { position: absolute; left: 10px; right: 10px; top: calc(var(--sat) + 132px); bottom: calc(var(--stack-top) + 6px); z-index: 4; display: flex; flex-direction: column; border-radius: 30px; overflow: hidden;
   background: rgba(10,19,40,0.95); box-shadow: 0 30px 70px rgba(2,6,16,0.6), inset 0 0 0 1px rgba(232,240,255,0.1);
   transform: translateY(calc(100% + 40px)); opacity: 0; visibility: hidden; transition: transform 300ms var(--e-exit), opacity 240ms var(--e-exit), visibility 0s linear 300ms; }
 .pk-drawer.open { transform: none; opacity: 1; visibility: visible; transition: transform 560ms var(--e-spring), opacity 240ms var(--e-enter), visibility 0s; }
@@ -708,6 +710,69 @@ svg.i.filled { fill: currentColor; }
 .dock-blob.ready { opacity: 1; transition: opacity 300ms var(--e-enter); }
 .tab { position: relative; z-index: 1; border-radius: 26px; gap: 3px; color: var(--fg-3); font-size: 10.5px; font-weight: 600; transition: color 260ms var(--e-standard); }
 .tab .dot { display: none; }
+/* ── Dok (v59): mini oynatıcı + sekme kapsülü. Aşağı kaydırınca tek satıra küçülür (sol: etkin sekme dairesi, orta: oynatıcı,
+   sağ: arama dairesi); yukarı kaydırınca / en üstte / daireye dokununca açılır. Ölçüler iOS 26 sekme çubuğu: kapsül 62 pt, alttan
+   21 pt; oynatıcı 48 pt, araya 8 pt; küçükken daireler 48 pt (kenardan 27,7 pt), oynatıcı ortada, dairelerle arası 14,3 pt. ── */
+.screen { --tb-b: max(21px, calc(var(--sab) - 13px)); --tb-top: calc(var(--tb-b) + 62px); --stack-top: var(--tb-top);
+  /* Yay: gerçek sönümlü yay örneklemesi (ζ 0,75 → yüzde 2,8 aşma; ζ 0,85 → yüzde 0,6). linear() yoksa yakın Bézier. */
+  --spring: cubic-bezier(0.25, 1.12, 0.45, 1); --spring-soft: cubic-bezier(0.25, 1.04, 0.45, 1);
+  --dock-glass: rgba(12,22,44,0.86); --dock-rim: rgba(232,240,255,0.13); }
+@supports (transition-timing-function: linear(0, 1)) { .screen { --spring: linear(0, 0.038, 0.1303, 0.2509, 0.381, 0.5082, 0.6243, 0.7253, 0.8094, 0.8767, 0.9285, 0.9668, 0.9936, 1.0113, 1.0218, 1.027, 1.0284, 1.0273, 1.0246, 1.0212, 1.0175, 1.0139, 1.0106, 1.0078, 1.0054, 1.0035, 1.002, 1); --spring-soft: linear(0, 0.0402, 0.1349, 0.2549, 0.3808, 0.501, 0.6089, 0.7016, 0.7784, 0.8402, 0.8885, 0.9252, 0.9525, 0.9721, 0.9858, 0.9949, 1.0006, 1.004, 1.0057, 1.0063, 1.0061, 1.0056, 1.0049, 1.0041, 1.0033, 1.0026, 1.002, 1); } }
+.screen.has-mini { --stack-top: calc(var(--tb-top) + 56px); }
+.dock { position: absolute; left: 0; right: 0; bottom: 0; height: 0; z-index: 30; pointer-events: none; }
+.tabbar { left: 21px; right: 21px; bottom: var(--tb-b); height: 62px; border-radius: 31px; padding: 4px; grid-template-columns: repeat(5, 1fr); background: none; box-shadow: none; }
+.tb-bg { position: absolute; top: 0; right: 0; bottom: 0; left: 0; border-radius: 31px; background: var(--dock-glass); box-shadow: inset 0 0 0 1px var(--dock-rim), 0 14px 34px rgba(2,6,16,0.5); pointer-events: none;
+  transition: top 260ms var(--spring-soft), right 260ms var(--spring-soft), bottom 260ms var(--spring-soft), left 260ms var(--spring-soft), border-radius 260ms var(--spring-soft); }
+.dock-blob { top: 4px; height: 54px; border-radius: 27px; background: rgba(232,240,255,0.13); box-shadow: inset 0 0 0 1px rgba(232,240,255,0.06); }
+.dock-blob.ready { transition: opacity 160ms var(--e-enter) 100ms; }
+.tab { color: var(--fg); font-size: 10.5px; font-weight: 600; gap: 2px; transition: opacity 140ms var(--e-enter) 20ms, filter 200ms var(--e-enter) 20ms, transform 260ms var(--spring); }
+#app .tabbar .tab, #app .tabbar .tab.active { color: var(--fg); }
+.tab .tl { transition: opacity 120ms var(--e-enter) 60ms; }
+.tab.active .tl, .tab-search .tl { transition: opacity 120ms var(--e-enter) 150ms; }   /* kayan simge yerine varınca */
+.tb-sbg { position: absolute; right: calc(27.7px); bottom: calc(var(--tb-b) + 7px); width: 48px; height: 48px; border-radius: 24px; background: var(--dock-glass); box-shadow: inset 0 0 0 1px var(--dock-rim), 0 10px 26px rgba(2,6,16,0.45);
+  opacity: 0; transform: scale(0.85); transition: opacity 120ms var(--e-exit), transform 120ms var(--e-exit); pointer-events: none; }
+/* Mini oynatıcı */
+.mini { position: absolute; left: 21px; right: 21px; bottom: calc(var(--tb-b) + 70px); height: 48px; pointer-events: none; transition: transform 260ms var(--spring); }
+/* Kutu tam genişlikte kalır (zemin daralır): dokunmayı yalnız düğmeler alır, küçükken yandaki daireler kapanmaz */
+.mini-open, .mini-ctl { pointer-events: auto; }
+.mini.off .mini-open, .mini.off .mini-ctl, .view:not(.active) .mini-open, .view:not(.active) .mini-ctl { pointer-events: none !important; }
+.mini-card { position: absolute; inset: 0; transition: opacity 220ms var(--e-enter), transform 280ms var(--spring); }
+.mini.off .mini-card { opacity: 0; transform: translateY(14px) scale(0.96); transition: opacity 160ms var(--e-exit), transform 160ms var(--e-exit); }
+.mini-bg { position: absolute; top: 0; bottom: 0; left: 0; right: 0; border-radius: 24px; background: var(--dock-glass); box-shadow: inset 0 0 0 1px var(--dock-rim), 0 12px 30px rgba(2,6,16,0.45);
+  transition: left 260ms var(--spring) 20ms, right 260ms var(--spring) 20ms; }
+.mini-open { position: absolute; left: 0; top: 0; bottom: 0; display: flex; align-items: center; gap: 9px; padding: 0 0 0 15px; border: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; -webkit-tap-highlight-color: transparent; transition: transform 260ms var(--spring) 20ms; }
+.mini-art { width: 29px; height: 29px; flex: none; border-radius: 7px; overflow: hidden; display: grid; place-items: center; color: var(--a2); background: radial-gradient(circle at 35% 30%, #1C3E72, #0A1830 72%); }
+.mini-art img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.mini-tx { display: flex; flex-direction: column; min-width: 0; width: var(--mtx, 180px); line-height: 1.2; transition: width 0s linear 110ms; }   /* açılırken metin kapsül ~%70 açılınca tam boya geçer (taşma yok) */
+.mini-tx b { font-size: 15px; font-weight: 600; letter-spacing: -0.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mini-tx span { font-size: 13.5px; color: var(--fg-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mini-ctls { position: absolute; right: 10px; top: 0; bottom: 0; display: flex; align-items: center; gap: 2px; transition: transform 260ms var(--spring) 20ms; }
+.mini-ctl { position: relative; width: 32px; height: 40px; border: 0; border-radius: 20px; background: none; color: var(--fg); display: grid; place-items: center; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.mini-ctl:active { transform: scale(0.88); transition: transform 100ms var(--e-press); }
+.mini-ctl .ic { position: absolute; display: grid; transition: opacity 180ms var(--e-standard), transform 180ms var(--e-standard); }
+.mini-ctl .ic-pause, #miniPlay.on .ic-play { opacity: 0; transform: scale(0.6); }
+#miniPlay.on .ic-pause { opacity: 1; transform: none; }
+.mini-ctl .ring { position: absolute; inset: 3px; border-radius: 50%; border: 1.5px solid var(--accent); border-top-color: transparent; border-right-color: transparent; opacity: 0; animation: rot 900ms linear infinite; transition: opacity 180ms; }
+#miniPlay.busy .ring { opacity: 1; }
+/* Küçük hal: hedef değerler ve GİRİŞ geçişleri (çıkış = yukarıdaki temel geçişler) */
+.dock.collapsed .tb-bg { top: 7px; bottom: 7px; left: var(--cl, 6.7px); right: var(--cr, 296px); border-radius: 24px;
+  transition: top 260ms var(--spring-soft), right 260ms var(--spring-soft), bottom 260ms var(--spring-soft), left 260ms var(--spring-soft), border-radius 260ms var(--spring-soft); }
+.dock.collapsed .tabbar { pointer-events: none; }
+.dock.collapsed .tab:not(.active):not(.tab-search) { opacity: 0; filter: blur(6px); pointer-events: none; transition: opacity 110ms var(--e-exit), filter 110ms var(--e-exit); }
+.dock.collapsed .tab.active, .dock.collapsed .tab-search { transform: translate(var(--dx, 0px), var(--dy, 7.5px)); pointer-events: auto; transition: transform 260ms var(--spring); }
+.dock.collapsed .tab .tl { opacity: 0; transition: opacity 30ms var(--e-exit); }
+.dock.collapsed .dock-blob { opacity: 0 !important; transition: opacity 60ms var(--e-exit); }
+.dock.collapsed .tb-sbg { opacity: 1; transform: none; transition: opacity 200ms var(--e-enter) 60ms, transform 200ms var(--spring) 60ms; }
+.dock.collapsed .mini { transform: translateY(63px); transition: transform 300ms var(--spring) 70ms; }
+.dock.collapsed .mini-bg { left: 69px; right: 69px; transition: left 340ms var(--spring), right 340ms var(--spring); }
+.dock.collapsed .mini-open { transform: translateX(69px); transition: transform 340ms var(--spring); }
+.dock.collapsed .mini-ctls { transform: translateX(-69px); transition: transform 340ms var(--spring); }
+.dock.collapsed .mini-tx { width: var(--mtx-c, 64px); transition: width 0s; }
+@media (prefers-reduced-motion: reduce) {
+  .tb-bg, .tab, .tab .tl, .tb-sbg, .mini, .mini-card, .mini-bg, .mini-open, .mini-ctls,
+  .dock.collapsed .tb-bg, .dock.collapsed .tab, .dock.collapsed .tab .tl, .dock.collapsed .tb-sbg, .dock.collapsed .mini, .dock.collapsed .mini-bg, .dock.collapsed .mini-open, .dock.collapsed .mini-ctls { transition-duration: 1ms !important; transition-delay: 0ms !important; }
+  .dock .mini-card { transition: opacity 150ms linear !important; }
+}
 .tab.active { color: var(--accent-ink); }
 .tab .i { transition: transform 520ms var(--e-spring); }
 .tab.active .i { transform: translateY(-1px) scale(1.08); }
@@ -729,7 +794,7 @@ svg.i.filled { fill: currentColor; }
 .live.playing .lab { color: var(--a1); }
 .eq i { background: var(--a1); }
 @keyframes pingA { 0% { box-shadow: 0 0 0 0 rgba(205,230,255,0.55); } 100% { box-shadow: 0 0 0 10px rgba(205,230,255,0); } }
-.sheet { left: 12px; right: 12px; bottom: calc(92px + var(--sab)); border-radius: 34px; background: rgba(10,19,40,0.9); box-shadow: 0 30px 70px rgba(2,6,16,0.6); }
+.sheet { left: 12px; right: 12px; bottom: calc(var(--tb-top) + 14px); border-radius: 34px; background: rgba(10,19,40,0.9); box-shadow: 0 30px 70px rgba(2,6,16,0.6); }
 .sheet::before { content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1px; background: var(--grad); opacity: 0.45; pointer-events: none; -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0); }
 .s-city { font-weight: 750; letter-spacing: -0.045em; }
 .viz i { background: linear-gradient(180deg, var(--a1), var(--a2) 50%, var(--a3)); border-radius: 3px; }
@@ -805,7 +870,7 @@ svg.i.filled { fill: currentColor; }
 .px-tag.guest { color: var(--fg); background: rgba(12,22,44,0.75); box-shadow: inset 0 0 0 1px rgba(232,240,255,0.16); }
 .px-sec { display: flex; flex-direction: column; gap: 14px; }
 /* ── Profil: tek ekran. Kahraman (küre + 3 sayı) esner, altta 4 sekmeli bir pano; ayarlar sağ üstten açılan çekmecede ── */
-.px-wrap { position: absolute; left: 0; right: 0; top: calc(var(--sat) + 62px); bottom: calc(96px + var(--sab)); display: flex; flex-direction: column; gap: 12px; padding: 0 20px; overflow: hidden; }
+.px-wrap { position: absolute; left: 0; right: 0; top: calc(var(--sat) + 62px); bottom: calc(var(--stack-top) + 18px); display: flex; flex-direction: column; gap: 12px; padding: 0 20px; overflow: hidden; }
 .px-wrap .px-hi { position: relative; left: auto; top: auto; right: auto; flex: none; flex-direction: row; align-items: flex-end; justify-content: space-between; gap: 12px; }
 .px-wrap .px-hi > div { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
 .px-wrap .px-name { font-size: 34px; line-height: 38px; }
@@ -831,7 +896,7 @@ svg.i.filled { fill: currentColor; }
 .px-pane .px-star b { font-size: 17px; }
 .px-pane .px-star:nth-child(even) { transform: translateY(16px); }
 .px-pane .px-empty { flex: 1; }
-.px-gear { position: absolute; top: calc(var(--sat) + 8px); right: 16px; z-index: 6; width: 48px; height: 48px; border-radius: 24px; }
+.px-gear-old { position: absolute; top: calc(var(--sat) + 8px); right: 16px; z-index: 6; width: 48px; height: 48px; border-radius: 24px; }
 .px-gear .gi { display: grid; transition: transform 560ms var(--e-spring); }
 .px-gear[aria-expanded="true"] .gi { transform: rotate(90deg); }
 /* Ayarlar çekmecesi: sağdan yaylanarak gelir (520 ms), karartma 240 ms; sağa sürükleyerek de kapanır */
@@ -847,9 +912,31 @@ svg.i.filled { fill: currentColor; }
 .pxs-head .round { width: 44px; height: 44px; border-radius: 22px; background: rgba(232,240,255,0.06); }
 .pxs-body { flex: 1; min-height: 0; overflow-y: auto; padding: 10px 20px calc(28px + var(--sab)); display: flex; flex-direction: column; gap: 22px; scrollbar-width: none; overscroll-behavior: contain; }
 .pxs-body::-webkit-scrollbar { display: none; }
-.pxs-body > * { opacity: 0; transform: translateX(28px); }
-.pxs.open .pxs-body > * { animation: pxsIn 520ms var(--e-spring) forwards; animation-delay: calc(120ms + var(--i, 0) * 60ms); }
-@keyframes pxsIn { to { opacity: 1; transform: none; } }
+/* ── Ayarlar sekmesi (v59): büyük başlık · profil kartı · ayar grupları; kaydırınca üstte küçük başlık ── */
+#pane-profile .st-scroll { position: absolute; inset: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none; padding: calc(var(--sat) + 10px) 20px calc(var(--stack-top) + 28px); }
+#pane-profile .st-scroll::-webkit-scrollbar { display: none; }
+.st-title { margin: 0 0 16px; font-family: var(--display); font-size: 34px; line-height: 40px; font-weight: 750; letter-spacing: -0.045em; transition: opacity 180ms var(--e-standard); }
+.st-scrolled .st-title { opacity: 0; }
+.st-top { position: absolute; left: 0; right: 0; top: 0; z-index: 6; height: calc(var(--sat) + 50px); display: flex; align-items: flex-end; justify-content: center; padding-bottom: 12px; pointer-events: none;
+  background: linear-gradient(180deg, var(--bg) 0%, rgba(5,11,24,0.94) 62%, rgba(5,11,24,0)); opacity: 0; transition: opacity 180ms var(--e-exit); }
+.st-top b { font-size: 17px; font-weight: 650; letter-spacing: -0.01em; transform: translateY(5px); transition: transform 220ms var(--e-exit); }
+.st-scrolled .st-top { opacity: 1; transition: opacity 180ms var(--e-enter); }
+.st-scrolled .st-top b { transform: none; transition: transform 260ms var(--e-enter); }
+#app[data-tab="profile"] .app-logo { opacity: 0; }
+/* Alt perde: kaydırılan içerik dok'a doğru zemine erir (bulanıklık yerine; küre ekranında sürekli çizim var) */
+#pane-profile::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: calc(var(--stack-top) + 36px); z-index: 5; pointer-events: none;
+  background: linear-gradient(180deg, rgba(5,11,24,0) 0%, rgba(5,11,24,0.82) 45%, rgba(5,11,24,0.96) 100%); }
+/* Profil kartı: kaydırılan sayfada sabit yükseklikler (küre arkada, yarı saydam cam) */
+.st-profile.px-wrap { position: relative; top: auto; bottom: auto; left: auto; right: auto; padding: 18px 16px 16px; gap: 14px; overflow: visible; border-radius: 32px;
+  background: linear-gradient(160deg, rgba(110,170,235,0.10), rgba(12,22,44,0.34) 46%, rgba(12,22,44,0.5)); box-shadow: inset 0 0 0 1px rgba(232,240,255,0.10), 0 24px 60px rgba(2,6,16,0.35); }
+.st-profile .px-hero { flex: none; height: 290px; margin: 0 -16px; }
+.st-profile .px-name { font-size: 30px; line-height: 34px; }
+.st-set { margin-top: 30px; }
+.st-set .pxs-body { overflow: visible; padding: 0; flex: none; }
+.st-set .px-head .h2 { font-family: var(--font); font-size: 13px; line-height: 18px; font-weight: 600; letter-spacing: 0.01em; color: var(--fg-3); padding: 0 6px; }
+.st-set .px-sec { gap: 8px; }
+.pxs-body.anim > * { animation: stIn 480ms var(--e-spring) backwards; animation-delay: calc(160ms + min(var(--i, 0), 9) * 50ms); }
+@keyframes stIn { from { opacity: 0; transform: translateY(14px); } }
 .pxs-acct { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 22px; background: rgba(12,22,44,0.6); box-shadow: inset 0 0 0 1px rgba(232,240,255,0.08); }
 .pxs-acct .av { width: 44px; height: 44px; border-radius: 22px; flex: none; display: grid; place-items: center; font-weight: 700; color: var(--accent-ink); background: var(--grad); }
 .pxs-acct .tx { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
@@ -940,7 +1027,7 @@ svg.i.filled { fill: currentColor; }
 #pane-globe.flying-mode .search, #pane-globe.flying-mode .hint, #pane-globe.flying-mode .live-dock, #pane-globe.flying-mode .sheet, #pane-globe.flying-mode #shuffle { opacity: 0 !important; pointer-events: none !important; transition: opacity 400ms var(--e-standard); }
 .topbar { gap: 8px; }
 #flightBtn.on { background: var(--grad); color: var(--accent-ink); }
-.flight { position: absolute; left: 0; right: 0; bottom: calc(92px + var(--sab)); z-index: 12; padding: 0 14px; pointer-events: none; }
+.flight { position: absolute; left: 0; right: 0; bottom: calc(var(--stack-top) + 14px); z-index: 12; padding: 0 14px; pointer-events: none; }
 .flight[hidden] { display: none !important; }
 #pane-globe.active .fl-card { pointer-events: auto; }
 .fl-top { display: flex; justify-content: space-between; align-items: center; padding: 0 6px 10px; }
@@ -1008,7 +1095,7 @@ svg.i.filled { fill: currentColor; }
 .cotd-scrim { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(5,11,24,0) 28%, rgba(5,11,24,0.5) 52%, rgba(5,11,24,0.93) 78%); opacity: 0; transition: opacity 420ms var(--e-standard); }
 .cotd.in .cotd-scrim { opacity: 1; }
 .cotd.out .cotd-scrim { opacity: 0; transition-duration: 260ms; }
-.cotd-body { position: absolute; left: 0; right: 0; bottom: calc(100px + var(--sab)); padding: 0 24px; display: flex; flex-direction: column; gap: 12px; pointer-events: auto; --nd: 900ms; }
+.cotd-body { position: absolute; left: 0; right: 0; bottom: calc(var(--tb-top) + 22px); padding: 0 24px; display: flex; flex-direction: column; gap: 12px; pointer-events: auto; --nd: 900ms; }
 .cotd-kick { display: flex; align-items: center; gap: 8px; font-family: var(--mono); font-size: 11px; letter-spacing: 0.18em; color: var(--a2); }
 .cotd-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--a1); animation: pingA 1800ms var(--e-standard) infinite; }
 .cotd-name { margin: 0; font-family: var(--display); font-size: clamp(44px, 15vw, 70px); line-height: 1; font-weight: 750; letter-spacing: -0.05em; color: #F4F9FF; white-space: nowrap; overflow: hidden; padding: 0.06em 0 0.08em; }
@@ -1331,7 +1418,6 @@ svg.i.filled { fill: currentColor; }
               <div class="cotd-act"><button class="btn solid press" id="cotdPlay"><span class="lbl"><span data-icon="play" data-size="18"></span><span id="cotdPlayT">Dinle</span></span></button><button class="btn line press" id="cotdLater"><span class="lbl">Sonra</span></button></div>
             </div>
           </div>
-          <div class="live-dock hidden" id="liveDock"><button class="live press fly" id="live" aria-label="Radyo durumu"><span class="dot"></span><span class="txt"><span class="lab" id="liveLab">RADYO KAPALI</span><span class="sub" id="liveSub" hidden></span></span><span class="eq"><i style="--t:310ms"></i><i style="--t:240ms"></i><i style="--t:360ms"></i></span></button></div>
           <div class="flight" id="flight" hidden>
             <div class="fl-top"><span class="fl-badge">UÇUŞ MODU</span><span class="fl-leg num" id="flLeg"></span></div>
             <div class="fl-card out" id="flCard">
@@ -1408,22 +1494,33 @@ svg.i.filled { fill: currentColor; }
           </div>
         </div>
         <div class="pane" id="pane-profile">
-          <div class="px-wrap" id="profileScroll"></div>
-          <button class="round glass press tight px-gear" id="pxGear" aria-label="Ayarlar" aria-haspopup="dialog" aria-expanded="false"><span class="gi" data-icon="settings" data-size="21"></span></button>
+          <div class="st-top" id="stTop" aria-hidden="true"><b>Ayarlar</b></div>
+          <div class="st-scroll" id="stScroll">
+            <h1 class="st-title" id="stTitle">Ayarlar</h1>
+            <div class="px-wrap st-profile" id="profileScroll"></div>
+            <div class="st-set" id="stSettings"><div class="pxs-body" id="pxsBody"></div></div>
+          </div>
         </div>
         <div class="app-logo" role="img" aria-label="wGlobe">w<span>Globe</span></div>
-        <div class="pxs-dim" id="pxsDim"></div>
-        <aside class="pxs" id="pxSettings" role="dialog" aria-modal="true" aria-labelledby="pxsTitle" aria-hidden="true">
-          <div class="pxs-head"><h2 id="pxsTitle">Ayarlar</h2><button class="round press tight" id="pxsClose" aria-label="Ayarları kapat" data-icon="x" data-size="20"></button></div>
-          <div class="pxs-body" id="pxsBody"></div>
-        </aside>
-        <nav class="tabbar" aria-label="Sekmeler">
-          <span class="dock-blob" id="dockBlob" aria-hidden="true"></span>
-          <button class="tab" data-tab="globe"><span data-icon="globe" data-size="21"></span><span>Küre</span><span class="dot"></span></button>
-          <button class="tab" data-tab="explore"><span data-icon="compass" data-size="21"></span><span>Keşfet</span><span class="dot"></span></button>
-          <button class="tab" data-tab="themes"><span data-icon="layers" data-size="21"></span><span>Koleksiyon</span><span class="dot"></span></button>
-          <button class="tab" data-tab="profile"><span data-icon="user" data-size="21"></span><span>Profil</span><span class="dot"></span></button>
-        </nav>
+        <div class="dock" id="dock">
+          <div class="mini off" id="mini">
+            <div class="mini-card">
+              <span class="mini-bg" aria-hidden="true"></span>
+              <button class="mini-open" id="miniOpen" aria-label="Şu an çalan"><span class="mini-art" id="miniArt"><span data-icon="radio" data-size="16"></span></span><span class="mini-tx"><b id="miniTitle"></b><span id="miniSub"></span></span></button>
+              <span class="mini-ctls"><button class="mini-ctl" id="miniPlay" aria-label="Oynat"><span class="ic ic-play" data-icon="play" data-size="21" data-cls="filled"></span><span class="ic ic-pause" data-icon="pause" data-size="21" data-cls="filled"></span><span class="ring"></span></button><button class="mini-ctl" id="miniNext" aria-label="Sonraki istasyon"><span data-icon="ff" data-size="25" data-cls="filled"></span></button></span>
+            </div>
+          </div>
+          <span class="tb-sbg" aria-hidden="true"></span>
+          <nav class="tabbar" aria-label="Sekmeler">
+            <span class="tb-bg" aria-hidden="true"></span>
+            <span class="dock-blob" id="dockBlob" aria-hidden="true"></span>
+            <button class="tab" data-tab="globe"><span data-icon="globe" data-size="24"></span><span class="tl">Küre</span><span class="dot"></span></button>
+            <button class="tab" data-tab="explore"><span data-icon="compass" data-size="24"></span><span class="tl">Keşfet</span><span class="dot"></span></button>
+            <button class="tab" data-tab="themes"><span data-icon="layers" data-size="24"></span><span class="tl">Koleksiyon</span><span class="dot"></span></button>
+            <button class="tab" data-tab="profile"><span data-icon="settings" data-size="24"></span><span class="tl">Ayarlar</span><span class="dot"></span></button>
+            <button class="tab tab-search" id="tabSearch" aria-label="Ara"><span data-icon="search" data-size="24"></span><span class="tl">Ara</span></button>
+          </nav>
+        </div>
       </section>
 
       <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
@@ -1843,6 +1940,7 @@ const ICONS = {
   play:'<polygon points="6 3 20 12 6 21 6 3"/>',
   pause:'<rect x="14" y="4" width="4" height="16" rx="1"/><rect x="6" y="4" width="4" height="16" rx="1"/>',
   'skip-forward':'<polygon points="5 4 15 12 5 20 5 4"/><line x1="19" x2="19" y1="5" y2="19"/>',
+  ff:'<path d="M2.5 6.2v11.6c0 .8.9 1.3 1.6.8L12 13.1v4.7c0 .8.9 1.3 1.6.8l8.3-5.8c.6-.4.6-1.2 0-1.6l-8.3-5.8c-.7-.5-1.6 0-1.6.8v4.7L4.1 5.4c-.7-.5-1.6 0-1.6.8Z"/>',
   heart:'<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>',
   x:'<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
   radio:'<path d="M4.9 19.1C1 15.2 1 8.8 4.9 4.9"/><path d="M7.8 16.2c-2.3-2.3-2.3-6.1 0-8.5"/><circle cx="12" cy="12" r="2"/><path d="M16.2 7.8c2.3 2.3 2.3 6.1 0 8.5"/><path d="M19.1 4.9C23 8.8 23 15.1 19.1 19"/>',
@@ -1888,7 +1986,7 @@ const icon = (name, size = 20, cls = '') => `<svg class="i ${cls}" style="--s:${
 function hydrateIcons(root = document) {
   root.querySelectorAll('[data-icon]').forEach(el => {
     if (el.dataset.hydrated) return; el.dataset.hydrated = '1';
-    el.innerHTML = icon(el.dataset.icon, Number(el.dataset.size || 20));
+    el.innerHTML = icon(el.dataset.icon, Number(el.dataset.size || 20), el.dataset.cls || '');
   });
 }
 
@@ -2011,6 +2109,7 @@ I18N.add({
   'Yayın aranıyor…': 'Finding a stream…', 'Yayın yanıt vermedi, sıradakine geçiliyor…': 'Stream didn’t answer, trying the next…',
   'Şu an yayın alınamıyor. Bağlantını kontrol edip tekrar dene.': 'Can’t get a stream right now. Check your connection and try again.',
   'Duraklatıldı': 'Paused', 'Önizleme sesi · ağ kapalı': 'Preview sound · offline', 'Global yayın · canlı': 'Global stream · live', 'Yerel': 'Local', 'Canlı': 'Live',
+  'Ara': 'Search', 'Şu an çalan': 'Now playing', 'Sonraki istasyon': 'Next station', 'Bağlanıyor…': 'Connecting…', 'Sıradaki yayına geçiliyor…': 'Switching to the next stream…', 'Yayın yok': 'No stream',
   'Dinle': 'Play', 'Sonra': 'Later', 'Duraklat': 'Pause', 'Oynat': 'Play', 'Paylaş': 'Share', 'Kartı kapat': 'Close card', 'Kapat': 'Close', 'Kaydet': 'Save', 'Vazgeç': 'Cancel', 'Çık': 'Leave',
   'Favorilere ekle': 'Add to favorites', 'Favorilerden çıkar': 'Remove from favorites', 'Dünyada başka bir yer': 'Somewhere else in the world',
   'Dinlemek için oynat’a dokun': 'Tap play to listen', 'ÖRNEK': 'SAMPLE', 'Gezgin': 'Traveler',
@@ -3188,6 +3287,7 @@ const Globe = (() => {
         lay.cx = lerp(lt.from.cx, T.cx, e); lay.cy = lerp(lt.from.cy, T.cy, e); lay.r = Math.max(1, lerp(lt.from.r, T.r, e));
         if (t >= 1) lt = null;
       } else {
+        if (lt) lt = null;   // azaltılmış harekette geçiş anında biter (yoksa 'settled' hiç true olmaz → MapLibre devri beklerdi)
         const k = rm ? 1 : 1 - Math.pow(opts.lerp || 0.86, f);
         lay.cx = lerp(lay.cx, T.cx, k); lay.cy = lerp(lay.cy, T.cy, k); lay.r = lerp(lay.r, T.r, k);
       }
@@ -4079,10 +4179,12 @@ function setTab(tab) {
   if (tab !== 'globe' && flight.on) stopFlight(false);
   if (tab !== 'globe' && TimeScrub.isOpen) TimeScrub.close(true);
   if (tab !== 'globe') { stopPulse(); if (cotdUI.open) closeCotd(false); }
-  if (tab !== 'profile' && pxsOpen) closeSettings(true);
   const prevTab = state.tab; paneDirection(prevTab, tab);
   state.tab = tab;
-  document.querySelectorAll('.tab').forEach(t => { const on = t.dataset.tab === tab; t.classList.toggle('active', on); t.setAttribute('aria-current', on ? 'page' : 'false'); });
+  document.querySelectorAll('.tab[data-tab]').forEach(t => { const on = t.dataset.tab === tab; t.classList.toggle('active', on); t.setAttribute('aria-current', on ? 'page' : 'false'); });
+  if (Dock) Dock.expand();
+  updateDock();
+  $('#app').dataset.tab = tab;
   document.querySelectorAll('.pane').forEach(p => p.classList.toggle('active', p.id === 'pane-' + tab));
   if (tab === 'explore') renderExplore();
   if (tab !== 'themes' && pocketOpen) setPocket(false);
@@ -4169,7 +4271,7 @@ const SatMosaic = (() => {
 })();
 
 /** Sürüm etiketi: sitede hangi sürümün açık olduğunu rozetten görmek için (önbellek kontrolü). */
-const BUILD = 'v58';
+const BUILD = 'v59';
 const MapGlobe = (() => {
   const host = document.getElementById('mapStage');
   const badge = document.getElementById('lodBadge');
@@ -5471,19 +5573,46 @@ function placeCityTag(p) {
   if (!cityTag.classList.contains('show')) { $('#ctName').textContent = city.name.toLocaleUpperCase(LOC); cityTag.classList.add('show'); if (arrivedFor !== city.id) { arrivedFor = city.id; vibrate('arrive'); } }
   const t = cityTime(city.timezone).slice(0, 5); if ($('#ctTime').textContent !== t) $('#ctTime').textContent = t;
 }
-const STATUS_LABEL = { idle: 'RADYO KAPALI', paused: 'DURAKLATILDI', loading: 'BAĞLANIYOR', failover: 'SIRADAKİ YAYIN', playing: 'CANLI', error: 'YAYIN YOK' };
 function updateDock() {
-  $('#liveDock').classList.toggle('hidden', !state.activeCityId || state.sheetOpen);
+  const pg = $('#pane-globe'), modeHide = state.tab === 'globe' && (pg.classList.contains('flying-mode') || pg.classList.contains('cotd-mode'));
+  const show = state.view === 'app' && !!state.activeCityId && !(state.tab === 'globe' && state.sheetOpen) && !modeHide;
+  $('#mini').classList.toggle('off', !show); $('#screen').classList.toggle('has-mini', show);
   if (state.activeCityId) $('#hint').classList.add('gone');
+  if (Dock) Dock.geom();
 }
+/** Mini oynatıcı: istasyon · çalan şarkı (yoksa şehir · ülke) · oynat/duraklat · sonraki istasyon */
 function renderLive() {
   updateDock();
-  const live = $('#live'), s = state.status, city = CITY[state.activeCityId], st = currentStation();
-  live.classList.toggle('playing', s === 'playing'); live.classList.toggle('busy', s === 'loading' || s === 'failover');
-  $('#liveLab').textContent = STATUS_LABEL[s];
-  const sub = (s === 'playing' || s === 'loading' || s === 'failover') && st ? st.name : city ? city.name : '';
-  const el = $('#liveSub'); el.hidden = !sub; el.textContent = sub;
-  live.setAttribute('aria-label', `Radyo durumu: ${STATUS_LABEL[s].toLocaleLowerCase('tr-TR')}${sub ? ', ' + sub : ''}`);
+  const s = state.status, city = CITY[state.activeCityId], st = currentStation();
+  const np = npNow && st && npNow.url === st.url ? npNow : null;
+  const title = st ? st.name : city ? city.name : '';
+  const sub = s === 'loading' ? 'Bağlanıyor…' : s === 'failover' ? 'Sıradaki yayına geçiliyor…' : s === 'error' ? 'Yayın yok'
+    : np ? (np.artist ? `${np.artist} – ${np.song}` : np.song) : city ? `${city.name} · ${city.country}` : '';
+  const t = $('#miniTitle'), u = $('#miniSub');
+  if (t.dataset.v !== title) { t.dataset.v = title; t.textContent = title; }
+  if (u.dataset.v !== sub) { u.dataset.v = sub; u.textContent = sub; }
+  const pb = $('#miniPlay'), on = ['playing', 'loading', 'failover'].includes(s);
+  pb.classList.toggle('on', on); pb.classList.toggle('busy', s === 'loading' || s === 'failover');
+  pb.setAttribute('aria-label', on ? 'Duraklat' : 'Oynat');
+  miniArt(city);
+}
+let miniArtFor = '', miniArtTimer = 0;
+function miniArt(city) {
+  const key = city ? state.theme + '|' + city.id : '';
+  if (key === miniArtFor) return;
+  miniArtFor = key; clearTimeout(miniArtTimer);
+  const box = $('#miniArt'); box.innerHTML = icon('radio', 16);
+  if (!city) return;
+  // Kapak, ana ekran widget'ıyla aynı önbellekten; şehir geçişi animasyonları bitince çizilir
+  miniArtTimer = setTimeout(() => {
+    if (miniArtFor !== key) return;
+    cityArt(city).then(url => {
+      if (miniArtFor !== key || !url) return;
+      const im = new Image(); im.alt = ''; im.decoding = 'async';
+      im.onload = () => { if (miniArtFor === key) { box.textContent = ''; box.appendChild(im); } };
+      im.src = url;
+    }).catch(() => {});
+  }, 1800);
 }
 function statusLine() {
   const s = state.status, st = currentStation();
@@ -5665,7 +5794,13 @@ function moveSheetDrag(e) { if (e.pointerId !== dragPid) return; const dy = e.cl
 function endSheetDrag(e) { if (e.pointerId !== dragPid) return; dragPid = null; const dy = e.clientY - dragY0; sheetEl.classList.remove('dragging'); sheetEl.style.transform = ''; if (dy > 110 || dragVy > 0.9) { vibrate(5); openSheet(false); } }
 $('#drag').addEventListener('pointerdown', startSheetDrag);
 sheetEl.addEventListener('pointermove', moveSheetDrag); sheetEl.addEventListener('pointerup', endSheetDrag); sheetEl.addEventListener('pointercancel', endSheetDrag);
-$('#live').addEventListener('click', () => { if (!state.activeCityId) return; if (!$('#sheetContent').children.length) renderSheet(); openSheet(true); });
+$('#miniOpen').addEventListener('click', () => {
+  if (!state.activeCityId) return; vibrate(4);
+  const go = () => { if (!$('#sheetContent').children.length) renderSheet(); openSheet(true); };
+  if (state.tab !== 'globe') { setTab('globe'); setTimeout(go, 280); } else go();
+});
+$('#miniPlay').addEventListener('click', () => { vibrate(10); toggle(); });
+$('#miniNext').addEventListener('click', () => { vibrate(5); next(); });
 let shuffleDeg = 0;
 $('#shuffle').addEventListener('click', () => { shuffleDeg += 180; $('#shuffleRot').style.transform = `rotate(${shuffleDeg}deg)`; vibrate(12); if (state.activeCityId) travelBack.push(state.activeCityId); handleSelect(asPlace(randomPlace(c => c.id === state.activeCityId))); });
 
@@ -6401,10 +6536,51 @@ const alarmState = () => { const a = state.alarm || {}, n = (v, d, max) => Numbe
  *  Dönüş: hareket bitip küre durunca (atalet dahil) 220 ms sonra, alttan üste 20 ms arayla, 220 ms e-enter.
  *  Söndürülmez: açık oynatıcı kartı, odaktaki arama, kullanılmakta olan zaman cetveli. Yalnız küre sekmesinde.
  */
+/**
+ * Dok (v59) — iOS 26 sekme çubuğu kurgusu. Aşağı kaydırınca küçülür: sekme kapsülü sol daireye (etkin sekme), arama sağ daireye,
+ * mini oynatıcı ikisinin arasına iner (≈300 ms, hafif aşmalı yay). Yukarı kaydırınca, en üste gelince, sekme değişince ya da
+ * sol daireye dokununca açılır (≈240 ms). Kaydırma: profil listeleri ve koleksiyon çekmecesi (.px-list, .pkd-grid, .scroll).
+ * Ölçüler pt: kapsül 62 (alttan 21), oynatıcı 48 (araya 8), daireler 48 (kenardan 27,7), oynatıcı–daire arası 14,3.
+ */
+var Dock = (() => {
+  const SCROLLERS = '.st-scroll, .px-list, .pkd-grid, .scroll', STEP = 12;
+  let collapsed = false, acc = 0; const seen = new WeakMap();
+  const el = () => document.getElementById('dock');
+  function geom() {
+    const d = el(), bar = d && d.querySelector('.tabbar'); if (!bar || !bar.offsetWidth) return;
+    const bw = bar.offsetWidth, cL = 51.7 - 21, cR = bw - cL;
+    d.style.setProperty('--cl', (cL - 24).toFixed(1) + 'px');
+    d.style.setProperty('--cr', (bw - cL - 24).toFixed(1) + 'px');
+    bar.querySelectorAll('.tab').forEach(t => {
+      const c = t.offsetLeft + t.offsetWidth / 2, to = t.classList.contains('tab-search') ? cR : cL, ic = t.firstElementChild;
+      t.style.setProperty('--dx', (to - c).toFixed(1) + 'px');
+      if (ic) t.style.setProperty('--dy', (t.offsetHeight / 2 - (ic.offsetTop + ic.offsetHeight / 2)).toFixed(1) + 'px');   // etiket gizlenince simge dairenin ortasına
+    });
+    const ctl = 76;   // iki düğme (2 × 32 + 2) + sağ iç boşluk 10
+    d.style.setProperty('--mtx', Math.max(60, bw - 15 - 29 - 9 - ctl - 8) + 'px');
+    d.style.setProperty('--mtx-c', Math.max(40, bw - 138 - 15 - 29 - 9 - ctl - 8) + 'px');
+  }
+  function collapse() { if (collapsed || state.view !== 'app') return; geom(); collapsed = true; el().classList.add('collapsed'); }
+  function expand() { acc = 0; if (!collapsed) return; collapsed = false; el().classList.remove('collapsed'); }
+  function onScroll(e) {
+    const t = e.target; if (!t || t.nodeType !== 1 || !t.matches(SCROLLERS)) return;
+    const max = t.scrollHeight - t.clientHeight; if (max < 60) return;   // kaydıracak kadar içerik yok
+    const y = t.scrollTop, prev = seen.has(t) ? seen.get(t) : y; seen.set(t, y);
+    if (y <= 2) { expand(); return; }
+    const dy = y - prev; if (!dy) return;
+    if (dy < 0 && y >= max - 2) return;   // dipte yaylanma (iOS) açmaz
+    acc = Math.sign(dy) === Math.sign(acc) ? acc + dy : dy;
+    if (acc > STEP) collapse(); else if (acc < -STEP) expand();
+  }
+  document.getElementById('app').addEventListener('scroll', onScroll, true);
+  addEventListener('resize', geom);
+  return { geom, collapse, expand, get collapsed() { return collapsed; } };
+})();
 const Hud = (() => {
   const IDLE = 220, SAFETY = 5000;
   // Göz alttan yukarı okur: önce sekme çubuğu, sonra canlı yayın çubuğu, ipucu, üst düğmeler, logo, arama
-  const PARTS = [['.tabbar', 'bot', 0], ['#liveDock', 'bot', 20], ['#hint', 'bot', 20], ['#tStrip', 'bot', 30], ['#pulseBar', 'top', 40], ['#pane-globe .topbar', 'top', 40], ['.app-logo', 'top', 50], ['#search', 'top', 60]];
+  // Alt dok söndürülmez: küre çevrilirken küçülür (Dock), küre durunca açılır
+  const PARTS = [['#hint', 'bot', 20], ['#tStrip', 'bot', 30], ['#pulseBar', 'top', 40], ['#pane-globe .topbar', 'top', 40], ['.app-logo', 'top', 50], ['#search', 'top', 60]];
   let calmOn = false, timer = 0, safety = 0, backTimer = 0, marked = false;
   const app = () => document.getElementById('app');
   function mark() {
@@ -6423,19 +6599,19 @@ const Hud = (() => {
     mark(); clearTimeout(timer); clearTimeout(backTimer);
     clearTimeout(safety); safety = setTimeout(settle, SAFETY);   // hareket sonu kaçırılırsa bile döner
     if (calmOn) return;
-    calmOn = true; const a = app(); a.classList.remove('hud-back'); a.classList.add('hud-calm');
+    calmOn = true; const a = app(); a.classList.remove('hud-back'); a.classList.add('hud-calm'); if (Dock) Dock.collapse();
   }
   function settle() {
     if (!calmOn) return;
     clearTimeout(timer);
     timer = setTimeout(() => {
       calmOn = false; clearTimeout(safety);
-      const a = app(); a.classList.add('hud-back'); a.classList.remove('hud-calm');
+      const a = app(); a.classList.add('hud-back'); a.classList.remove('hud-calm'); if (Dock) Dock.expand();
       clearTimeout(backTimer); backTimer = setTimeout(() => a.classList.remove('hud-back'), 320);
     }, IDLE);
   }
   /** Sekme/görünüm değişince ya da başka bir akış başlayınca hemen geri getir (geçiş yok). */
-  function reset() { clearTimeout(timer); clearTimeout(safety); clearTimeout(backTimer); calmOn = false; const a = app(); if (a) a.classList.remove('hud-calm', 'hud-back'); }
+  function reset() { clearTimeout(timer); clearTimeout(safety); clearTimeout(backTimer); const was = calmOn; calmOn = false; const a = app(); if (a) a.classList.remove('hud-calm', 'hud-back'); if (was && Dock) Dock.expand(); }
   return { calm, settle, reset, get on() { return calmOn; } };
 })();
 function alarmHTML() {
@@ -6570,7 +6746,6 @@ function alarmFire() {
   const t0 = Date.now();
   const go = () => {
     if (introRunning || state.view !== 'app') { if (Date.now() - t0 < 20000) setTimeout(go, 300); return; }
-    if (pxsOpen) closeSettings(true);
     if (state.tab !== 'globe') setTab('globe');
     vibrate('arrive'); chaseSunrise();
   };
@@ -6677,7 +6852,7 @@ function renderProfile(animate = true) {
   seedFly(root);
   countUp(root);
   if (pxTab === 'route') mountRoute(animate);
-  if (pxsOpen) renderSettings(false);
+  if (!$('#pxsBody').contains(document.activeElement)) renderSettings(animate);
 }
 function pxPaneHTML(tab) {
   const st = currentStation();
@@ -6756,7 +6931,7 @@ function renderSettings(animate) {
     ${pref('badge') ? `<div ${nx()}><div class="px-sec"><div class="px-head"><h3 class="h2">Ses günlüğü</h3><button class="auth-link press" id="alogClear">Temizle</button></div><pre class="alog">${audioLog.length ? esc(audioLog.slice().reverse().join('\n')) : 'Henüz kayıt yok'}</pre></div></div>` : ''}
     <div ${nx()} class="pxs-links">${[['privacy/', 'Gizlilik politikası'], ['support/', 'Destek'], ['delete-account/', 'Hesap silme']].map(([u, t]) => `<a href="${u}${EN ? '#en' : ''}" target="_blank" rel="noopener">${t}</a>`).join('<span aria-hidden="true">·</span>')}</div>
     <div ${nx()} class="pxs-ver">wGlobe · ${BUILD}</div>`;
-  if (!animate) body.querySelectorAll(':scope > *').forEach(el => { el.style.animation = 'none'; el.style.opacity = '1'; el.style.transform = 'none'; });
+  body.classList.remove('anim'); if (animate && !reduceMotion.matches) { void body.offsetWidth; body.classList.add('anim'); }
   renderSleep(true);
   Cloud.renderLine();
   TipJar.request(false);
@@ -6785,50 +6960,20 @@ function renderSettings(animate) {
     closeSettings(true); pause(); openSheet(false); resetLocalAccount(); history = []; go('welcome', { replace: true }); toast('Hesabın ve tüm verilerin silindi');
   });
 }
+/** Ayarlar artık bir sekme: profil en üstte, ayarlar altta. openSettings() sekmeye geçip ayarlar bölümüne kaydırır. */
 function openSettings() {
-  if (pxsOpen) return; pxsOpen = true; vibrate(6);
-  pxsReturn = document.activeElement;
-  renderSettings(true);
-  const el = $('#pxSettings'); el.scrollTop = 0; $('#pxsBody').scrollTop = 0;
-  clearTimeout(el._hide); el.classList.add('shown'); void el.offsetWidth;   // önce yerleşir, sonra sağdan kayar
-  el.classList.add('open'); el.setAttribute('aria-hidden', 'false'); $('#pxsDim').classList.add('open');
-  $('#pxGear').setAttribute('aria-expanded', 'true');
-  setTimeout(() => { if (pxsOpen) try { $('#pxsClose').focus({ preventScroll: true }); } catch (e) {} }, 380);
-}
-function closeSettings(instant) {
-  if (!pxsOpen) return; pxsOpen = false;
-  const el = $('#pxSettings');
-  if (instant) { el.style.transition = 'none'; requestAnimationFrame(() => { el.style.transition = ''; }); }
-  el.classList.remove('open'); el.setAttribute('aria-hidden', 'true'); $('#pxsDim').classList.remove('open');
-  clearTimeout(el._hide); el._hide = setTimeout(() => { if (!pxsOpen) el.classList.remove('shown'); }, instant ? 0 : 320);   // ekran dışında yer kaplamasın
-  $('#pxGear').setAttribute('aria-expanded', 'false');
-  if (state.tab === 'profile' && state.view === 'app') renderProfile(false);   // tercih/hesap değiştiyse profil güncel kalsın
-  if (pxsReturn && pxsReturn.isConnected) try { pxsReturn.focus({ preventScroll: true }); } catch (e) {}
-}
-$('#pxGear').addEventListener('click', () => pxsOpen ? closeSettings() : openSettings());
-$('#pxsClose').addEventListener('click', () => { vibrate(4); closeSettings(); });
-$('#pxsDim').addEventListener('click', () => closeSettings());
-$('#pxsBody').addEventListener('click', e => { const g = e.target.closest('[data-go]'); if (g) { closeSettings(true); go(g.dataset.go); } });
-document.addEventListener('keydown', e => { if (e.key === 'Escape' && pxsOpen) closeSettings(); });
-// Sağa sürükleyerek kapat (parmağı izler; 90 px ya da hızlı bir fiske kapatır)
-(() => {
-  const el = $('#pxSettings'); let pid = null, x0 = 0, y0 = 0, lx = 0, lt = 0, vx = 0, horiz = null;
-  el.addEventListener('pointerdown', e => { if (!pxsOpen || e.target.closest('button, .tg, [data-sleep]')) return; pid = e.pointerId; x0 = lx = e.clientX; y0 = e.clientY; lt = performance.now(); vx = 0; horiz = null; });
-  el.addEventListener('pointermove', e => {
-    if (e.pointerId !== pid) return;
-    const dx = e.clientX - x0, dy = e.clientY - y0;
-    if (horiz === null && (Math.abs(dx) > 8 || Math.abs(dy) > 8)) { horiz = Math.abs(dx) > Math.abs(dy) && dx > 0; if (horiz) { el.classList.add('dragging'); try { el.setPointerCapture(pid); } catch (err) {} } }
-    if (!horiz) return;
-    const now = performance.now(); vx = (e.clientX - lx) / Math.max(1, now - lt); lx = e.clientX; lt = now;
-    el.style.transform = `translate3d(${Math.max(0, dx)}px, 0, 0)`;
-  });
-  const end = e => {
-    if (e.pointerId !== pid) return; pid = null;
-    if (!horiz) return;
-    const dx = e.clientX - x0; el.classList.remove('dragging'); el.style.transform = '';
-    if (dx > 90 || vx > 0.6) { vibrate(5); closeSettings(); }
+  const scrollDown = () => {
+    const sc = $('#stScroll'), set = $('#stSettings'); if (!sc || !set) return;
+    sc.scrollTo({ top: Math.max(0, set.offsetTop - 64), behavior: reduceMotion.matches ? 'auto' : 'smooth' });
   };
-  el.addEventListener('pointerup', end); el.addEventListener('pointercancel', end);
+  if (state.tab !== 'profile') { setTab('profile'); setTimeout(scrollDown, 420); } else scrollDown();
+}
+function closeSettings() { /* çekmece yok: geriye dönük uyumluluk */ }
+$('#pxsBody').addEventListener('click', e => { const g = e.target.closest('[data-go]'); if (g) go(g.dataset.go); });
+// Büyük başlık kaydırılıp gidince üstte küçük ortalı başlık belirir (iOS büyük başlık davranışı)
+(() => {
+  const sc = $('#stScroll'), pane = $('#pane-profile'); let on = false;
+  sc.addEventListener('scroll', () => { const v = sc.scrollTop > 34; if (v !== on) { on = v; pane.classList.toggle('st-scrolled', v); } }, { passive: true });
 })();
 // ── Bugünkü rotan: noktalı dünya haritası (2°'lik kara maskesi), duraklar arasında büyük daire yayları ──
 // Kart ekrana girince: noktalar soldan sağa 420 ms'de belirir → yaylar sırayla 1,3 sn'de çizilir → her durak varılınca yaylanır.
@@ -7505,7 +7650,7 @@ const Cloud = (() => {
       if (state.view !== 'app') return;
       if (state.activeCityId) renderSheetDynamic();
       if (state.tab === 'profile') renderProfile(false);
-      if (pxsOpen) renderSettings(false);
+      if (state.tab === 'profile' && !$('#pxsBody').contains(document.activeElement)) renderSettings(false);
       evaluateQuests(true);
     } catch (e) { alog('hesap: arayüz yenilenemedi ' + e.message); }
   }
@@ -7729,7 +7874,7 @@ const NowPlaying = (() => {
   function set(v) {
     if ((!npNow && !v) || (npNow && v && npNow.title === v.title && npNow.url === v.url)) return;
     npNow = v;
-    renderSheetDynamic(); mediaSync();
+    renderSheetDynamic(); renderLive(); mediaSync();
     if (NATIVE) NativeAudio.nowPlaying(state.index, v ? (v.artist ? `${v.artist} – ${v.song}` : v.song) : null);
     if (v) alog('çalan şarkı: ' + v.title);
   }
@@ -8434,7 +8579,7 @@ function startFlight() {
   if (flight.on) return;
   stopPulse(); if (cotdUI.open) closeCotd(false);
   flight.on = true; flight.leg = 0; vibrate('success');
-  $('#pane-globe').classList.add('flying-mode'); $('#flight').hidden = false; $('#flightBtn').classList.add('on'); $('#flightBtn').setAttribute('aria-pressed', 'true');
+  $('#pane-globe').classList.add('flying-mode'); updateDock(); $('#flight').hidden = false; $('#flightBtn').classList.add('on'); $('#flightBtn').setAttribute('aria-pressed', 'true');
   $('#search') && Search.reset();
   MapGlobe.onUserMove(() => stopFlight(true));
   flightLeg();
@@ -8512,7 +8657,7 @@ function openCotd(auto) {
   $('#cotdBody').style.setProperty('--nd', (380 + Math.min(len, 16) * 40 + 260) + 'ms');
   const arc = $('#cotdArc'); arc.style.transition = 'none'; arc.style.strokeDashoffset = '119.38'; void arc.getBoundingClientRect(); arc.style.transition = '';
   el.hidden = false; el.classList.remove('in', 'out'); void el.offsetWidth; el.classList.add('in');
-  $('#pane-globe').classList.add('cotd-mode');
+  $('#pane-globe').classList.add('cotd-mode'); updateDock();
   clearInterval(cotdUI.timer); setTimeout(() => { if (cotdUI.open) cotdTick(); }, 520); cotdUI.timer = setInterval(cotdTick, 1000);
   $('#cotdLeft').textContent = countdown(msToNextDay());
   // Kamera: şehir ekranın üst yarısına, yörüngeden 1,8 sn'de süzülür (perde ile aynı anda)
@@ -8528,7 +8673,7 @@ function closeCotd(play) {
   if (!cotdUI.open) return;
   cotdUI.open = false; clearInterval(cotdUI.timer);
   const el = $('#cotd'); el.classList.remove('in'); el.classList.add('out');
-  $('#pane-globe').classList.remove('cotd-mode');
+  $('#pane-globe').classList.remove('cotd-mode'); updateDock();
   setTimeout(() => { if (!cotdUI.open) { el.hidden = true; el.classList.remove('out'); } }, 300);
   MapGlobe.restorePad();
   if (play) {
@@ -8697,7 +8842,16 @@ seedFly(); applyPrefs();
 document.querySelectorAll('[data-go]').forEach(b => b.addEventListener('click', () => go(b.dataset.go)));
 document.querySelectorAll('[data-back]').forEach(b => b.addEventListener('click', back));
 $('#btnGuest').addEventListener('click', async () => { const b = $('#btnGuest'); setLoading(b, true); state.auth = 'guest'; save(); await sleep(250); setLoading(b, false); enterApp(); });
-document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => { vibrate(4); setTab(t.dataset.tab); }));
+document.querySelectorAll('.tab[data-tab]').forEach(t => t.addEventListener('click', () => {
+  vibrate(4);
+  if (Dock && Dock.collapsed) { Dock.expand(); return; }   // küçük hâlde sol daire: önce açılır
+  setTab(t.dataset.tab);
+}));
+$('#tabSearch').addEventListener('click', () => {
+  vibrate(4); if (Dock) Dock.expand();
+  const focus = () => { const i = $('#searchInput'); if (i) i.focus(); };
+  if (state.tab !== 'globe') { setTab('globe'); setTimeout(focus, 300); } else focus();
+});
 
 // iOS Safari: arayüz üstünde iki parmak sayfayı büyütmesin (harita kendi yakınlaştırmasını dokunma olaylarıyla yapar)
 ['gesturestart', 'gesturechange', 'gestureend'].forEach(t => document.addEventListener(t, e => e.preventDefault(), { passive: false }));
