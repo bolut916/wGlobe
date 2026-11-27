@@ -915,7 +915,7 @@ svg.i.filled { fill: currentColor; }
 /* ── Ayarlar sekmesi (v59): büyük başlık · profil kartı · ayar grupları; kaydırınca üstte küçük başlık ── */
 #pane-profile .st-scroll { position: absolute; inset: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none; padding: calc(var(--sat) + 10px) 20px calc(var(--stack-top) + 28px); }
 #pane-profile .st-scroll::-webkit-scrollbar { display: none; }
-.st-title { margin: 0 0 16px; font-family: var(--display); font-size: 34px; line-height: 40px; font-weight: 750; letter-spacing: -0.045em; transition: opacity 180ms var(--e-standard); }
+.st-title { position: relative; z-index: 1; margin: 0 0 16px; font-family: var(--display); font-size: 34px; line-height: 40px; font-weight: 750; letter-spacing: -0.045em; transition: opacity 180ms var(--e-standard); }
 .st-scrolled .st-title { opacity: 0; }
 .st-top { position: absolute; left: 0; right: 0; top: 0; z-index: 6; height: calc(var(--sat) + 50px); display: flex; align-items: flex-end; justify-content: center; padding-bottom: 12px; pointer-events: none;
   background: linear-gradient(180deg, var(--bg) 0%, rgba(5,11,24,0.94) 62%, rgba(5,11,24,0)); opacity: 0; transition: opacity 180ms var(--e-exit); }
@@ -924,7 +924,7 @@ svg.i.filled { fill: currentColor; }
 .st-scrolled .st-top b { transform: none; transition: transform 260ms var(--e-enter); }
 #app[data-tab="profile"] .app-logo { opacity: 0; }
 /* Alt perde: kaydırılan içerik dok'a doğru zemine erir (bulanıklık yerine; küre ekranında sürekli çizim var) */
-#pane-profile::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: calc(var(--stack-top) + 36px); z-index: 5; pointer-events: none;
+#pane-profile::after { content: ''; position: absolute; left: 0; right: 0; top: auto; bottom: 0; height: calc(var(--stack-top) + 36px); z-index: 5; pointer-events: none;
   background: linear-gradient(180deg, rgba(5,11,24,0) 0%, rgba(5,11,24,0.82) 45%, rgba(5,11,24,0.96) 100%); }
 /* Profil kartı: kaydırılan sayfada sabit yükseklikler (küre arkada, yarı saydam cam) */
 .st-profile.px-wrap { position: relative; top: auto; bottom: auto; left: auto; right: auto; padding: 18px 16px 16px; gap: 14px; overflow: visible; border-radius: 32px;
@@ -1022,7 +1022,7 @@ svg.i.filled { fill: currentColor; }
 
 .screen.no-debug .lod-badge { display: none !important; }
 [hidden] { display: none !important; }
-#pane-profile::after { content: ""; position: absolute; left: 0; right: 0; top: 0; height: calc(var(--sat) + 78px); background: linear-gradient(180deg, rgba(6,12,26,0.97) 0%, rgba(6,12,26,0.9) 55%, rgba(6,12,26,0)); pointer-events: none; z-index: 2; }
+/* (v59) Eski profilin üst perdesi kaldırıldı: Ayarlar'da üstte büyük başlık var, kaydırınca küçük başlık (.st-top) devralır */
 /* Uçuş modu: arayüz çekilir, şehir adı harf harf yükselir, ilerleme çizgisi bacak boyunca dolar */
 #pane-globe.flying-mode .search, #pane-globe.flying-mode .hint, #pane-globe.flying-mode .live-dock, #pane-globe.flying-mode .sheet, #pane-globe.flying-mode #shuffle { opacity: 0 !important; pointer-events: none !important; transition: opacity 400ms var(--e-standard); }
 .topbar { gap: 8px; }
@@ -4271,7 +4271,7 @@ const SatMosaic = (() => {
 })();
 
 /** Sürüm etiketi: sitede hangi sürümün açık olduğunu rozetten görmek için (önbellek kontrolü). */
-const BUILD = 'v59';
+const BUILD = 'v60';
 const MapGlobe = (() => {
   const host = document.getElementById('mapStage');
   const badge = document.getElementById('lodBadge');
@@ -8388,7 +8388,7 @@ async function prevStation() {
 
 // ── Kilit ekranı ve kulaklık (web sitesi): Media Session ──
 const MS = 'mediaSession' in navigator && !NATIVE;
-let msKey = '', msArtUrl = null, msHandlersFor = -1, msPlayCount = 0;
+let msKey = '', msArtUrl = null, msArtFor = '', msHandlersFor = -1, msPlayCount = 0;
 function mediaSync() {
   if (!MS) return;
   const city = CITY[state.activeCityId], st = currentStation(), s = state.status;
@@ -8401,10 +8401,14 @@ function mediaSync() {
   const meta = song ? { title: song.song || song.title, artist: [song.artist, st.name, city.name].filter(Boolean).join(' · '), album: tx('wGlobe · canlı radyo') }
     : { title: st && !st.demo ? st.name : tx(`${city.name} radyoları`), artist: `${city.name} · ${city.country}`, album: tx('wGlobe · canlı radyo') };
   const apply = art => { try { navigator.mediaSession.metadata = new MediaMetadata(Object.assign({}, meta, art ? { artwork: [{ src: art, sizes: '1024x1024', type: 'image/jpeg' }] } : {})); } catch (e) {} };
-  apply(msArtUrl && msKey === key ? msArtUrl : null);
+  // Kapak yalnız şehir + temaya bağlı: şarkı değişince yeniden üretilmez; başka şehrin kapağı bir an bile görünmez
+  const artKey = `${city.id}|${state.theme}`;
+  if (msArtUrl && msArtFor === artKey) { apply(msArtUrl); return; }
+  apply(null);
   cityArt(city).then(data => data ? fetch(data).then(r => r.blob()) : null).then(b => {
     if (!b || msKey !== key) return;
-    if (msArtUrl) URL.revokeObjectURL(msArtUrl); msArtUrl = URL.createObjectURL(b); apply(msArtUrl);
+    const old = msArtUrl; msArtUrl = URL.createObjectURL(b); msArtFor = artKey; apply(msArtUrl);
+    if (old) setTimeout(() => URL.revokeObjectURL(old), 10000);   // tarayıcı eskisini okurken serbest bırakılmasın
   }).catch(() => {});
 }
 /** Kilit ekranı tuşları. iOS Safari bunları ancak ses çalmaya başladıktan sonra tanımlanırsa uygular; yoksa ±10 sn
