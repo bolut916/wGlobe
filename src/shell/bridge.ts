@@ -26,7 +26,22 @@ export type ShareMessage = { type: 'share'; image: string; url: string; text: st
 /** Radyolu alarm: her gün hour:minute'te sesli bildirim (title/body web'in dilinde gelir) */
 export type AlarmSetMessage = { type: 'alarm:set'; enabled: boolean; hour: number; minute: number; title: string; body: string };
 
-export type WebMessage = WidgetUpdateMessage | AudioLoadMessage | AudioSkipMessage | AudioPauseMessage | AudioVolumeMessage | AudioArtMessage | AudioNowPlayingMessage | HapticMessage | ShareMessage | AlarmSetMessage;
+/**
+ * Geliştiriciye destek (uygulama içi bahşiş). Yalnız bu üç tüketilebilir ürün satın alınabilir; bahşiş hiçbir
+ * özelliği açmaz (App Store 3.1.1: "Apps may use in-app purchase currencies to enable customers to tip the developer").
+ * Kimlikler App Store Connect ve Google Play Console'da birebir aynı tanımlanır.
+ */
+export const TIP_SKUS = ['com.wglobe.app.tip.song', 'com.wglobe.app.tip.album', 'com.wglobe.app.tip.night'] as const;
+export type TipSku = (typeof TIP_SKUS)[number];
+export type TipLoadMessage = { type: 'tip:load' };
+export type TipBuyMessage = { type: 'tip:buy'; id: TipSku };
+export type TipProduct = { id: TipSku; price: string };
+/** Mağaza ürünleri (fiyatlar mağazanın yerel biçiminde) ya da ulaşılamadı */
+export type TipProductsMessage = { type: 'tip:products'; items: TipProduct[]; error?: 'unavailable' };
+/** Satın alma sonucu. late: uygulama kapanmışken ya da onay beklerken tamamlanmış eski bir bahşiş */
+export type TipResultMessage = { type: 'tip:result'; id: string; status: 'success' | 'cancelled' | 'pending' | 'error'; late?: boolean };
+
+export type WebMessage = TipLoadMessage | TipBuyMessage | WidgetUpdateMessage | AudioLoadMessage | AudioSkipMessage | AudioPauseMessage | AudioVolumeMessage | AudioArtMessage | AudioNowPlayingMessage | HapticMessage | ShareMessage | AlarmSetMessage;
 
 export type AudioStateMessage = { type: 'audio:state'; loadId: number; index: number; playing: boolean; buffering: boolean; failed: boolean };
 export type LinkMessage = { type: 'link'; params: Record<string, string> };
@@ -36,7 +51,7 @@ export type RemoteMessage = { type: 'remote'; action: 'next' | 'prev' };
 export type AlarmStatusMessage = { type: 'alarm:status'; ok: boolean; enabled: boolean; hour?: number; minute?: number; reason?: 'permission' | 'error' };
 /** Alarm bildirimine dokunuldu: web, güneşin doğduğu şehrin radyosunu başlatır */
 export type AlarmFireMessage = { type: 'alarm:fire' };
-export type NativeMessage = AudioStateMessage | LinkMessage | RemoteMessage | AlarmStatusMessage | AlarmFireMessage;
+export type NativeMessage = AudioStateMessage | LinkMessage | RemoteMessage | AlarmStatusMessage | AlarmFireMessage | TipProductsMessage | TipResultMessage;
 
 /** Gelen mesajı doğrular (WebView içeriği güvenilir olsa da yapı bozuksa sessizce yok sayılır). */
 export function parseWebMessage(raw: string): WebMessage | null {
@@ -69,6 +84,10 @@ export function parseWebMessage(raw: string): WebMessage | null {
     }
     case 'share':
       return typeof o.image === 'string' && typeof o.url === 'string' && typeof o.text === 'string' ? (o as unknown as ShareMessage) : null;
+    case 'tip:load':
+      return { type: 'tip:load' };
+    case 'tip:buy':
+      return typeof o.id === 'string' && (TIP_SKUS as readonly string[]).includes(o.id) ? { type: 'tip:buy', id: o.id as TipSku } : null;
     case 'widget:update': {
       // Her alan ayrı doğrulanır; yeni nesne kurulur (gelen nesnenin fazladan alanları asla taşınmaz)
       const city = cleanText(o.city, 60), station = cleanText(o.station, 80);

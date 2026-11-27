@@ -23,6 +23,7 @@ import { NativeRadio } from '@/shell/NativeRadio';
 import { configureAlarm, isAlarmResponse, setAlarm } from '@/shell/Alarm';
 import { linkParams, parseWebMessage, type HapticName, type NativeMessage, type ShareMessage } from '@/shell/bridge';
 import { ensureWidget, updateFromWeb } from '@/widgets/store';
+import { Tips } from '@/shell/Tips';
 
 const SITE_URL = 'https://bolut916.github.io/wGlobe/';
 // Yalnız bu adres ağacı uygulamanın içinde açılır ve yerel köprüye mesaj gönderebilir. Düz metin karşılaştırması
@@ -120,6 +121,13 @@ export default function WGlobeShell() {
     return () => sub.remove();
   }, [toWeb]);
 
+  // Geliştiriciye destek (uygulama içi bahşiş): mağaza bağlantısı ancak web ilk istediğinde kurulur
+  const tips = useRef<Tips | null>(null);
+  useEffect(() => {
+    tips.current = new Tips(toWeb);
+    return () => { tips.current?.destroy(); tips.current = null; };
+  }, [toWeb]);
+
   // Ana ekran widget'ı: kayıt yoksa boş durumu cihaz dilinde yaz, varsa tazele (hata uygulamayı etkilemez)
   useEffect(() => { void ensureWidget(); }, []);
 
@@ -169,6 +177,8 @@ export default function WGlobeShell() {
       case 'share': void shareCard(m); break;
       case 'alarm:set': void setAlarm(m, toWeb); break;
       case 'widget:update': void updateFromWeb(m); break;
+      case 'tip:load': void tips.current?.load(); break;
+      case 'tip:buy': void tips.current?.buy(m.id); break;
     }
   }, [toWeb]);
 
