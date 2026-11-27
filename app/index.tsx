@@ -30,6 +30,9 @@ const SITE_URL = 'https://bolut916.github.io/wGlobe/';
 // (startsWith) 'https://bolut916.github.io.kotu.com' gibi sahte adresleri de geçirirdi; kalıp ana makineyi kesin sınırlar.
 const SITE_RE = /^https:\/\/bolut916\.github\.io\/wGlobe(?:[/?#]|$)/;
 const isSite = (url: string | undefined): boolean => typeof url === 'string' && SITE_RE.test(url);
+// Sitenin belge sayfaları (gizlilik, destek, hesap silme) uygulamanın içinde değil sistem tarayıcısında açılır:
+// WebView'da açılsalar kullanıcı (iPhone'da geri tuşu olmadan) uygulamaya dönemezdi.
+const DOC_RE = /\/(?:privacy|support|delete-account)\/?(?:[?#]|$)/;
 // Dış bağlantılar sistemde yalnız bu şemalarla açılır (intent:, file:, tel: vb. sayfa tarafından tetiklenemez)
 const EXTERNAL_RE = /^(?:https:\/\/|mailto:)/i;
 const BG = '#050B18';
@@ -216,6 +219,7 @@ export default function WGlobeShell() {
         onNavigationStateChange={(s) => { canGoBack.current = s.canGoBack; }}
         onShouldStartLoadWithRequest={(req) => {
           // Site içinde kal; dış bağlantılar sistem tarayıcısında açılır
+          if (isSite(req.url) && DOC_RE.test(req.url)) { void Linking.openURL(req.url).catch(() => undefined); return false; }
           if (isSite(req.url) || req.url === 'about:blank') return true;
           // Gömülü çerçeveler hiçbir yere gidemez; üst sayfadan çıkan dış bağlantı sistemde açılır
           if (req.isTopFrame !== false && EXTERNAL_RE.test(req.url)) void Linking.openURL(req.url).catch(() => undefined);

@@ -27,8 +27,8 @@ const policy = [
   "connect-src 'self' https: data: blob:",          // radyo sunucuları, hava durumu, Supabase, harita karoları, yayın ön kontrolü
   "img-src 'self' data: blob: https:",
   "media-src 'self' https: data: blob:",            // canlı yayınlar her yerden (yalnız https)
-  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-  "font-src 'self' data: https://fonts.gstatic.com",
+  "style-src 'self' 'unsafe-inline'",
+  "font-src 'self' data:",                           // yazı tipleri sitenin kendisinden (lib/fonts)
   "object-src 'none'",
   "base-uri 'none'",
   "form-action 'none'",

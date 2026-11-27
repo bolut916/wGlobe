@@ -16,8 +16,7 @@
     },
     "ios": {
       "bundleIdentifier": "com.wglobe.app",
-      "buildNumber": "1",
-      "supportsTablet": true,
+      "supportsTablet": false,
       "infoPlist": {
         "UIBackgroundModes": [
           "audio"
@@ -47,7 +46,6 @@
     },
     "android": {
       "package": "com.wglobe.app",
-      "versionCode": 1,
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#050B18"
@@ -152,7 +150,8 @@
             }
           ]
         }
-      ]
+      ],
+      "./plugins/with-iphone-only.js"
     ],
     "experiments": {
       "typedRoutes": true,
