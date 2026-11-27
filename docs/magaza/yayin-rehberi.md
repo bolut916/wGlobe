@@ -122,9 +122,10 @@ kullanıcılar kayıt onayı alamaz.
 
 4. *Store listing*:
    - Metinler: `docs/magaza/metinler.md`
-   - Simge: 512×512
-   - Öne çıkan görsel: 1024×500
-   - Telefon ekran görüntüleri: `docs/magaza/ekran/`
+   - Simge (512×512): `docs/magaza/simge-512.png`
+   - Öne çıkan görsel (1024×500): `docs/magaza/ekran/tr/play-feature-1024x500.jpg` (EN: `en/`)
+   - Telefon ekran görüntüleri (1080×2160): `docs/magaza/ekran/tr/play-1…5.jpg` (EN: `en/`). Play, uzun kenarı
+     kısa kenarın 2 katından fazla olan görüntüyü kabul etmez; iPhone görüntüleri bu yüzden ayrı.
 5. *Testing → Closed testing*: 12 kişinin e-postasıyla liste oluştur, katılım bağlantısını gönder, **14 gün**
    bekle.
 6. 14 gün dolunca *Dashboard → Apply for production* formu (testte ne öğrendin, kısa yanıtlar), sonra üretim
@@ -140,7 +141,7 @@ kullanıcılar kayıt onayı alamaz.
    - SKU: `wglobe-ios`
 2. İngilizce yerelleştirmeyi ekle (*App Information → Localizable Information → English (U.S.)*). İki dilde
    metinler: `docs/magaza/metinler.md`
-3. **6,9" ekran görüntüleri** (1320×2868): `docs/magaza/ekran/tr/` ve `docs/magaza/ekran/en/`. Apple bunlardan
+3. **6,9" ekran görüntüleri** (1320×2868): `docs/magaza/ekran/tr/appstore-6.9-1…5.jpg` ve `en/` karşılıkları. Apple bunlardan
    küçük ekranları kendisi üretir.
 4. *App Privacy*, *Age Rating*, *Content Rights*: `docs/magaza/gizlilik-yanitlari.md`
 5. Kategori: **Music** (ikincil: Travel). Fiyat: Free.
