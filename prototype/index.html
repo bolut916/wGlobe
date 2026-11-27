@@ -226,6 +226,34 @@ svg.i.filled { fill: currentColor; }
 /* Radyolu alarm */
 .px-alarm-time { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 0 12px 54px; transition: opacity 200ms var(--e-standard); }
 .px-alarm-time.off { opacity: 0.4; }
+/* ── Geliştiriciye destek (bahşiş) ── */
+.tip-intro { display: flex; align-items: flex-start; gap: 14px; padding: 12px 0 14px; }
+.tip-orb { position: relative; width: 44px; height: 44px; flex: none; border-radius: 50%; display: grid; place-items: center; color: #FFD3E1;
+  background: radial-gradient(circle at 32% 30%, rgba(255,190,215,0.35), rgba(110,170,235,0.12) 62%); box-shadow: inset 0 0 0 1px rgba(255,200,222,0.22); }
+.tip-intro .tx { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.tip-intro .tx b { font-size: 15.5px; font-weight: 600; }
+.tip-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; padding-bottom: 12px; }
+.tip { position: relative; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 12px 6px 10px; border-radius: 20px; border: 0; color: var(--fg);
+  background: rgba(232,240,255,0.05); box-shadow: inset 0 0 0 1px rgba(232,240,255,0.09); font: inherit; cursor: pointer; overflow: visible;
+  transition: opacity 200ms var(--e-standard), background 200ms var(--e-standard), transform 120ms var(--e-standard); -webkit-tap-highlight-color: transparent; }
+.tip:disabled { cursor: default; }
+.tip .ti { width: 34px; height: 34px; border-radius: 17px; display: grid; place-items: center; color: var(--a2); background: rgba(110,170,235,0.12); }
+.tip .tn { font-size: 13px; font-weight: 600; line-height: 16px; text-align: center; min-height: 32px; display: flex; align-items: center; }
+.tip .tp { position: relative; min-width: 64px; height: 26px; padding: 0 10px; border-radius: 13px; display: grid; place-items: center; font-size: 13px; font-weight: 700;
+  font-variant-numeric: tabular-nums; color: #0B1A33; background: var(--a1); white-space: nowrap; }
+.tip .tp.skel { background: rgba(232,240,255,0.12); color: transparent; animation: tipSkel 1200ms var(--e-inout) infinite alternate; }
+@keyframes tipSkel { from { opacity: 0.45; } to { opacity: 1; } }
+.tip .tp .spin { width: 14px; height: 14px; border-radius: 50%; border: 2px solid rgba(11,26,51,0.25); border-top-color: #0B1A33; animation: rot 700ms linear infinite; }
+.tip-grid.busy .tip:not(.busy) { opacity: 0.5; }
+.tip.busy { background: rgba(169,211,255,0.10); }
+.tip .fx { position: absolute; left: 50%; top: 34%; width: 0; height: 0; pointer-events: none; }
+.tip .fx i { position: absolute; left: -2.5px; top: -2.5px; width: 5px; height: 5px; border-radius: 50%; background: #FFD3E1; box-shadow: 0 0 8px rgba(255,190,215,0.9); opacity: 0; }
+.tip .fx svg { position: absolute; left: -11px; top: -11px; width: 22px; height: 22px; color: #FFB8CF; fill: currentColor; opacity: 0; filter: drop-shadow(0 0 6px rgba(255,170,200,0.8)); }
+.tip-note { font-size: 12px; line-height: 17px; color: var(--fg-3); padding: 0 2px 12px; }
+.tip-thanks { display: flex; align-items: center; gap: 8px; margin: 0 0 12px; padding: 10px 12px; border-radius: 16px; background: rgba(255,190,215,0.08); color: #FFD3E1; font-size: 13.5px; font-weight: 600; }
+.tip-thanks svg { flex: none; }
+.tip-off { font-size: 13px; line-height: 18px; color: var(--fg-2); padding: 0 0 14px; }
+.tip-off button { margin-left: 4px; }
 .px-alarm-time label { font-size: 14px; color: var(--fg-2); }
 .px-alarm-time input { font: 600 20px/1 var(--font); font-variant-numeric: tabular-nums; color: var(--fg); background: rgba(232,240,255,0.06); border: 0; border-radius: 12px; padding: 8px 12px; color-scheme: dark; min-height: 40px; }
 .tg[disabled] { opacity: 0.4; }
@@ -2134,6 +2162,14 @@ I18N.add({
   'Hesabı kalıcı olarak sil': 'Delete account permanently',
   'Favorilerin, damgaların ve açtığın küreler dahil tüm verilerin sunucudan ve bu cihazdan silinecek. Bu işlem geri alınamaz.': 'All your data, including favorites, stamps and unlocked globes, will be deleted from the server and this device. This cannot be undone.',
   'Hesabın ve tüm verilerin silindi': 'Your account and all your data were deleted', 'Hesabı silmek için önce yeniden giriş yap': 'Sign in again before deleting your account', 'Hesap silinemedi': 'Account could not be deleted',
+  "wGlobe'u destekle": 'Support wGlobe', 'Yayını birlikte sürdürelim': 'Keep the broadcast going',
+  "wGlobe'u tek bir geliştirici yapıyor. Beğendiysen küçük bir bahşişle destek olabilirsin.": 'wGlobe is made by a single developer. If you enjoy it, you can support it with a small tip.',
+  'Bahşiş yalnızca uygulamada, App Store ve Google Play üzerinden verilebilir.': 'Tips are only available in the app, through the App Store and Google Play.',
+  'Mağazaya şu an ulaşılamıyor.': "Can't reach the store right now.", 'Bir şarkı': 'A song', 'Bir albüm': 'An album', 'Bir yayın gecesi': 'A night on air', 'Bahşiş seç': 'Choose a tip',
+  'Bahşişler isteğe bağlıdır ve hiçbir özelliği açmaz; wGlobe herkes için aynıdır. Ödeme uygulama mağazası üzerinden alınır.': "Tips are optional and don't unlock any features; wGlobe is the same for everyone. Payment is handled by the app store.",
+  'Desteğin için teşekkürler': 'Thank you for your support', 'Bekleyen bahşişin tamamlandı': 'Your pending tip went through', 'teşekkürler ♥': 'thank you ♥',
+  'Ödeme onay bekliyor': 'Payment awaiting approval', 'onaylanınca teşekkürümüz seni bulacak': 'our thanks will find you once it goes through',
+  'Bahşiş tamamlanamadı': "The tip didn't go through", 'daha sonra tekrar dene': 'please try again later', "desteğin wGlobe'u yayında tutuyor ♥": 'your support keeps wGlobe on air ♥',
   'Çıkış yapıldı': 'Signed out', 'Ses günlüğü': 'Audio log', 'Temizle': 'Clear', 'Henüz kayıt yok': 'Nothing logged yet', 'Radyolu alarm': 'Radio alarm', 'Güneşin doğduğu yerden uyan': 'Wake up where the sun is rising',
   'Her sabah seçtiğin saatte bildirim gelir; dokununca o an güneşin doğduğu şehrin radyosu çalar.': 'Every morning at your chosen time you get a notification; tap it and the radio of a city seeing sunrise right then starts playing.',
   'Alarm bildirim gerektirdiği için yalnızca uygulamada çalışır.': 'The alarm needs notifications, so it works only in the app.',
@@ -2167,6 +2203,8 @@ I18N.add({
   [/^(\d+)\. DURAK$/, (_, n) => `STOP ${n}`],
   [/^(\d+) ŞEHİR$/, (_, n) => `${n} CIT${n === '1' ? 'Y' : 'IES'}`],
   [/^(\d+) dk$/, (_, n) => `${n} min`],
+  [/^(\d+) kez$/, (_, n) => `${n} ${n === '1' ? 'time' : 'times'}`],
+  [/^Teşekkürler! (.+)$/, (_, r) => `Thank you! ${r}`],
   [/^Favori sınırına ulaştın \((\d+)\)$/, (_, n) => `Favorites limit reached (${n})`],
   [/^Alarm kuruldu · her gün (\d\d:\d\d)$/, (_, h) => `Alarm set · every day at ${h}`],
   [/^(\d+) ülke$/, (_, n) => `${n} countr${n === '1' ? 'y' : 'ies'}`],
@@ -4063,7 +4101,7 @@ const SatMosaic = (() => {
 })();
 
 /** Sürüm etiketi: sitede hangi sürümün açık olduğunu rozetten görmek için (önbellek kontrolü). */
-const BUILD = 'v53';
+const BUILD = 'v54';
 const MapGlobe = (() => {
   const host = document.getElementById('mapStage');
   const badge = document.getElementById('lodBadge');
@@ -6170,6 +6208,99 @@ function alarmSend(quiet) {
   const a = alarmState(); alarmQuiet = !!quiet;
   nativePost({ type: 'alarm:set', enabled: !!a.on, hour: a.h, minute: a.m, title: tx('Günaydın ☀️'), body: tx('Güneşin şu an doğduğu şehrin radyosu seni bekliyor. Dokun, başlasın.') });
 }
+/**
+ * Geliştiriciye destek — uygulama içi bahşiş.
+ * Kural: bahşiş yalnız App Store / Google Play'in kendi satın alma sistemiyle (yerel kabuk, expo-iap) verilir;
+ * web sitesinde ödeme yoktur, dış ödeme bağlantısı da yoktur. Bahşiş hiçbir özelliği açmaz (açıkça yazılır).
+ * Fiyatlar mağazadan gelir; uygulamada fiyat yazılmaz.
+ * Hareket: yükleniyor → iskelet nefesi; dokununca seçilen kutuda dönen gösterge, diğerleri soluklaşır;
+ * başarı → kalp yükselir (yay, 420 ms) + 8 kıvılcım (700 ms) + ışık halkası, teşekkür satırı süzülür;
+ * hata → 240 ms "hayır" sallanması. Azaltılmış harekette yalnız metin.
+ */
+const TIP_TIERS = [
+  { id: 'com.wglobe.app.tip.song', name: 'Bir şarkı', icon: 'music' },
+  { id: 'com.wglobe.app.tip.album', name: 'Bir albüm', icon: 'radio' },
+  { id: 'com.wglobe.app.tip.night', name: 'Bir yayın gecesi', icon: 'moon' },
+];
+const TipJar = (() => {
+  const KEY = 'wglobe-tips-v1';
+  let products = null, failed = false, busy = null, requested = 0;
+  const read = () => { try { const o = JSON.parse(localStorage.getItem(KEY) || '{}'); return { n: Number.isInteger(o.n) && o.n > 0 ? Math.min(o.n, 9999) : 0 }; } catch (e) { return { n: 0 }; } };
+  const write = o => { try { localStorage.setItem(KEY, JSON.stringify(o)); } catch (e) {} };
+  function request(force) {
+    if (!NATIVE) return;
+    if (!force && (products || (Date.now() - requested < 4000))) return;
+    requested = Date.now(); failed = false; nativePost({ type: 'tip:load' });
+  }
+  function html() {
+    const n = read().n;
+    const thanks = n ? `<div class="tip-thanks" id="tipThanks">${icon('heart', 16)}<span>Desteğin için teşekkürler${n > 1 ? ` · ${n} kez` : ''}</span></div>` : '';
+    const intro = `<div class="tip-intro"><span class="tip-orb">${icon('heart', 20)}</span><span class="tx"><b>Yayını birlikte sürdürelim</b><span class="small">wGlobe'u tek bir geliştirici yapıyor. Beğendiysen küçük bir bahşişle destek olabilirsin.</span></span></div>`;
+    if (!NATIVE) return intro + `<div class="tip-off">Bahşiş yalnızca uygulamada, App Store ve Google Play üzerinden verilebilir.</div>`;
+    if (failed) return intro + thanks + `<div class="tip-off">Mağazaya şu an ulaşılamıyor.<button class="auth-link press" id="tipRetry">Tekrar dene</button></div>`;
+    const price = id => { const p = products && products.find(x => x.id === id); return p ? `<span class="tp" data-noi18n>${esc(p.price)}</span>` : `<span class="tp skel" aria-hidden="true">00,00</span>`; };
+    const tiles = TIP_TIERS.filter(t => !products || products.some(p => p.id === t.id)).map(t =>
+      `<button type="button" class="tip press${busy === t.id ? ' busy' : ''}" data-tip="${t.id}" ${products && !busy ? '' : 'disabled'} aria-label="${esc(t.name)}">
+        <span class="ti">${icon(t.icon, 17)}</span><span class="tn">${t.name}</span>${busy === t.id ? '<span class="tp"><span class="spin"></span></span>' : price(t.id)}<span class="fx" aria-hidden="true"></span></button>`).join('');
+    return intro + thanks + `<div class="tip-grid${busy ? ' busy' : ''}" role="group" aria-label="Bahşiş seç">${tiles}</div>
+      <div class="tip-note">Bahşişler isteğe bağlıdır ve hiçbir özelliği açmaz; wGlobe herkes için aynıdır. Ödeme uygulama mağazası üzerinden alınır.</div>`;
+  }
+  function render() { const c = document.getElementById('tipCard'); if (!c) return; c.innerHTML = html(); if (EN) I18N.walk(c); }
+  function celebrate(id) {
+    const tile = document.querySelector(`.tip[data-tip="${CSS.escape(id)}"]`), fx = tile && tile.querySelector('.fx');
+    if (!tile || !fx || reduceMotion.matches) return;
+    fx.innerHTML = icon('heart', 22) + '<i></i>'.repeat(8);
+    const heart = fx.querySelector('svg'), sparks = fx.querySelectorAll('i');
+    heart.animate([{ opacity: 0, transform: 'translateY(0) scale(0.5)' }, { opacity: 1, transform: 'translateY(-34px) scale(1.15)', offset: 0.55 }, { opacity: 1, transform: 'translateY(-46px) scale(1)', offset: 0.8 }, { opacity: 0, transform: 'translateY(-54px) scale(0.95)' }],
+      { duration: 900, easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)', fill: 'forwards' });
+    sparks.forEach((sp, i) => {
+      const a = (i / sparks.length) * Math.PI * 2 - Math.PI / 2, d = 26 + (i % 2) * 12;
+      sp.animate([{ opacity: 0.95, transform: 'translate(0,0) scale(1)' }, { opacity: 0, transform: `translate(${(Math.cos(a) * d).toFixed(1)}px, ${(Math.sin(a) * d - 10).toFixed(1)}px) scale(0.4)` }],
+        { duration: 700, delay: 60, easing: 'cubic-bezier(0.2, 0, 0, 1)', fill: 'forwards' });
+    });
+    tile.animate([{ boxShadow: 'inset 0 0 0 1px rgba(232,240,255,0.09), 0 0 0 0 rgba(255,190,215,0.55)' }, { boxShadow: 'inset 0 0 0 1px rgba(232,240,255,0.09), 0 0 0 12px rgba(255,190,215,0)' }], { duration: 650, easing: 'cubic-bezier(0.2, 0, 0, 1)' });
+  }
+  function shake(id) {
+    const tile = document.querySelector(`.tip[data-tip="${CSS.escape(id)}"]`); if (!tile || reduceMotion.matches) return;
+    tile.animate([{ transform: 'translateX(0)' }, { transform: 'translateX(-4px)' }, { transform: 'translateX(4px)' }, { transform: 'translateX(-3px)' }, { transform: 'translateX(2px)' }, { transform: 'translateX(0)' }], { duration: 240, easing: 'linear' });
+  }
+  function onProducts(m) {
+    const items = Array.isArray(m.items) ? m.items.filter(x => x && TIP_TIERS.some(t => t.id === x.id) && typeof x.price === 'string' && x.price.length <= 24) : [];
+    products = items.length ? items : null; failed = !items.length; render();
+  }
+  function onResult(m) {
+    const tier = TIP_TIERS.find(t => t.id === m.id);
+    if (m.status === 'success') {
+      const o = read(); o.n++; write(o);
+      const was = busy; busy = null;
+      if (m.late) { render(); vibrate('success'); toast('Bekleyen bahşişin tamamlandı · teşekkürler ♥'); return; }
+      vibrate('success');
+      // Önce kutudaki kutlama, sonra kart yeni teşekkür satırıyla çizilir (kutlama katmanı kaybolmasın diye kısa gecikme)
+      const grid = document.querySelector('.tip-grid'); if (grid) grid.classList.remove('busy');
+      const tile = document.querySelector(`.tip[data-tip="${CSS.escape(m.id)}"]`);
+      if (tile) { tile.classList.remove('busy'); const tp = tile.querySelector('.tp'); const p = products && products.find(x => x.id === m.id); if (tp && p) { tp.innerHTML = ''; tp.textContent = p.price; } }
+      celebrate(was || m.id);
+      setTimeout(() => {
+        render();
+        const th = document.getElementById('tipThanks');
+        if (th && !reduceMotion.matches) th.animate([{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'translateY(0)' }], { duration: 280, easing: 'cubic-bezier(0.05, 0.7, 0.1, 1)' });
+      }, reduceMotion.matches ? 0 : 900);
+      toast(`Teşekkürler! ${tier ? tx(tier.name) + ' · ' : ''}desteğin wGlobe'u yayında tutuyor ♥`);
+      return;
+    }
+    if (busy !== m.id) return;
+    busy = null; render();
+    if (m.status === 'pending') toast('Ödeme onay bekliyor · onaylanınca teşekkürümüz seni bulacak');
+    else if (m.status === 'error') { shake(m.id); vibrate('error'); toast('Bahşiş tamamlanamadı · daha sonra tekrar dene'); }
+    // cancelled: sessizce eski haline döner
+  }
+  document.addEventListener('click', e => {
+    const b = e.target.closest('[data-tip]');
+    if (b && NATIVE && products && !busy) { busy = b.dataset.tip; vibrate(6); render(); nativePost({ type: 'tip:buy', id: busy }); return; }
+    if (e.target.closest('#tipRetry')) { vibrate(6); products = null; failed = false; render(); request(true); }
+  });
+  return { request, render, html, onProducts, onResult, get busy() { return busy; } };
+})();
 function alarmRender() { const c = document.getElementById('alarmCard'); if (c) { c.innerHTML = alarmHTML(); if (EN) I18N.walk(c); } }
 document.addEventListener('click', e => {
   const b = e.target.closest('[data-alarm-toggle]'); if (!b || !NATIVE) return;
@@ -6377,6 +6508,7 @@ function renderSettings(animate) {
     </div></div></div>
     <div ${nx()}><div class="px-sec"><div class="px-head"><h3 class="h2">Radyolu alarm</h3></div><div class="px-card" id="alarmCard">${alarmHTML()}</div></div></div>
     <div ${nx()}><div class="px-card"><div class="px-sleep" id="sleepCard"></div></div></div>
+    <div ${nx()}><div class="px-sec"><div class="px-head"><h3 class="h2">wGlobe'u destekle</h3></div><div class="px-card" id="tipCard">${TipJar.html()}</div></div></div>
     ${guest ? '' : `<div ${nx()}><div class="px-syncline" id="syncLine" hidden></div></div>`}
     <div ${nx()}><div class="px-acct"><button class="btn line press" id="signOut"><span class="lbl">${icon('log-out', 18)}${guest ? 'Misafirden çık' : 'Çıkış yap'}</span></button>${guest ? '' : `<button class="btn danger press" id="deleteAcct"><span class="lbl">${icon('trash', 18)}Hesabı sil</span></button>`}</div></div>
     ${pref('badge') ? `<div ${nx()}><div class="px-sec"><div class="px-head"><h3 class="h2">Ses günlüğü</h3><button class="auth-link press" id="alogClear">Temizle</button></div><pre class="alog">${audioLog.length ? esc(audioLog.slice().reverse().join('\n')) : 'Henüz kayıt yok'}</pre></div></div>` : ''}
@@ -6384,6 +6516,7 @@ function renderSettings(animate) {
   if (!animate) body.querySelectorAll(':scope > *').forEach(el => { el.style.animation = 'none'; el.style.opacity = '1'; el.style.transform = 'none'; });
   renderSleep(true);
   Cloud.renderLine();
+  TipJar.request(false);
   const ac = $('#alogClear'); if (ac) ac.addEventListener('click', () => { audioLog = []; try { localStorage.removeItem(AUDIO_LOG_KEY); } catch (e) {} renderSettings(false); });
   $('#signOut').addEventListener('click', async () => {
     if (guest) {
@@ -7851,6 +7984,8 @@ function onNativeMessage(raw) {
   // Uygulamanın kilit ekranı / kulaklık tuşu: sitedeki gibi ileri → dünyanın başka yeri, geri → bir önceki yer
   else if (m.type === 'alarm:status') onAlarmStatus(m);
   else if (m.type === 'alarm:fire') alarmFire();
+  else if (m.type === 'tip:products') TipJar.onProducts(m);
+  else if (m.type === 'tip:result' && typeof m.id === 'string') TipJar.onResult(m);
   else if (m.type === 'remote') { if (m.action === 'next') next(); else if (m.action === 'prev') prev(); }
 }
 window.wglobeNative = onNativeMessage;   // yerel taraf injectJavaScript ile çağırır
