@@ -1067,6 +1067,28 @@ svg.i.filled { fill: currentColor; }
 .pkd-prog i { display: block; height: 100%; background: var(--grad); transform-origin: left; transform: scaleX(0); }
 .pkd-item.locked .mb-img { filter: saturate(0.55) brightness(0.8); }
 /* Yeni küre açıldı: kart yukarıdan yaylanarak iner, bilye büyüyerek oturur, ışık halkası açılır */
+/* ── Üyelik töreni (Aboard): küre doğar, yörünge sarar, damga basılır ── */
+.aboard { position: absolute; inset: 0; z-index: 88; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.aboard[hidden] { display: none; }
+.ab-orbit { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+.ab-orbit path { fill: none; stroke: var(--a3); stroke-width: 1.4; stroke-linecap: round; }
+.ab-orbit .back { opacity: 0.4; }
+.ab-orbit .comet { fill: #fff; filter: drop-shadow(0 0 5px rgba(190,225,255,0.95)) drop-shadow(0 0 12px rgba(150,205,255,0.6)); }
+.ab-halo, .ab-wave { position: absolute; border-radius: 50%; pointer-events: none; opacity: 0; }
+.ab-wave { border: 1.5px solid rgba(205,230,255,0.85); }
+.ab-stamp { position: absolute; width: 116px; height: 116px; margin: -58px 0 0 -58px; opacity: 0; color: #BFE0FF; pointer-events: none; mix-blend-mode: screen; }
+.ab-stamp svg { width: 100%; height: 100%; display: block; overflow: visible; }
+.ab-copy { position: absolute; left: 24px; right: 24px; text-align: center; pointer-events: none; }
+.ab-eyebrow { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.18em; color: var(--a3); opacity: 0; }
+.ab-title { font-family: var(--display); font-weight: 700; font-size: 34px; line-height: 38px; letter-spacing: -0.025em; margin: 10px 0 8px; color: var(--fg); }
+.ab-title span { display: inline-block; opacity: 0; white-space: pre; }
+.ab-sub { font-size: 14.5px; line-height: 20px; color: var(--fg-2); opacity: 0; overflow-wrap: anywhere; }
+.ab-moved { display: inline-block; margin-top: 14px; padding: 8px 13px; border-radius: 999px; background: rgba(255,255,255,0.06); box-shadow: inset 0 0 0 1px rgba(160,200,255,0.22); font-size: 12.5px; line-height: 16px; color: var(--fg-2); opacity: 0; }
+.ab-skip { position: absolute; left: 0; right: 0; bottom: calc(var(--sab) + 30px); text-align: center; font-size: 12px; color: var(--fg-3); opacity: 0; pointer-events: none; }
+.view.ab-leave { animation: abLeave 260ms var(--e-exit) forwards; }
+@keyframes abLeave { to { opacity: 0; transform: translateY(-14px) scale(0.985); } }
+@media (prefers-reduced-motion: reduce) { .view.ab-leave { animation: abLeaveFade 160ms linear forwards; } }
+@keyframes abLeaveFade { to { opacity: 0; } }
 .unlock { position: absolute; left: 12px; right: 12px; top: calc(var(--sat) + 10px); z-index: 95; display: flex; justify-content: center; pointer-events: none; }
 .unlock[hidden] { display: none !important; }
 .ul-card { pointer-events: auto; position: relative; width: 100%; max-width: 420px; display: flex; align-items: center; gap: 14px; padding: 12px 16px 12px 12px; border-radius: 28px; text-align: left;
@@ -1357,6 +1379,14 @@ svg.i.filled { fill: currentColor; }
             <div class="sh-row"><button class="btn line press" id="shCopy"><span class="lbl"><span data-icon="link" data-size="17"></span>Bağlantı</span></button><button class="btn line press" id="shSave"><span class="lbl"><span data-icon="download" data-size="17"></span>Kaydet</span></button></div>
           </div>
         </div>
+      </div>
+      <div class="aboard" id="aboard" hidden data-noi18n>
+        <svg class="ab-orbit" id="abOrbit" aria-hidden="true"></svg>
+        <div class="ab-halo" id="abHalo" aria-hidden="true"></div>
+        <div class="ab-wave" id="abWave" aria-hidden="true"></div>
+        <div class="ab-stamp" id="abStamp" aria-hidden="true"></div>
+        <div class="ab-copy" id="abCopy" role="status" aria-live="polite"></div>
+        <div class="ab-skip" id="abSkip" aria-hidden="true"></div>
       </div>
       <div class="unlock" id="unlock" hidden aria-live="polite">
         <button class="ul-card" id="ulCard" aria-label="Yeni küreyi koleksiyonda gör"><span class="ul-orb" id="ulOrb"></span><span class="ul-tx"><span class="ul-label" id="ulLabel">YENİ KÜRE AÇILDI</span><b id="ulName"></b><span class="ul-sub" id="ulSub"></span></span><span class="ul-go" data-icon="arrow-right" data-size="18"></span></button>
@@ -3673,6 +3703,7 @@ function failover(token, tried = 1) {
 function onStarted(token) {
   if (token !== attemptToken) return; failedAttempts = 0; if (!document.hidden) vibrate('connect'); msPlayCount++; setTimeout(() => evaluateQuests(false), 900);
   const city = CITY[state.activeCityId]; setStatus('playing');
+  WidgetSync.push(city, currentStation());
   const lastV = state.visits[0];
   if (!lastV || lastV.cityId !== city.id || Date.now() - new Date(lastV.visitedAt) > 30 * 60 * 1000) {
     state.visits.unshift({ id: 'v' + Date.now() + '_' + Math.random().toString(36).slice(2, 6), cityId: city.id, cityName: city.name, visitedAt: new Date().toISOString(), cc: city.countryCode, lat: city.lat, lng: city.lng, tz: city.timezone }); state.visits = state.visits.slice(0, 200); save();
@@ -4032,7 +4063,7 @@ const SatMosaic = (() => {
 })();
 
 /** Sürüm etiketi: sitede hangi sürümün açık olduğunu rozetten görmek için (önbellek kontrolü). */
-const BUILD = 'v52';
+const BUILD = 'v53';
 const MapGlobe = (() => {
   const host = document.getElementById('mapStage');
   const badge = document.getElementById('lodBadge');
@@ -6596,6 +6627,201 @@ function enterApp(msg) {
   arrive();
   setTimeout(() => maybeAutoCotd(0), 1400);
 }
+/**
+ * Üyelik töreni — "Dünya pasaportun hazır".
+ * Niyet: üye olmak bir sınırı geçmek gibidir; wGlobe'un dili zaten pasaport ve damga. Duygu: aidiyet ve
+ * hak edilmiş karşılama — gürültülü bir kutlama değil, sakin bir tören.
+ * Zaman çizelgesi (ms, tören başlangıcına göre):
+ *     0–260   açık görünüm kenara çekilir (e-exit, 14 px yukarı)
+ *   200–1000  küre ekranın altından güneş gibi doğar, %60→%100 (easeOutBack 0.8: ~%2 taşma, 900 ms'de yerinde);
+ *             dönüş itkisi yavaşlayarak söner (follow-through)
+ *   900–1600  hale tutuşur — küre yerine oturduktan SONRA (önce görünse boş bir delik gibi beklerdi)
+ *  1000–1650  yörünge çizilir: önce ön yarı, sonra kürenin ARDINDA kalan arka yarı (e-inout); ucunda kuyruklu yıldız
+ *  1550–1930  damga: 0–62% hızlanarak iner (beklenti, e-press) → çarpma → 62–100% yaylanarak oturur
+ *  1786       çarpma: küre %4 esner (240 ms), dalga yayılır (520 ms), 'unlock' titreşimi, onay işareti mürekkeplenir (220 ms)
+ *  1850–2450  metin: üst etiket → başlık kelimeleri 70 ms arayla 18 px yükselir → e-posta → taşınan veriler
+ *  4400       çıkış: süslemeler 280 ms'de çekilir (e-exit), 200 ms sonra küre ana sayfadaki yerine 700 ms'de süzülür.
+ *             Dokununca hemen çıkar.
+ * Azaltılmış hareket: son kare 200 ms'de belirir, 2,4 sn kalır, söner.
+ */
+const Aboard = (() => {
+  const D = { leave: 260, riseAt: 200, rise: 800, back: 0.8, haloAt: 900, halo: 700, orbitAt: 1000, orbit: 650, stampAt: 1550, stamp: 380, impact: 0.62,
+    bump: 240, wave: 520, ink: 220, copyAt: 1850, word: 420, wordGap: 70, skipAt: 2700, hold: 4400, exit: 280, handoff: 200 };
+  const NS = 'http://www.w3.org/2000/svg';
+  let running = null;
+
+  function geometry() {
+    const r0 = $('#screen').getBoundingClientRect(), W = r0.width, H = r0.height;
+    const r = Math.round(Math.min(W * 0.27, H * 0.15, 118)), cx = W / 2, cy = Math.round(H * 0.36);
+    return { W, H, cx, cy, r, a: r * 1.5, b: r * 0.36, tilt: -14 * Math.PI / 180, copyTop: Math.round(cy + Math.max(r * 1.3, r * 0.62 + 74)) };
+  }
+  // Eğik elips üzerindeki nokta: sin θ > 0 ön (izleyiciye yakın, alt), sin θ < 0 arka (kürenin ardı)
+  function pt(g, th) {
+    const x = g.a * Math.cos(th), y = g.b * Math.sin(th), c = Math.cos(g.tilt), s = Math.sin(g.tilt);
+    return [g.cx + x * c - y * s, g.cy + x * s + y * c];
+  }
+  function arc(g, from, to) {
+    const n = 48; let d = '';
+    for (let i = 0; i <= n; i++) { const [x, y] = pt(g, from + (to - from) * i / n); d += (i ? 'L' : 'M') + x.toFixed(1) + ' ' + y.toFixed(1); }
+    return d;
+  }
+  function passportNo(email) { const h = hashStr(String(email || '').toLowerCase()) % 1000000; return String(h).padStart(6, '0').replace(/(\d{3})(\d{3})/, '$1 $2'); }
+  function stampSVG() {
+    const d = new Date(), date = `${pad(d.getDate())}.${pad(d.getMonth() + 1)}.${d.getFullYear()}`;
+    const ring = EN ? 'WGLOBE · WORLD PASSPORT · MEMBER · ' : 'WGLOBE · DÜNYA PASAPORTU · ÜYE · ';
+    return `<svg viewBox="-60 -60 120 120"><defs><path id="abArc" d="M -47 0 A 47 47 0 1 1 47 0 A 47 47 0 1 1 -47 0"/></defs>
+      <circle r="56" fill="none" stroke="currentColor" stroke-width="2.4"/>
+      <circle r="39" fill="none" stroke="currentColor" stroke-width="1" opacity="0.7"/>
+      <text font-family="Geist Mono, ui-monospace, monospace" font-size="8.4" font-weight="600" fill="currentColor"><textPath href="#abArc" textLength="290" lengthAdjust="spacing">${esc(ring)}</textPath></text>
+      <path class="ab-check" d="M -13 -2 L -4 7 L 14 -12" pathLength="1" fill="none" stroke="currentColor" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="1" stroke-dashoffset="1"/>
+      <text y="24" text-anchor="middle" font-family="Geist Mono, ui-monospace, monospace" font-size="7.6" letter-spacing="0.8" fill="currentColor" opacity="0.85">${date}</text></svg>`;
+  }
+
+  /** Töreni oynat. opts: { email, moved: { favs, visits } | null }. Bittiğinde (uygulamaya geçilmişken) çözülür. */
+  function play(opts = {}) {
+    if (running) return running.promise;
+    const root = $('#aboard'), g = geometry(), rm = reduceMotion.matches, t0 = performance.now();
+    const anims = [], timers = [];
+    // Tek zaman çizelgesi: tüm animasyonlar t0'da kurulur (gecikmeleriyle); çarpma anı sabittir → damga, dalga,
+    // esneme ve mürekkep asla birbirinden kaymaz. frozen: testte belirli bir milisaniyeye dondurmak için.
+    let done = false, raf = 0, resolveP, frozen = null;
+    const impactMs = D.stampAt + D.stamp * D.impact, impactAt = t0 + impactMs;
+    const clock = () => frozen === null ? performance.now() : t0 + frozen;
+    const promise = new Promise(r => { resolveP = r; });
+    const at = (ms, fn) => timers.push(setTimeout(fn, rm ? 0 : ms));
+    const A = (el, kf, o) => { const a = el.animate(kf, Object.assign({ fill: 'both' }, o)); anims.push(a); return a; };
+
+    // ── Sahne kurulumu ──
+    const svg = $('#abOrbit'); svg.setAttribute('viewBox', `0 0 ${g.W} ${g.H}`);
+    svg.innerHTML = `<defs><mask id="abMask" maskUnits="userSpaceOnUse" x="0" y="0" width="${g.W}" height="${g.H}"><rect width="${g.W}" height="${g.H}" fill="#fff"/><circle cx="${g.cx}" cy="${g.cy}" r="${g.r * 0.985}" fill="#000"/></mask></defs>
+      <path class="back" mask="url(#abMask)" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1" d="${arc(g, 0, -Math.PI)}"/>
+      <path class="front" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1" d="${arc(g, Math.PI, 0)}"/>
+      <circle class="comet" r="2.6" cx="-20" cy="-20"/>`;
+    const back = svg.querySelector('.back'), front = svg.querySelector('.front'), comet = svg.querySelector('.comet');
+    const halo = $('#abHalo'), wave = $('#abWave'), stamp = $('#abStamp'), copy = $('#abCopy'), skip = $('#abSkip');
+    const hs = g.r * 3.8;
+    Object.assign(halo.style, { width: hs + 'px', height: hs + 'px', left: (g.cx - hs / 2) + 'px', top: (g.cy - hs / 2) + 'px',
+      background: `radial-gradient(circle, rgba(140,195,255,0) ${(g.r * 0.96 / (hs / 2) * 50).toFixed(1)}%, rgba(150,205,255,0.20) ${(g.r * 1.04 / (hs / 2) * 50).toFixed(1)}%, rgba(120,180,255,0.07) 70%, rgba(120,180,255,0) 100%)` });
+    Object.assign(wave.style, { width: g.r * 2 + 'px', height: g.r * 2 + 'px', left: (g.cx - g.r) + 'px', top: (g.cy - g.r) + 'px' });
+    const sx = g.cx + g.r * 0.7, sy = g.cy + g.r * 0.62;
+    Object.assign(stamp.style, { left: sx + 'px', top: sy + 'px' });
+    stamp.innerHTML = stampSVG();
+    const title = EN ? 'Welcome to the world' : 'Dünyaya hoş geldin';
+    const words = title.split(' ');
+    copy.style.top = g.copyTop + 'px';
+    copy.innerHTML = `<div class="ab-eyebrow">${EN ? 'WORLD PASSPORT' : 'DÜNYA PASAPORTU'} · NO. ${passportNo(opts.email)}</div>
+      <h2 class="ab-title">${words.map((w, i) => `<span>${esc(w)}${i < words.length - 1 ? ' ' : ''}</span>`).join('')}</h2>
+      <div class="ab-sub">${EN ? 'Your passport is ready' : 'Pasaportun hazır'}${opts.email ? ' · ' + esc(opts.email) : ''}</div>
+      ${opts.moved && (opts.moved.favs || opts.moved.visits) ? `<div class="ab-moved">${EN ? `Moved over: ${opts.moved.favs} favorites, ${opts.moved.visits} stamps` : `Taşındı: ${opts.moved.favs} favori, ${opts.moved.visits} damga`}</div>` : ''}`;
+    skip.textContent = EN ? 'Tap to continue' : 'Devam etmek için dokun';
+    root.style.opacity = ''; root.hidden = false;
+
+    // ── Açık görünüm kenara çekilir ──
+    const leaving = document.getElementById(state.view);
+    if (leaving) leaving.classList.add('ab-leave');   // azaltılmış harekette yalnız solma (CSS)
+
+    // ── Küre: doğuş + çarpma esnemesi (sürücü) ──
+    // Tuval, durdurulduğu andaki son kareyi (ör. karşılamadaki büyük küre) hâlâ tutar: ilk yeni kare çizilene
+    // kadar gizli kalır, yoksa bir an eski görüntü parlardı.
+    const stageEl = $('#globeStage'); let firstFrame = false;
+    stageEl.style.visibility = 'hidden';
+    Globe.mount($('#globeStage'), { interactive: false, autoRotate: true, markers: false, theme: state.theme, layout: () => ({ cx: g.cx, cy: g.cy, r: g.r }), bg: '#050B18' });
+    Globe.drive(() => {
+      if (!firstFrame) { firstFrame = true; requestAnimationFrame(() => { stageEl.style.visibility = ''; }); }
+      const now = clock(), t = now - t0; let cy = g.cy, r = g.r;
+      if (!rm && t < D.riseAt + D.rise) {
+        const k = clamp((t - D.riseAt) / D.rise, 0, 1);
+        cy = lerp(g.H + g.r * 1.3, g.cy, easeOutBack(k, D.back)); r = g.r * lerp(0.6, 1, easeOutCubic(k));
+      }
+      const b = now - impactAt;
+      if (!rm && b >= 0 && b < D.bump) r *= 1 - 0.04 * Math.sin(Math.PI * b / D.bump);
+      return { cx: g.cx, cy, r: Math.max(1, r) };
+    });
+    if (!rm) at(D.riseAt, () => Globe.impulse(0.11));
+
+    if (rm) {
+      // Azaltılmış hareket: son kare, yalnız opaklık
+      back.setAttribute('stroke-dashoffset', '0'); front.setAttribute('stroke-dashoffset', '0'); comet.style.opacity = '0';
+      stamp.querySelector('.ab-check').setAttribute('stroke-dashoffset', '0');
+      stamp.style.transform = 'rotate(-10deg)';
+      [halo, stamp].forEach(el => { el.style.opacity = '1'; });
+      copy.querySelectorAll('.ab-eyebrow, .ab-title span, .ab-sub, .ab-moved').forEach(el => { el.style.opacity = '1'; });
+      A(root, [{ opacity: 0 }, { opacity: 1 }], { duration: 200, easing: 'linear' });
+      timers.push(setTimeout(() => finish(), 2400));
+    } else {
+      A(halo, [{ opacity: 0, transform: 'scale(0.8)' }, { opacity: 1, transform: 'scale(1)' }], { delay: D.haloAt, duration: D.halo, easing: 'cubic-bezier(0.05, 0.7, 0.1, 1)' });
+      // Damga: 1,8× ve -24°'den hızlanarak iner (beklenti), çarpar, yaylanarak -10°'de oturur
+      A(stamp, [
+        { offset: 0, opacity: 0, transform: 'scale(1.8) rotate(-24deg)', filter: 'blur(6px)', easing: 'cubic-bezier(0.4, 0, 1, 1)' },
+        { offset: D.impact, opacity: 1, transform: 'scale(0.92) rotate(-9deg)', filter: 'blur(0px)', easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)' },
+        { offset: 1, opacity: 1, transform: 'scale(1) rotate(-10deg)', filter: 'blur(0px)' }], { delay: D.stampAt, duration: D.stamp });
+      // Çarpma: dalga + mürekkep aynı çizelgede (fill: forwards → başlamadan önce görünmezler)
+      A(wave, [{ opacity: 0.75, transform: 'scale(1)' }, { opacity: 0, transform: 'scale(1.55)' }], { delay: impactMs, duration: D.wave, easing: 'cubic-bezier(0.2, 0, 0, 1)', fill: 'forwards' });
+      A(stamp.querySelector('.ab-check'), [{ strokeDashoffset: '1' }, { strokeDashoffset: '0' }], { delay: impactMs, duration: D.ink, easing: 'cubic-bezier(0.2, 0, 0, 1)', fill: 'forwards' });
+      // Titreşim zamanlayıcıyla değil, çarpmanın GÖRÜNDÜĞÜ karede (aşağıdaki kare döngüsü): göz ve el aynı anda hisseder
+      // Metin: üst etiket → kelimeler (70 ms kademeli) → alt satırlar
+      const rise = (el, delay, dist = 10, dur = 320) => A(el, [{ opacity: 0, transform: `translateY(${dist}px)` }, { opacity: 1, transform: 'translateY(0)' }], { delay, duration: dur, easing: 'cubic-bezier(0.05, 0.7, 0.1, 1)' });
+      rise(copy.querySelector('.ab-eyebrow'), D.copyAt, 6, 280);
+      copy.querySelectorAll('.ab-title span').forEach((sp, i) => rise(sp, D.copyAt + 80 + i * D.wordGap, 18, D.word));
+      const after = D.copyAt + 80 + words.length * D.wordGap + 120;
+      rise(copy.querySelector('.ab-sub'), after, 8, 300);
+      const mv = copy.querySelector('.ab-moved'); if (mv) rise(mv, after + 140, 8, 300);
+      A(skip, [{ opacity: 0 }, { opacity: 1 }], { delay: D.skipAt, duration: 300, easing: 'linear' });
+      timers.push(setTimeout(() => finish(), D.hold));
+      // Yörünge + kuyruklu yıldız (her kare): çizim bitince yıldız yavaş yörüngesine yumuşakça hızlanır
+      let phase = Math.PI, omega = 0, lastT = 0, buzzed = false;
+      const W0 = 2 * Math.PI / 3600;
+      const frame = () => {
+        if (done) return;
+        const now = clock(), t = now - t0, p = clamp((t - D.orbitAt) / D.orbit, 0, 1), e = easeInOutCubic(p), dt = lastT ? Math.min(50, now - lastT) : 16; lastT = now;
+        if (!buzzed && now >= impactAt) { buzzed = true; if (frozen === null) vibrate('unlock'); }
+        front.setAttribute('stroke-dashoffset', (1 - Math.min(1, e * 2)).toFixed(4));
+        back.setAttribute('stroke-dashoffset', (1 - Math.max(0, e * 2 - 1)).toFixed(4));
+        if (p < 1) phase = Math.PI - 2 * Math.PI * e;
+        else { omega = lerp(omega, W0, 1 - Math.pow(0.94, dt / 16)); phase -= omega * dt; }
+        const [x, y] = pt(g, phase), behind = Math.sin(phase) < 0 && Math.hypot(x - g.cx, y - g.cy) < g.r;
+        comet.setAttribute('cx', x.toFixed(1)); comet.setAttribute('cy', y.toFixed(1));
+        comet.style.opacity = t < D.orbitAt || behind ? '0' : '1';
+        raf = requestAnimationFrame(frame);
+      };
+      raf = requestAnimationFrame(frame);
+    }
+
+    function finish() {
+      if (done) return; done = true;
+      timers.forEach(clearTimeout); cancelAnimationFrame(raf);
+      root.removeEventListener('pointerdown', onTap); document.removeEventListener('keydown', onKey);
+      const fromMap = MapGlobe.revealed;
+      stageEl.style.visibility = '';
+      const out = root.animate([{ opacity: 1 }, { opacity: 0 }], { duration: rm ? 160 : D.exit, easing: 'cubic-bezier(0.3, 0, 0.8, 0.15)', fill: 'forwards' });
+      const cleanup = () => {
+        anims.forEach(a => { try { a.cancel(); } catch (e) {} });
+        root.hidden = true; out.cancel(); root.style.opacity = '';
+        document.querySelectorAll('.view.ab-leave').forEach(v => v.classList.remove('ab-leave'));
+        $('#globeStage').getAnimations().forEach(a => a.cancel());
+        running = null; resolveP();
+      };
+      Globe.drive(null);
+      if (fromMap || rm) {
+        // Harita zaten açılmıştı (misafir → üye) ya da hareket azaltılmış: küre de söner, ana sayfa onun yerine gelir
+        $('#globeStage').animate([{ opacity: 1 }, { opacity: 0 }], { duration: rm ? 160 : D.exit, easing: 'cubic-bezier(0.3, 0, 0.8, 0.15)', fill: 'forwards' });
+        out.onfinish = () => { enterApp(null); setTimeout(cleanup, 60); };
+      } else {
+        // Önce süslemeler (halka, damga, metin) çekilir, sonra kahraman hareket eder: küre 200 ms sonra
+        // ana sayfadaki yerine süzülür (enterApp → 700 ms geçiş). Aynı anda başlasa halka eski yerinde kalırdı.
+        setTimeout(() => enterApp(null), D.handoff); out.onfinish = cleanup;
+      }
+    }
+    const onTap = () => { if (performance.now() - t0 > (rm ? 0 : 500)) finish(); };
+    const onKey = e => { if (e.key === 'Enter' || e.key === 'Escape' || e.key === ' ') { e.preventDefault(); onTap(); } };
+    root.addEventListener('pointerdown', onTap); document.addEventListener('keydown', onKey);
+    // Test kancası: çizelgeyi ms'de dondur (zamanlayıcılar durur, tüm animasyonlar o kareye gider)
+    const seek = ms => { frozen = ms; timers.forEach(clearTimeout); anims.forEach(a => { a.pause(); a.currentTime = ms; }); };
+    running = { promise, finish, seek };
+    return promise;
+  }
+  return { play, get running() { return !!running; }, skip() { if (running) running.finish(); }, seek(ms) { if (running) running.seek(ms); }, D };
+})();
 $('#loginForm').addEventListener('submit', async e => {
   e.preventDefault();
   const email = $('#loginEmail').value, pass = $('#loginPass').value, ee = validateEmail(email), pe = validatePass(pass, false);
@@ -6637,7 +6863,7 @@ $('#registerForm').addEventListener('submit', async e => {
       [{ label: 'Giriş yap', run: () => { const e = $('#regEmail').value; go('login'); $('#loginEmail').value = e; } }, { label: 'Tekrar gönder', run: () => resendConfirm(email.trim(), 'regBanner') }]);
     return;
   }
-  enterApp(wasGuest ? 'Hesap oluşturuldu · misafir verilerin taşındı' : 'Hesap oluşturuldu');
+  Aboard.play({ email: state.email || email.trim(), moved: wasGuest ? { favs: state.favorites.length, visits: state.visits.length } : null });
 });
 $('#forgotBtn').addEventListener('click', async () => {
   const email = $('#loginEmail').value.trim(), ee = validateEmail(email);
@@ -6979,7 +7205,11 @@ const Cloud = (() => {
       if (!snap || snap.uid !== u.id) { snap = freshSnap(u.id); writeSnap(); }
       becomeMember(u);
       sync().catch(() => {});
-      afterIntroDo(() => { if (state.view !== 'app') enterApp('E-postan onaylandı · hoş geldin'); else toast('E-postan onaylandı · hoş geldin'); });
+      afterIntroDo(() => {
+        if (state.view === 'app') toast('E-postan onaylandı · hoş geldin');
+        else if (linkType === 'signup') Aboard.play({ email: state.email });   // onay bağlantısıyla gelen yeni üye: aynı tören
+        else enterApp('E-postan onaylandı · hoş geldin');
+      });
       return;
     }
     if ((event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') && u) { user = u; if (u.email) state.email = String(u.email).toLowerCase(); return; }
@@ -7548,6 +7778,37 @@ async function cityArt(city) {
   if (url) { artCache.set(key, url); if (artCache.size > 12) artCache.delete(artCache.keys().next().value); }
   return url;
 }
+
+// ── Ana ekran widget'ı (yalnız uygulamada): istasyon bağlanınca son istasyon + cep sahnesi kapağı yerel kabuğa
+//    gider; kabuk görseli diske yazar ve widget'ı yeniler. Hızlı istasyon atlamada widget titremesin diye
+//    1,5 sn yerleşme beklenir, yalnız sonuncusu yazılır. Kapak 512 px (≈50 KB): widget için yeterli, köprü hafif. ──
+const WidgetSync = (() => {
+  // Kilit ekranı kapağında cep %33'tür; widget'ta metin (3 satır) sığsın diye küre yukarıda, cep %44.
+  const SETTLE = 1500, SIZE = 512, WIDGET_SCENE = { globeR: 196, lipY: 288, margin: 0, radius: 0 }, artCache = new Map();
+  let lastKey = '', timer = 0;
+  async function art(city) {
+    const key = `${state.theme}|${city.id}`;
+    if (artCache.has(key)) return artCache.get(key);
+    const cv = document.createElement('canvas'); cv.width = cv.height = SIZE; const g = cv.getContext('2d');
+    await drawPocketScene(g, SIZE, SIZE, city, WIDGET_SCENE);
+    const url = cv.toDataURL('image/jpeg', 0.86);
+    artCache.set(key, url); if (artCache.size > 6) artCache.delete(artCache.keys().next().value);
+    return url;
+  }
+  function push(city, st) {
+    if (!NATIVE || !city || !st || st.demo) return;
+    const key = [city.id, st.uuid || st.url, state.theme, EN ? 'en' : 'tr'].join('|');
+    if (key === lastKey) return;
+    lastKey = key; clearTimeout(timer);
+    timer = setTimeout(async () => {
+      let params; try { params = Object.fromEntries(new URL(shareLink(city, st)).searchParams); } catch (e) { return; }
+      let a = null; try { a = await art(city); } catch (e) { a = null; }
+      if (lastKey !== key) return;   // bu arada başka istasyona geçildi
+      nativePost({ type: 'widget:update', lang: EN ? 'en' : 'tr', city: city.name, country: tx(city.country || ''), station: st.name, tz: cityZone(city), params, art: a });
+    }, SETTLE);
+  }
+  return { push, art };
+})();
 
 // ── Yerel ses (yalnız uygulamada): istasyon sırası yerel çalma listesi olur; kilit ekranı ve kulaklık
 //    tuşları (oynat/duraklat, sonraki/önceki istasyon) uygulama arka plandayken de çalışır. ──
