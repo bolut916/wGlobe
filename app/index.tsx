@@ -24,7 +24,12 @@ import { configureAlarm, isAlarmResponse, setAlarm } from '@/shell/Alarm';
 import { linkParams, parseWebMessage, type HapticName, type NativeMessage, type ShareMessage } from '@/shell/bridge';
 
 const SITE_URL = 'https://bolut916.github.io/wGlobe/';
-const SITE_ORIGIN = 'https://bolut916.github.io';
+// Yalnız bu adres ağacı uygulamanın içinde açılır ve yerel köprüye mesaj gönderebilir. Düz metin karşılaştırması
+// (startsWith) 'https://bolut916.github.io.kotu.com' gibi sahte adresleri de geçirirdi; kalıp ana makineyi kesin sınırlar.
+const SITE_RE = /^https:\/\/bolut916\.github\.io\/wGlobe(?:[/?#]|$)/;
+const isSite = (url: string | undefined): boolean => typeof url === 'string' && SITE_RE.test(url);
+// Dış bağlantılar sistemde yalnız bu şemalarla açılır (intent:, file:, tel: vb. sayfa tarafından tetiklenemez)
+const EXTERNAL_RE = /^(?:https:\/\/|mailto:)/i;
 const BG = '#050B18';
 // react-native-webview 14 tür tanımında props `never`e çöküyor; bileşenin gerçek imzasıyla sarmalanır.
 const NativeWebView = WebView as unknown as ComponentType<WebViewProps & { ref?: Ref<WebView> }>;
@@ -145,6 +150,7 @@ export default function WGlobeShell() {
   }, [phase, cover]);
 
   const onMessage = useCallback((e: WebViewMessageEvent) => {
+    if (!isSite(e.nativeEvent.url)) return;   // köprüye yalnız wGlobe sayfası konuşabilir
     const m = parseWebMessage(e.nativeEvent.data);
     if (!m) return;
     const r = radio.current;
@@ -195,8 +201,9 @@ export default function WGlobeShell() {
         onNavigationStateChange={(s) => { canGoBack.current = s.canGoBack; }}
         onShouldStartLoadWithRequest={(req) => {
           // Site içinde kal; dış bağlantılar sistem tarayıcısında açılır
-          if (req.url.startsWith(SITE_ORIGIN) || req.url.startsWith('about:') || req.url.startsWith('blob:') || req.url.startsWith('data:')) return true;
-          void Linking.openURL(req.url).catch(() => undefined);
+          if (isSite(req.url) || req.url === 'about:blank') return true;
+          // Gömülü çerçeveler hiçbir yere gidemez; üst sayfadan çıkan dış bağlantı sistemde açılır
+          if (req.isTopFrame !== false && EXTERNAL_RE.test(req.url)) void Linking.openURL(req.url).catch(() => undefined);
           return false;
         }}
       />

@@ -50,6 +50,11 @@ jobs:
           echo "$REDIRECT" > dist/404.html
           touch dist/.nojekyll
 
+      # İçerik Güvenliği Politikası: satır içi betiğin parmak izi her yayında yeniden hesaplanır.
+      # Sitede beklenmeyen bir betik, olay niteliği ya da javascript: bağlantısı varsa yayın durur.
+      - name: Add Content Security Policy
+        run: node scripts/csp.mjs dist/index.html https://bolut916.github.io/wGlobe/
+
       - name: Publish to gh-pages
         uses: peaceiris/actions-gh-pages@v4
         with:

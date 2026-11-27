@@ -178,11 +178,16 @@ export class NativeRadio {
 
 function clampIndex(i: number, n: number): number { return Number.isInteger(i) && i >= 0 && i < n ? i : 0; }
 
+const ARTWORK_MAX = 1_500_000;
+
 /** Kilit ekranı kapağı: web'in gönderdiği küre görüntüsü önbellekte bir dosyaya yazılır. */
 async function saveArtwork(dataUrl: string | null | undefined, id: number): Promise<string | undefined> {
   if (!dataUrl || !FS.cacheDirectory) return undefined;
-  const m = /^data:image\/(jpeg|png);base64,(.+)$/.exec(dataUrl);
+  // Yalnız küçük bir JPEG/PNG kabul edilir (kapak ~40 KB): bozuk ya da dev veri diske yazılmaz.
+  if (dataUrl.length > ARTWORK_MAX) return undefined;
+  const m = /^data:image\/(jpeg|png);base64,([A-Za-z0-9+/]+={0,2})$/.exec(dataUrl);
   if (!m || !m[2]) return undefined;
-  const uri = `${FS.cacheDirectory}wglobe-kapak-${id % 4}.${m[1] === 'png' ? 'png' : 'jpg'}`;
+  const slot = Number.isInteger(id) ? Math.abs(id) % 4 : 0;
+  const uri = `${FS.cacheDirectory}wglobe-kapak-${slot}.${m[1] === 'png' ? 'png' : 'jpg'}`;
   try { await FS.writeAsStringAsync(uri, m[2], { encoding: FS.EncodingType.Base64 }); return uri; } catch { return undefined; }
 }

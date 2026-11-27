@@ -75,14 +75,23 @@ export function parseWebMessage(raw: string): WebMessage | null {
 }
 
 /** wglobe://… ya da https://bolut916.github.io/wGlobe/?c=… bağlantısındaki paylaşım parametreleri */
+/** Paylaşım bağlantısının okunan alanları; başka hiçbir anahtar siteye aktarılmaz. */
+const LINK_KEYS = new Set(['c', 'n', 'co', 'cc', 'la', 'lo', 'tz', 's', 'st', 'su', 'sn']);
+const LINK_MAX = 600;
+
 export function linkParams(url: string | null | undefined): Record<string, string> | null {
-  if (!url) return null;
+  if (!url || url.length > 4096) return null;
   const q = url.indexOf('?'); if (q < 0) return null;
   const out: Record<string, string> = {};
   url.slice(q + 1).split('#')[0]!.split('&').forEach((pair) => {
-    const [k, v = ''] = pair.split('=');
-    if (!k) return;
-    try { out[decodeURIComponent(k)] = decodeURIComponent(v.replace(/\+/g, ' ')); } catch { /* bozuk parça */ }
+    const eq = pair.indexOf('=');
+    const k = eq < 0 ? pair : pair.slice(0, eq), v = eq < 0 ? '' : pair.slice(eq + 1);
+    if (!LINK_KEYS.has(k)) return;
+    try {
+      // Denetim karakterleri atılır; değerler sitede ayrıca doğrulanır ve kaçışlanır
+      const d = decodeURIComponent(v.replace(/\+/g, ' ')).replace(/[\u0000-\u001f\u007f]/g, '');
+      if (d.length <= LINK_MAX) out[k] = d;
+    } catch { /* bozuk parça */ }
   });
   return out.c ? out : null;
 }

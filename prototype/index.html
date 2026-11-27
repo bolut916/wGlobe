@@ -1388,12 +1388,19 @@ svg.i.filled { fill: currentColor; }
   </aside>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/three@0.149.0/build/three.min.js"></script>
+<script src="lib/three.min.js"></script>
 <script src="lib/maplibre-gl-csp.js"></script>
 <script src="lib/topojson-client.min.js"></script>
 <script>
 (() => {
 'use strict';
+// ── Başka bir sayfanın içine gömülmeyi reddet (clickjacking: görünmez düğmelere tıklatma). Yalnız yayındaki sitede;
+//    artifact önizlemesi kendi çerçevesinde çalışır. ──
+if (location.hostname === 'bolut916.github.io' && window.top !== window.self) {
+  document.documentElement.style.display = 'none';
+  try { window.top.location.replace(location.href); } catch (e) {}
+  throw new Error('çerçeve içinde açılmaz');
+}
 // ── Dil: Ayarlar'daki seçim, yoksa telefonun dili (Türkçe değilse İngilizce) ──
 const LANG = (() => {
   try { const p = (JSON.parse(localStorage.getItem('wglobe-prototype-v2') || 'null') || {}).prefs || {}; if (p.lang === 'tr' || p.lang === 'en') return p.lang; } catch (e) {}
@@ -1611,13 +1618,34 @@ const CITY = Object.fromEntries(CITIES.map(c => [c.id, c]));
 // Aramayla bulunan yerler (dünyadaki herhangi bir şehir/kasaba). CITY'ye eklenir, cihazda saklanır.
 const PLACES = {};
 const PLACES_KEY = 'wglobe-places-v1';
-function registerPlace(pl, force) {
+/** Saat dilimi geçerli mi (paylaşılan bağlantı / dış kaynak / cihaz deposu güvenilmez) */
+const tzOk = (() => { const ok = new Map(); return tz => { if (typeof tz !== 'string' || !tz || tz.length > 64) return false; if (ok.has(tz)) return ok.get(tz); let v = true; try { new Intl.DateTimeFormat('en-US', { timeZone: tz }); } catch (e) { v = false; } ok.set(tz, v); return v; }; })();
+const VIBES_OK = new Set(['Sabah Kahvesi', 'Gece Yarısı Cazı', 'Yağmurlu Sokaklar', 'Tropikal Ritimler', 'Okyanus Esintisi', 'Çöl Gün Batımı', 'Dağ Sabahı', 'Şehir Işıkları', 'Kuzey Işıkları']);
+/**
+ * Dışarıdan gelen her yer burada temizlenir: kimlik yalnız güvenli karakterler, koordinatlar aralıkta,
+ * saat dilimi geçerli (değilse boylamdan), ülke kodu iki harf, adlar kısaltılmış. Geçersiz koordinat → null.
+ */
+function sanePlace(pl) {
+  if (!pl || typeof pl !== 'object') return null;
+  const lat = Number(pl.lat), lng0 = Number(pl.lng);
+  if (!Number.isFinite(lat) || !Number.isFinite(lng0) || Math.abs(lat) > 90) return null;
+  // Not: bu fonksiyon dosyanın başında (clamp tanımlanmadan önce) da çalışır; yardımcı kullanmaz
+  const lng = ((lng0 + 180) % 360 + 360) % 360 - 180, la = Math.max(-85, Math.min(85, lat));
+  const id = typeof pl.id === 'string' && /^[A-Za-z0-9_.:-]{1,60}$/.test(pl.id) ? pl.id : 'l' + Math.round(la * 100) + '_' + Math.round(lng * 100);
+  const cc = typeof pl.countryCode === 'string' && /^[A-Za-z]{2}$/.test(pl.countryCode) ? pl.countryCode.toUpperCase() : '';
+  const h = Math.max(-12, Math.min(12, Math.round(lng / 15))), tz = tzOk(pl.timezone) ? pl.timezone : (h === 0 ? 'UTC' : `Etc/GMT${h > 0 ? '-' : '+'}${Math.abs(h)}`);
+  const str = (v, n) => String(v == null ? '' : v).replace(/[\u0000-\u001f\u007f]/g, '').slice(0, n);
+  const vibe = VIBES_OK.has(pl.vibeTag) ? pl.vibeTag : (Math.abs(la) < 23.5 ? 'Tropikal Ritimler' : Math.abs(la) > 55 ? 'Yağmurlu Sokaklar' : 'Sabah Kahvesi');
+  return Object.assign({}, pl, { id, lat: la, lng, countryCode: cc, timezone: tz, name: str(pl.name, 80) || id, country: str(pl.country, 60), vibeTag: vibe });
+}
+function registerPlace(pl0, force) {
+  const pl = sanePlace(pl0); if (!pl) return null;
   if (!force && CITY[pl.id] && !PLACES[pl.id]) return CITY[pl.id];
   PLACES[pl.id] = pl; CITY[pl.id] = pl;
   try { const ids = Object.keys(PLACES).slice(-120); localStorage.setItem(PLACES_KEY, JSON.stringify(ids.map(id => PLACES[id]))); } catch (e) {}
   return pl;
 }
-try { (JSON.parse(localStorage.getItem(PLACES_KEY) || '[]') || []).forEach(pl => { if (pl && pl.id && Number.isFinite(pl.lat)) { PLACES[pl.id] = pl; CITY[pl.id] = pl; } }); } catch (e) {}
+try { (JSON.parse(localStorage.getItem(PLACES_KEY) || '[]') || []).forEach(p0 => { const pl = sanePlace(p0); if (pl && !CITIES.some(c => c.id === pl.id)) { PLACES[pl.id] = pl; CITY[pl.id] = pl; } }); } catch (e) {}
 
 // ── Dünya atlası: 100 binden büyük her şehir + her ülkenin en büyük 3 şehri (GeoNames, ~4.400 yer) ──
 // Haritada nereye dokunulursa en yakın gerçek şehir seçilir; şehir ilk seçildiğinde PLACES'e kaydolur.
@@ -1892,7 +1920,7 @@ I18N.add({
   'Dinle': 'Play', 'Sonra': 'Later', 'Duraklat': 'Pause', 'Oynat': 'Play', 'Paylaş': 'Share', 'Kartı kapat': 'Close card', 'Kapat': 'Close', 'Kaydet': 'Save', 'Vazgeç': 'Cancel', 'Çık': 'Leave',
   'Favorilere ekle': 'Add to favorites', 'Favorilerden çıkar': 'Remove from favorites', 'Dünyada başka bir yer': 'Somewhere else in the world',
   'Dinlemek için oynat’a dokun': 'Tap play to listen', 'ÖRNEK': 'SAMPLE', 'Gezgin': 'Traveler',
-  'Şarkı kaydedildi · Profil → Favoriler': 'Song saved · Profile → Favorites', 'Şarkı kaydedilenlerden çıkarıldı': 'Song removed from saved',
+  'Şarkı kaydedildi · Profil → Favoriler': 'Song saved · Profile → Favorites', 'hangi şehir?': 'which city?', 'Şarkı kaydedilenlerden çıkarıldı': 'Song removed from saved',
   'Paylaşım kartı önizlemesi': 'Share card preview', 'Bağlantı kopyalandı': 'Link copied', 'Görsel kaydedildi': 'Image saved', 'Paylaşılan yer bulunamadı': 'Shared place not found',
   'Uyku zamanlayıcısı radyoyu kapattı': 'Sleep timer turned the radio off',
   // Hava durumu
@@ -1913,7 +1941,7 @@ I18N.add({
   // Keşfet
   'Saat kadranı: çevirerek saat seç': 'Clock dial: turn to pick an hour', '← SAATİ ÇEVİR →': '← TURN THE CLOCK →', 'Bu saatteki şehirler': 'Cities at this hour',
   'Kadranı bırakınca ilk şehir çalar': 'Release the dial and the first city plays', 'Bu saatte kayıtlı bir şehir yok': 'No saved city at this hour',
-  'Gece yarısı yayınları': 'Midnight radio', 'Şehirler uyanıyor': 'Cities waking up', 'Sabah': 'Morning', 'Öğle arası': 'Lunch break', 'İkindi': 'Afternoon', 'Akşam üstü': 'Early evening', 'Gece': 'Night', 'Gece ·': 'Night ·',
+  'Gece yarısı yayınları': 'Midnight radio', 'Şehirler uyanıyor': 'Cities waking up', 'Sabah': 'Morning', 'Öğle arası': 'Lunch break', 'İkindi': 'Afternoon', 'Akşam üstü': 'Early evening', 'Gece': 'Night', 'Gece ·': 'Night ·', 'Sabah ·': 'Morning ·', 'Öğle arası ·': 'Lunch break ·', 'İkindi ·': 'Afternoon ·', 'Akşam üstü ·': 'Early evening ·', 'Gece yarısı yayınları ·': 'Midnight radio ·', 'Şehirler uyanıyor ·': 'Cities waking up ·',
   'Akşam kuşağı': 'Evening', 'AKŞAM KUŞAĞI': 'EVENING', 'İyi akşamlar': 'Good evening', 'İyi sabahlar': 'Good morning', 'Günaydın': 'Good morning', 'İyi geceler': 'Good night', 'İyi günler': 'Good afternoon',
   'Keşfet\'te kendiliğinden çal': 'Autoplay in Explore', 'Ülke · şehir seç': 'Pick a country · city',
   // Kıtalar
@@ -2109,6 +2137,7 @@ I18N.add({
   [/^(\d+)\. DURAK$/, (_, n) => `STOP ${n}`],
   [/^(\d+) ŞEHİR$/, (_, n) => `${n} CIT${n === '1' ? 'Y' : 'IES'}`],
   [/^(\d+) dk$/, (_, n) => `${n} min`],
+  [/^Favori sınırına ulaştın \((\d+)\)$/, (_, n) => `Favorites limit reached (${n})`],
   [/^Alarm kuruldu · her gün (\d\d:\d\d)$/, (_, h) => `Alarm set · every day at ${h}`],
   [/^(\d+) ülke$/, (_, n) => `${n} countr${n === '1' ? 'y' : 'ies'}`],
   [/^(\d+) şehir$/, (_, n) => `${n} cit${n === '1' ? 'y' : 'ies'}`],
@@ -2218,13 +2247,14 @@ const isDay = c => { const s = subsolar(new Date()); return latLngToVec3(c.lat, 
 
 const fmtCache = {};
 function zoned(tz, d = new Date()) {
+  if (!fmtCache[tz] && !tzOk(tz)) tz = 'UTC';
   const f = fmtCache[tz] || (fmtCache[tz] = new Intl.DateTimeFormat('tr-TR', { timeZone: tz, year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit', second:'2-digit', hourCycle:'h23' }));
   const p = Object.fromEntries(f.formatToParts(d).map(x => [x.type, x.value]));
   return { y:+p.year, mo:+p.month, d:+p.day, h:+p.hour % 24, mi:+p.minute, s:+p.second };
 }
 const pad = n => String(n).padStart(2, '0');
 const cityTime = tz => { const z = zoned(tz); return `${pad(z.h)}:${pad(z.mi)}:${pad(z.s)}`; };
-const cityDate = tz => new Intl.DateTimeFormat(LOC, { timeZone: tz, day:'numeric', month:'long', weekday:'long' }).format(new Date());
+const cityDate = tz => new Intl.DateTimeFormat(LOC, { timeZone: tzOk(tz) ? tz : 'UTC', day:'numeric', month:'long', weekday:'long' }).format(new Date());
 function offsetMin(tz) { const d = new Date(); const z = zoned(tz, d); return Math.round((Date.UTC(z.y, z.mo - 1, z.d, z.h, z.mi, z.s) - Math.floor(d / 1000) * 1000) / 60000); }
 function utcLabel(tz) { const o = offsetMin(tz); if (!o) return 'UTC'; const a = Math.abs(o); return `UTC${o > 0 ? '+' : '−'}${Math.floor(a / 60)}${a % 60 ? ':' + pad(a % 60) : ''}`; }
 const stampShort = iso => { const d = new Date(iso); return `${pad(d.getDate())}.${pad(d.getMonth() + 1)}.${String(d.getFullYear()).slice(2)}`; };
@@ -4002,7 +4032,7 @@ const SatMosaic = (() => {
 })();
 
 /** Sürüm etiketi: sitede hangi sürümün açık olduğunu rozetten görmek için (önbellek kontrolü). */
-const BUILD = 'v51';
+const BUILD = 'v52';
 const MapGlobe = (() => {
   const host = document.getElementById('mapStage');
   const badge = document.getElementById('lodBadge');
@@ -5346,10 +5376,12 @@ function refillViz() {
   const viz = $('#viz'); if (!viz || reduceMotion.matches) return;
   viz.querySelectorAll('i').forEach((b, k) => { try { b.animate([{ scale: '1 0.05' }, { scale: '1 1' }], { duration: 360, delay: k * 9, easing: 'cubic-bezier(0.34,1.56,0.64,1)', fill: 'backwards' }); } catch (e) {} });
 }
+const FAV_MAX = 500;   // sunucu sınırı 1000: misafir + hesap birleşince bile aşılmaz
 function toggleFavorite() {
   const st = currentStation(), city = CITY[state.activeCityId]; if (!st || !city) return;
   const heart = $('#favBtn .heart'); if (heart) { heart.classList.remove('pop'); void heart.offsetWidth; heart.classList.add('pop'); }
   const i = state.favorites.findIndex(f => f.stationUuid === st.uuid);
+  if (i < 0 && state.favorites.length >= FAV_MAX) { vibrate('warning'); toast(`Favori sınırına ulaştın (${FAV_MAX})`); return; }
   if (i >= 0) { state.favorites.splice(i, 1); vibrate(6); } else { state.favorites.unshift({ id: 'f' + Date.now(), stationUuid: st.uuid, stationName: st.name, cityId: city.id, cityName: city.name, countryCode: city.countryCode, index: state.index }); vibrate('success'); }
   save(); renderSheetDynamic(); if (i < 0) setTimeout(() => evaluateQuests(false), 600);
 }
@@ -5474,7 +5506,7 @@ const Search = (() => {
   /** Ülke seçildi: hangi şehir? (kayıtlı konumlar + istasyon sayısına göre gerçek bölgeler) */
   async function askCity(cc, name) {
     const my = ++seq;
-    const header = `<div class="sr-head"><button id="srBack" aria-label="Geri">${icon('chevron-left', 20)}</button><span>${esc(name)} · hangi şehir?</span></div>`;
+    const header = `<div class="sr-head"><button id="srBack" aria-label="Geri">${icon('chevron-left', 20)}</button><span>${esc(name)} · ${tx('hangi şehir?')}</span></div>`;
     const ours = CITIES.filter(c => c.countryCode === cc).concat(ATLAS.filter(a => a.cc === cc).slice(0, 40).map(a => CITY[a.id])).map(c => ({ kind: 'city', title: c.name, meta: 'Konum', city: c }));
     render([{ label: 'Şehirler', rows: ours }], header + '<div class="sr-note">İstasyonlar taranıyor…</div>');
     bindBack(name);
@@ -6094,7 +6126,7 @@ function sparkle(el) {
   }
 }
 // ── Radyolu alarm (yalnız uygulamada: bildirim gerekir). Cihaza özgüdür, hesapla eşitlenmez. ──
-const alarmState = () => Object.assign({ on: false, h: 7, m: 0 }, state.alarm || {});
+const alarmState = () => { const a = state.alarm || {}, n = (v, d, max) => Number.isInteger(v) && v >= 0 && v <= max ? v : d; return { on: a.on === true, h: n(a.h, 7, 23), m: n(a.m, 0, 59) }; };
 function alarmHTML() {
   const a = alarmState(), hm = `${pad(a.h)}:${pad(a.m)}`;
   return `<div class="px-set"><span class="ico">${icon('sunrise', 19)}</span><span class="tx"><b>Güneşin doğduğu yerden uyan</b><span class="small">${NATIVE ? 'Her sabah seçtiğin saatte bildirim gelir; dokununca o an güneşin doğduğu şehrin radyosu çalar.' : 'Alarm bildirim gerektirdiği için yalnızca uygulamada çalışır.'}</span></span>
@@ -6211,7 +6243,7 @@ function songRow(x) {
 }
 function favRow(f, st) {
   const cur = !!(st && st.uuid === f.stationUuid && state.activeCityId === f.cityId);
-  return `<div class="px-row ${cur ? 'current' : ''} ${cur && state.status !== 'playing' ? 'paused' : ''}" data-fav-uuid="${esc(f.stationUuid)}"><button class="main press" data-play-fav="${f.id}" aria-label="${esc(f.stationName)} dinle"><span class="disc"><span class="pf-ico">${icon('radio', 18)}</span><span class="pf-eq"><i style="--t:300ms"></i><i style="--t:230ms"></i><i style="--t:350ms"></i></span></span><span class="tx"><b data-noi18n>${esc(f.stationName)}</b><span class="label">${esc(f.countryCode || '')} · ${esc(placeName(f.cityId, f.cityName))}</span></span></button><button class="round heartbtn press tight" data-rm-fav="${f.id}" aria-label="${esc(f.stationName)} favorilerden çıkar">${icon('heart', 20, 'filled')}</button></div>`;
+  return `<div class="px-row ${cur ? 'current' : ''} ${cur && state.status !== 'playing' ? 'paused' : ''}" data-fav-uuid="${esc(f.stationUuid)}"><button class="main press" data-play-fav="${esc(f.id)}" aria-label="${esc(f.stationName)} dinle"><span class="disc"><span class="pf-ico">${icon('radio', 18)}</span><span class="pf-eq"><i style="--t:300ms"></i><i style="--t:230ms"></i><i style="--t:350ms"></i></span></span><span class="tx"><b data-noi18n>${esc(f.stationName)}</b><span class="label">${esc(f.countryCode || '')} · ${esc(placeName(f.cityId, f.cityName))}</span></span></button><button class="round heartbtn press tight" data-rm-fav="${esc(f.id)}" aria-label="${esc(f.stationName)} favorilerden çıkar">${icon('heart', 20, 'filled')}</button></div>`;
 }
 /** Profil kürenin yerleşimi: kahraman alanındaki daire neredeyse küre orada (kaydırınca birlikte kayar). */
 function profileLayout(W, H) {
@@ -7707,8 +7739,8 @@ async function openSharedLink(p) {
   let city = CITY[p.c];
   const la = parseFloat(p.la), lo = parseFloat(p.lo);
   if (!city && Number.isFinite(la) && Number.isFinite(lo)) {
-    const cc = (p.cc || '').slice(0, 3).toUpperCase();
-    city = registerPlace({ id: String(p.c).slice(0, 40), name: (p.n || 'Paylaşılan yer').slice(0, 60), country: (p.co || countryNameTR(cc) || '').slice(0, 60), lat: la, lng: lo, timezone: p.tz || zoneFor(la, lo, cc), countryCode: cc, vibeTag: Math.abs(la) < 23.5 ? 'Tropikal Ritimler' : Math.abs(la) > 55 ? 'Yağmurlu Sokaklar' : 'Sabah Kahvesi' });
+    const cc = /^[A-Za-z]{2}$/.test(p.cc || '') ? p.cc.toUpperCase() : '';
+    city = registerPlace({ id: String(p.c).slice(0, 40), name: (p.n || 'Paylaşılan yer').slice(0, 60), country: (p.co || countryNameTR(cc) || '').slice(0, 60), lat: la, lng: lo, timezone: tzOk(p.tz) ? p.tz : zoneFor(clamp(la, -85, 85), lo, cc), countryCode: cc, vibeTag: Math.abs(la) < 23.5 ? 'Tropikal Ritimler' : Math.abs(la) > 55 ? 'Yağmurlu Sokaklar' : 'Sabah Kahvesi' });
   }
   if (!city) { toast('Paylaşılan yer bulunamadı'); return; }
   if (state.view !== 'app') { if (!state.auth) { state.auth = 'guest'; save(); } enterApp(); }
@@ -7800,7 +7832,7 @@ var cotdUI = { open: false, timer: 0, city: null, auto: false };
 function momentLabel(city) {
   const m = state.moment;
   if (m && m.cityId === city.id) return `<span class="label accent mo-${m.kind}"><span class="mo-ic">${icon(m.kind === 'dawn' ? 'sunrise' : m.kind === 'pulse' ? 'activity' : 'sparkles', 13)}</span>${esc(m.label)}</span>`;
-  return `<span class="label accent">${city.countryCode} · ${esc(city.vibeTag)}</span>`;
+  return `<span class="label accent">${esc(city.countryCode)} · ${esc(city.vibeTag)}</span>`;
 }
 function cotdTick() {
   const c = cotdUI.city; if (!c) return;
