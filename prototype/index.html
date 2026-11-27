@@ -353,12 +353,12 @@ svg.i.filled { fill: currentColor; }
 .live-dock .live { max-width: 100%; height: 48px; border-radius: 24px; padding: 0 18px 0 16px; gap: 12px; }
 .live-dock.hidden .live { pointer-events: none !important; }
 .live .sub { max-width: 220px; }
-/* ── Odak modu (HUD): küre sürüklenir/yakınlaşırken çevre katmanları çekilir; küre yerleşince 700 ms sonra
-   alttan üste 40 ms kademeli döner. translate (bağımsız özellik) kullanılır: elemanların kendi transform'una dokunmaz. ── */
+/* ── Odak modu (HUD): küre sürüklenir/yakınlaşırken çevre katmanları çekilir; küre yerleşince 220 ms sonra
+   alttan üste 20 ms kademeyle 220 ms'de döner (toplam ≈ 0,5 sn). translate (bağımsız özellik) kullanılır: elemanların kendi transform'una dokunmaz. ── */
 #app.hud-calm .hud-el { opacity: 0 !important; pointer-events: none !important; transition: opacity 160ms var(--e-exit), translate 160ms var(--e-exit) !important; }
 #app.hud-calm .hud-top { translate: 0 -8px; }
 #app.hud-calm .hud-bot { translate: 0 10px; }
-#app.hud-back .hud-el { transition: opacity 280ms var(--e-enter) var(--hud-d, 0ms), translate 280ms var(--e-enter) var(--hud-d, 0ms) !important; }
+#app.hud-back .hud-el { transition: opacity 220ms var(--e-enter) var(--hud-d, 0ms), translate 220ms var(--e-enter) var(--hud-d, 0ms) !important; }
 @media (prefers-reduced-motion: reduce) { #app.hud-calm .hud-top, #app.hud-calm .hud-bot { translate: none; } }
 .app-logo { position: absolute; left: 24px; top: calc(var(--sat) + 17px); line-height: 26px; z-index: 31; font-size: 22px; font-weight: 650; letter-spacing: -0.045em; color: var(--fg); pointer-events: none; transition: color 500ms var(--e-standard); }
 .app-logo span { color: var(--accent-2); transition: color 500ms var(--e-standard); }
@@ -4126,7 +4126,7 @@ const SatMosaic = (() => {
 })();
 
 /** Sürüm etiketi: sitede hangi sürümün açık olduğunu rozetten görmek için (önbellek kontrolü). */
-const BUILD = 'v55';
+const BUILD = 'v56';
 const MapGlobe = (() => {
   const host = document.getElementById('mapStage');
   const badge = document.getElementById('lodBadge');
@@ -4615,7 +4615,13 @@ const MapGlobe = (() => {
     // Ağ sessizce düşürürse (CSP bazen hata olayı üretmez): 6 sn'de karo yoksa vektöre geç.
     setTimeout(() => { if (imagery === 'probing' && satTiles === 0) setImagery('vector'); }, 6000);
     ['dragstart', 'zoomstart', 'rotatestart', 'pitchstart'].forEach(n => map.on(n, ev => { if (ev.originalEvent) { Hud.calm(); if (userMoveCb) userMoveCb(); userMoving = true; userControl = true; flight = null; lastTouch = Date.now(); state.interacted = true; $('#hint').classList.add('gone'); hideCityTag(); } }));
-    map.on('moveend', ev => { if (ev && ev.wglobeFlight) flight = null; if (userMoving) { lastTouch = Date.now(); Hud.settle(); } userMoving = false; });
+    map.on('moveend', ev => {
+      if (ev && ev.wglobeFlight) flight = null;
+      // Kullanıcı hareketi, kadraj dolgusunun süzülmesini (kart kapanınca 600 ms) yarıda keserse dolgu takılı kalır ve
+      // küre yukarıda durur. Hareket bitince dolgu, o anki durumun hedefine (kart / günün şehri / ekran ortası) döner.
+      if (userMoving) { lastTouch = Date.now(); Hud.settle(); easePad(420); }
+      userMoving = false;
+    });
     map.on('move', ev => {
       updateBadge(); placeTag();
       if (!ev.originalEvent) return;
@@ -5180,11 +5186,11 @@ const MapGlobe = (() => {
     });
   }
   /** Kart kapanınca kürenin odağı kartın üstünden ekranın ortasına 600 ms'de süzülür (yer değişmez, yalnız kadraj) */
-  function easePad() {
+  function easePad(ms = 600) {
     if (!ready || !visible) return;
     const p = map.getPadding(), q = padding();
     if (Math.abs((p.bottom || 0) - q.bottom) < 1 && Math.abs((p.top || 0) - q.top) < 1) return;
-    map.easeTo({ padding: q, duration: reduceMotion.matches ? 0 : 600, easing: easeInOutCubic, essential: true });
+    map.easeTo({ padding: q, duration: reduceMotion.matches ? 0 : ms, easing: easeInOutCubic, essential: true });
   }
   function flyTo(lng, lat, zoom, speed, pitch = 0, bearing = 0) {
     prefetchTiles(lng, lat, zoom);
@@ -6300,13 +6306,13 @@ const alarmState = () => { const a = state.alarm || {}, n = (v, d, max) => Numbe
 /**
  * Odak modu — küreyle etkileşimde (sürükleme, yakınlaştırma, döndürme) arayüz katmanları çekilir, küre nefes alır.
  *  Çıkış: 160 ms e-exit (üsttekiler 8 px yukarı, alttakiler 10 px aşağı, dokunmaya kapalı).
- *  Dönüş: hareket bitip küre durunca (atalet dahil) 700 ms sonra, alttan üste 40 ms arayla, 280 ms e-enter.
+ *  Dönüş: hareket bitip küre durunca (atalet dahil) 220 ms sonra, alttan üste 20 ms arayla, 220 ms e-enter.
  *  Söndürülmez: açık oynatıcı kartı, odaktaki arama, kullanılmakta olan zaman cetveli. Yalnız küre sekmesinde.
  */
 const Hud = (() => {
-  const IDLE = 700, SAFETY = 5000;
+  const IDLE = 220, SAFETY = 5000;
   // Göz alttan yukarı okur: önce sekme çubuğu, sonra canlı yayın çubuğu, ipucu, üst düğmeler, logo, arama
-  const PARTS = [['.tabbar', 'bot', 0], ['#liveDock', 'bot', 40], ['#hint', 'bot', 40], ['#pulseBar', 'top', 80], ['#pane-globe .topbar', 'top', 80], ['.app-logo', 'top', 100], ['#search', 'top', 120], ['#tStrip', 'bot', 60]];
+  const PARTS = [['.tabbar', 'bot', 0], ['#liveDock', 'bot', 20], ['#hint', 'bot', 20], ['#tStrip', 'bot', 30], ['#pulseBar', 'top', 40], ['#pane-globe .topbar', 'top', 40], ['.app-logo', 'top', 50], ['#search', 'top', 60]];
   let calmOn = false, timer = 0, safety = 0, backTimer = 0, marked = false;
   const app = () => document.getElementById('app');
   function mark() {
@@ -6333,7 +6339,7 @@ const Hud = (() => {
     timer = setTimeout(() => {
       calmOn = false; clearTimeout(safety);
       const a = app(); a.classList.add('hud-back'); a.classList.remove('hud-calm');
-      clearTimeout(backTimer); backTimer = setTimeout(() => a.classList.remove('hud-back'), 460);
+      clearTimeout(backTimer); backTimer = setTimeout(() => a.classList.remove('hud-back'), 320);
     }, IDLE);
   }
   /** Sekme/görünüm değişince ya da başka bir akış başlayınca hemen geri getir (geçiş yok). */
