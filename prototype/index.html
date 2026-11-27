@@ -353,6 +353,13 @@ svg.i.filled { fill: currentColor; }
 .live-dock .live { max-width: 100%; height: 48px; border-radius: 24px; padding: 0 18px 0 16px; gap: 12px; }
 .live-dock.hidden .live { pointer-events: none !important; }
 .live .sub { max-width: 220px; }
+/* ── Odak modu (HUD): küre sürüklenir/yakınlaşırken çevre katmanları çekilir; küre yerleşince 700 ms sonra
+   alttan üste 40 ms kademeli döner. translate (bağımsız özellik) kullanılır: elemanların kendi transform'una dokunmaz. ── */
+#app.hud-calm .hud-el { opacity: 0 !important; pointer-events: none !important; transition: opacity 160ms var(--e-exit), translate 160ms var(--e-exit) !important; }
+#app.hud-calm .hud-top { translate: 0 -8px; }
+#app.hud-calm .hud-bot { translate: 0 10px; }
+#app.hud-back .hud-el { transition: opacity 280ms var(--e-enter) var(--hud-d, 0ms), translate 280ms var(--e-enter) var(--hud-d, 0ms) !important; }
+@media (prefers-reduced-motion: reduce) { #app.hud-calm .hud-top, #app.hud-calm .hud-bot { translate: none; } }
 .app-logo { position: absolute; left: 24px; top: calc(var(--sat) + 17px); line-height: 26px; z-index: 31; font-size: 22px; font-weight: 650; letter-spacing: -0.045em; color: var(--fg); pointer-events: none; transition: color 500ms var(--e-standard); }
 .app-logo span { color: var(--accent-2); transition: color 500ms var(--e-standard); }
 .screen.ink-dark .app-logo { color: #141414; }
@@ -402,7 +409,7 @@ svg.i.filled { fill: currentColor; }
 .sample { font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.12em; color: var(--fg-4); }
 .viz { display: flex; align-items: center; gap: 3px; height: 36px; }
 .viz i { flex: 1; height: 100%; border-radius: 2px; background: linear-gradient(180deg, var(--accent-2), var(--accent)); transform: scaleY(0.07); opacity: 0.3; transition: transform 360ms var(--e-standard), opacity 360ms var(--e-standard); }
-.viz.playing i { opacity: 1; animation: vz var(--t) var(--e-inout) var(--d) infinite alternate; }
+.viz.playing i { opacity: 1; animation: vz calc(var(--wb, 780ms) * var(--m)) var(--e-inout) calc(var(--wb, 780ms) * var(--ph)) infinite alternate; }
 .viz.busy i { opacity: 0.55; animation: vzBusy 1100ms var(--e-inout) calc(var(--k) * 35ms) infinite; }
 @keyframes vz { from { transform: scaleY(var(--lo)); } to { transform: scaleY(var(--hi)); } }
 @keyframes vzBusy { 0%, 100% { transform: scaleY(0.07); } 45% { transform: scaleY(0.42); } }
@@ -944,18 +951,21 @@ svg.i.filled { fill: currentColor; }
 .mfx-pt { position: absolute; left: 0; top: 0; width: 0; height: 0; will-change: transform; }
 .mfx-wave { transition: opacity 200ms var(--e-standard); }
 .mfx-wave.off { opacity: 0; }
-.mfx-wave i { position: absolute; left: -9px; top: -9px; width: 18px; height: 18px; border-radius: 50%; border: 1.6px solid var(--fx-ink); opacity: 0; will-change: transform, opacity; }
-.mfx-wave.play i { animation: mfxWave var(--beat, 2340ms) linear infinite; }
-.mfx-wave.play i:nth-child(1) { --s: 3.4; }
-.mfx-wave.play i:nth-child(2) { --s: 2.6; animation-delay: calc(var(--beat, 2340ms) / -3); }
-.mfx-wave.play i:nth-child(3) { --s: 3.0; animation-delay: calc(var(--beat, 2340ms) / -1.5); }
+.mfx-wave i { position: absolute; left: -60px; top: -60px; width: 120px; height: 120px; border-radius: 50%; border: 1.3px solid var(--fx-ink); opacity: 0; will-change: transform, opacity;
+  box-shadow: 0 0 12px rgba(169,211,255,0.30), inset 0 0 12px rgba(169,211,255,0.16); }
+/* Halka tam boyutta tanımlı, küçükten büyür: çizgi incelikten belirginliğe geçer (ölçekli 18 px halka kaba olurdu).
+   Her vuruşta (--wb, istasyona özgü 640–920 ms) bir halka doğar; üç halka bir vuruş arayla. Oynatıcı çubukları da aynı vuruşla. */
+.mfx-wave.play i { animation: mfxWave calc(var(--wb, 780ms) * 3) linear infinite; }
+.mfx-wave.play i:nth-child(1) { --s: 1; }
+.mfx-wave.play i:nth-child(2) { --s: 0.84; animation-delay: calc(var(--wb, 780ms) * -1); }
+.mfx-wave.play i:nth-child(3) { --s: 0.93; animation-delay: calc(var(--wb, 780ms) * -2); }
 @keyframes mfxWave {
-  0% { transform: scale(0.9); opacity: 0.62; animation-timing-function: cubic-bezier(0.22, 0.61, 0.36, 1); }
-  62% { transform: scale(var(--s, 3)); opacity: 0; }
-  100% { transform: scale(var(--s, 3)); opacity: 0; }
+  0% { transform: scale(0.12); opacity: 0.8; animation-timing-function: cubic-bezier(0.22, 0.61, 0.36, 1); }
+  72% { transform: scale(var(--s, 1)); opacity: 0; }
+  100% { transform: scale(var(--s, 1)); opacity: 0; }
 }
 .mfx-wave.busy i:first-child { animation: mfxBreath 1600ms var(--e-inout) infinite alternate; }
-@keyframes mfxBreath { from { transform: scale(1.1); opacity: 0.18; } to { transform: scale(1.9); opacity: 0.52; } }
+@keyframes mfxBreath { from { transform: scale(0.16); opacity: 0.2; } to { transform: scale(0.3); opacity: 0.6; } }
 .mfx-tap i { position: absolute; left: -4px; top: -4px; width: 8px; height: 8px; border-radius: 50%; border: 1.6px solid var(--fx-line); opacity: 0; }
 .mfx-tap.go i { animation: mfxTap 520ms cubic-bezier(0.33, 1, 0.68, 1) forwards; }
 @keyframes mfxTap { from { transform: scale(1); opacity: 0.85; } to { transform: scale(11); opacity: 0; } }
@@ -965,8 +975,20 @@ svg.i.filled { fill: currentColor; }
 @keyframes mfxIn { from { transform: scale(0); opacity: 0; } 40% { opacity: 1; } to { transform: none; opacity: 1; } }
 @keyframes mfxBreathe { from { transform: scale(0.86); } to { transform: scale(1.1); } }
 .mfx-pulses { position: absolute; inset: 0; transition: opacity 300ms var(--e-exit); }
+/* ── Şehir etiketleri (LOD): uzakta yok; yaklaştıkça metropoller → tüm şehirler → çevredeki yerler.
+   Konum her karede transform ile (dış), beliriş 240 ms opaklık + 3 px yükseliş ile (iç). ── */
+.mfx-labels { position: absolute; inset: 0; }
+.mfx-lab { position: absolute; left: 0; top: 0; width: 0; height: 0; will-change: transform; }
+.mfx-lab .lt { position: absolute; left: -3px; top: 0; display: flex; align-items: center; gap: 5px; white-space: nowrap; opacity: 0;
+  transform: translateY(calc(-50% + 3px)); transition: opacity 240ms var(--e-standard), transform 240ms var(--e-standard);
+  font: 600 11.5px/1 var(--font); letter-spacing: 0.01em; color: rgba(234,244,255,0.88); text-shadow: 0 1px 2px rgba(2,6,16,0.9), 0 0 10px rgba(2,6,16,0.65); }
+.mfx-lab .lt::before { content: ""; width: 4px; height: 4px; flex: none; border-radius: 50%; background: currentColor; box-shadow: 0 0 0 1.5px rgba(2,6,16,0.55); }
+.mfx-lab.t1 .lt { font-size: 12.5px; font-weight: 650; color: #F4F9FF; }
+.mfx-lab.t3 .lt { font-size: 10.5px; font-weight: 500; color: rgba(222,234,250,0.74); }
+.mfx-lab.on .lt { opacity: 1; transform: translateY(-50%); }
+@media (prefers-reduced-motion: reduce) { .mfx-lab .lt, .mfx-lab.on .lt { transform: translateY(-50%); } }
 .mfx-pulses.out { opacity: 0; }
-@media (prefers-reduced-motion: reduce) { .mfx-wave.play i, .mfx-pulse b { animation: none; } .mfx-wave.play i:first-child { opacity: 0.4; transform: scale(1.8); } }
+@media (prefers-reduced-motion: reduce) { .mfx-wave.play i, .mfx-pulse b { animation: none; } .mfx-wave.play i:first-child { opacity: 0.45; transform: scale(0.3); } }
 /* ── Günün şehri: perde 420 ms, harfler 40 ms arayla yaylanarak düşer, ardından bilgi · halka · düğmeler 80 ms arayla ── */
 .cotd { position: absolute; inset: 0; z-index: 14; pointer-events: none; }
 .cotd[hidden] { display: none !important; }
@@ -1716,11 +1738,12 @@ const atlasShape = a => ({ id: a.id, name: a.name, country: countryNameTR(a.cc) 
 // Atlas şehirleri CITY'den her zaman bulunur (paylaşım bağlantısı, geçmiş, favoriler cihazda kayıtlı olmasa da açılır).
 const ATLAS_IDS = new Set(ATLAS.map(a => a.id));
 ATLAS.forEach(a => { if (!CITY[a.id]) CITY[a.id] = atlasShape(a); });
-const CITY_EN = { 'london': 'London', 'cairo': 'Cairo', 'seoul': 'Seoul', 'sydney': 'Sydney', 'lisbon': 'Lisbon', 'vienna': 'Vienna', 'rome': 'Rome', 'mexico-city': 'Mexico City', 'singapore': 'Singapore', 'prague': 'Prague', 'athens': 'Athens', 'munich': 'Munich', 'barcelona': 'Barcelona', 'seville': 'Seville', 'milan': 'Milan', 'naples': 'Naples', 'marseille': 'Marseille', 'brussels': 'Brussels', 'luxembourg': 'Luxembourg', 'zurich': 'Zurich', 'copenhagen': 'Copenhagen', 'warsaw': 'Warsaw', 'krakow': 'Kraków', 'budapest': 'Budapest', 'bucharest': 'Bucharest', 'sofia': 'Sofia', 'belgrade': 'Belgrade', 'sarajevo': 'Sarajevo', 'tirana': 'Tirana', 'skopje': 'Skopje', 'nicosia': 'Nicosia', 'chisinau': 'Chișinău', 'kyiv': 'Kyiv', 'odesa': 'Odesa', 'moscow': 'Moscow', 'tbilisi': 'Tbilisi', 'yerevan': 'Yerevan', 'tehran': 'Tehran', 'baghdad': 'Baghdad', 'damascus': 'Damascus', 'beirut': 'Beirut', 'riyadh': 'Riyadh', 'jeddah': 'Jeddah', 'kuwait': 'Kuwait City', 'muscat': 'Muscat', 'kabul': 'Kabul', 'karachi': 'Karachi', 'lahore': 'Lahore', 'bangalore': 'Bengaluru', 'kolkata': 'Kolkata', 'dhaka': 'Dhaka', 'kathmandu': 'Kathmandu', 'colombo': 'Colombo', 'tashkent': 'Tashkent', 'almaty': 'Almaty', 'bishkek': 'Bishkek', 'ulaanbaatar': 'Ulaanbaatar', 'beijing': 'Beijing', 'shanghai': 'Shanghai', 'jakarta': 'Jakarta', 'casablanca': 'Casablanca', 'marrakesh': 'Marrakesh', 'algiers': 'Algiers', 'tunis': 'Tunis', 'tripoli': 'Tripoli', 'khartoum': 'Khartoum', 'accra': 'Accra', 'kinshasa': 'Kinshasa', 'dar-es-salaam': 'Dar es Salaam', 'san-jose-cr': 'San José', 'caracas': 'Caracas', 'cordoba-ar': 'Córdoba', 'istanbul': 'Istanbul', 'izmir': 'Izmir' };
+const CITY_EN = { 'johannesburg': 'Johannesburg', 'london': 'London', 'cairo': 'Cairo', 'seoul': 'Seoul', 'sydney': 'Sydney', 'lisbon': 'Lisbon', 'vienna': 'Vienna', 'rome': 'Rome', 'mexico-city': 'Mexico City', 'singapore': 'Singapore', 'prague': 'Prague', 'athens': 'Athens', 'munich': 'Munich', 'barcelona': 'Barcelona', 'seville': 'Seville', 'milan': 'Milan', 'naples': 'Naples', 'marseille': 'Marseille', 'brussels': 'Brussels', 'luxembourg': 'Luxembourg', 'zurich': 'Zurich', 'copenhagen': 'Copenhagen', 'warsaw': 'Warsaw', 'krakow': 'Kraków', 'budapest': 'Budapest', 'bucharest': 'Bucharest', 'sofia': 'Sofia', 'belgrade': 'Belgrade', 'sarajevo': 'Sarajevo', 'tirana': 'Tirana', 'skopje': 'Skopje', 'nicosia': 'Nicosia', 'chisinau': 'Chișinău', 'kyiv': 'Kyiv', 'odesa': 'Odesa', 'moscow': 'Moscow', 'tbilisi': 'Tbilisi', 'yerevan': 'Yerevan', 'tehran': 'Tehran', 'baghdad': 'Baghdad', 'damascus': 'Damascus', 'beirut': 'Beirut', 'riyadh': 'Riyadh', 'jeddah': 'Jeddah', 'kuwait': 'Kuwait City', 'muscat': 'Muscat', 'kabul': 'Kabul', 'karachi': 'Karachi', 'lahore': 'Lahore', 'bangalore': 'Bengaluru', 'kolkata': 'Kolkata', 'dhaka': 'Dhaka', 'kathmandu': 'Kathmandu', 'colombo': 'Colombo', 'tashkent': 'Tashkent', 'almaty': 'Almaty', 'bishkek': 'Bishkek', 'ulaanbaatar': 'Ulaanbaatar', 'beijing': 'Beijing', 'shanghai': 'Shanghai', 'jakarta': 'Jakarta', 'casablanca': 'Casablanca', 'marrakesh': 'Marrakesh', 'algiers': 'Algiers', 'tunis': 'Tunis', 'tripoli': 'Tripoli', 'khartoum': 'Khartoum', 'accra': 'Accra', 'kinshasa': 'Kinshasa', 'dar-es-salaam': 'Dar es Salaam', 'san-jose-cr': 'San José', 'caracas': 'Caracas', 'cordoba-ar': 'Córdoba', 'istanbul': 'Istanbul', 'izmir': 'Izmir' };
 if (EN) {
   const byCC = new Map(); ATLAS.forEach(a => { if (!byCC.has(a.cc)) byCC.set(a.cc, []); byCC.get(a.cc).push(a); });
   CITIES.forEach(c => {
-    let best = null, bd = 30; (byCC.get(c.countryCode) || []).forEach(a => { const d = kmApprox(c.lat, c.lng, a.lat, a.lng); if (d < bd) { bd = d; best = a; } });
+    // Yalnız şehir merkeziyle örtüşen atlas kaydı (≤ 12 km): daha uzak bir kasabanın adı şehre geçmesin (Johannesburg → Krugersdorp hatası)
+    let best = null, bd = 12; (byCC.get(c.countryCode) || []).forEach(a => { const d = kmApprox(c.lat, c.lng, a.lat, a.lng); if (d < bd) { bd = d; best = a; } });
     if (CITY_EN[c.id]) c.name = CITY_EN[c.id]; else if (best) c.name = best.name;
     c.country = countryNameTR(c.countryCode) || c.country;
   });
@@ -4004,6 +4027,7 @@ const views = ['welcome', 'login', 'register', 'reset', 'app'];
 let history = [];
 function go(view, { replace = false } = {}) {
   if (window.wglobeUnshift) window.wglobeUnshift();
+  Hud.reset();
   if (!replace && state.view !== view) history.push(state.view);
   state.view = view;
   views.forEach(v => document.getElementById(v).classList.toggle('active', v === view));
@@ -4015,6 +4039,7 @@ function go(view, { replace = false } = {}) {
 const back = () => go(history.pop() || 'welcome', { replace: true });
 function restartEnter(root) { root.querySelectorAll('.enter').forEach(el => { el.style.animation = 'none'; void el.offsetWidth; el.style.animation = ''; }); }
 function setTab(tab) {
+  Hud.reset();
   if (tab !== 'globe' && flight.on) stopFlight(false);
   if (tab !== 'globe' && TimeScrub.isOpen) TimeScrub.close(true);
   if (tab !== 'globe') { stopPulse(); if (cotdUI.open) closeCotd(false); }
@@ -4101,7 +4126,7 @@ const SatMosaic = (() => {
 })();
 
 /** Sürüm etiketi: sitede hangi sürümün açık olduğunu rozetten görmek için (önbellek kontrolü). */
-const BUILD = 'v54';
+const BUILD = 'v55';
 const MapGlobe = (() => {
   const host = document.getElementById('mapStage');
   const badge = document.getElementById('lodBadge');
@@ -4589,8 +4614,8 @@ const MapGlobe = (() => {
     });
     // Ağ sessizce düşürürse (CSP bazen hata olayı üretmez): 6 sn'de karo yoksa vektöre geç.
     setTimeout(() => { if (imagery === 'probing' && satTiles === 0) setImagery('vector'); }, 6000);
-    ['dragstart', 'zoomstart', 'rotatestart', 'pitchstart'].forEach(n => map.on(n, ev => { if (ev.originalEvent) { if (userMoveCb) userMoveCb(); userMoving = true; userControl = true; flight = null; lastTouch = Date.now(); state.interacted = true; $('#hint').classList.add('gone'); hideCityTag(); } }));
-    map.on('moveend', ev => { if (ev && ev.wglobeFlight) flight = null; if (userMoving) lastTouch = Date.now(); userMoving = false; });
+    ['dragstart', 'zoomstart', 'rotatestart', 'pitchstart'].forEach(n => map.on(n, ev => { if (ev.originalEvent) { Hud.calm(); if (userMoveCb) userMoveCb(); userMoving = true; userControl = true; flight = null; lastTouch = Date.now(); state.interacted = true; $('#hint').classList.add('gone'); hideCityTag(); } }));
+    map.on('moveend', ev => { if (ev && ev.wglobeFlight) flight = null; if (userMoving) { lastTouch = Date.now(); Hud.settle(); } userMoving = false; });
     map.on('move', ev => {
       updateBadge(); placeTag();
       if (!ev.originalEvent) return;
@@ -4724,7 +4749,7 @@ const MapGlobe = (() => {
   // ═══ Üst katman (DOM + tuval): harita her karede yeniden stillenmez; halkalar ve nabız CSS ile kompozitörde döner,
   //     uçuş izi tuvale çizilir. Konumlar yalnızca harita bir kare çizdiğinde ('render') güncellenir. ═══
   const fx = document.createElement('div'); fx.className = 'map-fx'; fx.setAttribute('aria-hidden', 'true');
-  fx.innerHTML = '<canvas class="mfx-trail"></canvas><span class="mfx-pt mfx-wave"><i></i><i></i><i></i></span><span class="mfx-pt mfx-tap"><i></i></span><div class="mfx-pulses"></div>';
+  fx.innerHTML = '<canvas class="mfx-trail"></canvas><div class="mfx-labels" data-noi18n></div><span class="mfx-pt mfx-wave"><i></i><i></i><i></i></span><span class="mfx-pt mfx-tap"><i></i></span><div class="mfx-pulses"></div>';
   const fxCanvas = fx.querySelector('canvas'), fxCtx = fxCanvas.getContext('2d'), waveEl = fx.querySelector('.mfx-wave'), tapEl = fx.querySelector('.mfx-tap'), pulsesEl = fx.querySelector('.mfx-pulses');
   let fxW = 0, fxH = 0, fxDpr = 1, tapAt = null;
   function fxResize() {
@@ -4744,9 +4769,83 @@ const MapGlobe = (() => {
     return p;
   }
   const place = (el, p) => { if (!p || p.x < -80 || p.y < -80 || p.x > fxW + 80 || p.y > fxH + 80) { el.style.visibility = 'hidden'; return false; } el.style.visibility = ''; el.style.transform = `translate3d(${p.x.toFixed(1)}px, ${p.y.toFixed(1)}px, 0)`; return true; };
+  // ── Şehir etiketleri (LOD) ──
+  // Kademeler: z ≥ LAB_Z[0] dünya metropolleri · z ≥ LAB_Z[1] tüm seçkin şehirler · z ≥ LAB_Z[2] görünen bölgedeki
+  // atlas yerleri (en çok LAB_ATLAS_MAX). Çakışma: önem sırasıyla açgözlü kutu yerleşimi; seçili şehrin etiket/halka
+  // alanı boş bırakılır. Kürenin arkasındakiler ve ekran dışındakiler gösterilmez.
+  const LAB_Z = [1.9, 2.9, 4.3], LAB_ATLAS_MAX = 24;
+  const LAB_T1 = new Set(['istanbul', 'tokyo', 'new-york', 'london', 'paris', 'cairo', 'seoul', 'sydney', 'rio-de-janeiro', 'buenos-aires', 'mexico-city', 'moscow',
+    'beijing', 'shanghai', 'mumbai', 'delhi', 'lagos', 'johannesburg', 'los-angeles', 'sao-paulo', 'dubai', 'singapore', 'bangkok', 'nairobi', 'toronto', 'berlin', 'madrid', 'rome']);
+  const labelsEl = fx.querySelector('.mfx-labels'), labPool = new Map(), labMeasure = document.createElement('canvas').getContext('2d');
+  let curatedNames = null, atlasGrid = null, labKey = '';
+  // Atlas (≈4400 yer) bir kez 10°×10° kovalara bölünür: her karede yalnız görünen bölgenin kovaları taranır.
+  // Kova içi sıra atlasın önem sırasıdır; kovalar birleştirilince de önem sırası korunur (index'e göre).
+  function atlasNear(lat, lng, radDeg) {
+    if (!atlasGrid) {
+      atlasGrid = new Map();
+      ATLAS.forEach((a, i) => { const k = Math.floor((a.lat + 90) / 10) + ':' + Math.floor((((a.lng + 180) % 360) + 360) % 360 / 10); if (!atlasGrid.has(k)) atlasGrid.set(k, []); atlasGrid.get(k).push(i); });
+    }
+    const out = [], r = Math.min(90, radDeg + 10), la0 = Math.max(0, Math.floor((lat - r + 90) / 10)), la1 = Math.min(17, Math.floor((lat + r + 90) / 10));
+    const lonSpan = Math.abs(lat) + r >= 85 ? 180 : Math.min(180, r / Math.max(0.1, Math.cos((Math.abs(lat) + r) * D2R)));
+    const lo0 = Math.floor((lng - lonSpan + 180) / 10), lo1 = Math.floor((lng + lonSpan + 180) / 10);
+    for (let a = la0; a <= la1; a++) for (let o = lo0; o <= lo1 && o - lo0 < 36; o++) { const b = atlasGrid.get(a + ':' + ((o % 36) + 36) % 36); if (b) for (const i of b) out.push(i); }
+    return out.sort((x, y) => x - y);
+  }
+  function labFor(key, name, tier) {
+    let o = labPool.get(key);
+    if (!o) {
+      const el = document.createElement('span'); el.className = 'mfx-lab t' + tier;
+      const lt = document.createElement('span'); lt.className = 'lt'; lt.textContent = name; el.appendChild(lt); labelsEl.appendChild(el);
+      labMeasure.font = `${tier === 1 ? '650 12.5px' : tier === 3 ? '500 10.5px' : '600 11.5px'} Geist, system-ui, sans-serif`;
+      o = { el, w: Math.ceil(labMeasure.measureText(name).width) + 12, h: tier === 1 ? 16 : 14, on: false };
+      labPool.set(key, o);
+    }
+    return o;
+  }
+  function labelsLayout() {
+    const z = map.getZoom(), cc = map.getCenter();
+    // Kamera ve seçim değişmediyse düzen aynıdır: hiç hesaplanmaz (harita başka nedenle çizse de)
+    const key = [z.toFixed(3), cc.lng.toFixed(4), cc.lat.toFixed(4), map.getBearing().toFixed(1), map.getPitch().toFixed(1), activeId || '', fxW, fxH].join('|');
+    if (key === labKey) return;
+    labKey = key;
+    const shown = new Set(), boxes = [];
+    if (z >= LAB_Z[0]) {
+      const c = map.getCenter(), ca = c.lat * D2R, sca = Math.sin(ca), cca = Math.cos(ca);
+      // Görünür açısal yarıçap (ekran köşegeninin yarısı) → bundan uzaktaki noktalar hiç izdüşürülmez
+      const deg = Math.hypot(fxW, fxH) / 2 * 360 / (512 * Math.pow(2, z)), cosR = Math.cos(Math.min(80, deg * 1.15) * D2R);
+      const act = activeId && CITY[activeId];
+      if (act) { const ap = screenPt(act.lng, act.lat); if (ap) boxes.push([ap.x - 52, ap.y - 58, ap.x + 52, ap.y + 16]); }
+      const tryPlace = (key, name, tier, lat, lng) => {
+        const la = lat * D2R;
+        if (Math.sin(la) * sca + Math.cos(la) * cca * Math.cos((lng - c.lng) * D2R) < cosR) return false;
+        const p = map.project([lng, lat]);
+        if (!Number.isFinite(p.x) || p.x < -10 || p.y < 10 || p.x > fxW - 10 || p.y > fxH - 10) return false;
+        const o = labFor(key, name, tier), b = [p.x - 5, p.y - o.h / 2 - 2, p.x + o.w, p.y + o.h / 2 + 2];
+        for (const q of boxes) if (b[0] < q[2] && b[2] > q[0] && b[1] < q[3] && b[3] > q[1]) return false;
+        boxes.push(b); shown.add(key);
+        o.el.style.transform = `translate3d(${p.x.toFixed(1)}px, ${p.y.toFixed(1)}px, 0)`;
+        return true;
+      };
+      for (const ci of CITIES) if (LAB_T1.has(ci.id) && ci.id !== activeId) tryPlace(ci.id, ci.name, 1, ci.lat, ci.lng);
+      if (z >= LAB_Z[1]) for (const ci of CITIES) if (!LAB_T1.has(ci.id) && ci.id !== activeId) tryPlace(ci.id, ci.name, 2, ci.lat, ci.lng);
+      if (z >= LAB_Z[2]) {
+        if (!curatedNames) curatedNames = new Set(CITIES.map(ci => ci.name.toLocaleLowerCase('en')));
+        let n = 0;
+        for (const i of atlasNear(c.lat, c.lng, deg * 1.15)) {
+          const a = ATLAS[i];
+          if (n >= LAB_ATLAS_MAX) break;
+          if (a.id === activeId || curatedNames.has(a.name.toLocaleLowerCase('en'))) continue;
+          if (tryPlace(a.id, a.name, 3, a.lat, a.lng)) n++;
+        }
+      }
+    }
+    labPool.forEach((o, k) => { const on = shown.has(k); if (on !== o.on) { o.on = on; o.el.classList.toggle('on', on); } });
+  }
+
   function fxPosition() {
     if (!ready || !visible) return;
     const c = activeId && CITY[activeId];
+    labelsLayout();
     place(waveEl, c ? screenPt(c.lng, c.lat) : null);
     if (tapAt) place(tapEl, screenPt(tapAt[0], tapAt[1]));
     if (pulse) pulse.items.forEach(it => { it.p = screenPt(it.lng, it.lat); place(it.el, it.p); });
@@ -4759,7 +4858,7 @@ const MapGlobe = (() => {
     const s = state.status, mine = !!activeId && state.activeCityId === activeId;
     const mode = !mine ? 'off' : s === 'playing' ? 'play' : (s === 'loading' || s === 'failover') ? 'busy' : 'off';
     const st = currentStation(), key = (st && st.uuid) || String(activeId);
-    if (mode === 'play' && key !== waveBeatFor) { waveBeatFor = key; waveEl.style.setProperty('--beat', (3 * (640 + hash(key) % 280)) + 'ms'); }
+    if (mode === 'play' && key !== waveBeatFor) { waveBeatFor = key; document.documentElement.style.setProperty('--wb', (640 + hash(key) % 280) + 'ms'); }
     if (mode === waveMode) return;
     waveMode = mode; clearTimeout(waveOffTimer);
     if (mode === 'off') { waveEl.classList.add('off'); waveOffTimer = setTimeout(() => waveEl.classList.remove('play', 'busy'), 220); }
@@ -5304,7 +5403,9 @@ function statusLine() {
 const VIZ_BARS = 34;
 const vizBars = () => Array.from({ length: VIZ_BARS }, (_, k) => {
   const h = (Math.sin(k * 1.7) * 0.5 + 0.5), lo = (0.08 + h * 0.12).toFixed(2), hi = (0.35 + ((k * 37) % 61) / 100).toFixed(2);
-  return `<i style="--k:${k};--lo:${lo};--hi:${hi};--t:${380 + (k * 53) % 420}ms;--d:-${(k * 97) % 700}ms"></i>`;
+  // Süre: vuruşun ½, ¼, ¾'ü (alternate → tam salınım vuruşun katı); faz: vuruşun kesri — küredeki halkalarla aynı ritim
+  const m = [0.5, 0.25, 0.75, 0.5, 0.25, 1][k % 6], ph = -(((k * 0.37) % 1)).toFixed(3);
+  return `<i style="--k:${k};--lo:${lo};--hi:${hi};--m:${m};--ph:${ph}"></i>`;
 }).join('');
 // Canlı hava durumu (Open-Meteo, anahtarsız). 30 dk önbellek (cihazda kalıcı); hata olursa örnek veri + "ÖRNEK" etiketi.
 const liveWx = new Map();
@@ -6196,6 +6297,49 @@ function sparkle(el) {
 }
 // ── Radyolu alarm (yalnız uygulamada: bildirim gerekir). Cihaza özgüdür, hesapla eşitlenmez. ──
 const alarmState = () => { const a = state.alarm || {}, n = (v, d, max) => Number.isInteger(v) && v >= 0 && v <= max ? v : d; return { on: a.on === true, h: n(a.h, 7, 23), m: n(a.m, 0, 59) }; };
+/**
+ * Odak modu — küreyle etkileşimde (sürükleme, yakınlaştırma, döndürme) arayüz katmanları çekilir, küre nefes alır.
+ *  Çıkış: 160 ms e-exit (üsttekiler 8 px yukarı, alttakiler 10 px aşağı, dokunmaya kapalı).
+ *  Dönüş: hareket bitip küre durunca (atalet dahil) 700 ms sonra, alttan üste 40 ms arayla, 280 ms e-enter.
+ *  Söndürülmez: açık oynatıcı kartı, odaktaki arama, kullanılmakta olan zaman cetveli. Yalnız küre sekmesinde.
+ */
+const Hud = (() => {
+  const IDLE = 700, SAFETY = 5000;
+  // Göz alttan yukarı okur: önce sekme çubuğu, sonra canlı yayın çubuğu, ipucu, üst düğmeler, logo, arama
+  const PARTS = [['.tabbar', 'bot', 0], ['#liveDock', 'bot', 40], ['#hint', 'bot', 40], ['#pulseBar', 'top', 80], ['#pane-globe .topbar', 'top', 80], ['.app-logo', 'top', 100], ['#search', 'top', 120], ['#tStrip', 'bot', 60]];
+  let calmOn = false, timer = 0, safety = 0, backTimer = 0, marked = false;
+  const app = () => document.getElementById('app');
+  function mark() {
+    if (marked) return; marked = true;
+    PARTS.forEach(([sel, side, d]) => { const el = document.querySelector(sel); if (el) { el.classList.add('hud-el', 'hud-' + side); el.style.setProperty('--hud-d', d + 'ms'); } });
+  }
+  function allowed() {
+    if (state.view !== 'app' || state.tab !== 'globe' || introRunning) return false;
+    const si = document.getElementById('searchInput');
+    if (si && document.activeElement === si) return false;
+    const res = document.getElementById('searchResults'); if (res && !res.hidden) return false;
+    return true;
+  }
+  function calm() {
+    if (!allowed()) return;
+    mark(); clearTimeout(timer); clearTimeout(backTimer);
+    clearTimeout(safety); safety = setTimeout(settle, SAFETY);   // hareket sonu kaçırılırsa bile döner
+    if (calmOn) return;
+    calmOn = true; const a = app(); a.classList.remove('hud-back'); a.classList.add('hud-calm');
+  }
+  function settle() {
+    if (!calmOn) return;
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      calmOn = false; clearTimeout(safety);
+      const a = app(); a.classList.add('hud-back'); a.classList.remove('hud-calm');
+      clearTimeout(backTimer); backTimer = setTimeout(() => a.classList.remove('hud-back'), 460);
+    }, IDLE);
+  }
+  /** Sekme/görünüm değişince ya da başka bir akış başlayınca hemen geri getir (geçiş yok). */
+  function reset() { clearTimeout(timer); clearTimeout(safety); clearTimeout(backTimer); calmOn = false; const a = app(); if (a) a.classList.remove('hud-calm', 'hud-back'); }
+  return { calm, settle, reset, get on() { return calmOn; } };
+})();
 function alarmHTML() {
   const a = alarmState(), hm = `${pad(a.h)}:${pad(a.m)}`;
   return `<div class="px-set"><span class="ico">${icon('sunrise', 19)}</span><span class="tx"><b>Güneşin doğduğu yerden uyan</b><span class="small">${NATIVE ? 'Her sabah seçtiğin saatte bildirim gelir; dokununca o an güneşin doğduğu şehrin radyosu çalar.' : 'Alarm bildirim gerektirdiği için yalnızca uygulamada çalışır.'}</span></span>
@@ -8209,6 +8353,15 @@ $('#flightBtn').addEventListener('click', () => { flight.on ? stopFlight(false) 
 $('#flStop').addEventListener('click', () => stopFlight(false));
 $('#flNext').addEventListener('click', () => { vibrate(6); flightLeg(); });
 $('#globeStage').addEventListener('pointerdown', () => { if (flight.on) stopFlight(true); });
+// Odak modu, 3B küre için (harita açılmadan önce ya da harita yoksa): 6 px'ten uzun sürükleme ya da tekerlek
+(() => {
+  const st = $('#globeStage'); let down = null;
+  st.addEventListener('pointerdown', e => { down = { x: e.clientX, y: e.clientY, id: e.pointerId }; });
+  st.addEventListener('pointermove', e => { if (down && e.pointerId === down.id && Math.hypot(e.clientX - down.x, e.clientY - down.y) > 6) Hud.calm(); });
+  const up = e => { if (down && (!e || e.pointerId === down.id)) { down = null; Hud.settle(); } };
+  st.addEventListener('pointerup', up); st.addEventListener('pointercancel', up);
+  st.addEventListener('wheel', () => { Hud.calm(); Hud.settle(); }, { passive: true });
+})();
 
 // ═════════════════════════════════════════════════════════
 //  ANLAR: Günün şehri · Gün doğumu · Canlı nabız
