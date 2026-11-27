@@ -121,6 +121,8 @@ svg.i.filled { fill: currentColor; }
 .press.tight:active { transform: scale(0.88); }
 .label { font-family: var(--mono); font-size: 11px; line-height: 14px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--fg-3); font-weight: 500; }
 .label.accent { color: var(--accent); }
+.vibe-l { transition: opacity 180ms var(--e-enter); }
+.vibe-l.swap { opacity: 0; transition: opacity 180ms var(--e-exit); }
 .display { font-size: 34px; line-height: 38px; font-weight: 600; letter-spacing: -0.035em; margin: 0; text-wrap: balance; }
 .h2 { font-size: 22px; line-height: 28px; font-weight: 600; letter-spacing: -0.02em; margin: 0; }
 .body { font-size: 16px; line-height: 23px; color: var(--fg-2); margin: 0; text-wrap: pretty; }
@@ -2020,6 +2022,15 @@ I18N.add({
   // Ruh hâlleri
   'Sabah Kahvesi': 'Morning Coffee', 'Gece Yarısı Cazı': 'Midnight Jazz', 'Yağmurlu Sokaklar': 'Rainy Streets', 'Tropikal Ritimler': 'Tropical Rhythms', 'Okyanus Esintisi': 'Ocean Breeze', 'Çöl Gün Batımı': 'Desert Sunset',
   'Dağ Sabahı': 'Mountain Morning', 'Şehir Işıkları': 'City Lights', 'Kuzey Işıkları': 'Northern Lights',
+  'Öğle Molası': 'Lunch Break', 'Akşam Çayı': 'Evening Tea', 'Gece Sohbeti': 'Late-Night Talk',
+  'Sabah Cazı': 'Morning Jazz', 'Gündüz Cazı': 'Daytime Jazz', 'Akşam Cazı': 'Evening Jazz',
+  'Yağmurlu Sabah': 'Rainy Morning', 'Yağmurlu Akşam': 'Rainy Evening', 'Yağmurlu Gece': 'Rainy Night',
+  'Tropikal Sabah': 'Tropical Morning', 'Tropikal Akşam': 'Tropical Evening', 'Tropikal Gece': 'Tropical Night',
+  'Sabah Esintisi': 'Morning Breeze', 'Akşam Esintisi': 'Evening Breeze', 'Gece Dalgaları': 'Night Waves',
+  'Çöl Şafağı': 'Desert Dawn', 'Çöl Sıcağı': 'Desert Heat', 'Çöl Gecesi': 'Desert Night',
+  'Dağ Havası': 'Mountain Air', 'Dağ Akşamı': 'Mountain Evening', 'Dağ Gecesi': 'Mountain Night',
+  'Şehir Uyanıyor': 'City Waking Up', 'Şehir Telaşı': 'City Rush', 'Gece Işıkları': 'Night Lights',
+  'Kuzey Sabahı': 'Northern Morning', 'Kuzey Günü': 'Northern Day', 'Kuzey Akşamı': 'Northern Evening',
   // Anlar
   'Anlar': 'Moments', 'Günün şehri': 'City of the day', 'GÜNÜN ŞEHRİ': 'CITY OF THE DAY', 'BUGÜNÜN ŞEHRİ': 'TODAY’S CITY', 'BUGÜNÜN ŞEHRİ ·': 'TODAY’S CITY ·',
   'Gün doğumu': 'Sunrise', 'güneşi kovala': 'chase the sun', 'GÜNEŞ ŞİMDİ DOĞUYOR': 'THE SUN IS RISING NOW', 'Canlı nabız': 'Live pulse', 'şu an dinlenenler': 'being played now',
@@ -2356,6 +2367,20 @@ function zoned(tz, d = new Date()) {
 }
 const pad = n => String(n).padStart(2, '0');
 const cityTime = tz => { const z = zoned(tz); return `${pad(z.h)}:${pad(z.mi)}:${pad(z.s)}`; };
+// Şehrin ruh hâli sabit (Londra yağmurlu, Kahire çöl), ifadesi şehrin yerel saatine göre: sabah 05–11 · gündüz 11–17 · akşam 17–21 · gece 21–05
+const VIBE_TIMES = {
+  'Sabah Kahvesi':     ['Sabah Kahvesi', 'Öğle Molası', 'Akşam Çayı', 'Gece Sohbeti'],
+  'Gece Yarısı Cazı':  ['Sabah Cazı', 'Gündüz Cazı', 'Akşam Cazı', 'Gece Yarısı Cazı'],
+  'Yağmurlu Sokaklar': ['Yağmurlu Sabah', 'Yağmurlu Sokaklar', 'Yağmurlu Akşam', 'Yağmurlu Gece'],
+  'Tropikal Ritimler': ['Tropikal Sabah', 'Tropikal Ritimler', 'Tropikal Akşam', 'Tropikal Gece'],
+  'Okyanus Esintisi':  ['Sabah Esintisi', 'Okyanus Esintisi', 'Akşam Esintisi', 'Gece Dalgaları'],
+  'Çöl Gün Batımı':    ['Çöl Şafağı', 'Çöl Sıcağı', 'Çöl Gün Batımı', 'Çöl Gecesi'],
+  'Dağ Sabahı':        ['Dağ Sabahı', 'Dağ Havası', 'Dağ Akşamı', 'Dağ Gecesi'],
+  'Şehir Işıkları':    ['Şehir Uyanıyor', 'Şehir Telaşı', 'Şehir Işıkları', 'Gece Işıkları'],
+  'Kuzey Işıkları':    ['Kuzey Sabahı', 'Kuzey Günü', 'Kuzey Akşamı', 'Kuzey Işıkları'],
+};
+function daySlot(tz, d) { const h = zoned(tz, d || new Date()).h; return h >= 5 && h < 11 ? 0 : h >= 11 && h < 17 ? 1 : h >= 17 && h < 21 ? 2 : 3; }
+function vibeLabel(c, d) { const v = c && VIBE_TIMES[c.vibeTag]; if (!v) return (c && c.vibeTag) || ''; try { return v[daySlot(c.timezone, d)]; } catch (e) { return c.vibeTag; } }
 const cityDate = tz => new Intl.DateTimeFormat(LOC, { timeZone: tzOk(tz) ? tz : 'UTC', day:'numeric', month:'long', weekday:'long' }).format(new Date());
 function offsetMin(tz) { const d = new Date(); const z = zoned(tz, d); return Math.round((Date.UTC(z.y, z.mo - 1, z.d, z.h, z.mi, z.s) - Math.floor(d / 1000) * 1000) / 60000); }
 function utcLabel(tz) { const o = offsetMin(tz); if (!o) return 'UTC'; const a = Math.abs(o); return `UTC${o > 0 ? '+' : '−'}${Math.floor(a / 60)}${a % 60 ? ':' + pad(a % 60) : ''}`; }
@@ -4144,7 +4169,7 @@ const SatMosaic = (() => {
 })();
 
 /** Sürüm etiketi: sitede hangi sürümün açık olduğunu rozetten görmek için (önbellek kontrolü). */
-const BUILD = 'v57';
+const BUILD = 'v58';
 const MapGlobe = (() => {
   const host = document.getElementById('mapStage');
   const badge = document.getElementById('lodBadge');
@@ -5628,6 +5653,8 @@ function toggleFavorite() {
 }
 function tickClock() {
   const city = CITY[state.activeCityId], el = $('#sheetClock'); if (city && el) el.textContent = cityTime(city.timezone);
+  const vl = city && document.querySelector('#sheet .vibe-l');
+  if (vl && !vl.classList.contains('swap')) { const nv = vibeLabel(city); if (vl.dataset.v !== nv) { if (!vl.dataset.v) vl.dataset.v = nv; else { vl.dataset.v = nv; vl.classList.add('swap'); setTimeout(() => { vl.textContent = nv; vl.classList.remove('swap'); }, 180); } } }
   const d = new Date(); $('#sbTime').textContent = `${pad(d.getHours())}:${pad(d.getMinutes())}`;
   setTimeout(tickClock, 1000 - (Date.now() % 1000));
 }
@@ -5920,7 +5947,7 @@ function dkCardHTML(c, i, near) {
   return `<article class="dk-card" role="listitem" style="--i:${i}" data-city="${esc(c.id)}" aria-label="${esc(c.name)}, ${esc(c.country)}, yerel saat ${t}">
     <div class="dk-orb"><span class="dk-pin"></span></div>
     <span class="dk-ct num" data-tz="${esc(c.timezone)}">${t}${near ? ' · YAKIN SAAT' : ''}</span>
-    <b class="dk-cn">${esc(c.name)}</b><span class="dk-cc">${esc(c.country)} · ${esc(c.vibeTag)}</span>
+    <b class="dk-cn">${esc(c.name)}</b><span class="dk-cc">${esc(c.country)} · ${esc(vibeLabel(c))}</span>
     <div class="dk-act"><button class="dk-play press" data-dk-play="${esc(c.id)}" aria-label="${esc(c.name)} radyosunu dinle"><span class="ic-play">${icon('play', 16, 'filled')}</span><span class="ic-pause">${icon('pause', 16, 'filled')}</span><span class="t">Dinle</span></button>
       <button class="round dk-go press" data-dk-go="${esc(c.id)}" aria-label="${esc(c.name)}: kürede aç">${icon('globe', 18)}</button></div>
     <span class="dk-st"><span class="ld"></span><span class="tx"></span></span>
@@ -8453,7 +8480,7 @@ var cotdUI = { open: false, timer: 0, city: null, auto: false };
 function momentLabel(city) {
   const m = state.moment;
   if (m && m.cityId === city.id) return `<span class="label accent mo-${m.kind}"><span class="mo-ic">${icon(m.kind === 'dawn' ? 'sunrise' : m.kind === 'pulse' ? 'activity' : 'sparkles', 13)}</span>${esc(m.label)}</span>`;
-  return `<span class="label accent">${esc(city.countryCode)} · ${esc(city.vibeTag)}</span>`;
+  return `<span class="label accent">${esc(city.countryCode)} · <span class="vibe-l">${esc(vibeLabel(city))}</span></span>`;
 }
 function cotdTick() {
   const c = cotdUI.city; if (!c) return;
@@ -8478,7 +8505,7 @@ function openCotd(auto) {
   name.innerHTML = [...c.name].map((ch, i) => `<span style="--i:${i}">${ch === ' ' ? '&nbsp;' : esc(ch)}</span>`).join('');
   name.setAttribute('aria-label', c.name);
   let t = ''; try { t = cityTime(c.timezone).slice(0, 5); } catch (e) {}
-  $('#cotdMeta').innerHTML = `<b>${esc(c.country)}</b><span class="sep"></span><span class="num" id="cotdClock">${t}</span><span>${utcLabel(c.timezone)}</span><span class="sep vb"></span><span class="vb">${esc(c.vibeTag)}</span>`;
+  $('#cotdMeta').innerHTML = `<b>${esc(c.country)}</b><span class="sep"></span><span class="num" id="cotdClock">${t}</span><span>${utcLabel(c.timezone)}</span><span class="sep vb"></span><span class="vb">${esc(vibeLabel(c))}</span>`;
   const cd = state.cotd || {}, today = utcDay(), done = cd.day === today, alive = done || cd.day === today - 1;
   const sk = $('#cotdStreak'); sk.hidden = !(alive && cd.streak); sk.textContent = done ? `Seri · ${cd.streak} gün` : `Seriyi sürdür · ${cd.streak || 0}`;
   $('#cotdPlayT').textContent = done && state.activeCityId === c.id && state.status === 'playing' ? 'Kartı aç' : done ? 'Yeniden dinle' : 'Dinle';
