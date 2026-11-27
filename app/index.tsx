@@ -22,6 +22,7 @@ import { WebView, type WebViewMessageEvent, type WebViewProps } from 'react-nati
 import { NativeRadio } from '@/shell/NativeRadio';
 import { configureAlarm, isAlarmResponse, setAlarm } from '@/shell/Alarm';
 import { linkParams, parseWebMessage, type HapticName, type NativeMessage, type ShareMessage } from '@/shell/bridge';
+import { ensureWidget, updateFromWeb } from '@/widgets/store';
 
 const SITE_URL = 'https://bolut916.github.io/wGlobe/';
 // Yalnız bu adres ağacı uygulamanın içinde açılır ve yerel köprüye mesaj gönderebilir. Düz metin karşılaştırması
@@ -119,6 +120,9 @@ export default function WGlobeShell() {
     return () => sub.remove();
   }, [toWeb]);
 
+  // Ana ekran widget'ı: kayıt yoksa boş durumu cihaz dilinde yaz, varsa tazele (hata uygulamayı etkilemez)
+  useEffect(() => { void ensureWidget(); }, []);
+
   useEffect(() => {
     void NativeRadio.configure();
     radio.current = new NativeRadio(toWeb);
@@ -164,6 +168,7 @@ export default function WGlobeShell() {
       case 'haptic': haptic(m.p); break;
       case 'share': void shareCard(m); break;
       case 'alarm:set': void setAlarm(m, toWeb); break;
+      case 'widget:update': void updateFromWeb(m); break;
     }
   }, [toWeb]);
 

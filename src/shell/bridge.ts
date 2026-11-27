@@ -26,7 +26,7 @@ export type ShareMessage = { type: 'share'; image: string; url: string; text: st
 /** Radyolu alarm: her gün hour:minute'te sesli bildirim (title/body web'in dilinde gelir) */
 export type AlarmSetMessage = { type: 'alarm:set'; enabled: boolean; hour: number; minute: number; title: string; body: string };
 
-export type WebMessage = AudioLoadMessage | AudioSkipMessage | AudioPauseMessage | AudioVolumeMessage | AudioArtMessage | AudioNowPlayingMessage | HapticMessage | ShareMessage | AlarmSetMessage;
+export type WebMessage = WidgetUpdateMessage | AudioLoadMessage | AudioSkipMessage | AudioPauseMessage | AudioVolumeMessage | AudioArtMessage | AudioNowPlayingMessage | HapticMessage | ShareMessage | AlarmSetMessage;
 
 export type AudioStateMessage = { type: 'audio:state'; loadId: number; index: number; playing: boolean; buffering: boolean; failed: boolean };
 export type LinkMessage = { type: 'link'; params: Record<string, string> };
@@ -69,15 +69,54 @@ export function parseWebMessage(raw: string): WebMessage | null {
     }
     case 'share':
       return typeof o.image === 'string' && typeof o.url === 'string' && typeof o.text === 'string' ? (o as unknown as ShareMessage) : null;
+    case 'widget:update': {
+      // Her alan ayrı doğrulanır; yeni nesne kurulur (gelen nesnenin fazladan alanları asla taşınmaz)
+      const city = cleanText(o.city, 60), station = cleanText(o.station, 80);
+      const params = cleanLinkParams(o.params);
+      const tz = typeof o.tz === 'string' && o.tz.length <= 64 && TZ_RE.test(o.tz) ? o.tz : 'UTC';
+      const art = typeof o.art === 'string' && o.art.length <= WIDGET_ART_MAX && /^data:image\/jpeg;base64,[A-Za-z0-9+/]+={0,2}$/.test(o.art) ? o.art : null;
+      if (!city || !station || !params) return null;
+      return { type: 'widget:update', lang: o.lang === 'en' ? 'en' : 'tr', city, country: cleanText(o.country, 60), station, tz, params, art };
+    }
     default:
       return null;
   }
 }
 
+/**
+ * Ana ekran widget'ı: son çalınan istasyon. Web, istasyon bağlanınca gönderir; yerel kabuk görseli diske yazar ve
+ * widget'ı yeniler. params, widget'a dokununca uygulamayı aynı istasyonla açan paylaşım bağlantısının alanlarıdır.
+ */
+export type WidgetUpdateMessage = {
+  type: 'widget:update';
+  lang: 'tr' | 'en';
+  city: string;
+  country: string;
+  station: string;
+  tz: string;
+  params: Record<string, string>;
+  art: string | null;
+};
+const WIDGET_ART_MAX = 700_000;
+const TZ_RE = /^(?:UTC|GMT|Etc\/GMT[+-]\d{1,2}|[A-Za-z]+(?:\/[A-Za-z0-9_+-]+){1,2})$/;
+const cleanText = (v: unknown, max: number) => typeof v === 'string' ? v.replace(/[\u0000-\u001f\u007f]/g, '').trim().slice(0, max) : '';
+
 /** wglobe://… ya da https://bolut916.github.io/wGlobe/?c=… bağlantısındaki paylaşım parametreleri */
 /** Paylaşım bağlantısının okunan alanları; başka hiçbir anahtar siteye aktarılmaz. */
 const LINK_KEYS = new Set(['c', 'n', 'co', 'cc', 'la', 'lo', 'tz', 's', 'st', 'su', 'sn']);
 const LINK_MAX = 600;
+
+/** Nesne biçimindeki paylaşım parametrelerini (widget bağlantısı) aynı beyaz listeyle süzer; 'c' yoksa null. */
+export function cleanLinkParams(v: unknown): Record<string, string> | null {
+  if (!v || typeof v !== 'object' || Array.isArray(v)) return null;
+  const out: Record<string, string> = {};
+  for (const [k, raw] of Object.entries(v as Record<string, unknown>)) {
+    if (!LINK_KEYS.has(k) || typeof raw !== 'string') continue;
+    const d = raw.replace(/[\u0000-\u001f\u007f]/g, '');
+    if (d.length <= LINK_MAX) out[k] = d;
+  }
+  return out.c ? out : null;
+}
 
 export function linkParams(url: string | null | undefined): Record<string, string> | null {
   if (!url || url.length > 4096) return null;

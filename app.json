@@ -52,7 +52,6 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#050B18"
       },
-      "edgeToEdgeEnabled": true,
       "usesCleartextTraffic": false,
       "permissions": [
         "android.permission.INTERNET",
@@ -104,6 +103,53 @@
         "expo-notifications",
         {
           "color": "#9CCBFF"
+        }
+      ],
+      [
+        "expo-widgets",
+        {
+          "groupIdentifier": "group.com.wglobe.app",
+          "widgets": [
+            {
+              "name": "NowPlaying",
+              "displayName": "wGlobe",
+              "description": "Son dinlediğin istasyon ve o şehrin saati. Dokun, kaldığın yerden dinle.",
+              "supportedFamilies": [
+                "systemSmall",
+                "systemMedium"
+              ],
+              "contentMarginsDisabled": true,
+              "ios": {
+                "supportedFamilies": [
+                  "systemSmall",
+                  "systemMedium"
+                ],
+                "contentMarginsDisabled": true,
+                "initialLayout": "./src/widgets/NowPlayingIOS.tsx"
+              }
+            }
+          ]
+        }
+      ],
+      [
+        "react-native-android-widget",
+        {
+          "widgets": [
+            {
+              "name": "NowPlaying",
+              "label": "wGlobe",
+              "description": "Son dinlediğin istasyon. Dokun, kaldığın yerden dinle.",
+              "minWidth": "110dp",
+              "minHeight": "110dp",
+              "targetCellWidth": 2,
+              "targetCellHeight": 2,
+              "maxResizeWidth": "420dp",
+              "maxResizeHeight": "220dp",
+              "resizeMode": "horizontal|vertical",
+              "previewImage": "./assets/widgets/nowplaying-preview.png",
+              "updatePeriodMillis": 0
+            }
+          ]
         }
       ]
     ],
