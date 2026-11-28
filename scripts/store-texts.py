@@ -22,6 +22,7 @@ KÜREYLE KEŞFET
 • Uydu görüntüsüyle gerçek dünya; yaklaştıkça şehir adları belirir
 • Zaman kaydırıcısı: dünyayı başka bir saatte gör; gece ile gündüzün sınırı ve şehir ışıkları birlikte akar
 • Uçuş modu ve rastgele şehir: hiç duymadığın bir yere ışınlan
+• Keşfet: ülke ülke şehirler, şimdi uyananlar ve favorilerin; dokun, çalsın
 • Her gün yeni bir "Günün şehri"
 
 GÜNE RADYOYLA BAŞLA
@@ -57,6 +58,7 @@ EXPLORE THE GLOBE
 • The real Earth in satellite imagery; city names appear as you zoom in
 • Time scrubber: see the world at another hour, with the line between day and night and the city lights moving together
 • Flight mode and random city: teleport somewhere you've never heard of
+• Explore: cities country by country, places waking up now and your favorites; tap and it plays
 • A new City of the day, every day
 
 WAKE UP TO RADIO
@@ -94,9 +96,10 @@ T = {
             ('Küreyi çevir,', 'dünyayı dinle'),
             ('Bir şehre dokun,', 'radyosu çalsın'),
             ('Geceyi ve gündüzü', 'parmağınla kaydır'),
-            ('Gezdikçe', '100 küre aç'),
+            ('Kürelerin cepte,', '100 küre aç'),
             ('Pasaportun:', 'ülkeler, şehirler, rotan'),
             ('Ruh hâline göre', 'dünyayı sırayla dinle'),
+            ('Ülke ülke,', 'şehir şehir keşfet'),
         ],
     },
     'en': {
@@ -110,9 +113,10 @@ T = {
             ('Spin the globe.', 'Hear the world.'),
             ('Tap a city.', 'Its radio plays.'),
             ('Slide day', 'into night'),
-            ('Unlock 100 globes', 'as you travel'),
+            ('Your globes in a pocket.', 'Unlock 100.'),
             ('Your passport:', 'countries, cities, routes'),
             ('Play the world', 'by mood'),
+            ('Explore country', 'by country'),
         ],
     },
 }

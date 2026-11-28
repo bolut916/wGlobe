@@ -15,7 +15,7 @@
 | Tanıtım metni (Promotional Text) | Dünyayı bir küre gibi çevir, bir şehre dokun ve oranın canlı radyosu çalsın. Geceyi ve gündüzü kaydır, gün doğumunda başka bir şehrin radyosuyla uyan. | 150/170 |
 | Anahtar kelimeler (Keywords) | `canlı,fm,istasyon,küre,harita,müzik,internet,şehir,alarm,gündoğumu,seyahat,caz,haber,ülke,yabancı` | 97/100 |
 
-**Açıklama (Description)** — 1656/4000
+**Açıklama (Description)** — 1732/4000
 
 ```text
 wGlobe, dünyanın canlı radyolarını gerçek bir uydu küresinin üstüne yerleştirir. Küreyi parmağınla çevir, bir şehre dokun; birkaç saniye içinde oranın yerel istasyonu çalmaya başlar.
@@ -30,6 +30,7 @@ KÜREYLE KEŞFET
 • Uydu görüntüsüyle gerçek dünya; yaklaştıkça şehir adları belirir
 • Zaman kaydırıcısı: dünyayı başka bir saatte gör; gece ile gündüzün sınırı ve şehir ışıkları birlikte akar
 • Uçuş modu ve rastgele şehir: hiç duymadığın bir yere ışınlan
+• Keşfet: ülke ülke şehirler, şimdi uyananlar ve favorilerin; dokun, çalsın
 • Her gün yeni bir "Günün şehri"
 
 GÜNE RADYOYLA BAŞLA
@@ -69,9 +70,10 @@ Yayınlar radyo istasyonlarının kendisine aittir. İstasyon listesi, topluluk 
 1. Küreyi çevir, dünyayı dinle
 2. Bir şehre dokun, radyosu çalsın
 3. Geceyi ve gündüzü parmağınla kaydır
-4. Gezdikçe 100 küre aç
+4. Kürelerin cepte, 100 küre aç
 5. Pasaportun: ülkeler, şehirler, rotan
 6. Ruh hâline göre dünyayı sırayla dinle
+7. Ülke ülke, şehir şehir keşfet
 
 ## İngilizce (English, U.S.)
 
@@ -84,7 +86,7 @@ Yayınlar radyo istasyonlarının kendisine aittir. İstasyon listesi, topluluk 
 | Tanıtım metni (Promotional Text) | Spin the Earth, tap a city and hear its live radio in seconds. Slide day into night, and wake up to a station in a city where the sun is rising. | 144/170 |
 | Anahtar kelimeler (Keywords) | `live,fm,stations,globe,map,music,internet,city,alarm,sunrise,travel,jazz,news,country,abroad` | 92/100 |
 
-**Açıklama (Description)** — 1705/4000
+**Açıklama (Description)** — 1801/4000
 
 ```text
 wGlobe puts the world's live radio on a real satellite globe. Spin the Earth with your finger, tap a city, and within seconds its local station starts playing.
@@ -99,6 +101,7 @@ EXPLORE THE GLOBE
 • The real Earth in satellite imagery; city names appear as you zoom in
 • Time scrubber: see the world at another hour, with the line between day and night and the city lights moving together
 • Flight mode and random city: teleport somewhere you've never heard of
+• Explore: cities country by country, places waking up now and your favorites; tap and it plays
 • A new City of the day, every day
 
 WAKE UP TO RADIO
@@ -138,7 +141,8 @@ Broadcasts belong to the radio stations themselves. The station list comes from 
 1. Spin the globe. Hear the world.
 2. Tap a city. Its radio plays.
 3. Slide day into night
-4. Unlock 100 globes as you travel
+4. Your globes in a pocket. Unlock 100.
 5. Your passport: countries, cities, routes
 6. Play the world by mood
+7. Explore country by country
 
