@@ -267,12 +267,22 @@ svg.i.filled { fill: currentColor; }
 .px-alarm-time input { font: 600 20px/1 var(--font); font-variant-numeric: tabular-nums; color: var(--fg); background: rgba(232,240,255,0.06); border: 0; border-radius: 12px; padding: 8px 12px; color-scheme: dark; min-height: 40px; }
 .tg[disabled] { opacity: 0.4; }
 /* Dil seçimi */
-.px-langcard { padding-top: 12px; padding-bottom: 12px; }
-.px-lang { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
-.px-lang button { min-height: 40px; border-radius: 20px; font-size: 14px; font-weight: 550; color: var(--fg-2); background: rgba(232,240,255,0.06); transition: background 180ms var(--e-standard), color 180ms var(--e-standard); }
-.px-lang button.on { background: var(--fg); color: var(--ivory-ink); }
-.px-lang-note { display: block; padding: 8px 4px 0; color: var(--fg-3); }
-.px-lang-note:empty { display: none; }
+/* (v65) Dil: Tercihler'de bir satır → alttan seçim penceresi. Yazı her zaman ortada; onay işareti
+   sağa mutlak konumlu olduğu için belirip kaybolurken yazıyı itmez. */
+.px-set.link { width: 100%; text-align: left; transition: opacity var(--d-press) var(--e-press); }
+.px-set.link:active { opacity: 0.62; }
+.px-set .val { flex: none; display: flex; align-items: center; gap: 2px; color: var(--fg-3); font-size: 15px; font-weight: 550; }
+.lang-sheet .modal-card { gap: 14px; }
+.lang-sheet h3 { text-align: center; }
+.lang-opts { display: flex; flex-direction: column; gap: 8px; }
+.lang-opt { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; min-height: 56px; padding: 8px 56px; border-radius: 28px; text-align: center; font-size: 16px; font-weight: 600; color: var(--fg-2); background: rgba(232,240,255,0.06); transition: background 180ms var(--e-standard), color 180ms var(--e-standard), transform var(--spring-button-d) var(--spring-button); }
+.lang-opt small { font-size: 12.5px; font-weight: 500; opacity: 0.72; }
+.lang-opt.on { background: var(--fg); color: var(--ivory-ink); }
+.lang-opt .ck { position: absolute; right: 22px; top: 50%; display: grid; opacity: 0; transform: translateY(-50%) scale(0.5); transition: opacity 140ms var(--e-exit), transform 160ms var(--e-exit); }
+.lang-opt.on .ck { opacity: 1; transform: translateY(-50%) scale(1); transition: opacity 160ms var(--e-enter), transform var(--spring-button-d) var(--spring-button); }
+.lang-sheet.open .lang-opt { animation: langIn 260ms var(--e-enter) both; animation-delay: calc(90ms + var(--i, 0) * 40ms); }
+@keyframes langIn { from { opacity: 0; transform: translateY(8px); } }
+@media (prefers-reduced-motion: reduce) { .lang-sheet.open .lang-opt { animation: none; } }
 /* ── Kimlik ───────────────────────────────────────────── */
 /* Hesap bildirimleri (v47): 280 ms'de 8 px aşağıdan gelir; eylem bağlantıları metnin altında. */
 @keyframes noteIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
@@ -1581,6 +1591,12 @@ svg.i.filled { fill: currentColor; }
         <div class="modal-card"><h3 id="modalTitle"></h3><p id="modalBody"></p>
           <button class="btn danger press" id="modalOk"><span class="lbl"></span></button>
           <button class="btn text press" id="modalCancel"><span class="lbl">Vazgeç</span></button>
+        </div>
+      </div>
+      <div class="modal lang-sheet" id="langSheet" role="dialog" aria-modal="true" aria-labelledby="langTitle" aria-hidden="true">
+        <div class="modal-card"><h3 id="langTitle" data-noi18n>Dil · Language</h3>
+          <div class="lang-opts" id="langOpts" role="radiogroup" aria-labelledby="langTitle"></div>
+          <button class="btn text press" id="langCancel"><span class="lbl">Vazgeç</span></button>
         </div>
       </div>
       <div class="share" id="share" role="dialog" aria-modal="true" aria-label="Paylaş" aria-hidden="true">
@@ -6938,16 +6954,42 @@ function alarmFire() {
   go();
 }
 
-// Dil seçimi: arayüz açılışta çevrildiği için yeni dil sayfa yenilenince uygulanır (180 ms: seçim işareti görünsün)
+// Dil seçimi: Tercihler'deki satır alttan bir pencere açar. Arayüz açılışta çevrildiği için yeni dil sayfa
+// yenilenince uygulanır: işaret 180 ms görünür, pencere kapanır, sonra yenilenir.
+const LANG_OPTS = [['auto', 'Otomatik'], ['tr', 'Türkçe'], ['en', 'English']];
+const langNow = () => pref('lang') || 'auto';
+function langRowHTML() {
+  const v = langNow(), name = LANG_OPTS.find(o => o[0] === v)[1];
+  return `<button type="button" class="px-set link" id="langRow" aria-haspopup="dialog"><span class="ico">${icon('globe', 19)}</span><span class="tx"><b>Dil</b><span class="small">${v === 'auto' ? 'Telefonun diline göre' : 'Uygulama dili'}</span></span><span class="val"><span ${v === 'auto' ? '' : 'data-noi18n'}>${name}</span>${icon('chevron-right', 18)}</span></button>`;
+}
+function openLang() {
+  const cur = langNow();
+  $('#langOpts').innerHTML = LANG_OPTS.map(([k, n], i) => `<button type="button" class="lang-opt press ${cur === k ? 'on' : ''}" role="radio" aria-checked="${cur === k}" data-lang="${k}" style="--i:${i}"><span ${k === 'auto' ? '' : 'data-noi18n'}>${n}</span>${k === 'auto' ? '<small>Telefonun diline göre</small>' : ''}<span class="ck" aria-hidden="true">${icon('check', 18)}</span></button>`).join('');
+  const sh = $('#langSheet'); sh.setAttribute('aria-hidden', 'false'); sh.classList.add('open'); vibrate(6);
+  setTimeout(() => { const on = $('#langOpts .on'); if (on) on.focus({ preventScroll: true }); }, 60);
+}
+function closeLang() {
+  const sh = $('#langSheet'); if (!sh.classList.contains('open')) return;
+  sh.classList.remove('open'); sh.setAttribute('aria-hidden', 'true');
+  const r = $('#langRow'); if (r) r.focus({ preventScroll: true });
+}
+document.addEventListener('click', e => { if (e.target.closest('#langRow')) openLang(); });
+$('#langCancel').addEventListener('click', closeLang);
+$('#langSheet').addEventListener('click', e => { if (e.target.id === 'langSheet') closeLang(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLang(); });
 document.addEventListener('click', e => {
   const b = e.target.closest('[data-lang]'); if (!b) return;
-  const v = b.dataset.lang; if ((pref('lang') || 'auto') === v) return;
+  const v = b.dataset.lang;
+  if (langNow() === v) { setTimeout(closeLang, 120); return; }
   vibrate(6);
   b.parentElement.querySelectorAll('[data-lang]').forEach(x => { const on = x === b; x.classList.toggle('on', on); x.setAttribute('aria-checked', String(on)); });
   setPref('lang', v);
   const next = v === 'auto' ? ((navigator.languages && navigator.languages.length ? navigator.languages : [navigator.language || 'tr']).some(l => /^tr\b/i.test(String(l))) ? 'tr' : 'en') : v;
-  if (next !== LANG) setTimeout(() => location.reload(), 180);
-  else { const n = document.querySelector('.px-lang-note'); if (n) n.textContent = v === 'auto' ? tx('Telefonun diline göre') : ''; }
+  setTimeout(() => {
+    closeLang();
+    if (next !== LANG) setTimeout(() => location.reload(), 260);
+    else { const r = $('#langRow'); if (r) r.outerHTML = langRowHTML(); }
+  }, 180);
 });
 document.addEventListener('click', e => {
   const t = e.target.closest('[data-tg]'); if (!t) return;
@@ -7115,10 +7157,7 @@ function renderSettings(animate) {
       ${toggleHTML('aurora', pref('aurora'), 'Kutup ışığı', 'Arka planda süzülen renkler', 'moon')}
       ${toggleHTML('night', pref('night'), 'Gece ve gündüz', 'Ana kürede güneşin gerçek konumu ve şehir ışıkları', 'moon')}
       ${toggleHTML('badge', pref('badge'), 'Teknik rozet', 'Küre ekranında görüntü ayrıntıları', 'eye')}
-    </div></div></div>
-    <div ${nx()}><div class="px-sec"><div class="px-head"><h3 class="h2" data-noi18n>Dil · Language</h3></div><div class="px-card px-langcard">
-      <div class="px-lang" role="radiogroup" aria-label="Dil · Language">${[['auto', 'Otomatik'], ['tr', 'Türkçe'], ['en', 'English']].map(([k, n]) => `<button type="button" class="press ${(pref('lang') || 'auto') === k ? 'on' : ''}" role="radio" aria-checked="${(pref('lang') || 'auto') === k}" data-lang="${k}" ${k === 'auto' ? '' : 'data-noi18n'}>${n}</button>`).join('')}</div>
-      <span class="small px-lang-note">${(pref('lang') || 'auto') === 'auto' ? 'Telefonun diline göre' : ''}</span>
+      ${langRowHTML()}
     </div></div></div>
     <div ${nx()}><div class="px-sec"><div class="px-head"><h3 class="h2">Radyolu alarm</h3></div><div class="px-card" id="alarmCard">${alarmHTML()}</div></div></div>
     <div ${nx()}><div class="px-card"><div class="px-sleep" id="sleepCard"></div></div></div>
