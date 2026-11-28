@@ -877,21 +877,35 @@ svg.i.filled { fill: currentColor; }
 .pane .st-scroll::-webkit-scrollbar { display: none; }
 .st-title { position: relative; z-index: 1; margin: 0 0 16px; font-family: var(--display); font-size: 34px; line-height: 40px; font-weight: 750; letter-spacing: -0.045em; transition: opacity 180ms var(--e-standard); }
 .st-scrolled .st-title { opacity: 0; }
-.st-top { position: absolute; left: 0; right: 0; top: 0; z-index: 6; height: calc(var(--sat) + 50px); display: flex; align-items: flex-end; justify-content: center; padding-bottom: 12px; pointer-events: none;
-  background: rgba(5,11,24,0.62); -webkit-backdrop-filter: blur(22px); backdrop-filter: blur(22px);
-  -webkit-mask-image: linear-gradient(180deg, #000 calc(100% - 14px), transparent); mask-image: linear-gradient(180deg, #000 calc(100% - 14px), transparent);
-  opacity: 0; transition: opacity 180ms var(--e-exit); }
+.st-top { position: absolute; left: 0; right: 0; top: 0; z-index: 6; height: calc(var(--sat) + 96px); display: flex; align-items: flex-start; justify-content: center; padding-top: calc(var(--sat) + 17px); pointer-events: none; }
+/* (v64) Kademeli cam: keskin alt kenar yok. İki bulanıklık katmanı farklı derinlikte söner
+   (üstte 22 px yalnız başlık bandında, altta 8 px 96 px boyunca), koyu ton da aynı eğriyle silinir.
+   Opaklık katmanlarda: ebeveyne opacity/mask verilirse iç backdrop-filter arkayı göremez. */
+.st-top::before, .st-top::after { content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none; opacity: 0; transition: opacity 180ms var(--e-exit); }
+.st-top::before { background: linear-gradient(180deg, rgba(5,11,24,0.66) 0, rgba(5,11,24,0.6) calc(var(--sat) + 40px), rgba(5,11,24,0.34) calc(var(--sat) + 62px), rgba(5,11,24,0.12) calc(var(--sat) + 80px), rgba(5,11,24,0) 100%);
+  -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+  -webkit-mask-image: linear-gradient(180deg, #000 calc(var(--sat) + 36px), rgba(0,0,0,0.55) calc(var(--sat) + 62px), rgba(0,0,0,0.18) calc(var(--sat) + 82px), transparent 100%);
+          mask-image: linear-gradient(180deg, #000 calc(var(--sat) + 36px), rgba(0,0,0,0.55) calc(var(--sat) + 62px), rgba(0,0,0,0.18) calc(var(--sat) + 82px), transparent 100%); }
+.st-top::after { -webkit-backdrop-filter: blur(22px); backdrop-filter: blur(22px);
+  -webkit-mask-image: linear-gradient(180deg, #000 calc(var(--sat) + 26px), rgba(0,0,0,0.4) calc(var(--sat) + 44px), transparent calc(var(--sat) + 60px));
+          mask-image: linear-gradient(180deg, #000 calc(var(--sat) + 26px), rgba(0,0,0,0.4) calc(var(--sat) + 44px), transparent calc(var(--sat) + 60px)); }
+.st-scrolled .st-top::before, .st-scrolled .st-top::after { opacity: 1; transition: opacity 180ms var(--e-enter); }
 /* Üst ışık: tek renk (lacivertin parlak tonu), aşağı doğru saydamlaşır; kaydırdıkça söner (opaklık kaydırmaya bağlı, JS) */
-.st-glow { position: absolute; left: 0; right: 0; top: 0; height: calc(var(--sat) + 230px); z-index: 0; pointer-events: none; background: linear-gradient(180deg, rgba(var(--tint), 0.92), rgba(var(--tint), 0)); will-change: opacity; }
+.st-glow { position: absolute; left: 0; right: 0; top: 0; height: calc(var(--sat) + 320px); z-index: 0; pointer-events: none; will-change: opacity;
+  /* (v64) Doğrusal geçiş bittiği yerde çizgi bırakıyordu: yavaş sönen eğri (13 durak) */
+  background: linear-gradient(180deg, rgba(var(--tint), 0.92) 0%, rgba(var(--tint), 0.68) 19%, rgba(var(--tint), 0.5) 34%, rgba(var(--tint), 0.35) 47%, rgba(var(--tint), 0.256) 56.5%, rgba(var(--tint), 0.178) 65%, rgba(var(--tint), 0.116) 73%, rgba(var(--tint), 0.069) 80.2%, rgba(var(--tint), 0.039) 86.1%, rgba(var(--tint), 0.019) 91%, rgba(var(--tint), 0.007) 95.2%, rgba(var(--tint), 0.002) 98.2%, rgba(var(--tint), 0) 100%); }
 :root { --tint: 22, 44, 168; }
-.st-top b { font-size: 17px; font-weight: 650; letter-spacing: -0.01em; transform: translateY(5px); transition: transform 220ms var(--e-exit); }
-.st-scrolled .st-top { opacity: 1; transition: opacity 180ms var(--e-enter); }
-.st-scrolled .st-top b { transform: none; transition: transform 260ms var(--e-enter); }
+.st-top b { font-size: 17px; line-height: 22px; font-weight: 650; letter-spacing: -0.01em; opacity: 0; transform: translateY(5px); transition: opacity 180ms var(--e-exit), transform 220ms var(--e-exit); }
+.st-scrolled .st-top b { opacity: 1; transform: none; transition: opacity 180ms var(--e-enter), transform 260ms var(--e-enter); }
 #app[data-tab="profile"] .app-logo, #app[data-tab="search"] .app-logo, #app[data-tab="themes"] .app-logo, #app[data-tab="explore"] .app-logo { opacity: 0; }
 /* (v63) Alt perde kaldırıldı: içerik saydam dokun arkasından bulanık görünür */
 /* Profil kartı: kaydırılan sayfada sabit yükseklikler (küre arkada, yarı saydam cam) */
 .st-profile.px-wrap { position: relative; top: auto; bottom: auto; left: auto; right: auto; padding: 18px 16px 16px; gap: 14px; overflow: visible; border-radius: 32px;
-  background: #0E1830; box-shadow: inset 0 0 0 1px rgba(232,240,255,0.08); }
+  box-shadow: inset 0 0 0 1px rgba(232,240,255,0.08);
+  /* (v64) Küre kartın arkasındaki tuvalde döner: kart, kürenin dairesinde saydam bir pencere açar (yeri JS ölçer) */
+  background: radial-gradient(circle at var(--gx, 50%) var(--gy, -9999px), rgba(14,24,48,0) calc(var(--gr, 0px) + 1px), rgba(14,24,48,0.5) calc(var(--gr, 0px) + 14px), rgba(14,24,48,0.86) calc(var(--gr, 0px) + 30px), #0E1830 calc(var(--gr, 0px) + 46px)); }
+.st-profile .px-globe { touch-action: pan-y; cursor: grab; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+.st-profile .px-globe:active { cursor: grabbing; }
 .st-profile .px-hero { flex: none; height: 290px; margin: 0 -16px; }
 .st-profile .px-name { font-size: 30px; line-height: 34px; }
 .st-set { margin-top: 30px; }
@@ -3503,6 +3517,34 @@ const Globe = (() => {
       zoom.focal = hostPt(e); lastInteract = performance.now();
     }, { passive: false });
   }
+  /** Dış bir elemanı yalnız döndürme yüzeyi yapar (Ayarlar küresi tuvalin önündeki kartın içinde).
+   *  Sürükle → parmağa yapışık döner, bırak → aynı fizikle savrulur. Dokunma seçmez, yakınlaştırma yok.
+   *  Dikey kaydırma sayfanındır (touch-action: pan-y); tarayıcı kaydırmayı alırsa pointercancel gelir. */
+  function spinSurface(el) {
+    let id = null, lx = 0, ly = 0, samples = [];
+    el.addEventListener('pointerdown', e => {
+      if (id !== null || !host || (e.pointerType === 'mouse' && e.button !== 0)) return;
+      id = e.pointerId; lx = e.clientX; ly = e.clientY; samples = [[performance.now(), lx, ly]];
+      try { el.setPointerCapture(id); } catch (err) {}
+      focus = null; vel.x = vel.y = 0; userSpin = false; dragging = true; lastInteract = performance.now();
+      hapticBucket = Math.floor(rot.y * R2D / PHYS.hapticDeg);
+    });
+    el.addEventListener('pointermove', e => {
+      if (e.pointerId !== id) return;
+      const r = Math.max(1, lay.r * zoom.z), dx = e.clientX - lx, dy = e.clientY - ly; lx = e.clientX; ly = e.clientY;
+      rot.y += dx / r; rot.x = clamp(rot.x + dy / r, -PHYS.maxPitch, PHYS.maxPitch);
+      const now = performance.now(); lastInteract = now; samples.push([now, lx, ly]); while (samples.length > 2 && now - samples[0][0] > 90) samples.shift();
+    });
+    const end = e => {
+      if (e.pointerId !== id) return; id = null; dragging = false;
+      const now = performance.now(); lastInteract = now;
+      const a = samples[0], b = samples[samples.length - 1], span = Math.max(1, b[0] - a[0]);
+      if (e.type === 'pointercancel' || now - b[0] > 80) return;
+      const r = Math.max(1, lay.r * zoom.z), toRad = pxms => clamp(pxms * 16.67 / r, -PHYS.maxV, PHYS.maxV);
+      vel.y = toRad((b[1] - a[1]) / span); vel.x = toRad((b[2] - a[2]) / span) * 0.6; userSpin = true;
+    };
+    el.addEventListener('pointerup', end); el.addEventListener('pointercancel', end);
+  }
   return { get driving() { return !!driver; },
     /** Küre yerine oturdu mu: intro sürücüsü yok, yerleşim geçişi bitti, hedefe 0,5 px'ten yakın. */
     get settled() {
@@ -3510,7 +3552,7 @@ const Globe = (() => {
       const { W, H } = hostSize(), T = targetLayout(W, H);
       return Math.abs(lay.cx - T.cx) < 0.5 && Math.abs(lay.cy - T.cy) < 0.5 && Math.abs(lay.r - T.r) < 0.5;
     },
-    setDayImage, mount, update, unmount, get running() { return raf != null; }, setActive, drive, impulse, faceSun, transition, whenReady, setBackground, setThemeInstant, setRotation, snapshots, snapshotView, renderThemeMap, resetZoom, get layout() { return lay; }, get zoom() { return zoom.z; },
+    setDayImage, mount, update, unmount, spinSurface, get running() { return raf != null; }, setActive, drive, impulse, faceSun, transition, whenReady, setBackground, setThemeInstant, setRotation, snapshots, snapshotView, renderThemeMap, resetZoom, get layout() { return lay; }, get zoom() { return zoom.z; },
     /** Ekrandaki kürenin merkez enlem/boylamı ve piksel yerleşimi (MapLibre devir teslimi için). */
     get view() { let lng = (-rot.y - Math.PI / 2) / D2R; lng = ((lng + 180) % 360 + 360) % 360 - 180; return { lat: rot.x / D2R, lng, cx: lay.cx, cy: lay.cy, r: lay.r * zoom.z }; },
     _debug: { setSun(lat, lng) { sunObj.copy(latLngToVec3(lat, lng)); lastSun = performance.now() + 1e9; }, rot } };
@@ -6995,9 +7037,21 @@ function renderProfile(animate = true) {
     <div class="px-panel px-in" style="--i:${i++}" id="pxPanel"><div class="px-pane" role="tabpanel">${pxPaneHTML(pxTab)}</div></div>`;
   seedFly(root);
   countUp(root);
+  pxWindow(); Globe.spinSurface($('#pxGlobe'));
   if (pxTab === 'route') mountRoute(animate);
   if (!$('#pxsBody').contains(document.activeElement)) renderSettings(animate);
 }
+/** Kartın küre penceresi: kahraman alanın ortası, kürenin yarıçapı. Düzen ölçüsü (offset*) giriş
+ *  animasyonunun transform'undan etkilenmez; yazı tipi yüklenince ve boyut değişince yeniden ölçülür. */
+function pxWindow() {
+  const card = $('#profileScroll'), hero = card && card.querySelector('.px-hero'), g = $('#pxGlobe');
+  if (!hero || !g) return;
+  card.style.setProperty('--gx', `${hero.offsetLeft + hero.offsetWidth / 2}px`);
+  card.style.setProperty('--gy', `${hero.offsetTop + hero.offsetHeight / 2}px`);
+  card.style.setProperty('--gr', `${g.offsetWidth / 2}px`);
+}
+if ('ResizeObserver' in window) new ResizeObserver(() => pxWindow()).observe($('#profileScroll'));
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(pxWindow);
 function pxPaneHTML(tab) {
   const st = currentStation();
   if (tab === 'route') {
