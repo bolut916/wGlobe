@@ -34,7 +34,7 @@ kişiler, fotoğraflar, mikrofon.
 İşaretlenmeyecekler: Location, Purchases (bahşişi Apple işler, uygulama kaydetmez), Diagnostics, Browsing/Search
 History (aramalar sunucuda saklanmaz), Device ID, Advertising Data.
 
-- **Privacy Policy URL:** `https://wglobe.app/privacy/` (alan adı bağlanana kadar `https://bolut916.github.io/wGlobe/privacy/`)
+- **Privacy Policy URL:** `https://wglobe.app/privacy/`
 - **User Privacy Choices URL (isteğe bağlı):** `https://wglobe.app/delete-account/`
 - Apple, hesap açılabilen her uygulamada **uygulama içinden hesap silme** ister (5.1.1(v)): alt çubuktaki Ayarlar
   sekmesi → Hesabı sil. Hazır.
@@ -48,7 +48,6 @@ History (aramalar sunucuda saklanmaz), Device ID, Advertising Data.
 **Which of the following methods of account creation does your app support?** Username and password (e-posta + şifre)
 
 **Delete account URL:** `https://wglobe.app/delete-account/`
-(alan adı bağlanana kadar `https://bolut916.github.io/wGlobe/delete-account/`)
 
 **Do you provide a way for users to request that some or all of their data is deleted, without requiring them to
 delete their account?** Yes (favoriler ve kayıtlar uygulama içinden tek tek silinebilir). Emin değilsen No de;

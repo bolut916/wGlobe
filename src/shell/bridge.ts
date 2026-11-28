@@ -120,7 +120,7 @@ const WIDGET_ART_MAX = 700_000;
 const TZ_RE = /^(?:UTC|GMT|Etc\/GMT[+-]\d{1,2}|[A-Za-z]+(?:\/[A-Za-z0-9_+-]+){1,2})$/;
 const cleanText = (v: unknown, max: number) => typeof v === 'string' ? v.replace(/[\u0000-\u001f\u007f]/g, '').trim().slice(0, max) : '';
 
-/** wglobe://… ya da https://bolut916.github.io/wGlobe/?c=… bağlantısındaki paylaşım parametreleri */
+/** wglobe://… ya da https://wglobe.app/?c=… bağlantısındaki paylaşım parametreleri */
 /** Paylaşım bağlantısının okunan alanları; başka hiçbir anahtar siteye aktarılmaz. */
 const LINK_KEYS = new Set(['c', 'n', 'co', 'cc', 'la', 'lo', 'tz', 's', 'st', 'su', 'sn']);
 const LINK_MAX = 600;

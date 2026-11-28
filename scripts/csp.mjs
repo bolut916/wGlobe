@@ -2,7 +2,7 @@
 // Satır içi betiğin SHA-256 parmak izi her yayında yeniden hesaplanır; böylece yalnızca bu betik ve
 // sitenin kendi lib/ dosyaları çalışabilir. Sızdırılmış bir <script>, olay niteliği ya da javascript: bağlantısı çalışmaz.
 //   node scripts/csp.mjs <html dosyası> <sitenin temel adresi>
-//   ör. node scripts/csp.mjs dist/index.html https://bolut916.github.io/wGlobe/
+//   ör. node scripts/csp.mjs dist/index.html https://wglobe.app/
 import { readFileSync, writeFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 

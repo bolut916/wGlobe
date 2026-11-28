@@ -1,9 +1,12 @@
 # Publishes the wGlobe web prototype (the latest design, with live satellite
 # imagery and live radio) to the gh-pages branch on every push to main.
 #
-#   https://bolut916.github.io/wGlobe/       → web prototype
-#   https://bolut916.github.io/wGlobe/app/   → redirects to the prototype (the Expo
-#                                              app's web build had the older UI)
+#   https://wglobe.app/       → web prototype
+#   https://wglobe.app/app/   → redirects to the prototype (the Expo app's web
+#                               build had the older UI)
+#
+# dist/CNAME binds the custom domain; GitHub then redirects every old
+# https://bolut916.github.io/wGlobe/… address to the same path on wglobe.app.
 #
 # Repository setting required once: Settings → Pages → "Deploy from a branch",
 # branch gh-pages, folder / (root).
@@ -45,15 +48,16 @@ jobs:
           mkdir -p dist/app
           cp -r prototype/. dist/
           # Old links (/app/, unknown paths) land on the latest prototype.
-          REDIRECT='<!doctype html><meta charset="utf-8"><title>wGlobe</title><meta http-equiv="refresh" content="0; url=/wGlobe/"><script>location.replace("/wGlobe/")</script>'
+          REDIRECT='<!doctype html><meta charset="utf-8"><title>wGlobe</title><meta http-equiv="refresh" content="0; url=/"><script>location.replace("/")</script>'
           echo "$REDIRECT" > dist/app/index.html
           echo "$REDIRECT" > dist/404.html
           touch dist/.nojekyll
+          echo wglobe.app > dist/CNAME
 
       # İçerik Güvenliği Politikası: satır içi betiğin parmak izi her yayında yeniden hesaplanır.
       # Sitede beklenmeyen bir betik, olay niteliği ya da javascript: bağlantısı varsa yayın durur.
       - name: Add Content Security Policy
-        run: node scripts/csp.mjs dist/index.html https://bolut916.github.io/wGlobe/
+        run: node scripts/csp.mjs dist/index.html https://wglobe.app/
 
       - name: Publish to gh-pages
         uses: peaceiris/actions-gh-pages@v4

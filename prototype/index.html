@@ -1640,7 +1640,7 @@ svg.i.filled { fill: currentColor; }
 'use strict';
 // ── Başka bir sayfanın içine gömülmeyi reddet (clickjacking: görünmez düğmelere tıklatma). Yalnız yayındaki sitede;
 //    artifact önizlemesi kendi çerçevesinde çalışır. ──
-if (location.hostname === 'bolut916.github.io' && window.top !== window.self) {
+if ((location.hostname === 'wglobe.app' || location.hostname === 'www.wglobe.app') && window.top !== window.self) {
   document.documentElement.style.display = 'none';
   try { window.top.location.replace(location.href); } catch (e) {}
   throw new Error('çerçeve içinde açılmaz');
@@ -8409,7 +8409,7 @@ setInterval(() => { if (state.status === 'playing') evaluateQuests(false); }, 60
 // ═════════════════════════════════════════════════════════
 //  UYGULAMA KÖPRÜSÜ (Expo) · KİLİT EKRANI · PAYLAŞIM · UÇUŞ MODU
 // ═════════════════════════════════════════════════════════
-const SITE_URL = 'https://bolut916.github.io/wGlobe/';
+const SITE_URL = 'https://wglobe.app/';
 /** Expo uygulamasının içinde mi çalışıyoruz? (WebView köprüsü) Uygulamada ses, titreşim ve paylaşım yereldir. */
 const NATIVE = !!(window.ReactNativeWebView && typeof window.ReactNativeWebView.postMessage === 'function');
 function nativePost(msg) { try { window.ReactNativeWebView.postMessage(JSON.stringify(msg)); } catch (e) {} }
@@ -8655,7 +8655,7 @@ async function buildShareCard(city, st) {
   g.fillStyle = 'rgba(232,240,255,0.66)'; g.font = '500 36px Geist, sans-serif'; g.fillText(ellipsize(g, `${city.country}${t ? ' · ' + tx('yerel saat') + ' ' + t : ''}`, maxW), X, yCity + 62);
   if (st && !st.demo) { g.fillStyle = '#F2F7FF'; g.font = '600 40px Geist, sans-serif'; g.fillText(ellipsize(g, st.name, maxW), X, yCity + 124); }
   g.fillStyle = 'rgba(169,211,255,0.75)'; g.font = '500 24px "Geist Mono", monospace'; g.fillText(tx('wGlobe · dünyanın radyosu'), X, H - 92);
-  g.textAlign = 'right'; g.fillText('bolut916.github.io/wGlobe', W - X, H - 92); g.textAlign = 'left';
+  g.textAlign = 'right'; g.fillText('wglobe.app', W - X, H - 92); g.textAlign = 'left';
   return cv;
 }
 let shareState = null;

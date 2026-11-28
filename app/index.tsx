@@ -1,7 +1,7 @@
 /**
  * wGlobe uygulaması: web sitesiyle aynı arayüz, yerel bir kabuğun içinde.
  *
- * Tek kaynak → iki ürün: arayüz https://bolut916.github.io/wGlobe/ adresinden gelir; her güncelleme hem siteye
+ * Tek kaynak → iki ürün: arayüz https://wglobe.app/ adresinden gelir; her güncelleme hem siteye
  * hem uygulamaya aynı anda yansır. Kabuk, web'in tek başına yapamadıklarını üstlenir:
  *   • Ses yerel çalar: arka planda ve kilit ekranında sürer; kilit ekranı/kulaklık tuşları çalışır (NativeRadio)
  *   • Dokunuş titreşimi (expo-haptics)
@@ -25,10 +25,10 @@ import { linkParams, parseWebMessage, type HapticName, type NativeMessage, type 
 import { ensureWidget, updateFromWeb } from '@/widgets/store';
 import { Tips } from '@/shell/Tips';
 
-const SITE_URL = 'https://bolut916.github.io/wGlobe/';
+const SITE_URL = 'https://wglobe.app/';
 // Yalnız bu adres ağacı uygulamanın içinde açılır ve yerel köprüye mesaj gönderebilir. Düz metin karşılaştırması
-// (startsWith) 'https://bolut916.github.io.kotu.com' gibi sahte adresleri de geçirirdi; kalıp ana makineyi kesin sınırlar.
-const SITE_RE = /^https:\/\/bolut916\.github\.io\/wGlobe(?:[/?#]|$)/;
+// (startsWith) 'https://wglobe.app.kotu.com' gibi sahte adresleri de geçirirdi; kalıp ana makineyi kesin sınırlar.
+const SITE_RE = /^https:\/\/wglobe\.app(?:[/?#]|$)/;
 const isSite = (url: string | undefined): boolean => typeof url === 'string' && SITE_RE.test(url);
 // Sitenin belge sayfaları (gizlilik, destek, hesap silme) uygulamanın içinde değil sistem tarayıcısında açılır:
 // WebView'da açılsalar kullanıcı (iPhone'da geri tuşu olmadan) uygulamaya dönemezdi.
