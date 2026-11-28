@@ -124,7 +124,7 @@ kullanıcılar kayıt onayı alamaz.
    - Metinler: `docs/magaza/metinler.md`
    - Simge (512×512): `docs/magaza/simge-512.png`
    - Öne çıkan görsel (1024×500): `docs/magaza/ekran/tr/play-feature-1024x500.jpg` (EN: `en/`)
-   - Telefon ekran görüntüleri (1080×2160): `docs/magaza/ekran/tr/play-1…5.jpg` (EN: `en/`). Play, uzun kenarı
+   - Telefon ekran görüntüleri (1080×2160): `docs/magaza/ekran/tr/play-1…6.jpg` (EN: `en/`). Play, uzun kenarı
      kısa kenarın 2 katından fazla olan görüntüyü kabul etmez; iPhone görüntüleri bu yüzden ayrı.
 5. *Testing → Closed testing*: 12 kişinin e-postasıyla liste oluştur, katılım bağlantısını gönder, **14 gün**
    bekle.
@@ -141,7 +141,7 @@ kullanıcılar kayıt onayı alamaz.
    - SKU: `wglobe-ios`
 2. İngilizce yerelleştirmeyi ekle (*App Information → Localizable Information → English (U.S.)*). İki dilde
    metinler: `docs/magaza/metinler.md`
-3. **6,9" ekran görüntüleri** (1320×2868): `docs/magaza/ekran/tr/appstore-6.9-1…5.jpg` ve `en/` karşılıkları. Apple bunlardan
+3. **6,9" ekran görüntüleri** (1320×2868): `docs/magaza/ekran/tr/appstore-6.9-1…6.jpg` ve `en/` karşılıkları. Apple bunlardan
    küçük ekranları kendisi üretir.
 4. *App Privacy*, *Age Rating*, *Content Rights*: `docs/magaza/gizlilik-yanitlari.md`
 5. Kategori: **Music** (ikincil: Travel). Fiyat: Free.
@@ -156,8 +156,8 @@ kullanıcılar kayıt onayı alamaz.
      ```text
      No login is needed: tap "Continue as guest" on the first screen. Spin the globe and tap any city dot to play
      its live radio. Optional account (email + password) only syncs favorites between devices; it can be deleted
-     in Profile → Settings (gear) → Delete account.
-     Tip jar: Profile → Settings → Support wGlobe (consumable tips, they unlock nothing).
+     in the Settings tab (bottom bar) → Delete account.
+     Tip jar: Settings tab → Support wGlobe (consumable tips, they unlock nothing).
      Radio streams are public broadcasts from the stations, listed via the open Radio Browser directory.
      Background audio is used only to keep playing the station the user started.
      ```

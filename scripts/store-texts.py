@@ -27,6 +27,11 @@ KÜREYLE KEŞFET
 GÜNE RADYOYLA BAŞLA
 • Radyolu alarm: o an güneşin doğduğu bir şehrin radyosuyla uyan
 
+LİSTELERLE DİNLE
+• Ruh hâline göre listeler: Sabah Kahvesi, Gece Yarısı Cazı, Kuzey Işıkları ve daha fazlası
+• "Dünya uyanıyor": şu an sabah olan şehirler, sırayla
+• Favorilerin tek listede; ileri tuşu listedeki sıradaki şehre geçer
+
 BİRİKTİR
 • 100 küreden oluşan koleksiyon: gezdikçe yeni küre temaları açılır
 • Pasaport: ziyaret ettiğin ülkeler ve şehirler, dinleme süren, rotan
@@ -57,6 +62,11 @@ EXPLORE THE GLOBE
 WAKE UP TO RADIO
 • Radio alarm: wake up to a station in a city where the sun is rising right now
 
+LISTEN IN LISTS
+• Mood lists: Morning Coffee, Midnight Jazz, Northern Lights and more
+• "The world wakes up": cities where it's morning right now, one after another
+• Your favorites in one list; the next button moves to the next city in the list
+
 COLLECT
 • A collection of 100 globes: new globe themes unlock as you travel
 • Passport: the countries and cities you've visited, your listening time, your route
@@ -86,6 +96,7 @@ T = {
             ('Geceyi ve gündüzü', 'parmağınla kaydır'),
             ('Gezdikçe', '100 küre aç'),
             ('Pasaportun:', 'ülkeler, şehirler, rotan'),
+            ('Ruh hâline göre', 'dünyayı sırayla dinle'),
         ],
     },
     'en': {
@@ -101,6 +112,7 @@ T = {
             ('Slide day', 'into night'),
             ('Unlock 100 globes', 'as you travel'),
             ('Your passport:', 'countries, cities, routes'),
+            ('Play the world', 'by mood'),
         ],
     },
 }

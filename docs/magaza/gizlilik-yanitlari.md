@@ -36,8 +36,8 @@ History (aramalar sunucuda saklanmaz), Device ID, Advertising Data.
 
 - **Privacy Policy URL:** `https://wglobe.app/privacy/` (alan adı bağlanana kadar `https://bolut916.github.io/wGlobe/privacy/`)
 - **User Privacy Choices URL (isteğe bağlı):** `https://wglobe.app/delete-account/`
-- Apple, hesap açılabilen her uygulamada **uygulama içinden hesap silme** ister (5.1.1(v)): Profil → Ayarlar →
-  Hesabı sil. Hazır.
+- Apple, hesap açılabilen her uygulamada **uygulama içinden hesap silme** ister (5.1.1(v)): alt çubuktaki Ayarlar
+  sekmesi → Hesabı sil. Hazır.
 
 ## Google Play Console → App content → Data safety
 

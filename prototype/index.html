@@ -517,7 +517,7 @@ svg.i.filled { fill: currentColor; }
 }
 
 /* Koleksiyon — Küre Cebi */
-.th { position: absolute; inset: 0; z-index: 1; display: flex; flex-direction: column; gap: 12px; padding: calc(var(--sat) + 17px) 20px calc(var(--stack-top) + 2px); color: var(--fg); transition: color 500ms var(--e-standard); }
+.th { position: absolute; inset: 0; z-index: 1; display: flex; flex-direction: column; gap: 12px; padding: calc(var(--sat) + 62px) 20px calc(var(--stack-top) + 2px); color: var(--fg); transition: color 500ms var(--e-standard); }
 .th.ink-dark { --fg: #141414; --fg-2: rgba(20,20,20,0.66); --fg-3: rgba(20,20,20,0.48); --fg-4: rgba(20,20,20,0.28); --hair: rgba(20,20,20,0.12); --hair-2: rgba(20,20,20,0.22); }
 .th.ink-dark .btn.solid { color: #F4F1EA; }
 .th-top { display: flex; justify-content: flex-end; align-items: center; min-height: 26px; }
@@ -560,7 +560,7 @@ svg.i.filled { fill: currentColor; }
 #pane-themes .pocket { transition: opacity 260ms var(--e-standard), transform 420ms var(--e-spring); }
 #pane-themes.pk-open .pocket { opacity: 0; transform: translateY(24px); pointer-events: none !important; }
 #pane-themes.pk-open .pocket * { pointer-events: none !important; }
-.pk-drawer { position: absolute; left: 10px; right: 10px; top: calc(var(--sat) + 132px); bottom: calc(var(--stack-top) + 6px); z-index: 4; display: flex; flex-direction: column; border-radius: 30px; overflow: hidden;
+.pk-drawer { position: absolute; left: 10px; right: 10px; top: calc(var(--sat) + 176px); bottom: calc(var(--stack-top) + 6px); z-index: 4; display: flex; flex-direction: column; border-radius: 30px; overflow: hidden;
   background: rgba(10,19,40,0.95); box-shadow: 0 30px 70px rgba(2,6,16,0.6), inset 0 0 0 1px rgba(232,240,255,0.1);
   transform: translateY(calc(100% + 40px)); opacity: 0; visibility: hidden; transition: transform 300ms var(--e-exit), opacity 240ms var(--e-exit), visibility 0s linear 300ms; }
 .pk-drawer.open { transform: none; opacity: 1; visibility: visible; transition: transform 560ms var(--e-spring), opacity 240ms var(--e-enter), visibility 0s; }
@@ -952,7 +952,7 @@ svg.i.filled { fill: currentColor; }
 .st-top b { font-size: 17px; font-weight: 650; letter-spacing: -0.01em; transform: translateY(5px); transition: transform 220ms var(--e-exit); }
 .st-scrolled .st-top { opacity: 1; transition: opacity 180ms var(--e-enter); }
 .st-scrolled .st-top b { transform: none; transition: transform 260ms var(--e-enter); }
-#app[data-tab="profile"] .app-logo, #app[data-tab="search"] .app-logo { opacity: 0; }
+#app[data-tab="profile"] .app-logo, #app[data-tab="search"] .app-logo, #app[data-tab="themes"] .app-logo { opacity: 0; }
 /* Alt perde: kaydırılan içerik dok'a doğru zemine erir (bulanıklık yerine; küre ekranında sürekli çizim var) */
 #pane-profile::after, #pane-search::after { content: ''; position: absolute; left: 0; right: 0; top: auto; bottom: 0; height: calc(var(--stack-top) + 36px); z-index: 5; pointer-events: none;
   background: linear-gradient(180deg, rgba(5,11,24,0) 0%, rgba(5,11,24,0.82) 45%, rgba(5,11,24,0.96) 100%); }
@@ -967,6 +967,97 @@ svg.i.filled { fill: currentColor; }
 .st-set .px-sec { gap: 8px; }
 .pxs-body.anim > * { animation: stIn 480ms var(--e-spring) backwards; animation-delay: calc(160ms + min(var(--i, 0), 9) * 50ms); }
 @keyframes stIn { from { opacity: 0; transform: translateY(14px); } }
+/* ══ Koleksiyon (v62): iki raf — Listeler (sol) · Küreler (sağ, cepten çıkar). Yatay odak geçişi ~460 ms yumuşak yay;
+   giden raf derinleşir (0,96 · %45), gelen öne çıkar. Yalnız transform/opacity. ══ */
+.cx-seg { position: absolute; z-index: 8; top: calc(var(--sat) + 10px); left: 20px; right: 20px; height: 42px; display: grid; grid-template-columns: 1fr 1fr; padding: 4px; border-radius: 21px;
+  background: rgba(12,22,44,0.82); box-shadow: inset 0 0 0 1px rgba(232,240,255,0.10); }
+.cx-seg button { position: relative; z-index: 1; display: flex; align-items: center; justify-content: center; text-align: center; border: 0; background: none; font: 600 14.5px/1 var(--font); color: var(--fg-2); border-radius: 17px; transition: color 240ms var(--e-standard); -webkit-tap-highlight-color: transparent; }
+.cx-seg button[aria-selected="true"] { color: var(--accent-ink); }
+.cx-ind { position: absolute; top: 4px; bottom: 4px; left: 4px; width: calc(50% - 4px); border-radius: 17px; background: var(--grad); box-shadow: 0 6px 18px rgba(110,170,235,0.3); transition: transform 460ms var(--spring-soft); will-change: transform; }
+.cx-g .cx-ind { transform: translateX(100%); }
+.cx-track { position: absolute; inset: 0; display: flex; transition: transform 460ms var(--spring-soft); will-change: transform; }
+.cx-g .cx-track { transform: translateX(-100%); }
+.cx-panel { position: relative; flex: 0 0 100%; height: 100%; overflow: hidden; transition: opacity 380ms var(--e-standard), transform 460ms var(--spring-soft); will-change: transform, opacity; }
+.cx-g .cx-lists, .cx-l .cx-globes { opacity: 0.45; transform: scale(0.96); pointer-events: none !important; }
+.cx-l .cx-globes * , .cx-g .cx-lists * { pointer-events: none !important; }
+/* Arka plandaki önizleme küresi rafla aynı yayla kayar: Listeler'deyken sağda, ekran dışında bekler */
+#screen.cx-on #globeStage { transition: transform 460ms var(--spring-soft), opacity 380ms var(--e-standard); will-change: transform; }
+#screen.cx-away #globeStage { transform: translate3d(100%, 0, 0); opacity: 0.45; }
+/* Listeler */
+.cx-lists { background: var(--bg); }
+.cx-lists::before { content: ''; position: absolute; left: 0; right: 0; top: 0; height: calc(var(--sat) + 62px); z-index: 5; pointer-events: none; background: linear-gradient(180deg, var(--bg) 62%, rgba(5,11,24,0)); }
+.pane .ls-scroll { padding-top: calc(var(--sat) + 64px); padding-right: 64px; }
+.cx-lists::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: calc(var(--stack-top) + 36px); z-index: 3; pointer-events: none;
+  background: linear-gradient(180deg, rgba(5,11,24,0) 0%, rgba(5,11,24,0.82) 45%, rgba(5,11,24,0.96) 100%); }
+.ls-head { margin-bottom: 14px; } .ls-head .st-title { margin-bottom: 4px; }
+.ls-sub { margin: 0; font-size: 14.5px; line-height: 20px; color: var(--fg-2); }
+.ls-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.ls-card { position: relative; aspect-ratio: 1 / 1.06; border: 0; border-radius: 24px; overflow: hidden; padding: 0; text-align: left; color: #fff; cursor: pointer; -webkit-tap-highlight-color: transparent;
+  background: radial-gradient(120% 90% at 100% 0%, var(--c1) 0%, transparent 62%), radial-gradient(110% 90% at 0% 100%, var(--c2) 0%, transparent 70%), linear-gradient(160deg, #10203E, #070F22);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.10), 0 14px 30px rgba(2,6,16,0.35); transition: transform 320ms var(--spring); }
+.ls-card:active { transform: scale(0.965); transition: transform 110ms var(--e-press); }
+.ls-card::before { content: ''; position: absolute; inset: -30%; background: repeating-radial-gradient(circle at 78% 22%, rgba(255,255,255,0.13) 0 1px, transparent 1px 15px); opacity: 0.55; pointer-events: none; }
+.ls-card .ls-ic { position: absolute; left: 14px; top: 14px; width: 34px; height: 34px; border-radius: 17px; display: grid; place-items: center; background: rgba(255,255,255,0.16); backdrop-filter: none; }
+.ls-card .ls-n { position: absolute; right: 12px; top: 14px; font: 600 10px/1 var(--mono); letter-spacing: 0.1em; color: rgba(255,255,255,0.8); text-transform: uppercase; }
+.ls-card .ls-t { position: absolute; left: 14px; right: 12px; bottom: 13px; font-family: var(--display); font-size: 18px; line-height: 21px; font-weight: 700; letter-spacing: -0.02em; text-shadow: 0 2px 12px rgba(0,0,0,0.35); }
+.ls-card .ls-eq { position: absolute; right: 14px; bottom: 16px; display: none; gap: 2px; align-items: flex-end; height: 14px; }
+.ls-card.on .ls-eq { display: flex; }
+.ls-eq i { width: 3px; height: 14px; border-radius: 1.5px; background: #fff; transform-origin: bottom; animation: eq var(--t) var(--e-inout) infinite alternate; }
+.ls-card.on .ls-n { opacity: 0; }
+.ls-grid.anim .ls-card { animation: lsIn 460ms var(--e-spring) backwards; animation-delay: calc(80ms + min(var(--i), 10) * 38ms); }
+@keyframes lsIn { from { opacity: 0; transform: translateY(16px) scale(0.97); } }
+/* Liste ayrıntısı: sağdan gelir, ızgara geri çekilir (parallax) */
+.ls-detail { position: absolute; inset: 0; z-index: 4; background: var(--bg); transform: translateX(100%); visibility: hidden; transition: transform 380ms var(--spring-soft), visibility 0s linear 380ms; }
+.ls-open .ls-detail { transform: none; visibility: visible; transition: transform 380ms var(--spring-soft), visibility 0s; }
+.ls-scroll { transition: transform 380ms var(--spring-soft), opacity 300ms var(--e-standard); }
+.ls-open .ls-scroll { transform: translateX(-22%); opacity: 0.35; }
+.pane .ls-dscroll { padding-top: calc(var(--sat) + 60px); }
+.ls-back { display: inline-flex; align-items: center; gap: 2px; min-height: 40px; border: 0; background: none; color: var(--accent); font: 600 15px/1 var(--font); padding: 0 6px 0 0; margin-bottom: 8px; cursor: pointer; }
+.ls-banner { position: relative; height: 168px; border-radius: 28px; overflow: hidden; margin-bottom: 14px;
+  background: radial-gradient(120% 90% at 100% 0%, var(--c1) 0%, transparent 62%), radial-gradient(110% 90% at 0% 100%, var(--c2) 0%, transparent 70%), linear-gradient(160deg, #10203E, #070F22); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.1); }
+.ls-banner::before { content: ''; position: absolute; inset: -30%; background: repeating-radial-gradient(circle at 80% 20%, rgba(255,255,255,0.13) 0 1px, transparent 1px 16px); opacity: 0.6; }
+.ls-banner .ls-ic { position: absolute; left: 18px; top: 18px; width: 42px; height: 42px; border-radius: 21px; display: grid; place-items: center; background: rgba(255,255,255,0.16); color: #fff; }
+.ls-banner h2 { position: absolute; left: 18px; right: 18px; bottom: 34px; margin: 0; font-family: var(--display); font-size: 28px; line-height: 32px; font-weight: 750; letter-spacing: -0.035em; color: #fff; }
+.ls-banner p { position: absolute; left: 18px; right: 18px; bottom: 14px; margin: 0; font-size: 13px; color: rgba(255,255,255,0.78); }
+.ls-play { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: 50px; border: 0; border-radius: 25px; margin-bottom: 14px; background: var(--grad); color: var(--accent-ink); font: 650 16px/1 var(--font); box-shadow: 0 10px 26px rgba(110,170,235,0.3); cursor: pointer; }
+.ls-play:active { transform: scale(0.97); }
+.ls-rows { display: flex; flex-direction: column; gap: 6px; }
+.ls-row { display: flex; align-items: center; gap: 12px; width: 100%; padding: 10px 12px; border: 0; border-radius: 18px; text-align: left; color: var(--fg); background: rgba(12,22,44,0.55); box-shadow: inset 0 0 0 1px rgba(232,240,255,0.07); cursor: pointer; }
+.ls-row .no { width: 22px; flex: none; text-align: center; font: 600 12px/1 var(--mono); color: var(--fg-3); }
+.ls-row .tx { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.ls-row .tx b { font-size: 15.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ls-row .tx span { font-size: 12.5px; color: var(--fg-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ls-row .tm { font: 500 12px/1 var(--mono); color: var(--fg-2); flex: none; }
+.ls-row.on { background: rgba(110,170,235,0.14); box-shadow: inset 0 0 0 1px rgba(156,203,255,0.35); }
+.ls-row.on .no { color: var(--accent); }
+.ls-empty { padding: 18px 8px; color: var(--fg-3); font-size: 15px; line-height: 21px; }
+/* Kenar davetleri: sağda küre cebi (küreler yarı çıkmış, hafifçe salınır) · solda kaset sırtları */
+.cx-peek { position: absolute; z-index: 7; top: calc(50% - 110px); width: 58px; height: 220px; border: 0; padding: 0; background: none; cursor: pointer; -webkit-tap-highlight-color: transparent;
+  transition: opacity 220ms var(--e-exit), transform 260ms var(--e-exit); }
+.cx-peek .pk-slot { position: absolute; top: 0; bottom: 0; width: 26px; background: linear-gradient(180deg, #142A4E, #0A1630); box-shadow: inset 0 0 0 1px rgba(169,211,255,0.28), 0 10px 26px rgba(2,6,16,0.5); }
+.cx-peek.r { right: 0; } .cx-peek.r .pk-slot { right: 0; border-radius: 16px 0 0 16px; }
+.cx-peek.l { left: 0; top: calc(var(--sat) + 128px); height: 176px; width: 46px; } .cx-peek.l .pk-slot { left: 0; width: 20px; border-radius: 0 14px 14px 0; }
+.peek-marbles { position: absolute; right: 8px; top: 18px; bottom: 18px; width: 44px; display: flex; flex-direction: column; justify-content: space-between; align-items: flex-end; }
+.peek-marbles .pm { position: relative; width: 40px; height: 40px; border-radius: 50%; overflow: hidden; box-shadow: 0 6px 16px rgba(2,6,16,0.55), 0 0 0 1px rgba(232,240,255,0.18); animation: pmBob 2600ms var(--e-inout) infinite alternate; animation-delay: calc(var(--k) * -650ms); }
+.peek-marbles .pm img, .peek-marbles .pm .mb-img { width: 100%; height: 100%; display: block; border-radius: 50%; }
+@keyframes pmBob { from { transform: translateX(0); } to { transform: translateX(-4px); } }
+.peek-spines { position: absolute; left: 4px; top: 12px; bottom: 12px; width: 34px; display: flex; flex-direction: column; justify-content: space-between; }
+.peek-spines i { display: block; height: 26px; width: 32px; border-radius: 6px 10px 10px 6px; background: linear-gradient(90deg, var(--c2), var(--c1)); box-shadow: 0 4px 12px rgba(2,6,16,0.5), inset 0 0 0 1px rgba(255,255,255,0.14); animation: pmBob2 2600ms var(--e-inout) infinite alternate; animation-delay: calc(var(--k) * -520ms); }
+@keyframes pmBob2 { from { transform: translateX(0); } to { transform: translateX(4px); } }
+.cx-l .cx-peek.l, .cx-g .cx-peek.r, .ls-on .cx-peek.r { opacity: 0; transform: translateX(var(--off)); pointer-events: none; }
+.cx-peek.r { --off: 30px; } .cx-peek.l { --off: -30px; }
+.cx-l:not(.ls-on) .cx-peek.r, .cx-g .cx-peek.l { transition: opacity 260ms var(--e-enter) 240ms, transform 420ms var(--spring) 240ms; }
+.cx-tip { position: absolute; z-index: 9; right: 66px; top: calc(50% - 18px); padding: 9px 13px; border-radius: 14px; background: var(--fg); color: var(--ivory-ink); font: 600 13px/1 var(--font); box-shadow: 0 10px 26px rgba(2,6,16,0.45);
+  animation: tipIn 420ms var(--spring) 500ms backwards; pointer-events: none; }
+.cx-tip::after { content: ''; position: absolute; right: -6px; top: 50%; margin-top: -6px; border: 6px solid transparent; border-right: 0; border-left-color: var(--fg); }
+@keyframes tipIn { from { opacity: 0; transform: translateX(10px); } }
+/* Kürelere gelince cepteki küreler sırayla yukarı fırlayıp oturur (cepten çıkış) */
+.cx-rise .marble { animation: mbRise 520ms var(--spring) backwards; animation-delay: calc(120ms + min(var(--i, 0), 8) * 40ms); }
+@keyframes mbRise { from { transform: translateY(34px) scale(0.82); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  #screen.cx-on #globeStage, .cx-ind, .cx-track, .cx-panel, .ls-detail, .ls-scroll, .cx-peek, .cx-l .cx-peek.r, .cx-g .cx-peek.l { transition-duration: 1ms !important; transition-delay: 0ms !important; }
+  .peek-marbles .pm, .peek-spines i, .ls-grid.anim .ls-card, .cx-rise .marble, .cx-tip { animation: none !important; }
+}
 /* ── Ara sekmesi (v61): büyük başlık · arama alanı · son aramalar / sonuçlar (tam liste, sayfa kayar) ── */
 #pane-search { background: var(--bg); }
 #pane-search .search { position: relative; top: auto; left: auto; right: auto; z-index: 2; }
@@ -1501,41 +1592,56 @@ svg.i.filled { fill: currentColor; }
             </div>
           </div>
         </div>
-        <div class="pane" id="pane-themes">
-          <div class="th" id="th">
-            <div class="th-top"><span class="label num" id="thCount">KOLEKSİYON · 01 / 04</span></div>
-            <div class="th-stage" id="thStage" aria-label="Tema önizlemesi; sağa ya da sola kaydırarak da değiştirebilirsin"></div>
-            <div class="th-info">
-              <div class="th-row"><h2 class="th-name" id="thName"></h2><span class="label" id="thState"></span></div>
-              <p class="th-desc" id="thDesc"></p>
-              <div class="th-quest" id="thQuest" hidden><span class="q-row"><span class="q-ic" data-icon="sparkles" data-size="14"></span><span class="q-t"></span><span class="q-n num"></span></span><span class="q-bar"><i></i></span></div>
-              <button class="btn press th-action" id="themeAction"><span class="lbl"></span><span class="spin"></span></button>
+        <div class="pane cx-l" id="pane-themes">
+          <div class="cx-seg" role="tablist" aria-label="Koleksiyon"><span class="cx-ind" aria-hidden="true"></span><button type="button" role="tab" class="press" data-cx="lists" id="cxLists" aria-selected="true">Listeler</button><button type="button" role="tab" class="press" data-cx="globes" id="cxGlobes" aria-selected="false">Küreler</button></div>
+          <div class="cx-track" id="cxTrack">
+            <div class="cx-panel cx-lists" id="cxListsPanel">
+              <div class="st-scroll ls-scroll" id="lsScroll">
+                <div class="ls-head"><h1 class="st-title">Listeler</h1><p class="ls-sub">Bir listeye dokun, dünya sırayla çalsın.</p></div>
+                <div class="ls-grid" id="lsGrid"></div>
+              </div>
+              <div class="ls-detail" id="lsDetail" aria-hidden="true"><div class="st-scroll ls-dscroll" id="lsDScroll"></div></div>
             </div>
-            <div class="th-pocket-space"></div>
-          </div>
-          <div class="pk-dim" id="pkDim"></div>
-          <div class="pocket" id="pocket" role="group" aria-label="Küre cebi: açmak için dokun">
-            <div class="pk-mouth"></div>
-            <div class="pk-marbles" id="pkMarbles"></div>
-            <div class="pk-front">
-              <svg viewBox="0 0 362 80" preserveAspectRatio="none" aria-hidden="true">
-                <defs>
-                  <linearGradient id="trayGlass" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#142A4E" stop-opacity="0.92"/><stop offset="1" stop-color="#0A1630" stop-opacity="0.96"/></linearGradient>
-                  <linearGradient id="trayRim" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#EAF4FF"/><stop offset="0.38" stop-color="#CFE5FF"/><stop offset="0.68" stop-color="#A9D3FF"/><stop offset="1" stop-color="#BFDDFF"/></linearGradient>
-                </defs>
-                <path d="M0 24 Q181 -4 362 24 L362 52 Q362 80 334 80 L28 80 Q0 80 0 52 Z" fill="url(#trayGlass)"/>
-                <path d="M1 24 Q181 -3 361 24" fill="none" stroke="url(#trayRim)" stroke-width="1.6" stroke-opacity="0.9"/>
-                <path d="M1 26 L1 52 Q1 79 28 79 L334 79 Q361 79 361 52 L361 26" fill="none" stroke="url(#trayRim)" stroke-opacity="0.28" stroke-width="1"/>
-              </svg>
-              <span class="pk-hint">100 KÜRE · <span id="pkCount"></span></span>
-              <div class="pk-labels" id="pkLabels"></div>
+            <div class="cx-panel cx-globes" id="cxGlobesPanel">
+              <div class="th" id="th">
+                <div class="th-top"><span class="label num" id="thCount">KOLEKSİYON · 01 / 04</span></div>
+                <div class="th-stage" id="thStage" aria-label="Tema önizlemesi; sağa ya da sola kaydırarak da değiştirebilirsin"></div>
+                <div class="th-info">
+                  <div class="th-row"><h2 class="th-name" id="thName"></h2><span class="label" id="thState"></span></div>
+                  <p class="th-desc" id="thDesc"></p>
+                  <div class="th-quest" id="thQuest" hidden><span class="q-row"><span class="q-ic" data-icon="sparkles" data-size="14"></span><span class="q-t"></span><span class="q-n num"></span></span><span class="q-bar"><i></i></span></div>
+                  <button class="btn press th-action" id="themeAction"><span class="lbl"></span><span class="spin"></span></button>
+                </div>
+                <div class="th-pocket-space"></div>
+              </div>
+              <div class="pk-dim" id="pkDim"></div>
+              <div class="pocket" id="pocket" role="group" aria-label="Küre cebi: açmak için dokun">
+                <div class="pk-mouth"></div>
+                <div class="pk-marbles" id="pkMarbles"></div>
+                <div class="pk-front">
+                  <svg viewBox="0 0 362 80" preserveAspectRatio="none" aria-hidden="true">
+                    <defs>
+                      <linearGradient id="trayGlass" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#142A4E" stop-opacity="0.92"/><stop offset="1" stop-color="#0A1630" stop-opacity="0.96"/></linearGradient>
+                      <linearGradient id="trayRim" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#EAF4FF"/><stop offset="0.38" stop-color="#CFE5FF"/><stop offset="0.68" stop-color="#A9D3FF"/><stop offset="1" stop-color="#BFDDFF"/></linearGradient>
+                    </defs>
+                    <path d="M0 24 Q181 -4 362 24 L362 52 Q362 80 334 80 L28 80 Q0 80 0 52 Z" fill="url(#trayGlass)"/>
+                    <path d="M1 24 Q181 -3 361 24" fill="none" stroke="url(#trayRim)" stroke-width="1.6" stroke-opacity="0.9"/>
+                    <path d="M1 26 L1 52 Q1 79 28 79 L334 79 Q361 79 361 52 L361 26" fill="none" stroke="url(#trayRim)" stroke-opacity="0.28" stroke-width="1"/>
+                  </svg>
+                  <span class="pk-hint">100 KÜRE · <span id="pkCount"></span></span>
+                  <div class="pk-labels" id="pkLabels"></div>
+                </div>
+              </div>
+              <div class="pk-drawer" id="pkDrawer" role="dialog" aria-label="Koleksiyon: 100 küre" aria-hidden="true">
+                <div class="pkd-head"><b>Koleksiyon</b><span class="label num" id="pkdCount"></span><button class="round press tight" id="pkdClose" aria-label="Koleksiyonu kapat" data-icon="x" data-size="20"></button></div>
+                <div class="pkd-series" id="pkdSeries" role="tablist" aria-label="Seriler"></div>
+                <div class="pkd-grid" id="pkdGrid"></div>
+              </div>
             </div>
           </div>
-          <div class="pk-drawer" id="pkDrawer" role="dialog" aria-label="Koleksiyon: 100 küre" aria-hidden="true">
-            <div class="pkd-head"><b>Koleksiyon</b><span class="label num" id="pkdCount"></span><button class="round press tight" id="pkdClose" aria-label="Koleksiyonu kapat" data-icon="x" data-size="20"></button></div>
-            <div class="pkd-series" id="pkdSeries" role="tablist" aria-label="Seriler"></div>
-            <div class="pkd-grid" id="pkdGrid"></div>
-          </div>
+          <button type="button" class="cx-peek r" id="cxPeekR" aria-label="Kürelere geç"><span class="pk-slot"></span><span class="peek-marbles" id="cxPeekMarbles"></span></button>
+          <button type="button" class="cx-peek l" id="cxPeekL" aria-label="Listelere geç"><span class="pk-slot"></span><span class="peek-spines" id="cxPeekSpines"></span></button>
+          <div class="cx-tip" id="cxTip" hidden>Küreler burada · dokun</div>
         </div>
         <div class="pane" id="pane-profile">
           <div class="st-top" id="stTop" aria-hidden="true"><b>Ayarlar</b></div>
@@ -1996,6 +2102,11 @@ const ICONS = {
   pause:'<rect x="14" y="4" width="4" height="16" rx="1"/><rect x="6" y="4" width="4" height="16" rx="1"/>',
   'skip-forward':'<polygon points="5 4 15 12 5 20 5 4"/><line x1="19" x2="19" y1="5" y2="19"/>',
   ff:'<path d="M2.5 6.2v11.6c0 .8.9 1.3 1.6.8L12 13.1v4.7c0 .8.9 1.3 1.6.8l8.3-5.8c.6-.4.6-1.2 0-1.6l-8.3-5.8c-.7-.5-1.6 0-1.6.8v4.7L4.1 5.4c-.7-.5-1.6 0-1.6.8Z"/>',
+  coffee:'<path d="M10 2v2"/><path d="M14 2v2"/><path d="M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h14a4 4 0 1 1 0 8h-1"/><path d="M6 2v2"/>',
+  waves:'<path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/><path d="M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/><path d="M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/>',
+  mountain:'<path d="m8 3 4 8 5-5 5 15H2L8 3z"/>',
+  building:'<rect width="16" height="20" x="4" y="2" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M12 6h.01"/><path d="M12 10h.01"/><path d="M12 14h.01"/><path d="M16 10h.01"/><path d="M16 14h.01"/><path d="M8 10h.01"/><path d="M8 14h.01"/>',
+  palm:'<path d="M13 8c0-2.76-2.46-5-5.5-5S2 5.24 2 8h2l1-1 1 1h4"/><path d="M13 7.14A5.82 5.82 0 0 1 16.5 6c3.04 0 5.5 2.24 5.5 5h-3l-1-1-1 1h-3"/><path d="M5.89 9.71c-2.15 2.15-2.3 5.47-.35 7.43l4.24-4.25.7-.7.71-.71 2.12-2.12c-1.95-1.96-5.27-1.8-7.42.35"/><path d="M11 15.5c.5 2.5-.17 4.5-1 6.5h4c2-5.5-.5-12-1-14"/>',
   heart:'<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>',
   x:'<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
   radio:'<path d="M4.9 19.1C1 15.2 1 8.8 4.9 4.9"/><path d="M7.8 16.2c-2.3-2.3-2.3-6.1 0-8.5"/><circle cx="12" cy="12" r="2"/><path d="M16.2 7.8c2.3 2.3 2.3 6.1 0 8.5"/><path d="M19.1 4.9C23 8.8 23 15.1 19.1 19"/>',
@@ -2165,7 +2276,8 @@ I18N.add({
   'Yayın aranıyor…': 'Finding a stream…', 'Yayın yanıt vermedi, sıradakine geçiliyor…': 'Stream didn’t answer, trying the next…',
   'Şu an yayın alınamıyor. Bağlantını kontrol edip tekrar dene.': 'Can’t get a stream right now. Check your connection and try again.',
   'Duraklatıldı': 'Paused', 'Önizleme sesi · ağ kapalı': 'Preview sound · offline', 'Global yayın · canlı': 'Global stream · live', 'Yerel': 'Local', 'Canlı': 'Live',
-  'Ara': 'Search', 'Son aramalar': 'Recently searched', 'Şehir, ülke ya da istasyon adı yaz': 'Type a city, country or station name', 'Şu an çalan': 'Now playing', 'Sonraki istasyon': 'Next station', 'Bağlanıyor…': 'Connecting…', 'Sıradaki yayına geçiliyor…': 'Switching to the next stream…', 'Yayın yok': 'No stream',
+  'Ara': 'Search', 'Listeler': 'Lists', 'Küreler': 'Globes', 'Bir listeye dokun, dünya sırayla çalsın.': 'Tap a list and the world plays in order.', 'Son durakların': 'Your recent stops', 'Son dinlediğin şehirler': 'Cities you listened to lately', 'Kalbe dokunduğun istasyonlar': 'Stations you hearted', 'Dünya uyanıyor': 'The world wakes up', 'Şu an sabah olan şehirler': 'Cities where it’s morning now', 'Gece yayını': 'Night broadcast', 'Şu an gece olan şehirler': 'Cities where it’s night now', 'Listeyi çal': 'Play list', 'Aynı ruh hâlindeki şehirler': 'Cities that share this mood', 'Kürelere geç': 'Go to globes', 'Listelere geç': 'Go to lists', 'Küreler burada · dokun': 'Globes are here · tap', 'Henüz favorin yok. Dinlerken kalbe dokun; istasyon bu listeye gelsin.': 'No favorites yet. Tap the heart while listening and the station lands here.',
+  'Son aramalar': 'Recently searched', 'Şehir, ülke ya da istasyon adı yaz': 'Type a city, country or station name', 'Şu an çalan': 'Now playing', 'Sonraki istasyon': 'Next station', 'Bağlanıyor…': 'Connecting…', 'Sıradaki yayına geçiliyor…': 'Switching to the next stream…', 'Yayın yok': 'No stream',
   'Dinle': 'Play', 'Sonra': 'Later', 'Duraklat': 'Pause', 'Oynat': 'Play', 'Paylaş': 'Share', 'Kartı kapat': 'Close card', 'Kapat': 'Close', 'Kaydet': 'Save', 'Vazgeç': 'Cancel', 'Çık': 'Leave',
   'Favorilere ekle': 'Add to favorites', 'Favorilerden çıkar': 'Remove from favorites', 'Dünyada başka bir yer': 'Somewhere else in the world',
   'Dinlemek için oynat’a dokun': 'Tap play to listen', 'ÖRNEK': 'SAMPLE', 'Gezgin': 'Traveler',
@@ -2394,6 +2506,7 @@ I18N.add({
   [/^Radyo durumu: ([^,]+)(?:, (.+))?$/, (_, s, r) => `Radio status: ${({ 'radyo kapalı': 'radio off', 'duraklatıldı': 'paused', 'bağlanıyor': 'connecting', 'sıradaki yayın': 'next stream', 'canlı': 'live', 'yayın yok': 'no stream' })[s] || s}${r ? ', ' + I18N.tr(r) : ''}`],
   [/^(\d+) FAVORİ İSTASYON$/, (_, n) => `${n} FAVORITE STATION${n === '1' ? '' : 'S'}`],
   [/^(\d+) ŞARKI$/, (_, n) => `${n} SONG${n === '1' ? '' : 'S'}`],
+  [/^(\d+) şehir$/, (_, n) => `${n} ${n === '1' ? 'city' : 'cities'}`],
   [/^(\d+) KÜRE ·$/, (_, n) => `${n} GLOBES ·`],
   [/^(\d+) \/ (\d+) AÇIK$/, (_, a, b) => `${a} / ${b} UNLOCKED`],
   [/^(\d+) küre senin oldu$/, (_, n) => n === '1' ? 'A globe is yours' : `${n} globes are yours`],
@@ -3517,7 +3630,7 @@ const Globe = (() => {
       const { W, H } = hostSize(), T = targetLayout(W, H);
       return Math.abs(lay.cx - T.cx) < 0.5 && Math.abs(lay.cy - T.cy) < 0.5 && Math.abs(lay.r - T.r) < 0.5;
     },
-    setDayImage, mount, update, unmount, setActive, drive, impulse, faceSun, transition, whenReady, setBackground, setThemeInstant, setRotation, snapshots, snapshotView, renderThemeMap, resetZoom, get layout() { return lay; }, get zoom() { return zoom.z; },
+    setDayImage, mount, update, unmount, get running() { return raf != null; }, setActive, drive, impulse, faceSun, transition, whenReady, setBackground, setThemeInstant, setRotation, snapshots, snapshotView, renderThemeMap, resetZoom, get layout() { return lay; }, get zoom() { return zoom.z; },
     /** Ekrandaki kürenin merkez enlem/boylamı ve piksel yerleşimi (MapLibre devir teslimi için). */
     get view() { let lng = (-rot.y - Math.PI / 2) / D2R; lng = ((lng + 180) % 360 + 360) % 360 - 180; return { lat: rot.x / D2R, lng, cx: lay.cx, cy: lay.cy, r: lay.r * zoom.z }; },
     _debug: { setSun(lat, lng) { sunObj.copy(latLngToVec3(lat, lng)); lastSun = performance.now() + 1e9; }, rot } };
@@ -3977,7 +4090,7 @@ function travel(dir) {
   }
   MapGlobe.takeControl(); handleSelect(to); return true;
 }
-async function next() { if (!state.activeCityId || !travel(1)) return nextStation(); }
+async function next() { if (Lists && Lists.next()) return; if (!state.activeCityId || !travel(1)) return nextStation(); }
 /** Aynı yerde sıradaki istasyon (ileri tuşu artık dünyayı gezdirir; bu yalnız iç kullanım için) */
 async function nextStation() {
   if (!state.queue.stations) return play(); Ambient.unlock(); failedAttempts = 0; const token = ++attemptToken; clearTimeout(startTimer);
@@ -4226,6 +4339,7 @@ function go(view, { replace = false } = {}) {
   if (view === 'welcome') { const w = $('#welcome'); w.classList.remove('choose'); void w.offsetWidth; if (!introRunning) w.classList.add('choose'); }
   if (view === 'login' || view === 'register' || view === 'reset') { restartEnter(document.getElementById(view)); resetForms(); }
   if (view === 'register') { $('#regSyncNote').hidden = state.auth !== 'guest'; $('#regSyncText').textContent = `Misafir verilerin (${state.favorites.length} favori, ${state.visits.length} damga) yeni hesabına taşınacak.`; }
+  if (typeof Coll !== 'undefined' && Coll) Coll.stage();
   mountGlobe();
 }
 const back = () => go(history.pop() || 'welcome', { replace: true });
@@ -4240,12 +4354,12 @@ function setTab(tab) {
   document.querySelectorAll('.tab[data-tab]').forEach(t => { const on = t.dataset.tab === tab; t.classList.toggle('active', on); t.setAttribute('aria-current', on ? 'page' : 'false'); });
   if (Dock) { if (tab !== 'search') Dock.lastMain = tab; Dock.expand(); }
   updateDock();
-  $('#app').dataset.tab = tab;
+  $('#app').dataset.tab = tab; if (Coll) Coll.stage();
   document.querySelectorAll('.pane').forEach(p => p.classList.toggle('active', p.id === 'pane-' + tab));
   if (tab === 'explore') renderExplore();
   if (tab !== 'themes' && pocketOpen) setPocket(false);
   if (tab !== 'explore') leaveTuner();
-  if (tab === 'themes') { state.previewTheme = state.theme; renderThemes(0); renderPocket(); ensureSnaps(); Globe.faceSun(); }
+  if (tab === 'themes') { state.previewTheme = state.theme; renderThemes(0); renderPocket(); ensureSnaps(); Globe.faceSun(); if (Coll) Coll.enter(); }
   updateInk();
   if (tab === 'profile') renderProfile();
   mountGlobe();
@@ -4261,6 +4375,7 @@ function mountGlobe() {
     MapGlobe.setActive(state.activeCityId);
     MapGlobe.reveal({ theme: state.theme, onSelect: handleSelect }, () => { if (state.view === 'app' && state.tab === 'globe') Globe.unmount(); updateInk(); });
   }
+  else if (state.view === 'app' && state.tab === 'themes' && typeof Coll !== 'undefined' && Coll && !Coll.globesVisible) Globe.unmount();
   else if (state.view === 'app' && state.tab === 'themes') Globe.mount($('#globeStage'), { interactive: false, autoRotate: true, markers: false, theme: state.previewTheme, layout: themesLayout, lerp: 0.7 });
   else if (state.view === 'app' && state.tab === 'profile') Globe.mount($('#globeStage'), { interactive: false, autoRotate: true, markers: false, theme: state.theme, layout: profileLayout, lerp: 0.6 });
   else Globe.unmount();
@@ -4327,7 +4442,7 @@ const SatMosaic = (() => {
 })();
 
 /** Sürüm etiketi: sitede hangi sürümün açık olduğunu rozetten görmek için (önbellek kontrolü). */
-const BUILD = 'v61';
+const BUILD = 'v62';
 const MapGlobe = (() => {
   const host = document.getElementById('mapStage');
   const badge = document.getElementById('lodBadge');
@@ -5643,7 +5758,7 @@ function renderLive() {
   const np = npNow && st && npNow.url === st.url ? npNow : null;
   const title = st ? st.name : city ? city.name : '';
   const sub = s === 'loading' ? 'Bağlanıyor…' : s === 'failover' ? 'Sıradaki yayına geçiliyor…' : s === 'error' ? 'Yayın yok'
-    : np ? (np.artist ? `${np.artist} – ${np.song}` : np.song) : city ? `${city.name} · ${city.country}` : '';
+    : np ? (np.artist ? `${np.artist} – ${np.song}` : np.song) : (Lists && Lists.label()) || (city ? `${city.name} · ${city.country}` : '');
   const t = $('#miniTitle'), u = $('#miniSub');
   if (t.dataset.v !== title) { t.dataset.v = title; t.textContent = title; }
   if (u.dataset.v !== sub) { u.dataset.v = sub; u.textContent = sub; }
@@ -5651,6 +5766,7 @@ function renderLive() {
   pb.classList.toggle('on', on); pb.classList.toggle('busy', s === 'loading' || s === 'failover');
   pb.setAttribute('aria-label', on ? 'Duraklat' : 'Oynat');
   miniArt(city);
+  if (Lists) Lists.sync();
 }
 let miniArtFor = '', miniArtTimer = 0;
 function miniArt(city) {
@@ -6637,6 +6753,166 @@ const alarmState = () => { const a = state.alarm || {}, n = (v, d, max) => Numbe
  * sol daireye dokununca açılır (≈240 ms). Kaydırma: profil listeleri ve koleksiyon çekmecesi (.px-list, .pkd-grid, .scroll).
  * Ölçüler pt: kapsül 62 (alttan 21), oynatıcı 48 (araya 8), daireler 48 (kenardan 27,7), oynatıcı–daire arası 14,3.
  */
+/**
+ * Listeler (v62): radyo çalma listeleri — her biri bir şehir sırası. "Çal" sırayla çalar; mini oynatıcıdaki ⏭ listedeki
+ * sıradaki şehre geçer; başka bir şehir seçilince liste kendiliğinden biter. Favoriler, son duraklar, şu an sabah/gece olanlar
+ * ve dünyanın 9 ruh hâli. Sekmeden ayrılmadan çalar (selectCity), kart açılmaz.
+ */
+var Lists = (() => {
+  const MOODS = [['Sabah Kahvesi', 'coffee', '#D59A63', '#5A2E14'], ['Gece Yarısı Cazı', 'music', '#8B6BFF', '#22145A'], ['Yağmurlu Sokaklar', 'cloud-rain', '#7FA6CC', '#1E3550'],
+    ['Tropikal Ritimler', 'palm', '#2FD39A', '#0E5A5A'], ['Okyanus Esintisi', 'waves', '#3FC5FF', '#0B3A6E'], ['Çöl Gün Batımı', 'sun', '#FF9A4D', '#7A3018'],
+    ['Dağ Sabahı', 'mountain', '#9BD8A6', '#24402E'], ['Şehir Işıkları', 'building', '#FFC857', '#3A2A6B'], ['Kuzey Işıkları', 'sparkles', '#5CFFD0', '#2A1E6B']];
+  // Üç ruh hâlinin şehirleri ayrıca seçilir: yüksek rakımlı başkentler, gece en parlak metropoller, kutup dairesine yakın şehirler
+  const PICK = { 'Dağ Sabahı': ['la-paz', 'quito', 'bogota', 'addis-ababa', 'kathmandu', 'mexico-city', 'denver', 'nairobi', 'tehran', 'kabul'],
+    'Şehir Işıkları': ['tokyo', 'new-york', 'seoul', 'shanghai', 'hong-kong', 'london', 'paris', 'dubai', 'singapore', 'los-angeles', 'chicago', 'bangkok', 'sao-paulo', 'istanbul', 'berlin'] };
+  const moodOf = m => m === 'Kuzey Işıkları' ? CITIES.filter(c => Math.abs(c.lat) >= 59) : PICK[m] ? PICK[m].map(id => CITY[id]).filter(Boolean) : CITIES.filter(c => c.vibeTag === m);
+  let openId = null, built = [], animOnce = true;
+  const CAP = 24;
+  const cityItems = ids => ids.filter(id => CITY[id]).slice(0, CAP).map(id => ({ cityId: id }));
+  // Günlük seçki: gün içinde sabit, her gün başka bir sıra (aynı gün listeyi iki kez açan aynı sırayı görür)
+  const dayKey = () => { const d = new Date(); return d.getUTCFullYear() + '-' + d.getUTCMonth() + '-' + d.getUTCDate(); };
+  const h32 = str => { let h = 2166136261; for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; };
+  const daily = cs => { const k = dayKey(); return cs.map(c => [h32(k + c.id), c]).sort((a, b) => a[0] - b[0]).map(x => x[1]); };
+  function all() {
+    const L = [];
+    const favs = []; const seenF = new Set();
+    state.favorites.forEach(f => { if (CITY[f.cityId] && !seenF.has(f.stationUuid)) { seenF.add(f.stationUuid); favs.push({ cityId: f.cityId, fav: f }); } });
+    L.push({ id: 'favs', title: 'Favoriler', sub: 'Kalbe dokunduğun istasyonlar', ic: 'heart', c1: '#FF6F9A', c2: '#6B1F55', items: favs });
+    const seenV = new Set(), rec = [];
+    state.visits.forEach(v => { if (CITY[v.cityId] && !seenV.has(v.cityId) && rec.length < 20) { seenV.add(v.cityId); rec.push(v.cityId); } });
+    L.push({ id: 'recent', title: 'Son durakların', sub: 'Son dinlediğin şehirler', ic: 'clock', c1: '#6FB0FF', c2: '#1B3A7A', items: cityItems(rec) });
+    const hourOf = c => { try { return zoned(c.timezone).h; } catch (e) { return 12; } };
+    const slot = (k) => CITIES.filter(c => { try { return daySlot(c.timezone) === k; } catch (e) { return false; } });
+    L.push({ id: 'dawn', title: 'Dünya uyanıyor', sub: 'Şu an sabah olan şehirler', ic: 'sunrise', c1: '#FFB070', c2: '#B23A6B', items: cityItems(daily(slot(0)).slice(0, CAP).sort((a, b) => hourOf(a) - hourOf(b)).map(c => c.id)) });
+    L.push({ id: 'night', title: 'Gece yayını', sub: 'Şu an gece olan şehirler', ic: 'moon', c1: '#5A6BFF', c2: '#0B1238', items: cityItems(daily(slot(3)).map(c => c.id)) });
+    MOODS.forEach(([m, ic, c1, c2], k) => L.push({ id: 'm' + k, title: m, sub: 'Aynı ruh hâlindeki şehirler', mood: m, ic, c1, c2, items: cityItems((PICK[m] ? moodOf(m) : daily(moodOf(m))).map(c => c.id)) }));
+    return L.filter(l => l.items.length || l.id === 'favs');
+  }
+  const isPlaying = () => ['playing', 'loading', 'failover'].includes(state.status);
+  const cur = () => { const pl = state.playlist; return pl && pl.items[pl.i] && pl.items[pl.i].cityId === state.activeCityId ? pl : null; };
+  function render() {
+    built = all();
+    const g = $('#lsGrid'); if (!g) return;
+    g.innerHTML = built.map((l, i) => `<button type="button" class="ls-card" data-ls="${l.id}" style="--i:${i};--c1:${l.c1};--c2:${l.c2}" aria-label="${esc(l.title)}"><span class="ls-ic">${icon(l.ic, 18)}</span><span class="ls-n">${l.items.length} şehir</span><span class="ls-t">${esc(l.title)}</span><span class="ls-eq"><i style="--t:310ms"></i><i style="--t:240ms"></i><i style="--t:360ms"></i></span></button>`).join('');
+    g.classList.remove('anim'); if (animOnce && !reduceMotion.matches) { void g.offsetWidth; g.classList.add('anim'); animOnce = false; }
+    sync();
+  }
+  function rowHTML(l, it, k) {
+    const c = CITY[it.cityId]; let t = ''; try { t = cityTime(c.timezone).slice(0, 5); } catch (e) {}
+    const name = it.fav ? (it.fav.stationName || c.name) : c.name, meta = it.fav ? `${c.name} · ${c.country}` : `${c.country} · ${vibeLabel(c)}`;
+    return `<button type="button" class="ls-row" data-li="${k}"><span class="no">${k + 1}</span><span class="tx"><b>${esc(name)}</b><span>${esc(meta)}</span></span><span class="tm">${esc(t)}</span></button>`;
+  }
+  function open(id) {
+    const l = built.find(x => x.id === id) || all().find(x => x.id === id); if (!l) return;
+    openId = id; vibrate(6);
+    const d = $('#lsDScroll');
+    d.innerHTML = `<button type="button" class="ls-back press" id="lsBack">${icon('chevron-left', 20)}<span>Listeler</span></button>
+      <div class="ls-banner" style="--c1:${l.c1};--c2:${l.c2}"><span class="ls-ic">${icon(l.ic, 22)}</span><h2>${esc(l.title)}</h2><p>${esc(l.sub)} · ${l.items.length} şehir</p></div>
+      ${l.items.length ? `<button type="button" class="ls-play press" id="lsPlay">${icon('play', 18, 'filled')}<span>Listeyi çal</span></button><div class="ls-rows">${l.items.map((it, k) => rowHTML(l, it, k)).join('')}</div>`
+        : `<div class="ls-empty">Henüz favorin yok. Dinlerken kalbe dokun; istasyon bu listeye gelsin.</div>`}`;
+    d.scrollTop = 0;
+    $('#cxListsPanel').classList.add('ls-open'); $('#pane-themes').classList.add('ls-on'); $('#lsDetail').setAttribute('aria-hidden', 'false');
+    sync();
+  }
+  function close() { if (!openId) return; openId = null; $('#cxListsPanel').classList.remove('ls-open'); $('#pane-themes').classList.remove('ls-on'); $('#lsDetail').setAttribute('aria-hidden', 'true'); }
+  function playItem(it) {
+    const c = CITY[it.cityId]; if (!c) return;
+    state.interacted = true; Ambient.unlock(); $('#hint').classList.add('gone');
+    if (it.fav) {   // favori: o istasyon tam olarak çalsın (sekmeden ayrılmadan)
+      state.activeCityId = c.id; state.lastCityId = c.id; save(); Globe.setActive(c.id); MapGlobe.setActive(c.id);
+      state.queue = emptyQueue(); state.index = 0; state.pendingUuid = it.fav.stationUuid;
+      state.pinned = it.fav.station && it.fav.station.url ? { cityId: c.id, stations: [it.fav.station] } : null;
+      if (state.status === 'playing') Sound.fadeOut();
+      renderSheet(); failedAttempts = 0; startAttempt(state.index, false);
+    } else { state.pinned = null; selectCity(c); }
+  }
+  function play(id, i) {
+    const l = built.find(x => x.id === id) || all().find(x => x.id === id); if (!l || !l.items.length) return;
+    state.playlist = { id: l.id, title: l.title, items: l.items.slice(), i: Math.max(0, Math.min(i || 0, l.items.length - 1)) };
+    vibrate(10); playItem(state.playlist.items[state.playlist.i]); renderLive();
+  }
+  /** ⏭ / ⏮: çalan liste varsa sıradaki / önceki şehir (uçlarda döner). Liste dışı bir şehir seçildiyse liste biter. */
+  function next(dir = 1) {
+    const pl = state.playlist; if (!pl) return false;
+    if (!cur()) { state.playlist = null; sync(); return false; }
+    pl.i = (pl.i + dir + pl.items.length) % pl.items.length; playItem(pl.items[pl.i]); renderLive(); return true;
+  }
+  function label() { const pl = cur(); return pl ? `${pl.title} · ${pl.i + 1}/${pl.items.length}` : ''; }
+  function sync() {
+    const pl = cur(), on = pl && isPlaying();
+    document.querySelectorAll('#lsGrid .ls-card').forEach(b => b.classList.toggle('on', !!(on && b.dataset.ls === pl.id)));
+    document.querySelectorAll('#lsDScroll .ls-row').forEach(r => r.classList.toggle('on', !!(pl && openId === pl.id && Number(r.dataset.li) === pl.i)));
+  }
+  $('#lsGrid').addEventListener('click', e => { const b = e.target.closest('[data-ls]'); if (b) open(b.dataset.ls); });
+  $('#lsDScroll').addEventListener('click', e => {
+    if (e.target.closest('#lsBack')) { vibrate(4); close(); return; }
+    if (e.target.closest('#lsPlay')) { play(openId, 0); return; }
+    const r = e.target.closest('[data-li]'); if (r) play(openId, Number(r.dataset.li));
+  });
+  return { render, open, close, play, next, label, sync, get openId() { return openId; } };
+})();
+/**
+ * Koleksiyon rafları (v62): Listeler (sol) · Küreler (sağ). Üstte kayan seçici; kenarlarda öbür rafın daveti (sağda küre cebi,
+ * solda kaset sırtları). Kürelere geçerken önizleme küresi kayarak gelir, cepteki küreler sırayla yukarı fırlar.
+ */
+var Coll = (() => {
+  const KEY = 'wglobe-cx', TIP = 'wglobe-cx-tip';
+  let focus = (() => { try { return localStorage.getItem(KEY) === 'globes' ? 'globes' : 'lists'; } catch (e) { return 'lists'; } })();
+  let moving = false, t = 0;
+  const pane = () => document.getElementById('pane-themes');
+  function apply() {
+    const p = pane(); p.classList.toggle('cx-g', focus === 'globes'); p.classList.toggle('cx-l', focus === 'lists'); $('#app').dataset.cx = focus;
+    $('#cxLists').setAttribute('aria-selected', String(focus === 'lists')); $('#cxGlobes').setAttribute('aria-selected', String(focus === 'globes'));
+    $('#cxListsPanel').setAttribute('aria-hidden', String(focus !== 'lists')); $('#cxGlobesPanel').setAttribute('aria-hidden', String(focus !== 'globes'));
+    stage();
+  }
+  /** Küre sahnesi #app'in kardeşi: kaydırma sınıfları #screen'de. Sekmeye girerken önce konum, iki kare sonra geçiş açılır (girişte kayma görünmez) */
+  function stage() {
+    const sc = document.getElementById('screen'), on = state.view === 'app' && state.tab === 'themes';
+    sc.classList.toggle('cx-away', on && focus === 'lists');
+    if (!on) { sc.classList.remove('cx-on'); return; }
+    if (!sc.classList.contains('cx-on')) requestAnimationFrame(() => requestAnimationFrame(() => { if (state.view === 'app' && state.tab === 'themes') sc.classList.add('cx-on'); }));
+  }
+  function peeks() {
+    try { const ids = (typeof trayIds === 'function' ? trayIds() : []).slice(0, 4); $('#cxPeekMarbles').innerHTML = ids.map((tid, k) => `<span class="pm" style="--k:${k}">${marbleImg(tid)}</span>`).join(''); } catch (e) {}
+    const sp = [['#FF6F9A', '#6B1F55'], ['#FFB070', '#B23A6B'], ['#8B6BFF', '#22145A'], ['#3FC5FF', '#0B3A6E'], ['#2FD39A', '#0E5A5A']];
+    $('#cxPeekSpines').innerHTML = sp.map(([a, b], k) => `<i style="--k:${k};--c1:${a};--c2:${b}"></i>`).join('');
+  }
+  function tip() {
+    let seen = false; try { seen = !!localStorage.getItem(TIP); } catch (e) {}
+    const el = $('#cxTip'); if (seen || focus !== 'lists') { el.hidden = true; return; }
+    el.hidden = false; try { localStorage.setItem(TIP, '1'); } catch (e) {}
+    setTimeout(() => { el.hidden = true; }, 3800);
+  }
+  /** Sekmeye girince: odak korunur, raflar hazırlanır (giriş hareketi sekmenin kendi geçişiyle gelir) */
+  function enter() { apply(); peeks(); if (focus === 'lists') Lists.render(); tip(); }
+  function set(f, animate = true) {
+    if (f !== 'lists' && f !== 'globes') return;
+    if (f === focus) { if (f === 'lists') Lists.close(); return; }
+    focus = f; try { localStorage.setItem(KEY, f); } catch (e) {}
+    clearTimeout(t); moving = animate && !reduceMotion.matches;
+    $('#cxTip').hidden = true;
+    if (f === 'globes') {
+      Lists.close();
+      if (state.tab === 'themes') { mountGlobe(); const p = pane(); p.classList.remove('cx-rise'); void p.offsetWidth; if (moving) p.classList.add('cx-rise'); }
+    } else Lists.render();
+    apply(); if (animate) vibrate(6);
+    t = setTimeout(() => { moving = false; pane().classList.remove('cx-rise'); if (state.tab === 'themes') mountGlobe(); }, moving ? 900 : 0);
+  }
+  $('#cxLists').addEventListener('click', () => set('lists'));
+  $('#cxGlobes').addEventListener('click', () => set('globes'));
+  $('#cxPeekR').addEventListener('click', () => set('globes'));
+  $('#cxPeekL').addEventListener('click', () => set('lists'));
+  // Kenar davetinden sürükle: parmak yönüne odaklan
+  [['#cxPeekR', -1, 'globes'], ['#cxPeekL', 1, 'lists']].forEach(([sel, dir, f]) => {
+    const el = $(sel); let x0 = null;
+    el.addEventListener('pointerdown', e => { x0 = e.clientX; try { el.setPointerCapture(e.pointerId); } catch (er) {} });
+    el.addEventListener('pointerup', e => { if (x0 !== null && (e.clientX - x0) * dir > 24) set(f); x0 = null; });
+    el.addEventListener('pointercancel', () => { x0 = null; });
+  });
+  apply();
+  return { enter, set, stage, get focus() { return focus; }, get moving() { return moving; }, get globesVisible() { return focus === 'globes' || moving; } };
+})();
 var Dock = (() => {
   // Açılma yalnız sayfanın en üstüne yaklaşınca (NEAR px); yukarı yönlü kaydırma tek başına açmaz
   const SCROLLERS = '.st-scroll, .px-list, .pkd-grid, .scroll', STEP = 12, NEAR = 40;
@@ -8298,6 +8574,7 @@ function hideUnlock() {
 $('#ulCard').addEventListener('click', () => {
   const id = $('#unlock').dataset.id; hideUnlock();
   if (!id) return;
+  if (Coll) Coll.set('globes', false);
   if (state.tab !== 'themes') setTab('themes');
   setTimeout(() => changeTheme(id), 200);
 });
@@ -8480,7 +8757,7 @@ function onNativeMessage(raw) {
 window.wglobeNative = onNativeMessage;   // yerel taraf injectJavaScript ile çağırır
 
 /** Önceki istasyon (kilit ekranı/kulaklık 'önceki' tuşu) */
-async function prev() { if (!travel(-1)) return prevStation(); }
+async function prev() { if (Lists && Lists.next(-1)) return; if (!travel(-1)) return prevStation(); }
 async function prevStation() {
   if (!state.queue.stations) return play(); Ambient.unlock(); failedAttempts = 0; const token = ++attemptToken; clearTimeout(startTimer);
   const n = state.queue.stations.length, wasPlaying = state.status === 'playing'; setStatus('loading'); if (wasPlaying && !NATIVE) { Sound.fadeOut(); await sleep(DUR.audioOut); }

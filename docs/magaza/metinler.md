@@ -15,7 +15,7 @@
 | Tanıtım metni (Promotional Text) | Dünyayı bir küre gibi çevir, bir şehre dokun ve oranın canlı radyosu çalsın. Geceyi ve gündüzü kaydır, gün doğumunda başka bir şehrin radyosuyla uyan. | 150/170 |
 | Anahtar kelimeler (Keywords) | `canlı,fm,istasyon,küre,harita,müzik,internet,şehir,alarm,gündoğumu,seyahat,caz,haber,ülke,yabancı` | 97/100 |
 
-**Açıklama (Description)** — 1422/4000
+**Açıklama (Description)** — 1656/4000
 
 ```text
 wGlobe, dünyanın canlı radyolarını gerçek bir uydu küresinin üstüne yerleştirir. Küreyi parmağınla çevir, bir şehre dokun; birkaç saniye içinde oranın yerel istasyonu çalmaya başlar.
@@ -34,6 +34,11 @@ KÜREYLE KEŞFET
 
 GÜNE RADYOYLA BAŞLA
 • Radyolu alarm: o an güneşin doğduğu bir şehrin radyosuyla uyan
+
+LİSTELERLE DİNLE
+• Ruh hâline göre listeler: Sabah Kahvesi, Gece Yarısı Cazı, Kuzey Işıkları ve daha fazlası
+• "Dünya uyanıyor": şu an sabah olan şehirler, sırayla
+• Favorilerin tek listede; ileri tuşu listedeki sıradaki şehre geçer
 
 BİRİKTİR
 • 100 küreden oluşan koleksiyon: gezdikçe yeni küre temaları açılır
@@ -66,6 +71,7 @@ Yayınlar radyo istasyonlarının kendisine aittir. İstasyon listesi, topluluk 
 3. Geceyi ve gündüzü parmağınla kaydır
 4. Gezdikçe 100 küre aç
 5. Pasaportun: ülkeler, şehirler, rotan
+6. Ruh hâline göre dünyayı sırayla dinle
 
 ## İngilizce (English, U.S.)
 
@@ -78,7 +84,7 @@ Yayınlar radyo istasyonlarının kendisine aittir. İstasyon listesi, topluluk 
 | Tanıtım metni (Promotional Text) | Spin the Earth, tap a city and hear its live radio in seconds. Slide day into night, and wake up to a station in a city where the sun is rising. | 144/170 |
 | Anahtar kelimeler (Keywords) | `live,fm,stations,globe,map,music,internet,city,alarm,sunrise,travel,jazz,news,country,abroad` | 92/100 |
 
-**Açıklama (Description)** — 1458/4000
+**Açıklama (Description)** — 1705/4000
 
 ```text
 wGlobe puts the world's live radio on a real satellite globe. Spin the Earth with your finger, tap a city, and within seconds its local station starts playing.
@@ -97,6 +103,11 @@ EXPLORE THE GLOBE
 
 WAKE UP TO RADIO
 • Radio alarm: wake up to a station in a city where the sun is rising right now
+
+LISTEN IN LISTS
+• Mood lists: Morning Coffee, Midnight Jazz, Northern Lights and more
+• "The world wakes up": cities where it's morning right now, one after another
+• Your favorites in one list; the next button moves to the next city in the list
 
 COLLECT
 • A collection of 100 globes: new globe themes unlock as you travel
@@ -129,4 +140,5 @@ Broadcasts belong to the radio stations themselves. The station list comes from 
 3. Slide day into night
 4. Unlock 100 globes as you travel
 5. Your passport: countries, cities, routes
+6. Play the world by mood
 
