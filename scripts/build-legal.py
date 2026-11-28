@@ -2,7 +2,7 @@
 import html, os, sys
 OUT = sys.argv[1]
 CONTACT = 'destek@wglobe.app'
-UPDATED_TR, UPDATED_EN = '27 Kasım 2026', 'November 27, 2026'
+UPDATED_TR, UPDATED_EN = '28 Kasım 2026', 'November 28, 2026'
 
 CSS = """
 @font-face{font-family:'Geist';font-style:normal;font-display:swap;font-weight:100 900;src:url(../lib/fonts/geist-latin-ext-wght-normal.woff2) format('woff2');unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
@@ -91,6 +91,7 @@ Rehberine, fotoğraflarına, mikrofonuna veya kamerana erişmeyiz.</p>
 <p>Uygulamanın çalışması için aşağıdaki hizmetlere bağlanılır. Bu hizmetler bağlantı sırasında IP adresini görebilir; onlara kimlik bilgin gönderilmez.</p>
 <ul>
 <li><b>Supabase</b> (altyapı; veriler AB'de, Frankfurt) — hesap kullanırsan hesap ve eşitleme için. Ayrıca herkes için: o an çalan şarkının adını okuyabilmek amacıyla dinlediğin istasyonun yayın adresi gönderilir (kimlik bilgisi gönderilmez).</li>
+<li><b>Resend</b> (e-posta gönderimi; sunucular Japonya'da, Tokyo — AB'nin yeterli koruma kararı verdiği bir ülke) — yalnızca hesap açarsan: kayıt onayı ve şifre sıfırlama e-postalarını e-posta adresine göndermek için. E-postanın içeriği ve adresin dışında hiçbir veri iletilmez.</li>
 <li><b>Radio Browser</b> (radio-browser.info) — açık radyo dizini; seçtiğin şehrin yakınındaki istasyonları bulmak için.</li>
 <li><b>Radyo istasyonlarının yayın sunucuları</b> — dinlediğin yayın doğrudan istasyonun sunucusundan gelir.</li>
 <li><b>Open-Meteo</b> — seçtiğin şehrin hava durumu ve şehir araması için.</li>
@@ -146,6 +147,7 @@ We do not access your contacts, photos, microphone or camera.</p>
 <p>The app connects to the services below to work. They can see your IP address while connecting; no account information is sent to them.</p>
 <ul>
 <li><b>Supabase</b> (infrastructure; data in the EU, Frankfurt) — for your account and sync if you use one. Also for everyone: the stream address of the station you're listening to is sent so the current song title can be read (no account information is sent).</li>
+<li><b>Resend</b> (email delivery; servers in Japan, Tokyo — a country with an EU adequacy decision) — only if you create an account: to send sign-up confirmation and password reset emails to your address. Nothing beyond your address and the email itself is shared.</li>
 <li><b>Radio Browser</b> (radio-browser.info) — an open radio directory, to find stations near the city you pick.</li>
 <li><b>Radio stations' streaming servers</b> — the stream you listen to comes directly from the station's server.</li>
 <li><b>Open-Meteo</b> — weather and city search for the city you pick.</li>

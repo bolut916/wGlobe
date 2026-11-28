@@ -7,7 +7,7 @@ politikası: `prototype/privacy/`). Uygulama değişirse burayı ve politikayı 
 
 | Veri | Ne zaman | Nereye | Kimliğe bağlı mı |
 |---|---|---|---|
-| E-posta, şifre (Supabase'de karma olarak) | Yalnız hesap açılırsa | Supabase (AB, Frankfurt) | Evet |
+| E-posta, şifre (Supabase'de karma olarak) | Yalnız hesap açılırsa | Supabase (AB, Frankfurt); onay ve şifre sıfırlama e-postaları Resend (Japonya, Tokyo) üzerinden gider | Evet |
 | Kullanıcı kimliği (UUID) | Yalnız hesap açılırsa | Supabase | Evet |
 | Favori istasyonlar, ziyaret edilen şehirler, kaydedilen şarkılar, açılan küreler, tercihler, dinleme süresi | Yalnız hesap açılırsa (eşitleme) | Supabase | Evet |
 | Çalan istasyonun yayın adresi (şarkı adını okumak için) | Bir istasyon çalarken, herkes için | Supabase Edge Function, kaydedilmez | Hayır |
@@ -60,7 +60,7 @@ hesap silme zaten zorunlu olan kısım.
 | App activity → **App interactions** (favoriler, ziyaretler, dinleme süresi) | Yes | No | Yes | App functionality |
 | App activity → **Other user-generated content** (kaydedilen şarkılar, tercihler) | Yes | No | Yes | App functionality |
 
-"Shared" hep **No**: Supabase, Open-Meteo ve Radio Browser bizim adımıza hizmet veren işleyicilerdir (service
+"Shared" hep **No**: Supabase, Resend, Open-Meteo ve Radio Browser bizim adımıza hizmet veren işleyicilerdir (service
 provider); Google'ın tanımına göre bu paylaşım sayılmaz. Bahşişte ödeme bilgisini Google Play işler; uygulama
 toplamaz, beyan edilmez.
 
