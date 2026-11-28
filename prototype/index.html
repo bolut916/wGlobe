@@ -1000,7 +1000,7 @@ svg.i.filled { fill: currentColor; }
 .ls-card .ls-ic { position: absolute; left: 14px; top: 14px; width: 34px; height: 34px; border-radius: 17px; display: grid; place-items: center; background: rgba(255,255,255,0.16); backdrop-filter: none; }
 .ls-card .ls-n { position: absolute; right: 12px; top: 14px; font: 600 10px/1 var(--mono); letter-spacing: 0.1em; color: rgba(255,255,255,0.8); text-transform: uppercase; }
 .ls-card .ls-t { position: absolute; left: 14px; right: 12px; bottom: 13px; font-family: var(--display); font-size: 18px; line-height: 21px; font-weight: 700; letter-spacing: -0.02em; text-shadow: 0 2px 12px rgba(0,0,0,0.35); }
-.ls-card .ls-eq { position: absolute; right: 14px; bottom: 16px; display: none; gap: 2px; align-items: flex-end; height: 14px; }
+.ls-card .ls-eq { position: absolute; right: 14px; top: 16px; display: none; gap: 2px; align-items: flex-end; height: 14px; }
 .ls-card.on .ls-eq { display: flex; }
 .ls-eq i { width: 3px; height: 14px; border-radius: 1.5px; background: #fff; transform-origin: bottom; animation: eq var(--t) var(--e-inout) infinite alternate; }
 .ls-card.on .ls-n { opacity: 0; }
@@ -2276,7 +2276,7 @@ I18N.add({
   'Yayın aranıyor…': 'Finding a stream…', 'Yayın yanıt vermedi, sıradakine geçiliyor…': 'Stream didn’t answer, trying the next…',
   'Şu an yayın alınamıyor. Bağlantını kontrol edip tekrar dene.': 'Can’t get a stream right now. Check your connection and try again.',
   'Duraklatıldı': 'Paused', 'Önizleme sesi · ağ kapalı': 'Preview sound · offline', 'Global yayın · canlı': 'Global stream · live', 'Yerel': 'Local', 'Canlı': 'Live',
-  'Ara': 'Search', 'Listeler': 'Lists', 'Küreler': 'Globes', 'Bir listeye dokun, dünya sırayla çalsın.': 'Tap a list and the world plays in order.', 'Son durakların': 'Your recent stops', 'Son dinlediğin şehirler': 'Cities you listened to lately', 'Kalbe dokunduğun istasyonlar': 'Stations you hearted', 'Dünya uyanıyor': 'The world wakes up', 'Şu an sabah olan şehirler': 'Cities where it’s morning now', 'Gece yayını': 'Night broadcast', 'Şu an gece olan şehirler': 'Cities where it’s night now', 'Listeyi çal': 'Play list', 'Aynı ruh hâlindeki şehirler': 'Cities that share this mood', 'Kürelere geç': 'Go to globes', 'Listelere geç': 'Go to lists', 'Küreler burada · dokun': 'Globes are here · tap', 'Henüz favorin yok. Dinlerken kalbe dokun; istasyon bu listeye gelsin.': 'No favorites yet. Tap the heart while listening and the station lands here.',
+  'Ara': 'Search', 'Listeler': 'Lists', 'Küreler': 'Globes', 'Bir listeye dokun, dünya sırayla çalsın.': 'Tap a list and the world plays in order.', 'Son durakların': 'Your recent stops', 'Son dinlediğin şehirler': 'Cities you listened to lately', 'Kalbe dokunduğun istasyonlar': 'Stations you hearted', 'Dünya uyanıyor': 'The world wakes up', 'Şu an sabah olan şehirler': 'Cities where it’s morning now', 'Gece yayını': 'Night broadcast', 'Şu an gece olan şehirler': 'Cities where it’s night now', 'Listeyi çal': 'Play list', 'Henüz boş': 'Empty for now', 'Aynı ruh hâlindeki şehirler': 'Cities that share this mood', 'Kürelere geç': 'Go to globes', 'Listelere geç': 'Go to lists', 'Küreler burada · dokun': 'Globes are here · tap', 'Henüz favorin yok. Dinlerken kalbe dokun; istasyon bu listeye gelsin.': 'No favorites yet. Tap the heart while listening and the station lands here.',
   'Son aramalar': 'Recently searched', 'Şehir, ülke ya da istasyon adı yaz': 'Type a city, country or station name', 'Şu an çalan': 'Now playing', 'Sonraki istasyon': 'Next station', 'Bağlanıyor…': 'Connecting…', 'Sıradaki yayına geçiliyor…': 'Switching to the next stream…', 'Yayın yok': 'No stream',
   'Dinle': 'Play', 'Sonra': 'Later', 'Duraklat': 'Pause', 'Oynat': 'Play', 'Paylaş': 'Share', 'Kartı kapat': 'Close card', 'Kapat': 'Close', 'Kaydet': 'Save', 'Vazgeç': 'Cancel', 'Çık': 'Leave',
   'Favorilere ekle': 'Add to favorites', 'Favorilerden çıkar': 'Remove from favorites', 'Dünyada başka bir yer': 'Somewhere else in the world',
@@ -6793,7 +6793,7 @@ var Lists = (() => {
   function render() {
     built = all();
     const g = $('#lsGrid'); if (!g) return;
-    g.innerHTML = built.map((l, i) => `<button type="button" class="ls-card" data-ls="${l.id}" style="--i:${i};--c1:${l.c1};--c2:${l.c2}" aria-label="${esc(l.title)}"><span class="ls-ic">${icon(l.ic, 18)}</span><span class="ls-n">${l.items.length} şehir</span><span class="ls-t">${esc(l.title)}</span><span class="ls-eq"><i style="--t:310ms"></i><i style="--t:240ms"></i><i style="--t:360ms"></i></span></button>`).join('');
+    g.innerHTML = built.map((l, i) => `<button type="button" class="ls-card" data-ls="${l.id}" style="--i:${i};--c1:${l.c1};--c2:${l.c2}" aria-label="${esc(l.title)}"><span class="ls-ic">${icon(l.ic, 18)}</span><span class="ls-n">${l.items.length ? l.items.length + ' şehir' : 'Henüz boş'}</span><span class="ls-t">${esc(l.title)}</span><span class="ls-eq"><i style="--t:310ms"></i><i style="--t:240ms"></i><i style="--t:360ms"></i></span></button>`).join('');
     g.classList.remove('anim'); if (animOnce && !reduceMotion.matches) { void g.offsetWidth; g.classList.add('anim'); animOnce = false; }
     sync();
   }
